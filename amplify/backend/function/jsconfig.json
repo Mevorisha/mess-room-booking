@@ -5,8 +5,6 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "./*": ["*"],
-
       "/opt/CommonJsModules/*": [
         "./mevorishapgroomsCommonJsModules/opt/CommonJsModules/*"
       ],
@@ -19,5 +17,6 @@
         "./mevorishapgroomsCommonJsModules/lib/nodejs/node_modules/mongoose"
       ]
     }
-  }
+  },
+  "exclude": ["./mevorishapgroomsCommonJsModules/lib/nodejs/node_modules"]
 }
