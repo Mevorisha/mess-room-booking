@@ -52,7 +52,7 @@ async function createBooking(tenantAccountId, roomId, occupied) {
 /**
  * Auto-pull documents once the user has uploaded them to his identity model
  * @param {BookingModel.Booking | string} booking Booking model object or booking ID
- * @returns {Promise<void>}
+ * @returns {Promise<BookingModel.Booking>}
  */
 async function updateDocs(booking) {
   /** @type {BookingModel.Booking} */
@@ -94,6 +94,7 @@ async function updateDocs(booking) {
 
   // @ts-ignore
   await bookingDoc.save();
+  return bookingDoc;
 }
 
 /**
