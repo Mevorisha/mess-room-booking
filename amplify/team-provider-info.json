@@ -1,0 +1,30 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-mevorishapgrooms-dev-1a245-authRole",
+      "UnauthRoleArn": "arn:aws:iam::975050097542:role/amplify-mevorishapgrooms-dev-1a245-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::975050097542:role/amplify-mevorishapgrooms-dev-1a245-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-mevorishapgrooms-dev-1a245-deployment",
+      "UnauthRoleName": "amplify-mevorishapgrooms-dev-1a245-unauthRole",
+      "StackName": "amplify-mevorishapgrooms-dev-1a245",
+      "StackId": "arn:aws:cloudformation:ap-south-1:975050097542:stack/amplify-mevorishapgrooms-dev-1a245/6a20c5c0-ef32-11ee-8563-029aabc8e1d5",
+      "AmplifyAppId": "d2i656jbw48mr6"
+    },
+    "categories": {
+      "function": {
+        "RestApiV1Auth": {
+          "deploymentBucketName": "amplify-mevorishapgrooms-dev-1a245-deployment",
+          "s3Key": "amplify-builds/RestApiV1Auth-4c786258677475332f59-build.zip"
+        },
+        "mevorishapgroomsCommonJsModules": {
+          "deploymentBucketName": "amplify-mevorishapgrooms-dev-1a245-deployment",
+          "s3Key": "amplify-builds/mevorishapgroomsCommonJsModules-LambdaLayerVersion14f7fb56-build.zip"
+        }
+      },
+      "api": {
+        "RestApiV1": {}
+      }
+    }
+  }
+}
