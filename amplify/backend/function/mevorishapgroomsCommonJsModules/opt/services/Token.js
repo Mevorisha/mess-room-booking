@@ -61,15 +61,12 @@ async function createToken(account) {
     env.JWT_REFRESH_TOKEN_SECRET
   );
 
-  const token = new TokenModel({
+  return TokenModel.create({
     accountId: account._id,
     accessToken,
     refreshToken,
     expiresAt: refreshTokenExpiresAt,
   });
-
-  await token.save();
-  return token;
 }
 
 /**
