@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const awsServerlessExpressMiddleware = require("aws-serverless-express/middleware");
 
 const Controller = require("./controller");
-const messageResponse = require("/opt/utils/messageResponse");
+const messageResponse = require("/opt/CommonJsModules/util/messageResponse");
 
 // declare a new express app
 const app = express();
