@@ -55,9 +55,14 @@ const tenantProfileSchema = new mongoose.Schema(
     },
 
     jobLocations: {
-      // format = `${name},${lat},${lon}
-      type: [String],
-      required: true,
+      type: [
+        {
+          name: String,
+          lat: Number,
+          lon: Number,
+        },
+      ],
+      default: () => [],
     },
 
     expiresAt: {
@@ -80,7 +85,11 @@ const tenantProfileSchema = new mongoose.Schema(
  * @property {Profession.Types} profession
  * @property {Gender.Types[]} roomMateGender
  * @property {Profession.Types[]} roomMateProfession
- * @property {string[]} jobLocations - format = `${name},${lat},${lon}
+ * @property {{
+ *   name: string,
+ *   lat: number,
+ *   lon: number,
+ * }[]} jobLocations
  * @property {Date} expiresAt
  */
 
