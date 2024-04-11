@@ -1,0 +1,74 @@
+{
+  "api": {
+    "RestApiV1": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "RestApiV1Auth"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "auth": {},
+  "function": {
+    "RestApiV1Auth": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "mevorishapgroomsCommonJsModules"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "mevorishapgroomsCommonJsModules": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "LambdaLayer"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_RestApiV1Auth_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RestApiV1Auth"
+        }
+      ]
+    },
+    "AMPLIFY_function_RestApiV1Auth_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "RestApiV1Auth"
+        }
+      ]
+    },
+    "AMPLIFY_function_mevorishapgroomsCommonJsModules_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "mevorishapgroomsCommonJsModules"
+        }
+      ]
+    },
+    "AMPLIFY_function_mevorishapgroomsCommonJsModules_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "mevorishapgroomsCommonJsModules"
+        }
+      ]
+    }
+  }
+}
