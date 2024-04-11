@@ -29,6 +29,7 @@ const router = express.Router();
 router.post("/register", Controller.register);
 router.post("/login", Controller.login);
 router.post("/resend-otp", Controller.resendOtp);
+router.post("/request-email-verification", Controller.requestEmailVerification);
 router.post("/verify-email", Controller.verifyEmail);
 router.post("/verify-mobile-and-login", Controller.verifyMobileAndLogin);
 router.post("/logout", Controller.logout);
