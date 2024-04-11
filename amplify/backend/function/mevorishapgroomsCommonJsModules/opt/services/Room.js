@@ -6,6 +6,8 @@ const RoomModel = require("../models/Room");
 const BookingModel = require("../models/Booking");
 const Gender = require("../types/enums/Gender");
 const Profession = require("../types/enums/Profession");
+const AccountModel = require("../models/Account");
+const AccountService = require("../services/Account");
 
 /**
  * @typedef {Object} ContactInfo
@@ -50,6 +52,11 @@ async function createRoom(
   pricePerOccupant,
   maxOccupants
 ) {
+  const account = await AccountModel.findOne({ _id: providerAccountId });
+  if (!account) {
+    throw new Error(AccountService.AccountError.ACCOUNT_NOT_FOUND);
+  }
+
   return RoomModel.create({
     providerAccountId,
     geoLocationLat,

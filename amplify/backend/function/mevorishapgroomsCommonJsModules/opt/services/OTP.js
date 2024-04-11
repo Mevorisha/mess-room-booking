@@ -1,6 +1,7 @@
 const env = require("../config/env");
 const OtpType = require("../types/enums/OtpType");
 const AccountModel = require("../models/Account");
+const AccountService = require("../services/Account");
 const OtpModel = require("../models/OTP");
 
 const crypto = require("crypto");
@@ -23,6 +24,11 @@ function otpGenerator() {
  * @returns {Promise<OtpModel.OTP>}
  */
 async function createOTP(accountId, type) {
+  const account = await AccountModel.findOne({ _id: accountId });
+  if (!account) {
+    throw new Error(AccountService.AccountError.ACCOUNT_NOT_FOUND);
+  }
+
   const code = otpGenerator();
   const expiresAt = new Date(
     Date.now() + env.OTP_EXPIRATION_TIME_MINUTES * 60 * 1000

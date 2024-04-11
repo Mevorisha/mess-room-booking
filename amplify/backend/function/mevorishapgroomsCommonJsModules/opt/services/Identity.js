@@ -1,16 +1,25 @@
+const AccountModel = require("../models/Account");
 const IdentityModel = require("../models/Identity");
+const AccountService = require("../services/Account");
 
 const IdentityError = {
   IDENTITY_NOT_FOUND: "IdenityModel:IDENTITY_NOT_FOUND",
 };
 
 /**
+ * @param {string} accountId
  * @param {string?} aadhaarUrl
  * @param {string?} idcardUrl
  * @returns {Promise<IdentityModel.Identity>}
  */
-async function createIdentity(aadhaarUrl, idcardUrl) {
+async function createIdentity(accountId, aadhaarUrl, idcardUrl) {
+  const account = await AccountModel.findOne({ _id: accountId });
+  if (!account) {
+    throw new Error(AccountService.AccountError.ACCOUNT_NOT_FOUND);
+  }
+
   return IdentityModel.create({
+    accountId,
     aadhaarImage: aadhaarUrl,
     idcardImage: idcardUrl,
   });
