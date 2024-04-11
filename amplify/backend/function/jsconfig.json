@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "./*": ["*"],
+
+      "/opt/CommonJsModules/*": [
+        "./mevorishapgroomsCommonJsModules/opt/CommonJsModules/*"
+      ],
+
+      "uuid": [
+        "./mevorishapgroomsCommonJsModules/lib/nodejs/node_modules/uuid"
+      ],
+      "joi": ["./mevorishapgroomsCommonJsModules/lib/nodejs/node_modules/joi"],
+      "mongoose": [
+        "./mevorishapgroomsCommonJsModules/lib/nodejs/node_modules/mongoose"
+      ]
+    }
+  }
+}
