@@ -100,7 +100,8 @@ Notes:
 - No rate limiting on this endpoint.
 
 #### Errors
-- `401`: "Invalid or expired refresh token"
+- `401`: "Invalid or expired credentials"
+  - The refresh token is invalid or expired.
 
 ## OTP
 
