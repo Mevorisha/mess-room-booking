@@ -20,7 +20,7 @@ Where `code` is an HTTP status code and `message` is a human-readable error mess
 ### POST `/api/v1/util/image`
 Upload an image to the server and get the URL path.
 
-Enforces authorization to upload the image:
+Requires authorization to upload the image:
 - A valid access token is required in the `Authorization` header.
 - This prevents people from using the server as a free image hosting service.
 - And of course the endpoint is rate limited at overall 10 requests per minute.
@@ -44,7 +44,7 @@ Where `url` is the path to the image in the storage. This URL can be used whenev
 ### GET `/api/v1/util/image/:path`
 Get the image from the server as a proper image. This is used to display the image in the app.
 
-Enforces authorization to view the image:
+Requires authorization to view the image:
 - A valid access token is required in the `Authorization` header.
 - This prevents people from using the server as a free image hosting service.
 - There is no rate limiting on this endpoint.
@@ -75,7 +75,7 @@ The `query` is a string that can be a location name or a partial location name. 
 
 ### POST `/api/v1/token/refresh`
 Refresh the access token using the refresh token.
-Does not require authorization header because the access token is expired and the refresh token is used as the authorization.
+Does not require authorization header because the access token is expired and the refresh token is used as the authorization. No rate limiting on this endpoint.
 
 #### Request
 ```ts
@@ -97,7 +97,6 @@ Where `access_token` is a new access token and `refresh_token` is a **NEW** refr
 Notes:
 - Old refresh token is invalidated and cannot be used again.
 - Frontend should update the access token and refresh token in the local storage.
-- No rate limiting on this endpoint.
 
 #### Errors
 - `401`: "Invalid or expired credentials"
