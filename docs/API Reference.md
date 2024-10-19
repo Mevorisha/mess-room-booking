@@ -2,9 +2,6 @@
 
 ## Common Notes
 
-### Authorization
-Some APIs require an `Authorization` header with `Bearer <access_token>` to be set in the request headers. Hence, the frontend should set this header for all requests. See the [Token](#Token) API for more information on refreshing the access token.
-
 ### Errors
 All errors will be returned in the following format:
 ```ts
@@ -15,6 +12,18 @@ All errors will be returned in the following format:
 ```
 Where `code` is an HTTP status code and `message` is a human-readable error message that can be displayed to the end user directly.
 
+### Authorization
+Some APIs require an `Authorization` header with `Bearer <access_token>` to be set in the request headers. Hence, the frontend should set this header for all requests. See the [Token](#Token) API for more information on refreshing the access token.
+
+#### Authorization Errors
+- `401`: "User credentials invalid or expired"
+  - The access token is invalid or expired.
+- `403`: "Permission to access resource denied"
+  - The user does not have the required permissions to access the resource.
+
+### Rate Limiting
+Some APIs are rate limited to prevent abuse. The rate limit is set varies with endpoints. If the rate limit is exceeded, the server will return a `429` status code with the message "Too many requests. Please retry after some time."
+
 ## Utilities
 
 ### POST `/api/v1/util/image`
@@ -23,7 +32,7 @@ Upload an image to the server and get the URL path.
 Requires authorization to upload the image:
 - A valid access token is required in the `Authorization` header.
 - This prevents people from using the server as a free image hosting service.
-- And of course the endpoint is rate limited at overall 10 requests per minute.
+- Rate limited to overall 10 requests per minute.
 
 #### Request
 ```ts
@@ -101,6 +110,7 @@ Notes:
 #### Errors
 - `401`: "Invalid or expired credentials"
   - The refresh token is invalid or expired.
+  - In such cases, the user should be considered logged and the frontend should redirect the user to the login page.
 
 ## OTP
 
