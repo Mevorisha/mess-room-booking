@@ -66,7 +66,7 @@ export default class Account {
     this.mobile_isverified = mobile_isverified;
   }
 
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       account_id: {
         type: String,
@@ -120,7 +120,7 @@ export default class Account {
   /**
    * @static
    */
-  pres = {
+  static pres = {
     // generate autoincremented account ID
     // default is crypto generated random ID
     save: async function () {
@@ -134,19 +134,19 @@ export default class Account {
   /**
    * @static
    */
-  statics = {};
+  static statics = {};
 
   /**
    * @static
    */
-  methods = {};
+  static methods = {};
 
   /**
    * @static
    * @param {Object} mongoObject
    * @returns {Account}
    */
-  fromMongoObject(mongoObject) {
+  static fromMongoObject(mongoObject) {
     if (!mongoObject) {
       throw new Error("Invalid mongoObject");
     }
@@ -164,7 +164,7 @@ export default class Account {
    * @static
    * @param {Account} data
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return {
       account_id: data.account_id,
       email: data.email,

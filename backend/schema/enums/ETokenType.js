@@ -11,7 +11,7 @@ class ETokenType {
    * @readonly
    * @public
    */
-  val = {
+  static val = {
     ACCESS: 'ACCESS',
     REFRESH: 'REFRESH',
   }
@@ -19,12 +19,12 @@ class ETokenType {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       type: String,
       enum: {
-        values: Object.values(this.val),
-        message: "ETokenType: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+        values: Object.values(ETokenType.val),
+        message: "ETokenType: {VALUE} is invalid; must be one of " + Object.values(ETokenType.val).join(", "),
       },
       required: true,
     };
@@ -36,7 +36,7 @@ class ETokenType {
    * @returns {'ACCESS' | 'REFRESH'}
    * @throws {Error} The data is not a valid enum value.
    */
-  fromMongoObject(data) {
+  static fromMongoObject(data) {
     switch (data) {
       case "ACCESS": return data;
       case "REFRESH": return data;
@@ -48,7 +48,7 @@ class ETokenType {
    * @static
    * @param {string} data - The data to convert from.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return data;
   }
 }

@@ -11,7 +11,7 @@ class EProfileType {
    * @readonly
    * @public
    */
-  val = {
+  static val = {
     ROOM_TENANT: 'ROOM_TENANT',
     ROOM_PROVIDER: 'ROOM_PROVIDER',
   }
@@ -19,12 +19,12 @@ class EProfileType {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       type: String,
       enum: {
-        values: Object.values(this.val),
-        message: "EProfileType: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+        values: Object.values(EProfileType.val),
+        message: "EProfileType: {VALUE} is invalid; must be one of " + Object.values(EProfileType.val).join(", "),
       },
       required: true,
     };
@@ -36,7 +36,7 @@ class EProfileType {
    * @returns {'ROOM_TENANT' | 'ROOM_PROVIDER'}
    * @throws {Error} The data is not a valid enum value.
    */
-  fromMongoObject(data) {
+  static fromMongoObject(data) {
     switch (data) {
       case "ROOM_TENANT": return data;
       case "ROOM_PROVIDER": return data;
@@ -48,7 +48,7 @@ class EProfileType {
    * @static
    * @param {string} data - The data to convert from.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return data;
   }
 }

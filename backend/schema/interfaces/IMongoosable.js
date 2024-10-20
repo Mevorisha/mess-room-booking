@@ -6,7 +6,7 @@ class IMongoosable {
    * @static
    * @returns {object} The mongoose schema.
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     throw new Error('Method not implemented.');
   }
 
@@ -14,7 +14,7 @@ class IMongoosable {
    * @static
    * @param {any} mongoObject - The data to convert from a MongoDB object.
    */
-  fromMongoObject(mongoObject) {
+  static fromMongoObject(mongoObject) {
     throw new Error('Method not implemented.');
   }
 
@@ -22,7 +22,7 @@ class IMongoosable {
    * @static
    * @param {any} data - The data to convert to a MongoDB object.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     throw new Error('Method not implemented.');
   }
 }

@@ -6,21 +6,21 @@ class IMongoSchemaPres {
    * @static
    * @type {Object}
    */
-  pres = {
+  static pres = {
   }
 
   /**
    * @static
    * @type {Object}
    */
-  statics = {
+  static statics = {
   }
 
   /**
    * @static
    * @type {Object}
    */
-  methods = {
+  static methods = {
   }
 }
 

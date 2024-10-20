@@ -11,7 +11,7 @@ class EGender {
    * @readonly
    * @public
    */
-  val = {
+  static val = {
     MALE: 'MALE',
     FEMALE: 'FEMALE',
     OTHER: 'OTHER',
@@ -20,12 +20,12 @@ class EGender {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       type: String,
       enum: {
-        values: Object.values(this.val),
-        message: "EGender: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+        values: Object.values(EGender.val),
+        message: "EGender: {VALUE} is invalid; must be one of " + Object.values(EGender.val).join(", "),
       },
       required: true,
     };
@@ -37,7 +37,7 @@ class EGender {
    * @returns {'MALE' | 'FEMALE' | 'OTHER'}
    * @throws {Error} The data is not a valid enum value.
    */
-  fromMongoObject(data) {
+  static fromMongoObject(data) {
     switch (data) {
       case "MALE": return data;
       case "FEMALE": return data;
@@ -50,7 +50,7 @@ class EGender {
    * @static
    * @param {string} data - The data to convert from.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return data;
   }
 }

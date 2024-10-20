@@ -1,10 +1,11 @@
 class IEnum {
   /**
+   * @static
    * @type {{[key: string]: string}}
    * @readonly
    * @public
    */
-  val;
+  static val;
 }
 
 export default IEnum;

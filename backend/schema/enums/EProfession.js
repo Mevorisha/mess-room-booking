@@ -11,7 +11,7 @@ class EProfession {
    * @readonly
    * @public
    */
-  val = {
+  static val = {
     STUDENT: 'STUDENT',
     WORKING: 'WORKING',
   }
@@ -19,12 +19,12 @@ class EProfession {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       type: String,
       enum: {
-        values: Object.values(this.val),
-        message: "EProfession: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+        values: Object.values(EProfession.val),
+        message: "EProfession: {VALUE} is invalid; must be one of " + Object.values(EProfession.val).join(", "),
       },
       required: true,
     };
@@ -36,7 +36,7 @@ class EProfession {
    * @returns {'STUDENT' | 'WORKING'}
    * @throws {Error} The data is not a valid enum value.
    */
-  fromMongoObject(data) {
+  static fromMongoObject(data) {
     switch (data) {
       case "STUDENT": return data;
       case "WORKING": return data;
@@ -48,7 +48,7 @@ class EProfession {
    * @static
    * @param {string} data - The data to convert from.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return data;
   }
 }

@@ -11,7 +11,7 @@ class EOtpType {
    * @readonly
    * @public
    */
-  val = {
+  static val = {
     EMAIL: 'EMAIL',
     MOBILE: 'MOBILE',
   }
@@ -19,12 +19,12 @@ class EOtpType {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       type: String,
       enum: {
-        values: Object.values(this.val),
-        message: "EOtpType: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+        values: Object.values(EOtpType.val),
+        message: "EOtpType: {VALUE} is invalid; must be one of " + Object.values(EOtpType.val).join(", "),
       },
       required: true,
     };
@@ -36,7 +36,7 @@ class EOtpType {
    * @returns {'EMAIL' | 'MOBILE'}
    * @throws {Error} The data is not a valid enum value.
    */
-  fromMongoObject(data) {
+  static fromMongoObject(data) {
     switch (data) {
       case "EMAIL": return data;
       case "MOBILE": return data;
@@ -48,7 +48,7 @@ class EOtpType {
    * @static
    * @param {string} data - The data to convert from.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return data;
   }
 }

@@ -76,7 +76,7 @@ export default class Address {
   /**
    * @static
    */
-  getMongoSchema() {
+  static getMongoSchema() {
     return {
       geoloc_lat: {
         type: Number,
@@ -125,7 +125,7 @@ export default class Address {
    * @static
    * @param {Object} mongoObject - The data to convert from a MongoDB object.
    */
-  fromMongoObject(mongoObject) {
+  static fromMongoObject(mongoObject) {
     if (!mongoObject) {
       throw new Error("Invalid mongoObject");
     }
@@ -145,7 +145,7 @@ export default class Address {
    * @static
    * @param {Address} data - The data to convert to a MongoDB object.
    */
-  toMongoObject(data) {
+  static toMongoObject(data) {
     return {
       geoloc_lat: data.geoloc_lat,
       geoloc_long: data.geoloc_long,
