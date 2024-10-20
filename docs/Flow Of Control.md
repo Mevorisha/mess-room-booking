@@ -1,4 +1,4 @@
-# User Onboarding
+# Flow Of Control
 ## Notes:
 - [ ] Verification prompts for mobile number or email may be dialog boxes or separate pages.
 - [ ] Update profile page may be a separate page or a dialog box.
@@ -65,7 +65,7 @@
 - [ ] "Profession" is single select.
 - [ ] "Room Mate Gender Preference" is single select.
 - [ ] "Room Mate Profession Preference" is multi select.
-- [ ] "Location Preference" is multi select from searchable dropdown (connects with Google Maps API).
+- [ ] "Location Preference" is multi select from searchable dropdown (connects with some Maps API).
 - [ ] Additionally, user can enter custom address for the given location.
 - [ ] Multiple locations can be added.
 - [ ] User clicks "Create Profile" and the profile is created.
@@ -77,6 +77,7 @@
 ## Page 6: Home Page
 - [ ] Home page varies based on the user type.
 - [ ] "Tenant" user will see a list of "Rooms" available for each location in profile that matches their preferences.
+- [ ] Additionally, a search bar for loaction will be provided to show rooms on a map view.
 - [ ] "Tenant" user can click on a "Room" to see more details. This takes them to the "Room Details (Tenant)" page.
 - [ ] Additionally, another tab will show "Room Bookings" that the user has applied for.
 - [ ] Clicking on a "Room Booking" will take the user to the "Room Booking Details (Tenant)" page.
