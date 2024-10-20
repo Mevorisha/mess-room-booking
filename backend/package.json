@@ -1,0 +1,23 @@
+{
+  "name": "mess-booking-app-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mevorisha/mess-room-booking.git"
+  },
+  "author": "Mevorisha",
+  "license": "Private",
+  "bugs": {
+    "url": "https://github.com/Mevorisha/mess-room-booking/issues"
+  },
+  "homepage": "https://github.com/Mevorisha/mess-room-booking#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.1",
+    "mongoose": "^8.7.2"
+  }
+}
