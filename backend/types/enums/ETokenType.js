@@ -22,7 +22,10 @@ class ETokenType {
   getMongoSchema() {
     return {
       type: String,
-      enum: Object.values(this.val),
+      enum: {
+        values: Object.values(this.val),
+        message: "ETokenType: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+      },
       required: true,
     };
   }

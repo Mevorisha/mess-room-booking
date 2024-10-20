@@ -22,7 +22,10 @@ class EOtpType {
   getMongoSchema() {
     return {
       type: String,
-      enum: Object.values(this.val),
+      enum: {
+        values: Object.values(this.val),
+        message: "EOtpType: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+      },
       required: true,
     };
   }

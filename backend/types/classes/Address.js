@@ -21,7 +21,15 @@ export default class Address {
    * @throws Will throw an error if the city is empty.
    * @throws Will throw an error if the pincode is empty.
    */
-  constructor(geoloc_lat, geoloc_long, houseno, landmark, street, city, pincode) {
+  constructor(
+    geoloc_lat,
+    geoloc_long,
+    houseno,
+    landmark,
+    street,
+    city,
+    pincode
+  ) {
     if (geoloc_lat < -90 || geoloc_lat > 90) {
       throw new Error("Invalid latitude");
     }
@@ -59,10 +67,18 @@ export default class Address {
       geoloc_lat: {
         type: Number,
         required: true,
+        validate: {
+          validator: (v) => v >= -90 && v <= 90,
+          message: "Address: Latitude must be between -90 and 90",
+        },
       },
       geoloc_long: {
         type: Number,
         required: true,
+        validate: {
+          validator: (v) => v >= -180 && v <= 180,
+          message: "Address: Longitude must be between -180 and 180",
+        },
       },
       houseno: {
         type: String,
@@ -83,6 +99,10 @@ export default class Address {
       pincode: {
         type: String,
         required: true,
+        validate: {
+          validator: (v) => /\d{6}/.test(v),
+          message: "Address: Invalid pincode",
+        },
       },
     };
   }

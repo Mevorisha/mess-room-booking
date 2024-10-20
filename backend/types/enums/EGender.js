@@ -23,7 +23,10 @@ class EGender {
   getMongoSchema() {
     return {
       type: String,
-      enum: Object.values(this.val),
+      enum: {
+        values: Object.values(this.val),
+        message: "EGender: {VALUE} is invalid; must be one of " + Object.values(this.val).join(", "),
+      },
       required: true,
     };
   }
