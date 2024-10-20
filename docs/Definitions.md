@@ -196,6 +196,7 @@ RoomBooking {
   tenant_profile_id string fk
   occupant_size     number    valid(>= 1)
   is_confirmed      boolean
+  is_cancelled      boolean
 }
 ```
 #### Notes:
@@ -209,6 +210,12 @@ RoomBooking {
   - If the person wants to share, this will be 1.
   - If the person wants to stay alone, this will equal the `max_occupants` of [`Room`](#room).
   - Any value between 1 and `max_occupants` is allowed but tenant will pay a higher price.
+- `is_confirmed` is set by the provider.
+  - If `true`, the booking is confirmed and the room is booked.
+  - If `false`, the booking is pending and the tenant is waiting for confirmation.
+- `is_cancelled` is set by the tenant.
+  - If `true`, the booking is cancelled and the room is not booked.
+  - If `false`, the booking is active and the room has been occupied by `occupant_size` tenants.
 
 ## Soft Entities
 ### Identity
