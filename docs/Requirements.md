@@ -5,8 +5,6 @@
 - [ ] Account registration
 - [ ] Account login
 - [ ] Account logout
-- [ ] Account deactivation
-- [ ] Account delete
 - [ ] Account email change
 - [ ] Account email verification
 - [ ] Account email resend verification
@@ -30,7 +28,7 @@
 - [ ] Room (rent) view
 - [ ] Room (rent) list (or search by location)
 - [ ] Room (rent) update
-- [ ] Room (rent) remove
+- [ ] Room (rent) deactivate
 
 ### Booking:
 - [ ] Room Booking apply
@@ -38,4 +36,3 @@
 - [ ] Room Booking list
 - [ ] Room Booking confirm
 - [ ] Room Booking cancel
-- [ ] Room Booking delete
