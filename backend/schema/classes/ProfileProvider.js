@@ -1,11 +1,7 @@
 import IMongoosable from "../interfaces/IMongoosable.js";
-import IMongoSchemaMethods from "../interfaces/IMongoSchemaMethods.js";
 import DataError from "../errors/DataError.js";
-import {
-  autoincrMkNewAccountId,
-  mkRandomNewUUID,
-  randomMkNewAccountId,
-} from "../util/ids.js";
+import EProfleType from "../enums/EProfileType.js";
+import { mkRandomNewUUID } from "../util/ids.js";
 import { enforceInterfaceStaticMembers } from "../util/classes.js";
 
 /**
@@ -16,12 +12,11 @@ ProviderProfile {
   first_name   string               valid(none)
   last_name    string               valid(none)
   profile_type string ROOM_PROVIDER
-  expires_at   Date
+  expires_at   Date                 // 500 years from now
 } */
 
 /**
  * @implements {IMongoosable}
- * @implements {IMongoSchemaMethods}
  */
 export default class ProfileProvider {
   /**
@@ -75,7 +70,7 @@ export default class ProfileProvider {
         required: true,
         unique: true,
         // @ts-ignore
-        default: () => mkRandomNewUUID(this._id ? this._id.toString() : ""),
+        default: () => mkRandomNewUUID(context._id ? context._id.toString() : ""),
       },
       account_id: {
         type: String,
@@ -89,11 +84,55 @@ export default class ProfileProvider {
       profile_img: { type: String, required: true },
       first_name: { type: String, required: false },
       last_name: { type: String, required: false },
-      profile_type: { type: String, required: true },
-      expires_at: { type: Date, required: true },
+      profile_type: {
+        type: String,
+        required: true,
+        default: EProfleType.val.ROOM_PROVIDER,
+        validate: {
+          validator: (v) => v === EProfleType.val.ROOM_PROVIDER,
+          message: "Invalid profile type",
+        },
+      },
+      expires_at: {
+        type: Date,
+        required: true,
+        default: () => new Date(Date.now() + 500 * 365 * 24 * 60 * 60 * 1000),
+      },
+    };
+  }
+
+  /**
+   * @param {Object} mongoObject Document like object
+   * @returns {ProfileProvider}
+   */
+  static fromMongoObject(mongoObject) {
+    return new ProfileProvider(
+      mongoObject.profile_id,
+      mongoObject.account_id,
+      mongoObject.profile_img,
+      mongoObject.first_name,
+      mongoObject.last_name,
+      mongoObject.profile_type,
+      mongoObject.expires_at
+    );
+  }
+
+  /**
+   * @static
+   * @param {ProfileProvider} data
+   * @returns {Object} Document like object
+   */
+  static toMongoObject(data) {
+    return {
+      profile_id: data.profile_id,
+      account_id: data.account_id,
+      profile_img: data.profile_img,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      profile_type: data.profile_type,
+      expires_at: data.expires_at,
     };
   }
 }
 
 enforceInterfaceStaticMembers(ProfileProvider, IMongoosable);
-enforceInterfaceStaticMembers(ProfileProvider, IMongoSchemaMethods);
