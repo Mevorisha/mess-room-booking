@@ -1,7 +1,8 @@
 import IMongoosable from "../interfaces/IMongoosable";
-import IMongoSchemaPres from "../interfaces/IMongoSchemaMethods";
+import IMongoSchemaMethods from "../interfaces/IMongoSchemaMethods";
 import DataError from "../errors/DataError";
 import { autoincrMkNewAccountId, randomMkNewAccountId } from "../util/ids";
+import { enforceInterfaceStaticMembers } from "../util/classes";
 
 /**
 Account {
@@ -15,7 +16,7 @@ Account {
 
 /**
  * @implements {IMongoosable}
- * @implements {IMongoSchemaPres}
+ * @implements {IMongoSchemaMethods}
  */
 export default class Account {
   /**
@@ -134,6 +135,11 @@ export default class Account {
   /**
    * @static
    */
+  static posts = {};
+
+  /**
+   * @static
+   */
   static statics = {};
 
   /**
@@ -175,3 +181,6 @@ export default class Account {
     };
   }
 }
+
+enforceInterfaceStaticMembers(Account, IMongoSchemaMethods);
+enforceInterfaceStaticMembers(Account, IMongoosable);

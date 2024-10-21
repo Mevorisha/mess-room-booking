@@ -1,5 +1,6 @@
 import IEnum from "../interfaces/IEnum";
 import IMongoosable from "../interfaces/IMongoosable";
+import { enforceInterfaceStaticMembers } from "../util/classes";
 
 /**
  * @implements {IEnum}
@@ -56,3 +57,6 @@ class EGender {
 }
 
 export default EGender;
+
+enforceInterfaceStaticMembers(EGender, IEnum);
+enforceInterfaceStaticMembers(EGender, IMongoosable);

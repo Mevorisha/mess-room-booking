@@ -1,6 +1,7 @@
 import IClone from "../interfaces/IClone";
 import IMongoosable from "../interfaces/IMongoosable";
 import DataError from "../errors/DataError";
+import { enforceInterfaceStaticMembers } from "../util/classes";
 
 /**
 type Address {
@@ -169,3 +170,6 @@ export default class Address {
     );
   }
 }
+
+enforceInterfaceStaticMembers(Address, IClone);
+enforceInterfaceStaticMembers(Address, IMongoosable);

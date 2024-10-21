@@ -1,5 +1,6 @@
 import IEnum from "../interfaces/IEnum";
 import IMongoosable from "../interfaces/IMongoosable";
+import { enforceInterfaceStaticMembers } from "../util/classes";
 
 /**
  * @implements {IEnum}
@@ -54,3 +55,6 @@ class ETokenType {
 }
 
 export default ETokenType;
+
+enforceInterfaceStaticMembers(ETokenType, IEnum);
+enforceInterfaceStaticMembers(ETokenType, IMongoosable);

@@ -1,5 +1,6 @@
 import IEnum from "../interfaces/IEnum";
 import IMongoosable from "../interfaces/IMongoosable";
+import { enforceInterfaceStaticMembers } from "../util/classes";
 
 /**
  * @implements {IEnum}
@@ -54,3 +55,6 @@ class EProfession {
 }
 
 export default EProfession;
+
+enforceInterfaceStaticMembers(EProfession, IEnum);
+enforceInterfaceStaticMembers(EProfession, IMongoosable);
