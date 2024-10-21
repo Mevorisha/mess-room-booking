@@ -1,6 +1,6 @@
-import IEnum from '../interfaces/IEnum.js';
-import IMongoosable from '../interfaces/IMongoosable.js';
-import { enforceInterfaceStaticMembers } from '../util/classes.js';
+import IEnum from "../interfaces/IEnum.js";
+import IMongoosable from "../interfaces/IMongoosable.js";
+import { enforceInterfaceStaticMembers } from "../util/classes.js";
 
 /**
  * @implements {IEnum}
@@ -13,10 +13,10 @@ class EGender {
    * @public
    */
   static val = {
-    MALE: 'MALE',
-    FEMALE: 'FEMALE',
-    OTHER: 'OTHER',
-  }
+    MALE: "MALE",
+    FEMALE: "FEMALE",
+    OTHER: "OTHER",
+  };
 
   /**
    * @static
@@ -26,7 +26,9 @@ class EGender {
       type: String,
       enum: {
         values: Object.values(EGender.val),
-        message: 'EGender: {VALUE} is invalid; must be one of ' + Object.values(EGender.val).join(', '),
+        message:
+          "EGender: {VALUE} is invalid; must be one of " +
+          Object.values(EGender.val).join(", "),
       },
       required: true,
     };
@@ -40,10 +42,14 @@ class EGender {
    */
   static fromMongoObject(data) {
     switch (data) {
-      case 'MALE': return data;
-      case 'FEMALE': return data;
-      case 'OTHER': return data;
-      default: throw new Error('Invalid data');
+      case "MALE":
+        return data;
+      case "FEMALE":
+        return data;
+      case "OTHER":
+        return data;
+      default:
+        throw new Error("Invalid data");
     }
   }
 

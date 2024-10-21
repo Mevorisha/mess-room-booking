@@ -1,6 +1,6 @@
-import IEnum from '../interfaces/IEnum.js';
-import IMongoosable from '../interfaces/IMongoosable.js';
-import { enforceInterfaceStaticMembers } from '../util/classes.js';
+import IEnum from "../interfaces/IEnum.js";
+import IMongoosable from "../interfaces/IMongoosable.js";
+import { enforceInterfaceStaticMembers } from "../util/classes.js";
 
 /**
  * @implements {IEnum}
@@ -13,9 +13,9 @@ class EProfession {
    * @public
    */
   static val = {
-    STUDENT: 'STUDENT',
-    WORKING: 'WORKING',
-  }
+    STUDENT: "STUDENT",
+    WORKING: "WORKING",
+  };
 
   /**
    * @static
@@ -25,7 +25,9 @@ class EProfession {
       type: String,
       enum: {
         values: Object.values(EProfession.val),
-        message: 'EProfession: {VALUE} is invalid; must be one of ' + Object.values(EProfession.val).join(', '),
+        message:
+          "EProfession: {VALUE} is invalid; must be one of " +
+          Object.values(EProfession.val).join(", "),
       },
       required: true,
     };
@@ -39,9 +41,12 @@ class EProfession {
    */
   static fromMongoObject(data) {
     switch (data) {
-      case 'STUDENT': return data;
-      case 'WORKING': return data;
-      default: throw new Error('Invalid data');
+      case "STUDENT":
+        return data;
+      case "WORKING":
+        return data;
+      default:
+        throw new Error("Invalid data");
     }
   }
 

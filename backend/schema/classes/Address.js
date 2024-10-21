@@ -1,7 +1,7 @@
-import IClone from '../interfaces/IClone.js';
-import IMongoosable from '../interfaces/IMongoosable.js';
-import DataError from '../errors/DataError.js';
-import { enforceInterfaceStaticMembers } from '../util/classes.js';
+import IClone from "../interfaces/IClone.js";
+import IMongoosable from "../interfaces/IMongoosable.js";
+import DataError from "../errors/DataError.js";
+import { enforceInterfaceStaticMembers } from "../util/classes.js";
 
 /**
 type Address {
@@ -43,19 +43,19 @@ export default class Address {
     pincode
   ) {
     if (geoloc_lat < -90 || geoloc_lat > 90) {
-      throw new DataError('Invalid latitude', 400, 'invalid_latitude');
+      throw new DataError("Invalid latitude", 400, "invalid_latitude");
     }
     if (geoloc_long < -180 || geoloc_long > 180) {
-      throw new DataError('Invalid longitude', 400, 'invalid_longitude');
+      throw new DataError("Invalid longitude", 400, "invalid_longitude");
     }
-    if (city === '') {
-      throw new DataError('City cannot be empty', 400, 'empty_city');
+    if (city === "") {
+      throw new DataError("City cannot be empty", 400, "empty_city");
     }
-    if (pincode === '') {
-      throw new DataError('Pincode cannot be empty', 400, 'empty_pincode');
+    if (pincode === "") {
+      throw new DataError("Pincode cannot be empty", 400, "empty_pincode");
     }
     if (!/\d{6}/.test(pincode)) {
-      throw new DataError('Invalid pincode', 400, 'invalid_pincode');
+      throw new DataError("Invalid pincode", 400, "invalid_pincode");
     }
 
     /** @type {number} */
@@ -84,7 +84,7 @@ export default class Address {
         required: true,
         validate: {
           validator: (v) => v >= -90 && v <= 90,
-          message: 'Latitude must be between -90 and 90',
+          message: "Latitude must be between -90 and 90",
         },
       },
       geoloc_long: {
@@ -92,7 +92,7 @@ export default class Address {
         required: true,
         validate: {
           validator: (v) => v >= -180 && v <= 180,
-          message: 'Longitude must be between -180 and 180',
+          message: "Longitude must be between -180 and 180",
         },
       },
       houseno: {
@@ -116,7 +116,7 @@ export default class Address {
         required: true,
         validate: {
           validator: (v) => /\d{6}/.test(v),
-          message: 'Invalid pincode',
+          message: "Invalid pincode",
         },
       },
     };
@@ -128,7 +128,7 @@ export default class Address {
    */
   static fromMongoObject(mongoObject) {
     if (!mongoObject) {
-      throw new Error('Invalid mongoObject');
+      throw new Error("Invalid mongoObject");
     }
 
     return new Address(

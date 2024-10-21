@@ -7,7 +7,7 @@ class IClone {
    * @returns {IClone} A clone of the object.
    */
   clone() {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
 }
 
