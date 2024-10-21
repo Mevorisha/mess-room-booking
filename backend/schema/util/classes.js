@@ -5,7 +5,7 @@ export function enforceInterfaceStaticMembers(className, interfaceName) {
   interfaceStatics.forEach((prop) => {
     if (!classStatics.includes(prop)) {
       throw new Error(
-        `${className.name} must implement static member: ${prop}`
+        `${className.name} must implement static member: ${interfaceName.name}.${prop}`
       );
     }
 
