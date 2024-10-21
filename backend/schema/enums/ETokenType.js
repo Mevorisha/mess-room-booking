@@ -1,6 +1,6 @@
-import IEnum from "../interfaces/IEnum";
-import IMongoosable from "../interfaces/IMongoosable";
-import { enforceInterfaceStaticMembers } from "../util/classes";
+import IEnum from '../interfaces/IEnum.js';
+import IMongoosable from '../interfaces/IMongoosable.js';
+import { enforceInterfaceStaticMembers } from '../util/classes.js';
 
 /**
  * @implements {IEnum}
@@ -25,7 +25,7 @@ class ETokenType {
       type: String,
       enum: {
         values: Object.values(ETokenType.val),
-        message: "ETokenType: {VALUE} is invalid; must be one of " + Object.values(ETokenType.val).join(", "),
+        message: 'ETokenType: {VALUE} is invalid; must be one of ' + Object.values(ETokenType.val).join(', '),
       },
       required: true,
     };
@@ -39,9 +39,9 @@ class ETokenType {
    */
   static fromMongoObject(data) {
     switch (data) {
-      case "ACCESS": return data;
-      case "REFRESH": return data;
-      default: throw new Error("Invalid data");
+      case 'ACCESS': return data;
+      case 'REFRESH': return data;
+      default: throw new Error('Invalid data');
     }
   }
 

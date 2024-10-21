@@ -5,7 +5,7 @@ class IEnum {
    * @readonly
    * @public
    */
-  static val;
+  static val = {};
 }
 
 export default IEnum;

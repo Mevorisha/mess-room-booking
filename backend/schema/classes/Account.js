@@ -1,8 +1,8 @@
-import IMongoosable from "../interfaces/IMongoosable";
-import IMongoSchemaMethods from "../interfaces/IMongoSchemaMethods";
-import DataError from "../errors/DataError";
-import { autoincrMkNewAccountId, randomMkNewAccountId } from "../util/ids";
-import { enforceInterfaceStaticMembers } from "../util/classes";
+import IMongoosable from '../interfaces/IMongoosable.js';
+import IMongoSchemaMethods from '../interfaces/IMongoSchemaMethods.js';
+import DataError from '../errors/DataError.js';
+import { autoincrMkNewAccountId, randomMkNewAccountId } from '../util/ids.js';
+import { enforceInterfaceStaticMembers } from '../util/classes.js';
 
 /**
 Account {
@@ -41,16 +41,16 @@ export default class Account {
     mobile_isverified
   ) {
     if (!/^[A-Z0-9]{16}$/.test(account_id)) {
-      throw new DataError("Invalid account id", 400, "invalid_account_id");
+      throw new DataError('Invalid account id', 400, 'invalid_account_id');
     }
     if (email !== null && !/^.+@.+$/.test(email)) {
-      throw new DataError("Invalid email", 400, "invalid_email");
+      throw new DataError('Invalid email', 400, 'invalid_email');
     }
     if (!/^\d+$/.test(country_code)) {
-      throw new DataError("Invalid country code", 400, "invalid_country_code");
+      throw new DataError('Invalid country code', 400, 'invalid_country_code');
     }
     if (!/^\d+$/.test(mobile)) {
-      throw new DataError("Invalid mobile", 400, "invalid_mobile");
+      throw new DataError('Invalid mobile', 400, 'invalid_mobile');
     }
 
     /** @type {string} */
@@ -75,7 +75,7 @@ export default class Account {
         default: randomMkNewAccountId(),
         validate: {
           validator: (v) => /^[A-Z0-9]{16}$/.test(v),
-          message: "Invalid account id",
+          message: 'Invalid account id',
         },
       },
       /** implementation detail, not part of the schema */
@@ -87,7 +87,7 @@ export default class Account {
         type: String,
         validate: {
           validator: (v) => v === null || /^.+@.+$/.test(v),
-          message: "Invalid email",
+          message: 'Invalid email',
         },
       },
       email_isverified: {
@@ -99,7 +99,7 @@ export default class Account {
         required: true,
         validate: {
           validator: (v) => /^\d+$/.test(v),
-          message: "Invalid country code",
+          message: 'Invalid country code',
         },
       },
       mobile: {
@@ -108,7 +108,7 @@ export default class Account {
         unique: true,
         validate: {
           validator: (v) => /^\d+$/.test(v),
-          message: "Invalid mobile",
+          message: 'Invalid mobile',
         },
       },
       mobile_isverified: {
@@ -154,7 +154,7 @@ export default class Account {
    */
   static fromMongoObject(mongoObject) {
     if (!mongoObject) {
-      throw new Error("Invalid mongoObject");
+      throw new Error('Invalid mongoObject');
     }
     return new Account(
       mongoObject.account_id,

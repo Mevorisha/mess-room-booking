@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
-import Account from "../schema/classes/Account";
+import mongoose from 'mongoose';
+import Account from '../schema/classes/Account.js';
 
 const accountSchema = new mongoose.Schema(Account.getMongoSchema());
-Account.pres.forEach((k, v) => accountSchema.pre(k, v));
-const AccountModel = mongoose.model("Account", accountSchema);
+Object.keys(Account.pres).forEach((key) => accountSchema.pre(new RegExp(key), Account.pres[key]));
+const AccountModel = mongoose.model('Account', accountSchema);
 export default AccountModel;

@@ -1,6 +1,6 @@
-import IEnum from "../interfaces/IEnum";
-import IMongoosable from "../interfaces/IMongoosable";
-import { enforceInterfaceStaticMembers } from "../util/classes";
+import IEnum from '../interfaces/IEnum.js';
+import IMongoosable from '../interfaces/IMongoosable.js';
+import { enforceInterfaceStaticMembers } from '../util/classes.js';
 
 /**
  * @implements {IEnum}
@@ -25,7 +25,7 @@ class EProfileType {
       type: String,
       enum: {
         values: Object.values(EProfileType.val),
-        message: "EProfileType: {VALUE} is invalid; must be one of " + Object.values(EProfileType.val).join(", "),
+        message: 'EProfileType: {VALUE} is invalid; must be one of ' + Object.values(EProfileType.val).join(', '),
       },
       required: true,
     };
@@ -39,9 +39,9 @@ class EProfileType {
    */
   static fromMongoObject(data) {
     switch (data) {
-      case "ROOM_TENANT": return data;
-      case "ROOM_PROVIDER": return data;
-      default: throw new Error("Invalid data");
+      case 'ROOM_TENANT': return data;
+      case 'ROOM_PROVIDER': return data;
+      default: throw new Error('Invalid data');
     }
   }
 

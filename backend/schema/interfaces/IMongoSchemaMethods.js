@@ -6,25 +6,25 @@ class IMongoSchemaPres {
    * @static
    * @type {Object}
    */
-  static pres;
+  static pres = {};
 
   /**
    * @static
    * @type {Object}
    */
-  static posts;
+  static posts = {};
 
   /**
    * @static
    * @type {Object}
    */
-  static statics;
+  static statics = {};
 
   /**
    * @static
    * @type {Object}
    */
-  static methods;
+  static methods = {};
 }
 
 export default IMongoSchemaPres;

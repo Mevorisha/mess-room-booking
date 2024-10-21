@@ -1,6 +1,6 @@
-import IEnum from "../interfaces/IEnum";
-import IMongoosable from "../interfaces/IMongoosable";
-import { enforceInterfaceStaticMembers } from "../util/classes";
+import IEnum from '../interfaces/IEnum.js';
+import IMongoosable from '../interfaces/IMongoosable.js';
+import { enforceInterfaceStaticMembers } from '../util/classes.js';
 
 /**
  * @implements {IEnum}
@@ -25,7 +25,7 @@ class EOtpType {
       type: String,
       enum: {
         values: Object.values(EOtpType.val),
-        message: "EOtpType: {VALUE} is invalid; must be one of " + Object.values(EOtpType.val).join(", "),
+        message: 'EOtpType: {VALUE} is invalid; must be one of ' + Object.values(EOtpType.val).join(', '),
       },
       required: true,
     };
@@ -39,9 +39,9 @@ class EOtpType {
    */
   static fromMongoObject(data) {
     switch (data) {
-      case "EMAIL": return data;
-      case "MOBILE": return data;
-      default: throw new Error("Invalid data");
+      case 'EMAIL': return data;
+      case 'MOBILE': return data;
+      default: throw new Error('Invalid data');
     }
   }
 
