@@ -118,12 +118,11 @@ export default class Account {
     };
   }
 
-  /**
-   * @static
-   */
   static pres = {
-    // generate autoincremented account ID
-    // default is crypto generated random ID
+    /**
+     * @this {any} Refers to mongoose schema, may need binding.
+     * @returns {Promise<void>}
+     */
     save: async function () {
       if (this.is_default_account_id) {
         this.account_id = await autoincrMkNewAccountId();
@@ -132,24 +131,14 @@ export default class Account {
     },
   };
 
-  /**
-   * @static
-   */
   static posts = {};
 
-  /**
-   * @static
-   */
   static statics = {};
 
-  /**
-   * @static
-   */
   static methods = {};
 
   /**
-   * @static
-   * @param {Object} mongoObject
+   * @param {Object} mongoObject Document like object
    * @returns {Account}
    */
   static fromMongoObject(mongoObject) {
@@ -167,8 +156,8 @@ export default class Account {
   }
 
   /**
-   * @static
    * @param {Account} data
+   * @returns {Object} Document like object
    */
   static toMongoObject(data) {
     return {

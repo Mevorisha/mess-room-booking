@@ -74,9 +74,6 @@ export default class Address {
     this.pincode = pincode;
   }
 
-  /**
-   * @static
-   */
   static getMongoSchema() {
     return {
       geoloc_lat: {
@@ -123,8 +120,8 @@ export default class Address {
   }
 
   /**
-   * @static
-   * @param {Object} mongoObject - The data to convert from a MongoDB object.
+   * @param {Object} mongoObject Document like object
+   * @returns {Address}
    */
   static fromMongoObject(mongoObject) {
     if (!mongoObject) {
@@ -143,8 +140,8 @@ export default class Address {
   }
 
   /**
-   * @static
-   * @param {Address} data - The data to convert to a MongoDB object.
+   * @param {Address} data
+   * @returns {Object} Document like object
    */
   static toMongoObject(data) {
     return {
@@ -158,6 +155,9 @@ export default class Address {
     };
   }
 
+  /**
+   * @returns {Address}
+   */
   clone() {
     return new Address(
       this.geoloc_lat,
