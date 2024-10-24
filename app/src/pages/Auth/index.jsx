@@ -127,21 +127,21 @@ export default function Auth() {
         )}
         {/* implement login with Google, Apple & Microsoft */}
         <div className="oauth-container">
-          <div className="oauth-button">
+          <div className="oauth-button" onClick={GoogleAuth.login}>
             <img
               style={{ paddingLeft: "1px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="google"
             />
           </div>
-          <div className="oauth-button">
+          <div className="oauth-button" onClick={AppleAuth.login}>
             <img
               style={{ height: "27px", paddingBottom: "1.5px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
               alt="apple"
             />
           </div>
-          <div className="oauth-button">
+          <div className="oauth-button" onClick={MicrosoftAuth.login}>
             <img
               style={{ height: "24px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
