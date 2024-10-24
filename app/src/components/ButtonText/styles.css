@@ -1,0 +1,29 @@
+.ButtonText-primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: var(--pad-1) var(--pad-2);
+  cursor: pointer;
+}
+
+.ButtonText-primary:hover {
+  filter: brightness(95%);
+}
+
+.ButtonText-primary:active {
+  filter: brightness(90%);
+}
+
+.ButtonText-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  padding: var(--pad-1) var(--pad-2);
+  cursor: pointer;
+}
+
+.ButtonText-secondary:hover {
+  filter: brightness(95%);
+}
+
+.ButtonText-secondary:active {
+  filter: brightness(90%);
+}
