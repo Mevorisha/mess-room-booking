@@ -18,7 +18,7 @@ export default function useNotification() {
     (message, kind) => {
       setNotificationQueue((prevQueue) => [...prevQueue, { message, kind }]);
     },
-    []
+    [setNotificationQueue]
   );
 
   useEffect(() => {
@@ -33,7 +33,12 @@ export default function useNotification() {
 
       return () => clearTimeout(timer);
     }
-  }, [currentNotification, notificationQueue]);
+  }, [
+    currentNotification,
+    notificationQueue,
+    setCurrentNotification,
+    setNotificationQueue,
+  ]);
 
   return notify;
 }
