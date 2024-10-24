@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import useNotification from "../../hooks/notification.js";
 
 import AuthPage from "../../pages/Auth";
@@ -22,17 +22,22 @@ export default function App() {
 
   return (
     <>
-      <Notification message={currentNotification.message} kind={currentNotification.kind} />
+      <Notification
+        message={currentNotification.message}
+        kind={currentNotification.kind}
+      />
 
       <BrowserRouter>
-        <Route path="/" Component={AuthPage} />
-        <Route path="/auth" Component={AuthPage} />
-        {/*
+        <Routes>
+          <Route path="/" Component={AuthPage} />
+          <Route path="/auth" Component={AuthPage} />
+          {/*
           <Route path="/home" component={HomePage} />
           <Route path="/notif" component={NotifPage} />
           <Route path="/profile" component={ProfilePage} />
           <Route path="/account" component={AccountPage} />
         */}
+        </Routes>
       </BrowserRouter>
     </>
   );
