@@ -17,14 +17,17 @@ function Notification() {
     setVisible("visible");
     const timeout = setTimeout(() => {
       setVisible("gone");
-      setTimeout(() => setCurrentNotification({ message: "", kind: "info" }), 300);
+      setTimeout(
+        () => setCurrentNotification({ message: "", kind: "info" }),
+        300
+      );
     }, 5000);
     return () => clearTimeout(timeout);
   }, [message]);
 
   return (
     <div className={`notification notif-${kind} ${`notif-anim-${visible}`}`}>
-      {message}
+      <span className="notif-msg">{message}</span>
       <i className="close fa fa-close" onClick={() => setVisible("gone")} />
       {/* <span className="close" onClick={() => setVisible("gone")}>
         x
