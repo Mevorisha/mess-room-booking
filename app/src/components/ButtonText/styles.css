@@ -1,8 +1,9 @@
 .ButtonText-primary {
   background-color: var(--color-primary);
   color: var(--color-white);
-  padding: var(--pad-1) var(--pad-2);
+  padding: var(--pad-2);
   cursor: pointer;
+  border: 1px solid var(--color-primary);
 }
 
 .ButtonText-primary:hover {
@@ -16,8 +17,9 @@
 .ButtonText-secondary {
   background-color: var(--color-secondary);
   color: var(--color-white);
-  padding: var(--pad-1) var(--pad-2);
+  padding: var(--pad-2);
   cursor: pointer;
+  border: 1px solid var(--color-secondary);
 }
 
 .ButtonText-secondary:hover {
