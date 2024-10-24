@@ -1,21 +1,25 @@
 // Import Firebase modules from CDN
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import { getDatabase, ref } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDMw-9Ha6Uu_LwHtgJsk198fOQCqe-FKbc",
+  authDomain: "mess-booking-app-serverless.firebaseapp.com",
+  databaseURL:
+    "https://mess-booking-app-serverless-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mess-booking-app-serverless",
+  storageBucket: "mess-booking-app-serverless.appspot.com",
+  messagingSenderId: "239013390662",
+  appId: "1:239013390662:web:4a28e268f5c2e1864a9d47",
+  measurementId: "G-F2DZDEH13C",
 };
 
 // Initialize Firebase
 const FirebaseApp = initializeApp(firebaseConfig);
+const FirebaseAnalytics = getAnalytics(FirebaseApp);
 
 /**
  * Rt stands for Realtime, Rt stands for ROOT.
@@ -38,7 +42,7 @@ const RtDbPaths = {
   LOGS: "/db.Logs",
   FEEDBACK: "/db.Feedback",
   NOTIFICATION: "/db.Notification",
-}
+};
 
 /**Path
  * Get a reference to a path in the Realtime Database
@@ -55,6 +59,7 @@ function fbRtdbGetRef() {
 export {
   fbRtdbGetRef,
   FirebaseApp,
+  FirebaseAnalytics,
   FirebaseRtDb,
   FirebaseAuth,
   RtDbPaths,
