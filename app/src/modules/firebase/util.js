@@ -9,7 +9,7 @@ import ErrorMessages from "../errors/ErrorMessages.js"
  */
 async function logInfo(operation, descrip, code = "code_unknown") {
   try {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toUTCString();
     const uid = localStorage.getItem("uid") || "user_logged_out";
     const logRef = fbRtdbGetRef(RtDbPaths.LOGS, timestamp);
     await set(logRef, `I: ${uid}: ${operation}: ${code}: ${descrip}`);
@@ -25,7 +25,7 @@ async function logInfo(operation, descrip, code = "code_unknown") {
  */
 async function logError(operation, descrip, code = "code_unknown") {
   try {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toUTCString();
     const uid = localStorage.getItem("uid") || "user_logged_out";
     const logRef = fbRtdbGetRef(RtDbPaths.LOGS, timestamp);
     await set(logRef, `E: ${uid}: ${operation}: ${code}: ${descrip}`);

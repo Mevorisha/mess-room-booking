@@ -36,12 +36,12 @@ const FirebaseAuth = getAuth(FirebaseApp);
  * @enum {string}
  */
 const RtDbPaths = {
-  PROVIDER_PROFILE: "/db.ProviderProfile",
-  TENANT_PROFILE: "/db.TenantProfile",
-  IDENTITY: "/db.Identity",
-  LOGS: "/db.Logs",
-  FEEDBACK: "/db.Feedback",
-  NOTIFICATION: "/db.Notification",
+  PROVIDER_PROFILE: "/db_ProviderProfile",
+  TENANT_PROFILE: "/db_TenantProfile",
+  IDENTITY: "/db_Identity",
+  LOGS: "/db_Logs",
+  FEEDBACK: "/db_Feedback",
+  NOTIFICATION: "/db_Notification",
 };
 
 /**Path
