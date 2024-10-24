@@ -3,8 +3,8 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  min-width: calc(200px + 2 * var(--pad-2));
-  max-width: calc(var(--wid-dialog) - 2 * var(--pad-2));
+  min-width: calc(var(--wid-dialog) - 2 * var(--pad-2));
+  max-width: auto;
   padding: var(--pad-2);
   border-radius: var(--rounded-rad);
   text-align: center;
@@ -13,12 +13,24 @@
   opacity: 0;
 }
 
-.slide-down {
+.notification .close {
+  float: right;
+  cursor: pointer;
+  padding-top: 1px;
+  padding-right: var(--pad-2);
+}
+
+.notif-anim-init {
+  transform: translateX(-50%) translateY(-100%);
+  opacity: 0;
+}
+
+.notif-anim-visible {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
 
-.slide-up {
+.notif-anim-gone {
   transform: translateX(-50%) translateY(-100%);
   opacity: 0;
 }

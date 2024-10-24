@@ -18,6 +18,9 @@ export default function App() {
     notify("This is a success message", "success");
     notify("This is a warning message", "warning");
     notify("This is an error message", "error");
+    // setTimeout(() => {
+    //   notify("This is an info message", "info");
+    // }, 3000);
   }, []);
 
   return (

@@ -8,23 +8,25 @@ import "./styles.css";
  * }} props
  */
 function Notification({ message, kind }) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(
+    /** @type {"init" | "visible" | "gone"} */
+    ("init")
+  );
 
   useEffect(() => {
-    setVisible(true);
-    const timeout = setTimeout(() => setVisible(false), 2000);
+    if (!message) return;
+    setVisible("visible");
+    const timeout = setTimeout(() => setVisible("gone"), 5000);
     return () => clearTimeout(timeout);
   }, [message]);
 
-  if (!message) return null;
-
   return (
-    <div
-      className={`notification notif-${kind} ${
-        visible ? "slide-down" : "slide-up"
-      }`}
-    >
+    <div className={`notification notif-${kind} ${`notif-anim-${visible}`}`}>
       {message}
+      <i className="close fa fa-close" onClick={() => setVisible("gone")} />
+      {/* <span className="close" onClick={() => setVisible("gone")}>
+        x
+      </span> */}
     </div>
   );
 }
