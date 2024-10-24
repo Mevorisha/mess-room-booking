@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import NotificationContext from "../../contexts/notification.js";
 import "./styles.css";
 
-/**
- * @param {{
- *   message: string,
- *   kind: "info" | "success" | "warning" | "error"
- * }} props
- */
-function Notification({ message, kind }) {
+function Notification() {
   const [visible, setVisible] = useState(
     /** @type {"init" | "visible" | "gone"} */
     ("init")
   );
+
+  const { currentNotification } = useContext(NotificationContext);
+  const { message, kind } = currentNotification;
 
   useEffect(() => {
     if (!message) return;
