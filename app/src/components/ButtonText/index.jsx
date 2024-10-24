@@ -4,7 +4,7 @@ import "./styles.css";
 /**
  * @param {{
  *   title: string,
- *   onclick: () => void,
+ *   onclick?: (e: any) => void,
  *   rounded?: "all" | "left" | "right" | "top" | "bottom" | "none",
  *   kind?: "primary" | "secondary",
  *   width?: "default" | "full" | string
@@ -38,12 +38,12 @@ export default function ButtonText({
   }
 
   return (
-    <button
+    <input
+      type="submit"
       className={classes.join(" ")}
       onClick={onclick}
       style={{ width, borderRadius: borderRadiusStyle[rounded] }}
-    >
-      {title}
-    </button>
+      value={title}
+    />
   );
 }
