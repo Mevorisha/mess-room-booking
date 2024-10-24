@@ -9,7 +9,7 @@
   --margin-1: 0.25rem;
   --margin-2: 0.5rem;
 
-  --rounded-rad: 50%;
+  --rounded-rad: 10px;
 
   --shadow: 0 0 0.5rem rgba(0, 0, 0, 0.15);
 }
