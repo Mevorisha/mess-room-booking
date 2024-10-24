@@ -21,6 +21,9 @@ export default ErrorMessages;
  * @param {any} error
  */
 export function getCleanFirebaseErrMsg(error) {
+  if (error.code === "auth/popup-closed-by-user") {
+    return "Popup closed by user. Please try again.";
+  }
   if (error.code === "auth/user-not-found") {
     return "User not found. Please register.";
   }
