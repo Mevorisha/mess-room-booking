@@ -1,0 +1,45 @@
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: var(--wid-dialog);
+  padding: var(--pad-1);
+  border-radius: var(--rounded-rad);
+  text-align: center;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.slide-down {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.slide-up {
+  transform: translateX(-50%) translateY(-100%);
+  opacity: 0;
+}
+
+/* Notification types */
+.notif-info {
+  background-color: var(--color-info);
+  color: var(--color-white);
+}
+
+.notif-success {
+  background-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.notif-warning {
+  background-color: var(--color-warning);
+  color: var(--color-black);
+}
+
+.notif-error {
+  background-color: var(--color-danger);
+  color: var(--color-white);
+}
