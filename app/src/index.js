@@ -1,8 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./pages/App";
-import "./globals/index.css";
 import { logInfo } from "./modules/firebase/util";
+
+
+import "./globals/index.css";
+import "./globals/colors.css";
+import "./globals/look.css";
 
 /**
  * @param {import("web-vitals").ReportHandler} onPerfEntry

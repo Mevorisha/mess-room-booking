@@ -1,0 +1,36 @@
+:root {
+  --wid-dialog: 320px;
+
+  --pad-0: 0;
+  --pad-1: 0.25rem;
+  --pad-2: 0.5rem;
+
+  --margin-0: 0;
+  --margin-1: 0.25rem;
+  --margin-2: 0.5rem;
+
+  --rounded-rad: 50%;
+
+  --shadow: 0 0 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.rounded {
+  border-radius: var(--rounded-rad);
+}
+
+.rounded-top {
+  border-top-left-radius: var(--rounded-rad);
+  border-top-right-radius: var(--rounded-rad);
+}
+
+.rounded-top-left {
+  border-top-left-radius: var(--rounded-rad);
+}
+
+.rounded-top-right {
+  border-top-right-radius: var(--rounded-rad);
+}
+
+.shadow {
+  box-shadow: var(--shadow);
+}

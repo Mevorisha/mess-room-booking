@@ -1,0 +1,42 @@
+:root {
+  --color-primary: #007bff;
+  --color-secondary: #b1b1b1;
+  --color-success: #1a9136;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #148192;
+  --color-light: #e7e7e8;
+  --color-dark: #343a40;
+  --color-white: #fff;
+  --color-black: #000;
+  --color-gray: #6c757d;
+  --color-gray-dark: #343a40;
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-light);
+  --color-primary-rgb: 0, 123, 255;
+  --color-secondary-rgb: 177, 177, 177;
+  --color-success-rgb: 26, 145, 54;
+  --color-danger-rgb: 220, 53, 69;
+  --color-warning-rgb: 255, 193, 7;
+  --color-info-rgb: 20, 129, 146;
+  --color-light-rgb: 231, 231, 232;
+  --color-dark-rgb: 52, 58, 64;
+  --color-white-rgb: 255, 255, 255;
+  --color-black-rgb: 0, 0, 0;
+  --color-gray-rgb: 108, 117, 125;
+  --color-gray-dark-rgb: 52, 58, 64;
+  --color-bg-primary-rgb: var(--color-white-rgb);
+  --color-bg-secondary-rgb: var(--color-light-rgb);
+}
+
+.background-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.background-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.background-transparent {
+  background-color: transparent;
+}
