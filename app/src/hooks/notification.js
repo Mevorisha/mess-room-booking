@@ -8,7 +8,10 @@ export default function useNotification() {
 
   const [currentNotification, setCurrentNotification] = useState(
     /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }} */
-    (/** @type any */ (null))
+    ({
+      message: "",
+      kind: "info",
+    })
   );
 
   const notify = useCallback(
