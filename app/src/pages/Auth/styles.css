@@ -7,8 +7,32 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: linear-gradient(rgba(212, 207, 207, 0.5), rgba(212, 212, 212, 0.5)), url("../../assets/images/payingGuest.jpeg");
+  background-image: linear-gradient(rgba(210, 210, 210, 0.652), rgba(164, 164, 164, 0.774)), url("../../assets/images/payingGuest.jpeg");
   background-size: cover;
+}
+
+.Auth-page .logo {
+  width: 80px;
+  height: 80px;
+  margin-bottom: var(--pad-4);
+  /* crop the image */
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--color-light);
+}
+
+.Auth-page h1 {
+  margin: 0;
+  margin-bottom: var(--pad-4);
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.Auth-page h2 {
+  margin: 0;
+  margin-bottom: var(--pad-8);
+  font-size: 1.2rem;
+  color: var(--color-text-secondary);
 }
 
 .Auth-container {
