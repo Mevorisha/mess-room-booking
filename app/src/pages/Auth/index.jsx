@@ -7,6 +7,8 @@ import {
 } from "../../modules/firebase/auth.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
+// @ts-ignore
+import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
 
 // write a auth page that has 2 tabs: login and register and also 2=3 buttons "Sign in with Google", "Sign in with Apple", "Sign in with Microsoft"
@@ -65,6 +67,9 @@ export default function Auth() {
 
   return (
     <div className="Auth-page">
+      <span><img className="logo" src={dpMevorisha} alt="logo" /></span>
+      <span><h1>Mevorisha</h1></span>
+      <span><h2>Mess Booking App</h2></span>
       <div className="Auth-container">
         <div className="button-container">
           <ButtonText
