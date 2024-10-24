@@ -75,15 +75,15 @@ export default function Auth() {
           <ButtonText
             title="Login"
             onclick={() => setShowSection("login")}
-            rounded="left"
-            kind={showSection === "login" ? "primary" : "secondary"}
+            rounded="all"
+            kind={showSection === "login" ? "primary" : "cannibalized"}
             width="50%"
           />
           <ButtonText
             title="Register"
             onclick={() => setShowSection("register")}
-            rounded="right"
-            kind={showSection === "register" ? "primary" : "secondary"}
+            rounded="all"
+            kind={showSection === "register" ? "primary" : "cannibalized"}
             width="50%"
           />
         </div>

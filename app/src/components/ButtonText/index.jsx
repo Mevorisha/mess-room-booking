@@ -6,7 +6,7 @@ import "./styles.css";
  *   title: string,
  *   onclick?: (e: any) => void,
  *   rounded?: "all" | "left" | "right" | "top" | "bottom" | "none",
- *   kind?: "primary" | "secondary",
+ *   kind?: "primary" | "secondary" | "cannibalized",
  *   width?: "default" | "full" | string
  * }} props
  */
@@ -31,6 +31,8 @@ export default function ButtonText({
     classes.push("ButtonText-primary");
   } else if (kind === "secondary") {
     classes.push("ButtonText-secondary");
+  } else if (kind === "cannibalized") {
+    classes.push("ButtonText-cannibalized");
   }
 
   if (width === "full") {

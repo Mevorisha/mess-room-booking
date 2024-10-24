@@ -29,3 +29,19 @@
 .ButtonText-secondary:active {
   filter: brightness(90%);
 }
+
+.ButtonText-cannibalized {
+  background-color: transparent;
+  color: black;
+  padding: var(--pad-2);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.ButtonText-cannibalied:hover {
+  filter: brightness(95%);
+}
+
+.ButtonText-cannibalied:active {
+  filter: brightness(90%);
+}
