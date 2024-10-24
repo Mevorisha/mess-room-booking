@@ -26,12 +26,15 @@ async function isLoggedIn() {
   });
 }
 
-{
-  // call is logged in function and set to local storage
-  isLoggedIn().then((uid) => {
+// call is logged in function and set to local storage
+isLoggedIn()
+  .then((uid) => {
     localStorage.setItem("uid", uid);
+  })
+  .catch(() => {
+    localStorage.removeItem("uid");
+    console.error("User not logged in");
   });
-}
 
 class GoogleAuth {
   static googleProvider = new GoogleAuthProvider();
