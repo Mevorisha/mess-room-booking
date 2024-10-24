@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  isLoggedIn,
+  onAuthStateChanged,
   EmailPasswdAuth,
   GoogleAuth,
 } from "../../modules/firebase/auth.js";
@@ -23,12 +23,14 @@ export default function Auth() {
 
   // check if user is logged in
   useEffect(() => {
-    isLoggedIn()
-      .then(() => navigate("/home"))
-      .catch(() => {
+    onAuthStateChanged((user) => {
+      if (user) {
+        navigate("/home");
+      } else {
         navigate("/auth");
         notify("You are not logged in", "warning");
-      });
+      }
+    });
   }, [navigate, notify]);
 
   /**
@@ -36,7 +38,9 @@ export default function Auth() {
    */
   const handleSubmit = (e, kind) => {
     e.preventDefault();
-    const { email, password, confirmPassword } = e.target.elements;
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+    const confirmPassword = e.target[2]?.value;
 
     switch (kind) {
       case "EMAIL_LOGIN":

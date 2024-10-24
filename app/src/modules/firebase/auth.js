@@ -8,33 +8,24 @@ import {
   OAuthProvider,
 } from "firebase/auth";
 import { logError } from "./util.js";
-import ErrorMessages from "../errors/ErrorMessages.js";
+import ErrorMessages, {
+  getCleanFirebaseErrMsg,
+} from "../errors/ErrorMessages.js";
 
 /**
- * @returns {Promise<string>} The user's unique UID if logged in, or null if not logged in.
+ * @param {(uid: string | null, unsubscribe: import("firebase/auth").Unsubscribe) => void} callback
  */
-async function isLoggedIn() {
-  return new Promise((resolve, reject) => {
-    const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
-      unsubscribe();
-      if (user) {
-        resolve(user.uid);
-      } else {
-        reject(ErrorMessages.USER_NOT_LOGGED_IN);
-      }
-    });
+function onAuthStateChanged(callback) {
+  const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
+    if (user) {
+      localStorage.setItem("uid", user.uid);
+      callback(user.uid, unsubscribe);
+    } else {
+      localStorage.removeItem("uid");
+      callback(null, unsubscribe);
+    }
   });
 }
-
-// call is logged in function and set to local storage
-isLoggedIn()
-  .then((uid) => {
-    localStorage.setItem("uid", uid);
-  })
-  .catch(() => {
-    localStorage.removeItem("uid");
-    console.error("User not logged in");
-  });
 
 class GoogleAuth {
   static googleProvider = new GoogleAuthProvider();
@@ -63,8 +54,9 @@ class GoogleAuth {
       );
       return Promise.resolve(result.user.uid);
     } catch (error) {
-      logError("auth_google_login", ErrorMessages.LOGIN_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGIN_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_google_login", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 
@@ -76,8 +68,9 @@ class GoogleAuth {
       await signOut(FirebaseAuth);
       return Promise.resolve("Successfully logged out.");
     } catch (error) {
-      logError("auth_google_logout", ErrorMessages.LOGOUT_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGOUT_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_google_logout", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 }
@@ -107,8 +100,9 @@ class AppleAuth {
       );
       return Promise.resolve(result.user.uid);
     } catch (error) {
-      logError("auth_apple_login", ErrorMessages.LOGIN_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGIN_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_apple_login", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 
@@ -120,8 +114,9 @@ class AppleAuth {
       await signOut(FirebaseAuth);
       return Promise.resolve("Successfully logged out.");
     } catch (error) {
-      logError("auth_apple_logout", ErrorMessages.LOGOUT_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGOUT_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_apple_logout", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 }
@@ -153,8 +148,9 @@ class MicrosoftAuth {
       );
       return Promise.resolve(result.user.uid);
     } catch (error) {
-      logError("auth_microsoft_login", ErrorMessages.LOGIN_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGIN_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_microsoft_login", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 
@@ -166,12 +162,9 @@ class MicrosoftAuth {
       await signOut(FirebaseAuth);
       return Promise.resolve("Successfully logged out.");
     } catch (error) {
-      logError(
-        "auth_microsoft_logout",
-        ErrorMessages.LOGOUT_FAILED,
-        error.code
-      );
-      return Promise.reject(ErrorMessages.LOGOUT_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_microsoft_logout", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 }
@@ -192,12 +185,9 @@ class EmailPasswdAuth {
       );
       return Promise.resolve(result.user.uid);
     } catch (error) {
-      logError(
-        "auth_legacy_register",
-        ErrorMessages.REGISTRATION_FAILED,
-        error.code
-      );
-      return Promise.reject(ErrorMessages.REGISTRATION_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_legacy_register", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 
@@ -215,8 +205,9 @@ class EmailPasswdAuth {
       );
       return Promise.resolve(result.user.uid);
     } catch (error) {
-      logError("auth_legacy_login", ErrorMessages.LOGIN_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGIN_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_legacy_login", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 
@@ -228,10 +219,17 @@ class EmailPasswdAuth {
       await signOut(FirebaseAuth);
       return Promise.resolve("Successfully logged out.");
     } catch (error) {
-      logError("auth_legacy_logout", ErrorMessages.LOGOUT_FAILED, error.code);
-      return Promise.reject(ErrorMessages.LOGOUT_FAILED);
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_legacy_logout", errmsg, error.code);
+      return Promise.reject(errmsg);
     }
   }
 }
 
-export { isLoggedIn, GoogleAuth, AppleAuth, MicrosoftAuth, EmailPasswdAuth };
+export {
+  onAuthStateChanged,
+  GoogleAuth,
+  AppleAuth,
+  MicrosoftAuth,
+  EmailPasswdAuth,
+};
