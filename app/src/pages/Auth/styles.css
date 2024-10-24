@@ -7,6 +7,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-image: linear-gradient(rgba(212, 207, 207, 0.5), rgba(212, 212, 212, 0.5)), url("../../assets/images/payingGuest.jpeg");
+  background-size: cover;
 }
 
 .Auth-container {
@@ -19,6 +21,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: var(--pad-8);
+  box-shadow: var(--shadow);
 }
 
 .Auth-container .form-container {
