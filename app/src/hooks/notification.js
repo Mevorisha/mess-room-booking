@@ -2,12 +2,7 @@ import { useEffect, useCallback, useContext } from "react";
 import NotificationContext from "../contexts/notification.js";
 
 export default function useNotification() {
-  const {
-    notificationQueue,
-    setNotificationQueue,
-    currentNotification,
-    setCurrentNotification,
-  } = useContext(NotificationContext);
+  const { setCurrentNotification } = useContext(NotificationContext);
 
   const notify = useCallback(
     /**
@@ -16,29 +11,10 @@ export default function useNotification() {
      * @param {"info" | "success" | "warning" | "error"} kind
      */
     (message, kind) => {
-      setNotificationQueue((prevQueue) => [...prevQueue, { message, kind }]);
+      setCurrentNotification({ message, kind });
     },
-    [setNotificationQueue]
+    [setCurrentNotification]
   );
-
-  useEffect(() => {
-    if (!currentNotification.message && notificationQueue.length > 0) {
-      const nextNotification = notificationQueue[0];
-      setCurrentNotification(nextNotification);
-
-      const timer = setTimeout(() => {
-        setCurrentNotification({ message: "", kind: "info" });
-        setNotificationQueue((prevQueue) => prevQueue.slice(1));
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [
-    currentNotification,
-    notificationQueue,
-    setCurrentNotification,
-    setNotificationQueue,
-  ]);
 
   return notify;
 }
