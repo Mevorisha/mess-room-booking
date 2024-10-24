@@ -8,13 +8,17 @@ function Notification() {
     ("init")
   );
 
-  const { currentNotification } = useContext(NotificationContext);
+  const { currentNotification, setCurrentNotification } =
+    useContext(NotificationContext);
   const { message, kind } = currentNotification;
 
   useEffect(() => {
     if (!message) return;
     setVisible("visible");
-    const timeout = setTimeout(() => setVisible("gone"), 5000);
+    const timeout = setTimeout(() => {
+      setVisible("gone");
+      setTimeout(() => setCurrentNotification({ message: "", kind: "info" }), 300);
+    }, 5000);
     return () => clearTimeout(timeout);
   }, [message]);
 
