@@ -4,8 +4,6 @@ import {
   isLoggedIn,
   EmailPasswdAuth,
   GoogleAuth,
-  AppleAuth,
-  MicrosoftAuth,
 } from "../../modules/firebase/auth.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
@@ -33,9 +31,33 @@ export default function Auth() {
       });
   }, [navigate, notify]);
 
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
+  /**
+   * @param {"EMAIL_LOGIN" | "EMAIL_REGISTER"} kind
+   */
+  const handleSubmit = (e, kind) => {
+    e.preventDefault();
+    const { email, password, confirmPassword } = e.target.elements;
+
+    switch (kind) {
+      case "EMAIL_LOGIN":
+        EmailPasswdAuth.login(email, password).catch((e) =>
+          notify(e.toString(), "error")
+        );
+        break;
+      case "EMAIL_REGISTER":
+        if (password === confirmPassword) {
+          EmailPasswdAuth.register(email, password).catch((e) =>
+            notify(e.toString(), "error")
+          );
+        } else {
+          notify("Passwords do not match", "error");
+          console.error("Passwords do not match");
+        }
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="Auth-page">
@@ -57,91 +79,61 @@ export default function Auth() {
           />
         </div>
         {showSection === "login" ? (
-          <form className="form-container">
-            <input
-              required
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              required
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <form
+            className="form-container"
+            onSubmit={(e) => handleSubmit(e, "EMAIL_LOGIN")}
+          >
+            <input required type="email" placeholder="Email" />
+            <input required type="password" placeholder="Password" />
             <div className="submit-container">
-              <ButtonText
-                title="Login"
-                rounded="all"
-                width="50%"
-                onclick={(e) => {
-                  e.preventDefault();
-                  EmailPasswdAuth.login(email, password);
-                }}
-              />
+              <ButtonText title="Login" rounded="all" width="50%" />
             </div>
           </form>
         ) : (
-          <form className="form-container">
-            <input
-              required
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-              required
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-              required
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+          <form
+            className="form-container"
+            onSubmit={(e) => handleSubmit(e, "EMAIL_REGISTER")}
+          >
+            <input required type="email" placeholder="Email" />
+            <input required type="password" placeholder="Password" />
+            <input required type="password" placeholder="Confirm Password" />
             <div className="submit-container">
-              <ButtonText
-                title="Register"
-                rounded="all"
-                width="50%"
-                onclick={(e) => {
-                  e.preventDefault();
-                  if (password === confirmPassword) {
-                    EmailPasswdAuth.register(email, password);
-                  } else {
-                    notify("Passwords do not match", "error");
-                    console.error("Passwords do not match");
-                  }
-                }}
-              />
+              <ButtonText title="Register" rounded="all" width="50%" />
             </div>
           </form>
         )}
         {/* implement login with Google, Apple & Microsoft */}
         <div className="oauth-container">
-          <div className="oauth-button" onClick={GoogleAuth.login}>
+          <div
+            className="oauth-button"
+            onClick={() =>
+              GoogleAuth.login().catch((e) => notify(e.toString(), "error"))
+            }
+          >
             <img
               style={{ paddingLeft: "1px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="google"
             />
           </div>
-          <div className="oauth-button" onClick={AppleAuth.login}>
+          <div
+            className="oauth-button"
+            onClick={() =>
+              notify("Apple Sign In is not implemented yet", "error")
+            }
+          >
             <img
               style={{ height: "27px", paddingBottom: "1.5px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
               alt="apple"
             />
           </div>
-          <div className="oauth-button" onClick={MicrosoftAuth.login}>
+          <div
+            className="oauth-button"
+            onClick={() =>
+              notify("Microsoft Sign In is not implemented yet", "error")
+            }
+          >
             <img
               style={{ height: "24px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
