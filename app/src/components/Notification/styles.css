@@ -3,9 +3,9 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  min-width: 200px;
-  max-width: var(--wid-dialog);
-  padding: var(--pad-1);
+  min-width: calc(200px + 2 * var(--pad-2));
+  max-width: calc(var(--wid-dialog) - 2 * var(--pad-2));
+  padding: var(--pad-2);
   border-radius: var(--rounded-rad);
   text-align: center;
   z-index: 1000;
