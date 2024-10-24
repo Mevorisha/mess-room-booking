@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AuthPage from "../../pages/Auth";
 import Notification from "../../components/Notification";
