@@ -1,4 +1,4 @@
-.notification {
+.components-Notification {
   position: fixed;
   top: 20px;
   left: 50%;
@@ -11,52 +11,54 @@
   z-index: 1000;
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.notification .close {
-  float: right;
-  cursor: pointer;
-  padding-top: 1px;
-  padding-right: var(--pad-2);
-}
-
-.notification .notif-msg {
-  display: inline-block;
-  margin-right: var(--pad-4);
-}
-
-.notif-anim-init {
+/* Animation classes */
+.components-Notification-anim-init {
   transform: translateX(-50%) translateY(-100%);
   opacity: 0;
 }
 
-.notif-anim-visible {
+.components-Notification-anim-visible {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
 
-.notif-anim-gone {
+.components-Notification-anim-gone {
   transform: translateX(-50%) translateY(-100%);
   opacity: 0;
 }
 
 /* Notification types */
-.notif-info {
+.components-Notification-type-info {
   background-color: var(--color-info);
   color: var(--color-white);
 }
 
-.notif-success {
+.components-Notification-type-success {
   background-color: var(--color-success);
   color: var(--color-white);
 }
 
-.notif-warning {
+.components-Notification-type-warning {
   background-color: var(--color-warning);
   color: var(--color-black);
 }
 
-.notif-error {
+.components-Notification-type-error {
   background-color: var(--color-danger);
   color: var(--color-white);
+}
+
+.components-Notification .txt-msg {
+  text-align: left;
+  margin-right: var(--pad-4);
+}
+
+.components-Notification .btn-close {
+  cursor: pointer;
+  padding-top: 1px;
 }

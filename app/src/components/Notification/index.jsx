@@ -26,12 +26,19 @@ function Notification() {
   }, [message]);
 
   return (
-    <div className={`notification notif-${kind} ${`notif-anim-${visible}`}`}>
-      <span className="notif-msg">{message}</span>
-      <i className="close fa fa-close" onClick={() => setVisible("gone")} />
-      {/* <span className="close" onClick={() => setVisible("gone")}>
-        x
-      </span> */}
+    <div
+      className={[
+        "components-Notification",
+        `components-Notification-type-${kind}`,
+        `components-Notification-anim-${visible}`,
+      ]
+        .join(" ")
+        .trim()}
+    >
+      <span className="txt-msg">{message}</span>
+      <i className="btn-close fa fa-close" onClick={() => setVisible("gone")} />
+      {/* <span className="btn-close" onClick={() => setVisible("gone")}> 
+      </span>*/}
     </div>
   );
 }

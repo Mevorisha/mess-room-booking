@@ -1,4 +1,4 @@
-.ButtonText-primary {
+.components-ButtonText-primary {
   background-color: var(--color-primary);
   color: var(--color-white);
   padding: var(--pad-2);
@@ -6,15 +6,15 @@
   border: 1px solid var(--color-primary);
 }
 
-.ButtonText-primary:hover {
+.components-ButtonText-primary:hover {
   filter: brightness(95%);
 }
 
-.ButtonText-primary:active {
+.components-ButtonText-primary:active {
   filter: brightness(90%);
 }
 
-.ButtonText-secondary {
+.components-ButtonText-secondary {
   background-color: var(--color-secondary);
   color: var(--color-white);
   padding: var(--pad-2);
@@ -22,15 +22,15 @@
   border: 1px solid var(--color-secondary);
 }
 
-.ButtonText-secondary:hover {
+.components-ButtonText-secondary:hover {
   filter: brightness(95%);
 }
 
-.ButtonText-secondary:active {
+.components-ButtonText-secondary:active {
   filter: brightness(90%);
 }
 
-.ButtonText-cannibalized {
+.components-ButtonText-cannibalized {
   background-color: transparent;
   color: black;
   padding: var(--pad-2);
@@ -38,10 +38,10 @@
   border: 1px solid transparent;
 }
 
-.ButtonText-cannibalied:hover {
+.components-ButtonText-cannibalied:hover {
   filter: brightness(95%);
 }
 
-.ButtonText-cannibalied:active {
+.components-ButtonText-cannibalied:active {
   filter: brightness(90%);
 }

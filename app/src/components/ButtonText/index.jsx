@@ -28,11 +28,11 @@ export default function ButtonText({
   };
 
   if (kind === "primary") {
-    classes.push("ButtonText-primary");
+    classes.push("components-ButtonText-primary");
   } else if (kind === "secondary") {
-    classes.push("ButtonText-secondary");
+    classes.push("components-ButtonText-secondary");
   } else if (kind === "cannibalized") {
-    classes.push("ButtonText-cannibalized");
+    classes.push("components-ButtonText-cannibalized");
   }
 
   if (width === "full") {
