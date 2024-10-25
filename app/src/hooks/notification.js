@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useContext } from "react";
+import { useCallback, useContext } from "react";
 import NotificationContext from "../contexts/notification.js";
 
 export default function useNotification() {
