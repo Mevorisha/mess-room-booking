@@ -56,7 +56,7 @@ class GoogleAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_google_login", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 
@@ -70,7 +70,7 @@ class GoogleAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_google_logout", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 }
@@ -102,7 +102,7 @@ class AppleAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_apple_login", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 
@@ -116,7 +116,7 @@ class AppleAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_apple_logout", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 }
@@ -150,7 +150,7 @@ class MicrosoftAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_microsoft_login", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 
@@ -164,7 +164,7 @@ class MicrosoftAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_microsoft_logout", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 }
@@ -187,7 +187,7 @@ class EmailPasswdAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_legacy_register", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 
@@ -207,7 +207,7 @@ class EmailPasswdAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_legacy_login", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 
@@ -221,7 +221,7 @@ class EmailPasswdAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_legacy_logout", errmsg, error.code);
-      return Promise.reject(errmsg);
+      return Promise.reject(errmsg === "Error" ? error.code : errmsg);
     }
   }
 }
