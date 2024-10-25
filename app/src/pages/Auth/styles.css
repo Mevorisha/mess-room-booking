@@ -1,4 +1,4 @@
-.Auth-page {
+.pages-Auth {
   background-color: var(--color-bg-secondary);
   width: 100%;
   height: 100vh;
@@ -11,9 +11,9 @@
   background-size: cover;
 }
 
-.Auth-page .logo {
-  width: 80px;
-  height: 80px;
+.pages-Auth .logo {
+  width: 50px;
+  height: 50px;
   margin-bottom: var(--pad-4);
   /* crop the image */
   object-fit: cover;
@@ -21,21 +21,21 @@
   border: 1px solid var(--color-light);
 }
 
-.Auth-page h1 {
+.pages-Auth h1 {
   margin: 0;
   margin-bottom: var(--pad-4);
   font-size: 1.5rem;
   color: var(--color-text-primary);
 }
 
-.Auth-page h2 {
+.pages-Auth h2 {
   margin: 0;
   margin-bottom: var(--pad-8);
   font-size: 1.2rem;
   color: var(--color-text-secondary);
 }
 
-.Auth-container {
+.pages-Auth .container {
   background-color: var(--color-bg-primary);
   border-radius: var(--rounded-rad);
   margin: 0 auto;
@@ -48,7 +48,7 @@
   box-shadow: var(--shadow);
 }
 
-.Auth-container .form-container {
+.pages-Auth .container .form-container {
   display: flex;
   flex-direction: column;
   gap: var(--pad-2);
@@ -60,33 +60,33 @@
   border: 1px solid var(--color-light);
 }
 
-.Auth-container .button-container {
+.pages-Auth .container .button-container {
   display: flex;
   justify-content: space-around;
 }
 
-.Auth-container .submit-container {
+.pages-Auth .container .submit-container {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: var(--pad-8);
 }
 
-.Auth-container .oauth-container {
+.pages-Auth .container .oauth-container {
   display: flex;
   padding: 0 20px;
   justify-content: space-around;
   gap: var(--pad-2);
 }
 
-.Auth-container .oauth-button img {
+.pages-Auth .container .oauth-button img {
   margin: 0;
   padding: 0;
   width: auto;
   height: 30px;
 }
 
-.Auth-container .oauth-button {
+.pages-Auth .container .oauth-button {
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,12 +1,8 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  onAuthStateChanged,
-  EmailPasswdAuth,
-  GoogleAuth,
-} from "../../modules/firebase/auth.js";
-import useNotification from "../../hooks/notification.js";
+import React from "react";
+import { EmailPasswdAuth, GoogleAuth } from "../../modules/firebase/auth.js";
 import ButtonText from "../../components/ButtonText";
+import useNotification from "../../hooks/notification.js";
+
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
@@ -20,20 +16,7 @@ export default function Auth() {
     /** @type {"login" | "register"} */ ("login")
   );
 
-  const navigate = useNavigate();
   const notify = useNotification();
-
-  // check if user is logged in
-  useEffect(() => {
-    onAuthStateChanged((user) => {
-      if (user) {
-        navigate("/home");
-      } else {
-        navigate("/auth");
-        notify("You are not logged in", "warning");
-      }
-    });
-  }, [navigate, notify]);
 
   /**
    * @param {"EMAIL_LOGIN" | "EMAIL_REGISTER"} kind
@@ -57,7 +40,6 @@ export default function Auth() {
           );
         } else {
           notify("Passwords do not match", "error");
-          console.error("Passwords do not match");
         }
         break;
       default:
@@ -66,11 +48,17 @@ export default function Auth() {
   };
 
   return (
-    <div className="Auth-page">
-      <span><img className="logo" src={dpMevorisha} alt="logo" /></span>
-      <span><h1>Mevorisha</h1></span>
-      <span><h2>Mess Booking App</h2></span>
-      <div className="Auth-container">
+    <div className="pages-Auth">
+      <span>
+        <img className="logo" src={dpMevorisha} alt="logo" />
+      </span>
+      <span>
+        <h1>Mevorisha</h1>
+      </span>
+      <span>
+        <h2>Mess Booking App</h2>
+      </span>
+      <div className="container">
         <div className="button-container">
           <ButtonText
             title="Login"
@@ -120,7 +108,11 @@ export default function Auth() {
             }
           >
             <img
-              style={{ paddingLeft: "1px" }}
+              style={{
+                height: "26px",
+                paddingTop: "0.5px",
+                paddingLeft: "1px",
+              }}
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="google"
             />
@@ -132,7 +124,7 @@ export default function Auth() {
             }
           >
             <img
-              style={{ height: "27px", paddingBottom: "1.5px" }}
+              style={{ height: "24px", paddingBottom: "1.5px" }}
               src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
               alt="apple"
             />
