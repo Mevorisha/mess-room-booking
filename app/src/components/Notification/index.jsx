@@ -18,7 +18,7 @@ function Notification() {
     const timeout = setTimeout(() => {
       setVisible("gone");
       setTimeout(
-        () => setCurrentNotification({ message: "", kind: "info" }),
+        () => setCurrentNotification({ message: "", kind: "error" }),
         300
       );
     }, 5000);
@@ -35,10 +35,9 @@ function Notification() {
         .join(" ")
         .trim()}
     >
+      <i className="fa fa-exclamation-circle" />
       <span className="txt-msg">{message}</span>
       <i className="btn-close fa fa-close" onClick={() => setVisible("gone")} />
-      {/* <span className="btn-close" onClick={() => setVisible("gone")}> 
-      </span>*/}
     </div>
   );
 }

@@ -5,7 +5,7 @@ const NotificationContext = createContext({
     /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }} */
     ({
       message: "",
-      kind: "info",
+      kind: "error",
     }),
   setCurrentNotification:
     /** @type {React.Dispatch<React.SetStateAction<{ message: string, kind: "info" | "success" | "warning" | "error" }>>} */ (
@@ -26,7 +26,7 @@ export function NotificationProvider({ children }) {
     /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }} */
     ({
       message: "",
-      kind: "info",
+      kind: "error",
     })
   );
 
