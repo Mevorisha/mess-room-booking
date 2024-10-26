@@ -13,18 +13,21 @@ import ErrorMessages, {
 } from "../errors/ErrorMessages.js";
 
 /**
- * @param {(uid: string | null, unsubscribe: import("firebase/auth").Unsubscribe) => void} callback
+ * @param {(uid: string | null) => void} callback
+ * @returns {import("firebase/auth").Unsubscribe}
  */
 function onAuthStateChanged(callback) {
   const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
     if (user) {
       localStorage.setItem("uid", user.uid);
-      callback(user.uid, unsubscribe);
+      callback(user.uid);
     } else {
       localStorage.removeItem("uid");
-      callback(null, unsubscribe);
+      callback(null);
     }
   });
+
+  return unsubscribe;
 }
 
 class GoogleAuth {
