@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
-import { onAuthStateChanged } from "../../modules/firebase/auth.js";
 import { NotificationProvider } from "../../contexts/notification.js";
 import { AuthProvider } from "../../contexts/auth.js";
+import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
+import LoadingPage from "../../pages/Loading";
 import AuthPage from "../../pages/Auth";
 // import HomePage from "../../pages/Home";
 // import NotifPage from "../../pages/Notif";
@@ -12,15 +13,12 @@ import AuthPage from "../../pages/Auth";
 
 function AuthCheck() {
   const navigate = useNavigate();
-
-  useEffect(
-    () =>
-      onAuthStateChanged((user) =>
-        user ? navigate("/home") : navigate("/auth")
-      ),
-    [navigate]
-  );
-
+  const user = useAuth();
+  useEffect(() => {
+    if (!user) navigate("/");
+    else if (!user.uid) navigate("/auth");
+    else if (user.uid) navigate("/home");
+  }, [user, navigate]);
   return null;
 }
 
@@ -32,6 +30,7 @@ export default function App() {
           <Notification />            {/* display notifications */}
           <AuthCheck />               {/* redirect to /home if user is logged in, else redirect to /auth */}
           <Routes>
+            <Route path="/" Component={LoadingPage} />
             <Route path="/auth" Component={AuthPage} />
             {/*
               <Route path="/home" component={HomePage} />
