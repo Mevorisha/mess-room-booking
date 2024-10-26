@@ -7,7 +7,12 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: linear-gradient(rgba(210, 210, 210, 0.652), rgba(164, 164, 164, 0.774)), url("../../assets/images/payingGuest.jpeg");
+  background-image: linear-gradient(
+      rgba(210, 210, 210, 0.853),
+      rgba(164, 164, 164, 0.778)
+    ),
+    url("../../assets/images/payingGuest.jpeg");
+  background-position: center bottom;
   background-size: cover;
 }
 
