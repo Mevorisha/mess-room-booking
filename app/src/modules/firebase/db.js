@@ -1,7 +1,24 @@
 import { fbRtdbGetRef, RtDbPaths } from "./init.js";
-import { get, set, update, remove } from "firebase/database";
+import { get, set, update, remove, onValue } from "firebase/database";
 import { logError } from "./util.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
+
+/**
+ * @param {RtDbPaths} subdb - Sub-database in the Realtime Database
+ * @param {string} path - Path in the database to listen for changes
+ * @param {(newData: any) => void} callback - Callback function to run when data changes
+ */
+export function onDbContentChange(subdb, path, callback) {
+  const dbRef = fbRtdbGetRef(subdb, path);
+  const unsubscribe = onValue(dbRef, (snapshot) => {
+    if (snapshot.exists()) {
+      callback(snapshot.val());
+    } else {
+      callback(null);
+    }
+  });
+  return unsubscribe;
+}
 
 /**
  * Create (set) data in the Realtime Database

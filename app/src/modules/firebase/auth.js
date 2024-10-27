@@ -1,4 +1,4 @@
-import { FirebaseAuth, RtDbPaths } from "./init.js";
+import { FirebaseAuth } from "./init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,28 +8,8 @@ import {
   OAuthProvider,
 } from "firebase/auth";
 import { logError } from "./util.js";
-import { fbRtdbRead } from "./db.js";
-import { User } from "../../contexts/auth.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
-
-/**
- * @param {string} uid
- * @returns {Promise<User>}
- */
-export async function getUserDetailsFromUID(uid) {
-  if (!uid) return User.empty();
-  /** @type {string} */
-  const photoURL = await fbRtdbRead(RtDbPaths.IDENTITY, `${uid}/photoURL`);
-  /** @type {"TENANT" | "OWNER"} */
-  const type = await fbRtdbRead(RtDbPaths.IDENTITY, `${uid}/type`);
-
-  /* the ?? is more appropriate here than || because we know in fact
-   * that if data is not found, it will be null, and ?? is specifically
-   * designed to handle nullish values, whereas || is designed to handle
-   * falsy values, which is not the exact case here. */
-  return new User(uid ?? "", type ?? "", photoURL ?? "");
-}
 
 /**
  * @param {(uid: string | null) => void} callback
