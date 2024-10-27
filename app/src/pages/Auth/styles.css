@@ -75,8 +75,9 @@
   gap: var(--pad-2);
 }
 
-.form-container input {
-  padding: var(--pad-2);
+.form-container input:not([type="submit"]) {
+  padding: var(--pad-3);
+  background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
   border: 1px solid var(--color-light);
 }
