@@ -3,7 +3,7 @@ import React, { createContext, useState } from "react";
 export class User {
   /**
    * @param {string} uid
-   * @param {"TENANT" | "OWNER"} type
+   * @param {"TENANT" | "OWNER" | ""} type
    * @param {string} photoURL
    */
   constructor(uid, type, photoURL) {
@@ -13,7 +13,7 @@ export class User {
   }
 
   static empty() {
-    return new User("", "TENANT", "");
+    return new User("", "", "");
   }
 }
 
