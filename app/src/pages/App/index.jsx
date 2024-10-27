@@ -6,7 +6,7 @@ import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
 import LoadingPage from "../../pages/Loading";
 import AuthPage from "../../pages/Auth";
-// import HomePage from "../../pages/Home";
+import HomePage from "../../pages/Home";
 // import NotifPage from "../../pages/Notif";
 // import ProfilePage from "../../pages/Profile";
 // import AccountPage from "../../pages/Account";
@@ -32,8 +32,8 @@ export default function App() {
           <Routes>
             <Route path="/" Component={LoadingPage} />
             <Route path="/auth" Component={AuthPage} />
+            <Route path="/home" Component={HomePage} />
             {/*
-              <Route path="/home" component={HomePage} />
               <Route path="/notif" component={NotifPage} />
               <Route path="/profile" component={ProfilePage} />
               <Route path="/account" component={AccountPage} />
