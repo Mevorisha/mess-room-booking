@@ -17,6 +17,7 @@ async function fbRtdbCreate(subdb, path, data) {
     return Promise.resolve();
   } catch (error) {
     const fullpath = `${subdb}/${path}`;
+    console.error(error.toString());
     await logError("rtdb_create", fullpath, error.code);
     return Promise.reject(ErrorMessages.DATA_WRITE_FAILED);
   }
@@ -35,10 +36,11 @@ async function fbRtdbRead(subdb, path) {
     if (snapshot.exists()) {
       return Promise.resolve(snapshot.val());
     } else {
-      return Promise.resolve("No data available.");
+      return Promise.resolve(null);
     }
   } catch (error) {
     const fullpath = `${subdb}/${path}`;
+    console.error(error.toString());
     await logError("rtdb_read", fullpath, error.code);
     return Promise.reject(ErrorMessages.DATA_READ_FAILED);
   }
@@ -58,6 +60,7 @@ async function fbRtdbUpdate(subpath, path, data) {
     return Promise.resolve();
   } catch (error) {
     const fullpath = `${subpath}/${path}`;
+    console.error(error.toString());
     await logError("rtdb_update", fullpath, error.code);
     return Promise.reject(ErrorMessages.DATA_UPDATE_FAILED);
   }
@@ -76,6 +79,7 @@ async function fbRtdbDelete(subpath, path) {
     return Promise.resolve();
   } catch (error) {
     const fullpath = `${subpath}/${path}`;
+    console.error(error.toString());
     await logError("rtdb_delete", fullpath, error.code);
     return Promise.reject(ErrorMessages.DATA_DELETE_FAILED);
   }
