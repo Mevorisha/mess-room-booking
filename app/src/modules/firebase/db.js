@@ -18,7 +18,7 @@ async function fbRtdbCreate(subdb, path, data) {
   } catch (error) {
     const fullpath = `${subdb}/${path}`;
     console.error(error.toString());
-    await logError("rtdb_create", fullpath, error.code);
+    // await logError("rtdb_create", fullpath, error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_WRITE_FAILED);
   }
 }
@@ -41,7 +41,7 @@ async function fbRtdbRead(subdb, path) {
   } catch (error) {
     const fullpath = `${subdb}/${path}`;
     console.error(error.toString());
-    await logError("rtdb_read", fullpath, error.code);
+    // await logError("rtdb_read", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_READ_FAILED);
   }
 }
@@ -61,7 +61,7 @@ async function fbRtdbUpdate(subpath, path, data) {
   } catch (error) {
     const fullpath = `${subpath}/${path}`;
     console.error(error.toString());
-    await logError("rtdb_update", fullpath, error.code);
+    // await logError("rtdb_update", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_UPDATE_FAILED);
   }
 }
@@ -80,7 +80,7 @@ async function fbRtdbDelete(subpath, path) {
   } catch (error) {
     const fullpath = `${subpath}/${path}`;
     console.error(error.toString());
-    await logError("rtdb_delete", fullpath, error.code);
+    // await logError("rtdb_delete", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_DELETE_FAILED);
   }
 }
