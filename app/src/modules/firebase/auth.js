@@ -1,4 +1,4 @@
-import { FirebaseAuth } from "./init.js";
+import { FirebaseAuth, RtDbPaths } from "./init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,9 +8,24 @@ import {
   OAuthProvider,
 } from "firebase/auth";
 import { logError } from "./util.js";
-import ErrorMessages, {
-  getCleanFirebaseErrMsg,
-} from "../errors/ErrorMessages.js";
+import { fbRtdbRead } from "./db.js";
+import { User } from "../../contexts/auth.js";
+import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
+import ErrorMessages from "../errors/ErrorMessages.js";
+
+/**
+ * @param {string} uid
+ * @returns {Promise<User>}
+ */
+export async function getUserDetailsFromUID(uid) {
+  if (!uid) return User.empty();
+  /** @type {string} */
+  const photoURL = await fbRtdbRead(RtDbPaths.IDENTITY, `${uid}/photoURL`);
+  /** @type {"TENANT" | "OWNER"} */
+  const type = await fbRtdbRead(RtDbPaths.IDENTITY, `${uid}/type`);
+
+  return new User(uid, type, photoURL);
+}
 
 /**
  * @param {(uid: string | null) => void} callback

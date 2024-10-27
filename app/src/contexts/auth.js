@@ -3,9 +3,17 @@ import React, { createContext, useState } from "react";
 export class User {
   /**
    * @param {string} uid
+   * @param {"TENANT" | "OWNER"} type
+   * @param {string} photoURL
    */
-  constructor(uid) {
+  constructor(uid, type, photoURL) {
     this.uid = uid;
+    this.type = type;
+    this.photoURL = photoURL;
+  }
+
+  static empty() {
+    return new User("", "TENANT", "");
   }
 }
 

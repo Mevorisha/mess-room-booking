@@ -2,6 +2,7 @@ import { useEffect, useContext } from "react";
 import { onAuthStateChanged } from "../modules/firebase/auth.js";
 import useNotification from "./notification.js";
 import AuthContext, { User } from "../contexts/auth.js";
+import { getUserDetailsFromUID } from "../modules/firebase/auth.js";
 
 /**
  * @returns {User | null} If null, state is loading. If empty string, user is not logged in. If not empty, user is logged in.
@@ -27,8 +28,13 @@ export default function useAuth() {
   useEffect(() => {
     // console.error("onAuthStateChanged started, uid = ", user.uid);
     const unsubscribe = onAuthStateChanged((useruid) => {
-      if (useruid) setUser(new User(useruid));
-      else setUser(new User(""));
+      if (useruid) {
+        getUserDetailsFromUID(useruid)
+          .then((user) => setUser(user))
+          .catch((e) => notify(e.toString(), "error"));
+      } else {
+        setUser(User.empty());
+      }
       // console.error("onAuthStateChanged updated, uid = ", useruid);
       if (!useruid) notify("You are not logged in", "warning");
     });
