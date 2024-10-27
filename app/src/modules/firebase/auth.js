@@ -24,7 +24,11 @@ export async function getUserDetailsFromUID(uid) {
   /** @type {"TENANT" | "OWNER"} */
   const type = await fbRtdbRead(RtDbPaths.IDENTITY, `${uid}/type`);
 
-  return new User(uid, type, photoURL);
+  /* the ?? is more appropriate here than || because we know in fact
+   * that if data is not found, it will be null, and ?? is specifically
+   * designed to handle nullish values, whereas || is designed to handle
+   * falsy values, which is not the exact case here. */
+  return new User(uid ?? "", type ?? "", photoURL ?? "");
 }
 
 /**
