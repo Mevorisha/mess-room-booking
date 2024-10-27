@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
-import { AuthProvider } from "../../contexts/auth.js";
+import { AuthProvider, AuthState } from "../../contexts/auth.js";
 import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
 import LoadingPage from "../../pages/Loading";
@@ -13,12 +13,12 @@ import HomePage from "../../pages/Home";
 
 function AuthCheck() {
   const navigate = useNavigate();
-  const user = useAuth();
+  const { state: authState } = useAuth();
   useEffect(() => {
-    if (!user) navigate("/");
-    else if (!user.uid) navigate("/auth");
-    else if (user.uid) navigate("/home");
-  }, [user, navigate]);
+    if (authState === AuthState.STILL_LOADING) navigate("/");
+    else if (authState === AuthState.NOT_LOGGED_IN) navigate("/auth");
+    else if (authState === AuthState.LOGGED_IN) navigate("/home");
+  }, [authState, navigate]);
   return null;
 }
 
