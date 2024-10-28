@@ -6,6 +6,7 @@ import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
 import LoadingPage from "../../pages/Loading";
 import AuthPage from "../../pages/Auth";
+import OnboardingPage from "../../pages/Onboarding";
 import HomePage from "../../pages/Home";
 // import NotifPage from "../../pages/Notif";
 // import ProfilePage from "../../pages/Profile";
@@ -17,7 +18,7 @@ function AuthCheck() {
   useEffect(() => {
     if (authState === AuthState.STILL_LOADING) navigate("/");
     else if (authState === AuthState.NOT_LOGGED_IN) navigate("/auth");
-    else if (authState === AuthState.LOGGED_IN) navigate("/home");
+    else if (authState === AuthState.LOGGED_IN) navigate("/onboarding");
   }, [authState, navigate]);
   return null;
 }
@@ -31,6 +32,7 @@ export default function App() {
           <AuthCheck />               {/* redirect to /home if user is logged in, else redirect to /auth */}
           <Routes>
             <Route path="/" Component={LoadingPage} />
+            <Route path="/onboarding" Component={OnboardingPage} />
             <Route path="/auth" Component={AuthPage} />
             <Route path="/home" Component={HomePage} />
             {/*
