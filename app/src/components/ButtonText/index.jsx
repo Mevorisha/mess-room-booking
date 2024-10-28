@@ -38,6 +38,9 @@ export default function ButtonText({
   if (width === "full") {
     width = "100%";
   }
+  if (width === "default") {
+    width = "auto";
+  }
 
   return (
     <input
