@@ -42,15 +42,14 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid transparent;
-  transition: scale 0.2s;
 }
 
 @media (hover: hover) {
   .components-ButtonText-cannibalized:hover {
-    scale: 1.05;
+    text-decoration: underline;
   }
 }
 
 .components-ButtonText-cannibalized:active {
-  scale: 0.95;
+  text-decoration: underline;
 }
