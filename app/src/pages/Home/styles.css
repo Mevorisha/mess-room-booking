@@ -90,12 +90,6 @@
   gap: var(--pad-2);
 }
 
-@media (max-width: 420px) {
-  .pages-Home .topbar .logo-container h1 {
-    display: none;
-  }
-}
-
 .pages-Home .topbar .logo-container img {
   width: 30px;
   height: 30px;
@@ -111,14 +105,26 @@
   color: #333;
 }
 
+@media (max-width: 500px) {
+  .pages-Home .topbar .logo-container h1 {
+    display: none;
+  }
+}
+
 .pages-Home .topbar .section-buttons-container {
   width: 100%;
-  max-width: 250px;
+  max-width: 300px;
+}
+
+@media (max-width: 650px) {
+  .pages-Home .topbar .section-buttons-container {
+    max-width: 250px;
+  }
 }
 
 @media (max-width: 500px) {
   .pages-Home .topbar .section-buttons-container {
-    max-width: 150px;
+    max-width: 200px;
   }
 }
 
