@@ -70,6 +70,8 @@ function SetMobileNumber({ auth }) {
 
   const handleSubmit = useCallback(
     (e) => {
+      e.preventDefault();
+
       /** @type {string} */
       const mobile = e.target[0]?.value;
       /** @type {string} */
