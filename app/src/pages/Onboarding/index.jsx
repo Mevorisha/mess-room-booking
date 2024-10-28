@@ -135,7 +135,7 @@ function SetMobileNumber({ auth }) {
             placeholder={action === "Verify & Submit" ? "OTP" : "Request an OTP first"}
           />
           <div className="submit-container">
-            <ButtonText rounded="all" title={action} kind="primary" />
+            <ButtonText width="40%" rounded="all" title={action} kind="primary" />
           </div>
         </form>
       </div>
