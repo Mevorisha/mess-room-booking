@@ -4,12 +4,12 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-primary);
-  transition: scale 0.2s;
+  transition: filter 0.2s, scale 0.2s;
 }
 
 @media (hover: hover) {
   .components-ButtonText-primary:hover {
-    scale: 1.05;
+    filter: brightness(1.2);
   }
 }
 
@@ -23,12 +23,12 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-secondary);
-  transition: scale 0.2s;
+  transition: filter 0.2s, scale 0.2s;
 }
 
 @media (hover: hover) {
   .components-ButtonText-secondary:hover {
-    scale: 1.05;
+    filter: brightness(1.2);
   }
 }
 
