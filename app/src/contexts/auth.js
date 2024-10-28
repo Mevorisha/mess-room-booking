@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 import { RtDbPaths } from "../modules/firebase/init.js";
 import { onAuthStateChanged } from "../modules/firebase/auth.js";
-import { onDbContentChange } from "../modules/firebase/db.js";
+import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import useNotification from "../hooks/notification.js";
 
 /**
@@ -38,8 +38,8 @@ const AuthContext = createContext({
   state: AuthState.STILL_LOADING,
   /** @type {User} */
   user: User.empty(),
-  /** @type {(user: User) => void} */
-  setUser: () => {},
+  /** @type {(type: "TENANT" | "OWNER" | "EMPTY", photoURL: string) => void} */
+  updateUserDetailsInDb: () => {},
 });
 
 export default AuthContext;
@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
 
   /* listen for auth state changes and update the temporary user */
   useEffect(() => {
-    console.error("onAuthStateChanged started");
+    // console.error("onAuthStateChanged started");
 
     const unsubscribe = onAuthStateChanged((uid) => {
       if (null == uid) setAuthState(AuthState.NOT_LOGGED_IN);
@@ -77,14 +77,12 @@ export function AuthProvider({ children }) {
         setFinalUser(new User(uid));
       }
 
-      console.error(
-        `onAuthStateChanged updated, old = ${userUid}, new = ${uid}`
-      );
+      // console.error(`onAuthStateChanged updated, new = ${uid}`);
       if (null == uid) notify("You are not logged in", "warning");
     });
 
     return () => {
-      console.error("onAuthStateChanged stopped");
+      // console.error("onAuthStateChanged stopped");
       unsubscribe();
     };
   }, [setUserUid, notify]);
@@ -94,27 +92,47 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (authState !== AuthState.LOGGED_IN) return;
 
-    console.error("onDbContentChange started");
+    // console.error("onDbContentChange started");
 
     const unsubscribe = onDbContentChange(
       RtDbPaths.IDENTITY,
       `${userUid}/`,
       (data) => {
-        console.error("onDbContentChange updated, data = ", data);
+        // console.error("onDbContentChange updated, data = ", data);
         if (!data) setFinalUser(new User(userUid));
         else setFinalUser(new User(userUid, data.type, data.photoURL ?? ""));
       }
     );
 
     return () => {
-      console.error("onDbContentChange stopped, finaluser");
+      // console.error("onDbContentChange stopped");
       unsubscribe();
     };
   }, [authState, userUid, setFinalUser]);
 
+  /**
+   * @param {"TENANT" | "OWNER" | "EMPTY"} type
+   * @param {string} photoURL
+   */
+  const updateUserDetailsInDb = useCallback(
+    (type = "EMPTY", photoURL = "") => {
+      const updatePayload = {};
+
+      if (type !== "EMPTY") updatePayload.type = type;
+      if (photoURL) updatePayload.photoURL = photoURL;
+
+      if (Object.keys(updatePayload).length === 0) return;
+
+      fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, updatePayload).catch(
+        (e) => notify(e.toString(), "error")
+      );
+    },
+    [userUid, notify]
+  );
+
   return (
     <AuthContext.Provider
-      value={{ state: authState, user: finalUser, setUser: setFinalUser }}
+      value={{ state: authState, user: finalUser, updateUserDetailsInDb }}
     >
       {children}
     </AuthContext.Provider>

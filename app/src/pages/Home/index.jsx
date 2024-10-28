@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RtDbPaths } from "../../modules/firebase/init.js";
-import { fbRtdbUpdate } from "../../modules/firebase/db.js";
 import { AuthState, User } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
-import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
 import "./styles.css";
 
 /**
- * @param {{ user: User }} props
+ * @param {{ auth: {
+ *   state: AuthState;
+ *   user: User;
+ *   updateUserDetailsInDb: (type: "TENANT" | "OWNER" | "EMPTY", photoURL: string) => void;
+ * } }} props
  */
-function SelectInitialType({ user }) {
+function SelectInitialType({ auth }) {
   const [accountType, setAccountType] = useState(
     /** @type {"TENANT" | "OWNER" | "EMPTY"} */ ("EMPTY")
   );
 
-  const notify = useNotification();
-  const navigate = useNavigate();
-
   useEffect(() => {
     if ("EMPTY" === accountType) return;
     // write the account type to the database
-    fbRtdbUpdate(RtDbPaths.IDENTITY, `${user.uid}/`, {
-      type: accountType,
-    }).catch((e) => notify(e.toString(), "error"));
-  }, [user.type, accountType]);
+    auth.updateUserDetailsInDb(accountType, auth.user.photoURL);
+  }, [auth.user.type, accountType]);
 
   return (
     <div className="pages-Home">
@@ -90,19 +86,19 @@ function HomeForOwner({ user }) {
 }
 
 export default function Home() {
-  const { state: authState, user } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authState === AuthState.STILL_LOADING) navigate("/");
-  }, [authState, navigate]);
+    if (auth.state === AuthState.STILL_LOADING) navigate("/");
+  }, [auth.state, navigate]);
 
-  if (authState === AuthState.STILL_LOADING) return null;
-  if (user.type === "EMPTY") return <SelectInitialType user={user} />;
+  if (auth.state === AuthState.STILL_LOADING) return null;
+  if (auth.user.type === "EMPTY") return <SelectInitialType auth={auth} />;
 
-  return user.type === "TENANT" ? (
-    <HomeForTenant user={user} />
+  return auth.user.type === "TENANT" ? (
+    <HomeForTenant user={auth.user} />
   ) : (
-    <HomeForOwner user={user} />
+    <HomeForOwner user={auth.user} />
   );
 }
