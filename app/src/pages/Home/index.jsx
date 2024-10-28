@@ -4,6 +4,8 @@ import { AuthState, User } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
 import ButtonText from "../../components/ButtonText";
 
+// @ts-ignore
+import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
 
 /**
@@ -53,12 +55,35 @@ function SelectInitialType({ auth }) {
 }
 
 /**
+ * @param {{ children }} props
+ */
+function TopBar({ children }) {
+  return (
+    <div className="topbar">
+      <div className="logo-container">
+        <img src={dpMevorisha} alt="logo" />
+        <h1>Mevorisha</h1>
+      </div>
+      <div className="section-buttons-container">
+        {children}
+      </div>
+      <div className="action-buttons-container">
+        <span><i style={{ fontSize: "1rem" }} className="fa fa-bars"></i></span>
+      </div>
+    </div>
+  );
+}
+
+/**
  * @param {{ user: User }} props
  */
 function HomeForTenant({ user }) {
   return (
     <div className="pages-Home">
-      <div className="topbar"></div>
+      <TopBar>
+        <ButtonText rounded="all" title="Rooms" kind="primary" />
+        <ButtonText rounded="all" title="Booking" kind="cannibalized" />
+      </TopBar>
       <div className="content-container">
         <div className="contents">
           <ul className="content-list">
@@ -78,7 +103,10 @@ function HomeForTenant({ user }) {
 function HomeForOwner({ user }) {
   return (
     <div className="pages-Home">
-      <div className="topbar"></div>
+      <TopBar>
+        <ButtonText rounded="all" title="Rooms" kind="primary" />
+        <ButtonText rounded="all" title="Bookings" kind="cannibalized" />
+      </TopBar>
       <div className="content-container">
         <div className="contents">
           <ul className="content-list">
