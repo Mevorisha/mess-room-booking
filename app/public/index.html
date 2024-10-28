@@ -35,7 +35,39 @@
 </head>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <noscript>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      .enable-js-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #b9b9b9;
+      }
+
+      .enable-js-dialog {
+        max-width: 400px;
+        padding: 20px;
+        border: 1px solid #d3d3d3;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+      }
+    </style>
+    <div class="enable-js-container">
+      <div class="enable-js-dialog">
+        <h2>Enable JavaScript</h2>
+        <p>
+          You need to enable JavaScript to run this app.
+          Click <a href="https://support.google.com/adsense/answer/12654?hl=en" target="_blank">here</a> to see
+          how to enable.
+        </p>
+      </div>
+    </div>
+  </noscript>
   <div id="root"></div>
   <!--
       This HTML file is a template.
