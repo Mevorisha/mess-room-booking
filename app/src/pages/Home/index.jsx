@@ -1,6 +1,4 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { User } from "../../contexts/auth";
+import React, { useEffect } from "react";
 import useAuth from "../../hooks/auth.js";
 import ButtonText from "../../components/ButtonText";
 
@@ -29,7 +27,7 @@ function TopBar({ children }) {
 }
 
 /**
- * @param {{ user: User }} props
+ * @param {{ user: import("../../contexts/auth").User }} props
  */
 function HomeForTenant({ user }) {
   return (
@@ -57,7 +55,7 @@ function HomeForTenant({ user }) {
 }
 
 /**
- * @param {{ user: User }} props
+ * @param {{ user: import("../../contexts/auth").User }} props
  */
 function HomeForOwner({ user }) {
   return (
@@ -86,7 +84,6 @@ function HomeForOwner({ user }) {
 
 export default function Home() {
   const auth = useAuth();
-  const navigate = useNavigate();
 
   return auth.user.type === "TENANT" ? (
     <HomeForTenant user={auth.user} />

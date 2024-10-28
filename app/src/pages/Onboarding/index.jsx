@@ -144,17 +144,6 @@ function SetMobileNumber({ auth }) {
 
 export default function Onboarding() {
   const auth = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (auth.state === AuthState.STILL_LOADING) navigate("/");
-    else if (
-      auth.state === AuthState.LOGGED_IN &&
-      auth.user.type !== "EMPTY" &&
-      auth.user.mobile
-    )
-      navigate("/home");
-  }, [auth.state, auth.user.type, auth.user.mobile, navigate]);
 
   if (auth.state === AuthState.STILL_LOADING) return null;
   if (auth.user.type === "EMPTY") return <SelectInitialType auth={auth} />;

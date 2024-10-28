@@ -14,12 +14,16 @@ import HomePage from "../../pages/Home";
 
 function AuthCheck() {
   const navigate = useNavigate();
-  const { state: authState } = useAuth();
+  const auth = useAuth();
   useEffect(() => {
-    if (authState === AuthState.STILL_LOADING) navigate("/");
-    else if (authState === AuthState.NOT_LOGGED_IN) navigate("/auth");
-    else if (authState === AuthState.LOGGED_IN) navigate("/onboarding");
-  }, [authState, navigate]);
+    if (auth.state === AuthState.STILL_LOADING) navigate("/");
+    else if (auth.state === AuthState.NOT_LOGGED_IN) navigate("/auth");
+    else if (auth.state === AuthState.LOGGED_IN) {
+      if (auth.user.type === "EMPTY") navigate("/onboarding");
+      else if (!auth.user.mobile) navigate("/onboarding");
+      else navigate("/home");
+    }
+  }, [auth.state, auth.user.type, auth.user.mobile, navigate]);
   return null;
 }
 
