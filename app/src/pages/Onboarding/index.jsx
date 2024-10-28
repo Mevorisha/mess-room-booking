@@ -103,21 +103,36 @@ function SetMobileNumber({ auth }) {
 
         <div className="desc">
           <p>
-            Mobile number is required for communication and allows your
-            room {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
+            Mobile number is required for communication and allows your room{" "}
+            {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
+          </p>
+          <h4 style={{ marginTop: "20px" }}>Development Phase - Testing Notes</h4>
+          <p style={{ fontSize: "0.8rem" }}>
+            - If mobile number starts with 1, send simulated will resolve, reject
+            otherwise.<br/>
+            - If OTP starts with 1, verify simulated will resolve true.<br/>
+            - If OTP starts with 2, verify simulated will resolve false.<br/>
+            - If OTP starts with anything else, verify simulated will reject.
           </p>
         </div>
 
-        <form className="form-container">
-          <input required type="tel" placeholder="Mobile Number" />
-          <input required type="text" disabled={action !== "Verify"} placeholder={action === "Verify" ? "OTP" : "Request an OTP first"} />
+        <form className="form-container" onSubmit={handleSubmit}>
+          <input
+            required
+            type="tel"
+            name="mobile"
+            disabled={action === "Verify & Submit"}
+            placeholder="Mobile Number"
+          />
+          <input
+            required
+            type="text"
+            name="otp"
+            disabled={action !== "Verify & Submit"}
+            placeholder={action === "Verify & Submit" ? "OTP" : "Request an OTP first"}
+          />
           <div className="submit-container">
-            <ButtonText
-              rounded="all"
-              title={action}
-              kind="primary"
-              onclick={(e) => handleSubmit(e)}
-            />
+            <ButtonText rounded="all" title={action} kind="primary" />
           </div>
         </form>
       </div>

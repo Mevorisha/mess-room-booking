@@ -34,6 +34,8 @@ function onAuthStateChanged(callback) {
  * @returns {Promise<void>}
  */
 export async function sendOtp(phoneNumber) {
+  if (phoneNumber.startsWith("1")) return Promise.resolve();
+  else return Promise.reject("Phone number rejected");
 }
 
 /**
@@ -42,7 +44,9 @@ export async function sendOtp(phoneNumber) {
  * @returns {Promise<boolean>}
  */
 export async function verifyOtp(otp, number) {
-  return false;
+  if (otp.startsWith("1")) return Promise.resolve(true);
+  else if (otp.startsWith("2")) return Promise.resolve(false);
+  else return Promise.reject("OTP rejected");
 }
 
 class GoogleAuth {
