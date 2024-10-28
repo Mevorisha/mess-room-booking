@@ -5,12 +5,12 @@ import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import useNotification from "../hooks/notification.js";
 
 /**
- * @enum {string}
+ * @enum {"STILL_LOADING" | "NOT_LOGGED_IN" | "LOGGED_IN"}
  */
 export const AuthState = {
-  STILL_LOADING: "STILL_LOADING",
-  NOT_LOGGED_IN: "NOT_LOGGED_IN",
-  LOGGED_IN: "LOGGED_IN",
+  STILL_LOADING: /** @type {"STILL_LOADING"} */ ("STILL_LOADING"),
+  NOT_LOGGED_IN: /** @type {"NOT_LOGGED_IN"} */ ("NOT_LOGGED_IN"),
+  LOGGED_IN: /** @type {"LOGGED_IN"} */ ("LOGGED_IN"),
 };
 
 export class User {
@@ -18,11 +18,13 @@ export class User {
    * @param {string} uid
    * @param {"TENANT" | "OWNER" | "EMPTY"} type
    * @param {string} photoURL
+   * @param {string} mobile
    */
-  constructor(uid, type = "EMPTY", photoURL = "") {
+  constructor(uid, type = "EMPTY", photoURL = "", mobile = "") {
     this.uid = uid;
     this.type = type;
     this.photoURL = photoURL;
+    this.mobile = mobile;
   }
 
   /**
@@ -33,19 +35,24 @@ export class User {
   }
 }
 
+/**
+ * @typedef {{ type?: "TENANT" | "OWNER" | "EMPTY", photoURL?: string, mobile?: string }} UserDetailsUpdatePayload
+ * @typedef {(payload: UserDetailsUpdatePayload) => void} FnUserDetailsUpdate
+ */
+
 const AuthContext = createContext({
   /** @type {AuthState} */
   state: AuthState.STILL_LOADING,
   /** @type {User} */
   user: User.empty(),
-  /** @type {(type: "TENANT" | "OWNER" | "EMPTY", photoURL: string) => void} */
+  /** @type {FnUserDetailsUpdate} */
   updateUserDetailsInDb: () => {},
 });
 
 export default AuthContext;
 
 export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState(AuthState.STILL_LOADING);
+  const [authState, setAuthState] = useState(/** @type {AuthState} */ (AuthState.STILL_LOADING));
   const [userUid, setUserUid] = useState("");
   const [finalUser, setFinalUser] = useState(User.empty());
 
@@ -101,7 +108,15 @@ export function AuthProvider({ children }) {
       (data) => {
         // console.error("onDbContentChange updated, data = ", data);
         if (!data) setFinalUser(new User(userUid));
-        else setFinalUser(new User(userUid, data.type, data.photoURL ?? ""));
+        else
+          setFinalUser(
+            new User(
+              userUid,
+              data.type ?? "EMPTY",
+              data.photoURL ?? "",
+              data.mobile ?? ""
+            )
+          );
         setAuthState(AuthState.LOGGED_IN);
       }
     );
@@ -112,16 +127,16 @@ export function AuthProvider({ children }) {
     };
   }, [authState, userUid, setFinalUser]);
 
-  /**
-   * @param {"TENANT" | "OWNER" | "EMPTY"} type
-   * @param {string} photoURL
-   */
   const updateUserDetailsInDb = useCallback(
-    (type = "EMPTY", photoURL = "") => {
+    /**
+     * @param {UserDetailsUpdatePayload} payload
+     */
+    ({ type = "EMPTY", photoURL = "", mobile = "" }) => {
       const updatePayload = {};
 
       if (type !== "EMPTY") updatePayload.type = type;
       if (photoURL) updatePayload.photoURL = photoURL;
+      if (mobile) updatePayload.mobile = mobile;
 
       if (Object.keys(updatePayload).length === 0) return;
 
