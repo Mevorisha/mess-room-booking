@@ -29,6 +29,22 @@ function onAuthStateChanged(callback) {
   return unsubscribe;
 }
 
+/**
+ * @param {string} phoneNumber
+ * @returns {Promise<void>}
+ */
+export async function sendOtp(phoneNumber) {
+}
+
+/**
+ * @param {string} otp
+ * @param {string} number
+ * @returns {Promise<boolean>}
+ */
+export async function verifyOtp(otp, number) {
+  return false;
+}
+
 class GoogleAuth {
   static googleProvider = new GoogleAuthProvider();
 
