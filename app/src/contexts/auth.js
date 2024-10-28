@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged((uid) => {
       if (null == uid) setAuthState(AuthState.NOT_LOGGED_IN);
       else {
-        setAuthState(AuthState.LOGGED_IN);
+        setAuthState(AuthState.STILL_LOADING);
         setUserUid(uid);
         setFinalUser(new User(uid));
       }
@@ -90,7 +90,8 @@ export function AuthProvider({ children }) {
   /* listen for changes at rtdb at RtDbPaths.IDENTITY/user.uid/ if temp user is updated
    * and update the final user with additional data from rtdb */
   useEffect(() => {
-    if (authState !== AuthState.LOGGED_IN) return;
+    if (!userUid) return;
+    if (authState === AuthState.NOT_LOGGED_IN) return;
 
     // console.error("onDbContentChange started");
 
@@ -101,6 +102,7 @@ export function AuthProvider({ children }) {
         // console.error("onDbContentChange updated, data = ", data);
         if (!data) setFinalUser(new User(userUid));
         else setFinalUser(new User(userUid, data.type, data.photoURL ?? ""));
+        setAuthState(AuthState.LOGGED_IN);
       }
     );
 
