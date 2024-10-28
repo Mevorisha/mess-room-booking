@@ -47,7 +47,7 @@ export default function ButtonText({
       type="submit"
       className={classes.join(" ")}
       onClick={onclick}
-      style={{ width, borderRadius: borderRadiusStyle[rounded] }}
+      style={{ minWidth: width, borderRadius: borderRadiusStyle[rounded] }}
       value={title}
     />
   );
