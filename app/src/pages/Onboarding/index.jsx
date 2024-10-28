@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { sendOtp, verifyOtp } from "../../modules/firebase/auth.js";
 import { AuthState } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
@@ -63,7 +62,7 @@ function SelectInitialType({ auth }) {
  */
 function SetMobileNumber({ auth }) {
   const [action, setAction] = useState(
-    /** @type {"Request OTP" | "Resend OTP" | "Verify"} */ ("Request OTP")
+    /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ ("Request OTP")
   );
 
   const notify = useNotification();
@@ -79,19 +78,21 @@ function SetMobileNumber({ auth }) {
 
       if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
         sendOtp(mobile)
-          .then(() => setAction("Verify"))
+          .then(() => setAction("Verify & Submit"))
           .catch((e) => notify(e.toString(), "error"));
-      } else if (otp && action === "Verify") {
+      } else if (otp && action === "Verify & Submit") {
         // verify otp and submit
         verifyOtp(otp, mobile)
           .then((/** @type {boolean} */ verified) => {
             if (verified && mobile) auth.updateUserDetailsInDb({ mobile });
             else {
-              notify("OTP verification failed", "error");
+              notify("Verification false", "error");
               setAction("Resend OTP");
             }
           })
           .catch((e) => notify(e.toString(), "error"));
+      } else {
+        notify("Please enter a valid mobile number", "error");
       }
     },
     [action, auth, notify]
