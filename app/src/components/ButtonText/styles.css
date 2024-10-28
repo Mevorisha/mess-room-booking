@@ -4,14 +4,17 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-primary);
+  transition: scale 0.2s;
 }
 
-.components-ButtonText-primary:hover {
-  filter: brightness(95%);
+@media (hover: hover) {
+  .components-ButtonText-primary:hover {
+    scale: 1.05;
+  }
 }
 
 .components-ButtonText-primary:active {
-  filter: brightness(90%);
+  scale: 0.95;
 }
 
 .components-ButtonText-secondary {
@@ -20,14 +23,17 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-secondary);
+  transition: scale 0.2s;
 }
 
-.components-ButtonText-secondary:hover {
-  filter: brightness(95%);
+@media (hover: hover) {
+  .components-ButtonText-secondary:hover {
+    scale: 1.05;
+  }
 }
 
 .components-ButtonText-secondary:active {
-  filter: brightness(90%);
+  scale: 0.95;
 }
 
 .components-ButtonText-cannibalized {
@@ -36,12 +42,15 @@
   padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid transparent;
+  transition: scale 0.2s;
 }
 
-.components-ButtonText-cannibalied:hover {
-  filter: brightness(95%);
+@media (hover: hover) {
+  .components-ButtonText-cannibalized:hover {
+    scale: 1.05;
+  }
 }
 
-.components-ButtonText-cannibalied:active {
-  filter: brightness(90%);
+.components-ButtonText-cannibalized:active {
+  scale: 0.95;
 }
