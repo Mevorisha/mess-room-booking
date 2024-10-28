@@ -30,17 +30,38 @@
   box-shadow: var(--shadow);
 }
 
+.pages-Home .select-type-container h1 {
+  margin: var(--pad-0);
+  font-size: 1.3rem;
+}
+
+.pages-Home .select-type-container h4 {
+  margin: var(--pad-0) 0 var(--pad-3) 0;
+  color: var(--color-gray);
+  font-size: 0.9rem;
+}
+
+.pages-Home .select-type-container .desc {
+  margin-bottom: var(--pad-2);
+}
+
+.pages-Home .select-type-container p {
+  margin: var(--pad-0);
+  padding: var(--pad-0);
+  margin-bottom: var(--pad-2);
+}
+
 /* keep width to calc(var(--wid-dialog) - 2 * var(--pad-8))
  * till screen width of 360 if width exceeds 400px, set width
  * to 400px */
 @media (max-width: 360px) {
-  .pages-Auth .container {
+  .pages-Home .select-type-container {
     width: calc(var(--wid-dialog) - 2 * var(--pad-8));
   }
 }
 
 @media (min-width: 420px) {
-  .pages-Auth .container {
+  .pages-Home .select-type-container {
     width: calc(400px - 2 * var(--pad-8));
   }
 }

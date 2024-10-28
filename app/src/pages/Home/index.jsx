@@ -27,7 +27,14 @@ function SelectInitialType({ auth }) {
   return (
     <div className="pages-Home">
       <div className="select-type-container">
-        <h1>Choose your type</h1>
+        <h1>Choose Profile Type</h1>
+        <h4>Profile type can be changed later</h4>
+
+        <div className="desc">
+          <p>If you are going to stay in a room, select Tenant.</p>
+          <p> If you are the owner giving a room for rent select Owner.</p>
+        </div>
+
         <ButtonText
           rounded="all"
           title="Tenant"
