@@ -1,0 +1,147 @@
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { sendOtp, verifyOtp } from "../../modules/firebase/auth.js";
+import { AuthState } from "../../contexts/auth";
+import useAuth from "../../hooks/auth.js";
+import useNotification from "../../hooks/notification.js";
+import ButtonText from "../../components/ButtonText";
+
+import "./styles.css";
+
+/**
+ * @param {{ auth: {
+ *   state: AuthState;
+ *   user: import("../../contexts/auth").User;
+ *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
+ * } }} props
+ */
+function SelectInitialType({ auth }) {
+  const [accountType, setAccountType] = useState(
+    /** @type {"TENANT" | "OWNER" | "EMPTY"} */ ("EMPTY")
+  );
+
+  useEffect(() => {
+    if ("EMPTY" === accountType) return;
+    // write the account type to the database
+    auth.updateUserDetailsInDb({ type: accountType });
+  }, [auth, accountType]);
+
+  return (
+    <div className="pages-Onboarding">
+      <div className="onboarding-container">
+        <h1>Choose Profile Type</h1>
+        <h4>Profile type can be changed later</h4>
+
+        <div className="desc">
+          <p>If you are going to stay in a room, select Tenant.</p>
+          <p> If you are the owner giving a room for rent select Owner.</p>
+        </div>
+
+        <ButtonText
+          rounded="all"
+          title="Tenant"
+          kind="primary"
+          onclick={() => setAccountType("TENANT")}
+        />
+        <ButtonText
+          rounded="all"
+          title="Owner"
+          kind="primary"
+          onclick={() => setAccountType("OWNER")}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * @param {{ auth: {
+ *   state: AuthState;
+ *   user: import("../../contexts/auth").User;
+ *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
+ * } }} props
+ */
+function SetMobileNumber({ auth }) {
+  const [action, setAction] = useState(
+    /** @type {"Request OTP" | "Resend OTP" | "Verify"} */ ("Request OTP")
+  );
+
+  const notify = useNotification();
+
+  const handleSubmit = useCallback(
+    (e) => {
+      /** @type {string} */
+      const mobile = e.target[0]?.value;
+      /** @type {string} */
+      const otp = e.target[1]?.value;
+
+      if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
+        sendOtp(mobile)
+          .then(() => setAction("Verify"))
+          .catch((e) => notify(e.toString(), "error"));
+      } else if (otp && action === "Verify") {
+        // verify otp and submit
+        verifyOtp(otp, mobile)
+          .then((/** @type {boolean} */ verified) => {
+            if (verified && mobile) auth.updateUserDetailsInDb({ mobile });
+            else {
+              notify("OTP verification failed", "error");
+              setAction("Resend OTP");
+            }
+          })
+          .catch((e) => notify(e.toString(), "error"));
+      }
+    },
+    [action, auth, notify]
+  );
+
+  return (
+    <div className="pages-Onboarding">
+      <div className="onboarding-container">
+        <h1>Set Mobile Number</h1>
+        <h4>Mobile number can be changed later</h4>
+
+        <div className="desc">
+          <p>
+            Mobile number is required for communication and allows your
+            room {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
+          </p>
+        </div>
+
+        <form className="form-container">
+          <input required type="tel" placeholder="Mobile Number" />
+          <input required type="text" disabled={action !== "Verify"} placeholder={action === "Verify" ? "OTP" : "Request an OTP first"} />
+          <div className="submit-container">
+            <ButtonText
+              rounded="all"
+              title={action}
+              kind="primary"
+              onclick={(e) => handleSubmit(e)}
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function Onboarding() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (auth.state === AuthState.STILL_LOADING) navigate("/");
+    else if (
+      auth.state === AuthState.LOGGED_IN &&
+      auth.user.type !== "EMPTY" &&
+      auth.user.mobile
+    )
+      navigate("/home");
+  }, [auth.state, auth.user.type, auth.user.mobile, navigate]);
+
+  if (auth.state === AuthState.STILL_LOADING) return null;
+  if (auth.user.type === "EMPTY") return <SelectInitialType auth={auth} />;
+  if (!auth.user.mobile) return <SetMobileNumber auth={auth} />;
+
+  return null;
+}
