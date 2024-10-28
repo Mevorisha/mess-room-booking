@@ -81,8 +81,8 @@ function HomeForTenant({ user }) {
   return (
     <div className="pages-Home">
       <TopBar>
-        <ButtonText width="50%" rounded="all" title="Rooms" kind="primary" />
-        <ButtonText width="50%" rounded="all" title="Booking" kind="cannibalized" />
+        <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
+        <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
       </TopBar>
       <div className="content-container">
         <div className="contents">
@@ -104,8 +104,8 @@ function HomeForOwner({ user }) {
   return (
     <div className="pages-Home">
       <TopBar>
-        <ButtonText rounded="all" title="Rooms" kind="primary" />
-        <ButtonText rounded="all" title="Bookings" kind="cannibalized" />
+        <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
+        <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
       </TopBar>
       <div className="content-container">
         <div className="contents">

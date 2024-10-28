@@ -77,7 +77,7 @@
   position: fixed;
   top: 0;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   width: calc(100% - 2 * var(--pad-4));
   padding: var(--pad-2) var(--pad-4);
@@ -112,10 +112,14 @@
 }
 
 .pages-Home .topbar .section-buttons-container {
-  display: flex;
   width: 100%;
-  max-width: 200px;
-  margin: 0 auto;
+  max-width: 250px;
+}
+
+@media (max-width: 500px) {
+  .pages-Home .topbar .section-buttons-container {
+    max-width: 150px;
+  }
 }
 
 .pages-Home .topbar .action-buttons-container {
