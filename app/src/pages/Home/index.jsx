@@ -81,8 +81,8 @@ function HomeForTenant({ user }) {
   return (
     <div className="pages-Home">
       <TopBar>
-        <ButtonText rounded="all" title="Rooms" kind="primary" />
-        <ButtonText rounded="all" title="Booking" kind="cannibalized" />
+        <ButtonText width="50%" rounded="all" title="Rooms" kind="primary" />
+        <ButtonText width="50%" rounded="all" title="Booking" kind="cannibalized" />
       </TopBar>
       <div className="content-container">
         <div className="contents">
