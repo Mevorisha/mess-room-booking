@@ -156,6 +156,14 @@
   transition: opacity 100ms ease-in-out;
 }
 
+@media (max-width: 360px) {
+  .pages-Home .topbar .action-buttons-container .dropdown {
+    top: 50px;
+    right: var(--pad-0);
+    width: calc(100% - 2 * var(--pad-2));
+  }
+}
+
 .pages-Home .topbar .action-buttons-container .dropdown-anim-init {
   display: none;
   opacity: 0;
