@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import useAuth from "../../hooks/auth.js";
 import ButtonText from "../../components/ButtonText";
 
@@ -10,6 +10,54 @@ import "./styles.css";
  * @param {{ children }} props
  */
 function TopBar({ children }) {
+  const [dropdownState, setDropdownState] = useState(
+    /** @type {"init" | "visible" | "gone"} */ ("init")
+  );
+
+  const [itemClicked, setItemClicked] = useState(
+    /** @type {null | "View Profile" | "Change Name" | "Change Password" | "Change Mobile Number"| "Change profile type" | "Change profile picture" | "Logout"} */ (
+      null
+    )
+  );
+
+  useEffect(() => {
+    if (dropdownState === "init") {
+      setDropdownState("gone");
+    }
+  }, [dropdownState]);
+
+  useEffect(() => {
+    if (itemClicked) {
+      switch (itemClicked) {
+        case "View Profile":
+          break;
+        case "Change Name":
+          break;
+        case "Change Password":
+          break;
+        case "Change Mobile Number":
+          break;
+        case "Change profile type":
+          break;
+        case "Change profile picture":
+          break;
+        case "Logout":
+          break;
+      }
+
+      setItemClicked(null);
+      setDropdownState("gone");
+    }
+  }, [itemClicked]);
+
+  const handleDropdownClick = useCallback(() => {
+    if (dropdownState === "gone") {
+      setDropdownState("visible");
+    } else {
+      setDropdownState("gone");
+    }
+  }, [dropdownState]);
+
   return (
     <div className="topbar">
       <div className="logo-container">
@@ -19,8 +67,56 @@ function TopBar({ children }) {
       <div className="section-buttons-container">{children}</div>
       <div className="action-buttons-container">
         <span>
-          <i style={{ fontSize: "1rem" }} className="fa fa-bars"></i>
+          <i
+            style={{ fontSize: "1rem" }}
+            className="fa fa-bars"
+            onClick={handleDropdownClick}
+          ></i>
         </span>
+        <div className={"dropdown " + `dropdown-anim-${dropdownState}`}>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("View Profile")}
+          >
+            View Profile
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change Name")}
+          >
+            Change Name
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change Password")}
+          >
+            Change Password
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change Mobile Number")}
+          >
+            Change Mobile Number
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change profile type")}
+          >
+            Change profile type
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change profile picture")}
+          >
+            Change profile picture
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Logout")}
+          >
+            Logout
+          </div>
+        </div>
       </div>
     </div>
   );
