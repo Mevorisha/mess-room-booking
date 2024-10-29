@@ -118,7 +118,7 @@ const LinkMobileNumber = {
             phoneAuthCredential
           );
         } else {
-          return Promise.reject(error);
+          throw error;
         }
       }
 
