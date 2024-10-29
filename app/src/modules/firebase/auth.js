@@ -5,6 +5,7 @@ import {
   signInWithPhoneNumber,
   signOut,
   linkWithCredential,
+  unlink,
   GoogleAuthProvider,
   signInWithPopup,
   OAuthProvider,
@@ -103,7 +104,23 @@ const LinkMobileNumber = {
       }
 
       // also updates the user's phone number so updatePhoneNumber is not required
-      await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
+      try {
+        await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
+      } catch (error) {
+        if (error.code === "auth/provider-already-linked") {
+          // TODO: THIS WILL BE REMOVED AND USER NEEDS TO CALL unlinkPhoneNumber() IF NUMBER NEEDS TO BE CHANGED
+          // NOTE: unlinkPhoneNumber() will be called by useAuth().changeMobileNumber() which also unsets the phone number in DB
+          console.warn("remove unlink phone in LinkMobileNumber.verifyOtp");
+          // unlink the existing phone number and link the new one
+          await unlink(FirebaseAuth.currentUser, "phone");
+          await linkWithCredential(
+            FirebaseAuth.currentUser,
+            phoneAuthCredential
+          );
+        } else {
+          return Promise.reject(error);
+        }
+      }
 
       // Optional: Update phone number in user's profile if linking is not required
       // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
@@ -112,6 +129,21 @@ const LinkMobileNumber = {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_verify_otp", errmsg, error.code);
+      return Promise.reject(errmsg);
+    }
+  },
+
+  async unlinkPhoneNumber() {
+    try {
+      if (!FirebaseAuth.currentUser) {
+        return Promise.reject("No user logged in.");
+      }
+
+      await unlink(FirebaseAuth.currentUser, "phone");
+      return Promise.resolve();
+    } catch (error) {
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_unlink_phone", errmsg, error.code);
       return Promise.reject(errmsg);
     }
   },
