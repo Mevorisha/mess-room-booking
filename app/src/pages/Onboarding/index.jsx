@@ -81,7 +81,10 @@ function SetMobileNumber({ auth }) {
       // request otp
       if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
         LinkMobileNumber.sendOtp(mobile)
-          .then(() => setAction("Verify & Submit"))
+          .then(() => {
+            notify("Check your mobile for OTP", "info");
+            setAction("Verify & Submit");
+          })
           .catch((e) => notify(e.toString(), "error"));
       }
 
@@ -147,7 +150,9 @@ function SetMobileNumber({ auth }) {
             name="otp"
             disabled={action !== "Verify & Submit"}
             placeholder={
-              action === "Verify & Submit" ? "Enter OTP" : "Request an OTP first"
+              action === "Verify & Submit"
+                ? "Enter OTP"
+                : "Request an OTP first"
             }
           />
           <div className="submit-container">
