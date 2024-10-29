@@ -2,14 +2,120 @@ import { FirebaseAuth } from "./init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPhoneNumber,
   signOut,
+  linkWithCredential,
   GoogleAuthProvider,
   signInWithPopup,
   OAuthProvider,
+  RecaptchaVerifier,
+  PhoneAuthProvider,
 } from "firebase/auth";
 import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
+
+const AuthConstants = {
+  RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
+  CONFIRMATION_RESULT: "AUTH_OTP_CONFIRMATION_RESULT",
+};
+
+/**
+ * @returns {RecaptchaVerifier}
+ * @throws {Error} If RecaptchaVerifier is not properly initialized.
+ */
+function initializeRecaptcha() {
+  if (window[AuthConstants.RECAPTCHA_VERIFIER])
+    return window[AuthConstants.RECAPTCHA_VERIFIER];
+
+  let recaptchaContainer = document.getElementById("recaptcha-container");
+  recaptchaContainer = document.createElement("div");
+  recaptchaContainer.id = "recaptcha-container";
+  document.body.appendChild(recaptchaContainer);
+
+  const recaptchaVerifier = new RecaptchaVerifier(
+    FirebaseAuth,
+    recaptchaContainer,
+    {
+      size: "invisible",
+    }
+  );
+
+  return (window[AuthConstants.RECAPTCHA_VERIFIER] = recaptchaVerifier);
+}
+
+const LinkMobileNumber = {
+  /**
+   * @param {string} phoneNumber
+   * @returns {Promise<void>}
+   */
+  async sendOtp(phoneNumber) {
+    if (phoneNumber.startsWith("-1")) return Promise.resolve();
+    if (phoneNumber.startsWith("-")) return Promise.reject("Number rejected");
+
+    try {
+      initializeRecaptcha();
+      /**
+       * @type {RecaptchaVerifier}
+       */
+      const recaptchaVerifier = window[AuthConstants.RECAPTCHA_VERIFIER];
+
+      const confirmationResult = await signInWithPhoneNumber(
+        FirebaseAuth,
+        phoneNumber,
+        recaptchaVerifier
+      );
+      window[AuthConstants.CONFIRMATION_RESULT] = confirmationResult;
+      return Promise.resolve();
+    } catch (error) {
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_send_otp", errmsg, error.code);
+      return Promise.reject(errmsg);
+    }
+  },
+
+  /**
+   * @param {string} otp
+   * @returns {Promise<boolean>}
+   */
+  async verifyOtp(otp) {
+    if (otp.startsWith("-1")) return Promise.resolve(true);
+    if (otp.startsWith("-2")) return Promise.resolve(false);
+    if (otp.startsWith("-")) return Promise.reject("OTP rejected");
+
+    /**
+     * @type {import("firebase/auth").ConfirmationResult | null}
+     */
+    const confirmationResult = window[AuthConstants.CONFIRMATION_RESULT];
+    if (!confirmationResult) {
+      return Promise.reject("No OTP sent. Please request a new OTP.");
+    }
+
+    try {
+      // create a PhoneAuthCredential with the OTP and verify it
+      const phoneAuthCredential = PhoneAuthProvider.credential(
+        confirmationResult.verificationId,
+        otp
+      );
+
+      if (!FirebaseAuth.currentUser) {
+        return Promise.reject("No user logged in.");
+      }
+
+      // also updates the user's phone number so updatePhoneNumber is not required
+      await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
+
+      // Optional: Update phone number in user's profile if linking is not required
+      // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
+
+      return Promise.resolve(true);
+    } catch (error) {
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_verify_otp", errmsg, error.code);
+      return Promise.reject(errmsg);
+    }
+  },
+};
 
 /**
  * @param {(uid: string | null) => void} callback
@@ -27,26 +133,6 @@ function onAuthStateChanged(callback) {
   });
 
   return unsubscribe;
-}
-
-/**
- * @param {string} phoneNumber
- * @returns {Promise<void>}
- */
-export async function sendOtp(phoneNumber) {
-  if (phoneNumber.startsWith("1")) return Promise.resolve();
-  else return Promise.reject("Phone number rejected");
-}
-
-/**
- * @param {string} otp
- * @param {string} number
- * @returns {Promise<boolean>}
- */
-export async function verifyOtp(otp, number) {
-  if (otp.startsWith("1")) return Promise.resolve(true);
-  else if (otp.startsWith("2")) return Promise.resolve(false);
-  else return Promise.reject("OTP rejected");
 }
 
 class GoogleAuth {
@@ -249,6 +335,7 @@ class EmailPasswdAuth {
 }
 
 export {
+  LinkMobileNumber,
   onAuthStateChanged,
   GoogleAuth,
   AppleAuth,
