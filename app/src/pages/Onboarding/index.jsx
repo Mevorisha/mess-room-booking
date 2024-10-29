@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { sendOtp, verifyOtp } from "../../modules/firebase/auth.js";
+import { LinkMobileNumber } from "../../modules/firebase/auth.js";
 import { AuthState } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
@@ -62,7 +62,9 @@ function SelectInitialType({ auth }) {
  */
 function SetMobileNumber({ auth }) {
   const [action, setAction] = useState(
-    /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ ("Request OTP")
+    /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ (
+      "Request OTP"
+    )
   );
 
   const notify = useNotification();
@@ -76,13 +78,17 @@ function SetMobileNumber({ auth }) {
       /** @type {string} */
       const otp = e.target[1]?.value;
 
+      // request otp
       if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
-        sendOtp(mobile)
+        LinkMobileNumber.sendOtp(mobile)
           .then(() => setAction("Verify & Submit"))
           .catch((e) => notify(e.toString(), "error"));
-      } else if (otp && action === "Verify & Submit") {
+      }
+
+      // verify otp and submit
+      else if (otp && action === "Verify & Submit") {
         // verify otp and submit
-        verifyOtp(otp, mobile)
+        LinkMobileNumber.verifyOtp(otp)
           .then((/** @type {boolean} */ verified) => {
             if (verified && mobile) auth.updateUserDetailsInDb({ mobile });
             else {
@@ -91,7 +97,10 @@ function SetMobileNumber({ auth }) {
             }
           })
           .catch((e) => notify(e.toString(), "error"));
-      } else {
+      }
+
+      // invalid action
+      else {
         notify("Please enter a valid mobile number", "error");
       }
     },
@@ -109,13 +118,18 @@ function SetMobileNumber({ auth }) {
             Mobile number is required for communication and allows your room{" "}
             {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
           </p>
-          <h4 style={{ marginTop: "20px" }}>Development Phase - Testing Notes</h4>
+          <h4 style={{ marginTop: "20px" }}>
+            Development Phase - Testing Notes
+          </h4>
           <p style={{ fontSize: "0.8rem" }}>
-            - If mobile number starts with 1, send simulated will resolve, reject
-            otherwise.<br/>
-            - If OTP starts with 1, verify simulated will resolve true.<br/>
-            - If OTP starts with 2, verify simulated will resolve false.<br/>
-            - If OTP starts with anything else, verify simulated will reject.
+            - If mobile number starts with -1, send simulated will resolve,
+            reject otherwise.
+            <br />
+            - If OTP starts with -1, verify simulated will resolve true.
+            <br />
+            - If OTP starts with -2, verify simulated will resolve false.
+            <br />- If OTP starts with - anything else, verify simulated will
+            reject.
           </p>
         </div>
 
@@ -125,17 +139,24 @@ function SetMobileNumber({ auth }) {
             type="tel"
             name="mobile"
             disabled={action === "Verify & Submit"}
-            placeholder="Mobile Number"
+            placeholder="Mobile with country code"
           />
           <input
             required
             type="text"
             name="otp"
             disabled={action !== "Verify & Submit"}
-            placeholder={action === "Verify & Submit" ? "OTP" : "Request an OTP first"}
+            placeholder={
+              action === "Verify & Submit" ? "Enter OTP" : "Request an OTP first"
+            }
           />
           <div className="submit-container">
-            <ButtonText width="40%" rounded="all" title={action} kind="primary" />
+            <ButtonText
+              width="40%"
+              rounded="all"
+              title={action}
+              kind="primary"
+            />
           </div>
         </form>
       </div>
