@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/auth.js";
 import ButtonText from "../../components/ButtonText";
 
@@ -11,7 +11,7 @@ import "./styles.css";
  */
 function TopBar({ children }) {
   const [dropdownState, setDropdownState] = useState(
-    /** @type {"init" | "visible" | "gone"} */ ("init")
+    /** @type {"init" | "showing" | "visible" | "hiding"} */ ("init")
   );
 
   const [itemClicked, setItemClicked] = useState(
@@ -19,12 +19,6 @@ function TopBar({ children }) {
       null
     )
   );
-
-  useEffect(() => {
-    if (dropdownState === "init") {
-      setDropdownState("gone");
-    }
-  }, [dropdownState]);
 
   useEffect(() => {
     if (itemClicked) {
@@ -46,17 +40,34 @@ function TopBar({ children }) {
       }
 
       setItemClicked(null);
-      setDropdownState("gone");
+      setDropdownState("hiding");
     }
   }, [itemClicked]);
 
-  const handleDropdownClick = useCallback(() => {
-    if (dropdownState === "gone") {
-      setDropdownState("visible");
-    } else {
-      setDropdownState("gone");
+  useEffect(() => {
+    switch (dropdownState) {
+      case "showing":
+        setDropdownState("visible");
+        break;
+      case "hiding":
+        setTimeout(() => setDropdownState("init"), 100);
+        break;
     }
   }, [dropdownState]);
+
+  /**
+   * @param {"init" | "showing" | "visible" | "hiding"} dropdownState
+   */
+  const handleDropdownClick = (dropdownState) => {
+    switch (dropdownState) {
+      case "init":
+        setDropdownState("showing");
+        break;
+      case "visible":
+        setDropdownState("hiding");
+        break;
+    }
+  };
 
   return (
     <div className="topbar">
@@ -70,7 +81,7 @@ function TopBar({ children }) {
           <i
             style={{ fontSize: "1rem" }}
             className="fa fa-bars"
-            onClick={handleDropdownClick}
+            onClick={() => handleDropdownClick(dropdownState)}
           ></i>
         </span>
         <div className={"dropdown " + `dropdown-anim-${dropdownState}`}>
