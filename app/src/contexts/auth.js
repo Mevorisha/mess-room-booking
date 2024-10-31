@@ -138,7 +138,7 @@ export const UserDetailsEnum = {
  *   lastName?: string
  * }} UserDetailsUpdatePayload
  *
- * @typedef {(payload: UserDetailsUpdatePayload) => void} FnUserDetailsUpdate
+ * @typedef {(payload: UserDetailsUpdatePayload) => Promise<void>} FnUserDetailsUpdate
  */
 
 const AuthContext = createContext({
@@ -147,15 +147,17 @@ const AuthContext = createContext({
   /** @type {User} */
   user: User.empty(),
   /** @type {FnUserDetailsUpdate} */
-  updateUserDetailsInDb: () => {},
-  /** @type {(keys: UserDetailsEnum[]) => void} */
-  removeUserDetailsInDb: () => {},
-  /** @type {(type: "TENANT" | "OWNER" | "EMPTY") => void} */
+  updateUserDetailsInDb: async () => {},
+  /** @type {(keys: UserDetailsEnum[]) => Promise<void>} */
+  removeUserDetailsInDb: async () => {},
+  /** @type {(type: "TENANT" | "OWNER") => void} */
   updateProfileType: () => {},
   /** @type {(image: File) => void} */
   updateProfilePhoto: () => {},
   /** @type {(firstName: string, lastName: string) => void} */
   updateProfileName: () => {},
+  /** @type {(mobile: string, getOtpFromUser: () => Promise<string>) => void} */
+  updateProfileMobileNo: () => {},
 });
 
 export default AuthContext;
@@ -241,8 +243,9 @@ export function AuthProvider({ children }) {
   const updateUserDetailsInDb = useCallback(
     /**
      * @param {UserDetailsUpdatePayload} payload
+     * @returns {Promise<void>}
      */
-    ({
+    async ({
       type = "EMPTY",
       photoURL = "",
       mobile = "",
@@ -257,42 +260,49 @@ export function AuthProvider({ children }) {
       if (firstName) updatePayload.firstName = firstName;
       if (lastName) updatePayload.lastName = lastName;
 
-      if (Object.keys(updatePayload).length === 0) return;
+      if (Object.keys(updatePayload).length === 0) return Promise.resolve();
 
-      fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, updatePayload).catch(
-        (e) => notify(e.toString(), "error")
+      return await fbRtdbUpdate(
+        RtDbPaths.IDENTITY,
+        `${userUid}/`,
+        updatePayload
       );
     },
-    [userUid, notify]
+    [userUid]
   );
 
   const removeUserDetailsInDb = useCallback(
     /**
      * @param {UserDetailsEnum[]} keys
+     * @returns {Promise<void>}
      */
-    (keys) => {
+    async (keys) => {
       const updatePayload = {};
       keys.forEach((key) => {
         updatePayload[key] = null;
       });
 
-      if (Object.keys(updatePayload).length === 0) return;
+      if (Object.keys(updatePayload).length === 0) return Promise.resolve();
 
-      fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, updatePayload).catch(
-        (e) => notify(e.toString(), "error")
+      return await fbRtdbUpdate(
+        RtDbPaths.IDENTITY,
+        `${userUid}/`,
+        updatePayload
       );
     },
-    [userUid, notify]
+    [userUid]
   );
 
   const updateProfileType = useCallback(
     /**
-     * @param {"TENANT" | "OWNER" | "EMPTY"} type
+     * @param {"TENANT" | "OWNER"} type
      */
     (type) => {
-      updateUserDetailsInDb({ type });
+      updateUserDetailsInDb({ type })
+        .then(() => notify("Profile type updated successfully", "success"))
+        .catch((e) => notify(e.toString(), "error"));
     },
-    [updateUserDetailsInDb]
+    [updateUserDetailsInDb, notify]
   );
 
   const updateProfilePhoto = useCallback(
@@ -304,12 +314,15 @@ export function AuthProvider({ children }) {
       // get the url of the uploaded image
       // update the user's photoURL
       fbStorageUpload(StoragePaths.PROFILE_PHOTOS, userUid, image)
-        .then((photoURL) => {
-          updateUserDetailsInDb({ photoURL });
+        .then(async (photoURL) => {
+          await updateUserDetailsInDb({ photoURL });
+          return photoURL;
         })
+        .then((photoURL) => updateProfile({ photoURL }))
+        .then(() => notify("Profile photo updated successfully", "success"))
         .catch((e) => notify(e.toString(), "error"));
     },
-    [userUid, notify, updateUserDetailsInDb]
+    [userUid, updateUserDetailsInDb, notify]
   );
 
   const updateProfileName = useCallback(
@@ -318,7 +331,10 @@ export function AuthProvider({ children }) {
      * @param {string} lastName
      */
     (firstName, lastName) => {
-      updateUserDetailsInDb({ firstName, lastName });
+      updateUserDetailsInDb({ firstName, lastName })
+        .then(() => updateProfile({ firstName, lastName }))
+        .then(() => notify("Profile name updated successfully", "success"))
+        .catch((e) => notify(e.toString(), "error"));
     },
     [updateUserDetailsInDb]
   );
