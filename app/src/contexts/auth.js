@@ -158,8 +158,8 @@ export class User {
  * @typedef  {Object} AuthContextType
  * @property {AuthStateEnum} state
  * @property {User} user
- * @property {FnUserDetailsUpdate} updateUserDetailsInDb
- * @property {(uid: string, keys: UserDetailsEnum[])  => Promise<void>} removeUserDetailsInDb
+ * @property {FnUserDetailsUpdate} updateUserDetails
+ * @property {(uid: string, keys: UserDetailsEnum[])  => Promise<void>} removeUserDetails
  * @property {(type: "TENANT" | "OWNER")              => Promise<void>} updateProfileType
  * @property {(image: File)                           => Promise<string>} updateProfilePhoto
  * @property {(firstName: string, lastName: string)   => Promise<void>} updateProfileName
@@ -174,8 +174,8 @@ const AuthContext = createContext(
   /** @type {AuthContextType} */ ({
     state: AuthStateEnum.STILL_LOADING,
     user: User.empty(),
-    updateUserDetailsInDb: async () => {},
-    removeUserDetailsInDb: async () => {},
+    updateUserDetails: async () => {},
+    removeUserDetails: async () => {},
     updateProfileType: async () => {},
     updateProfilePhoto: async () => "",
     updateProfileName: async () => {},
@@ -214,12 +214,12 @@ async function tiggerAuthDataRefresh(uid) {
  * @param {UserDetailsUpdatePayload} payload
  * @returns {Promise<void>}
  */
-async function updateUserDetailsInDb(
+async function updateUserDetails(
   uid,
   { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
 ) {
   if (!uid) {
-    console.error("updateUserDetailsInDb: uid = ", uid);
+    console.error("updateUserDetails: uid = ", uid);
     return Promise.resolve();
   }
 
@@ -231,17 +231,38 @@ async function updateUserDetailsInDb(
     lastName,
   });
 
-  const updatePayload = {};
+  const updateDbPayload = {};
+  const updateAuthPayload = {};
 
-  if (type !== "EMPTY") updatePayload.type = type;
-  /* following are not updated in rtdb as these are set in Firebase Auth User object */
-  // if (photoURL) updatePayload.photoURL = photoURL;
-  // if (mobile) updatePayload.mobile = mobile;
-  // if (firstName) updatePayload.firstName = firstName;
-  // if (lastName) updatePayload.lastName = lastName;
-  if (Object.keys(updatePayload).length === 0) return Promise.resolve();
+  /* following are updated in Firebase Realtime Database */
+  if (type !== "EMPTY") updateDbPayload.type = type;
 
-  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updatePayload);
+  /* following are updated in Firebase Auth */
+  if (photoURL) updateAuthPayload.photoURL = photoURL;
+  if (firstName && lastName) {
+    updateAuthPayload.displayName = `${firstName} ${lastName}`;
+  } else if ((!firstName && lastName) || (firstName && !lastName)) {
+    return Promise.reject("First name and last name are both required");
+  }
+
+  if (
+    Object.keys(updateDbPayload).length === 0 &&
+    Object.keys(updateAuthPayload).length === 0
+  )
+    return Promise.resolve();
+
+  const updates = [
+    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
+    updateProfile(updateAuthPayload),
+  ];
+
+  return Promise.allSettled(updates).then((results) => {
+    const errors = results
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason);
+    if (errors.length > 0) return Promise.reject(errors);
+    return Promise.resolve();
+  });
 }
 
 /**
@@ -249,22 +270,40 @@ async function updateUserDetailsInDb(
  * @param {UserDetailsEnum[]} keys
  * @returns {Promise<void>}
  */
-async function removeUserDetailsInDb(uid, keys) {
+async function removeUserDetails(uid, keys) {
   if (!uid) {
-    console.error("removeUserDetailsInDb: uid = ", uid);
+    console.error("removeUserDetails: uid = ", uid);
     return Promise.resolve();
   }
 
-  console.log("removeUserDetailsInDb: ", keys);
+  console.log("removeUserDetails: ", keys);
 
-  const updatePayload = {};
+  const updateDbPayload = {};
+  const updateAuthPayload = {};
+
   keys.forEach((key) => {
-    updatePayload[key] = null;
+    if (key === UserDetailsEnum.type) updateDbPayload.type = null;
+    else updateAuthPayload[key] = null;
   });
 
-  if (Object.keys(updatePayload).length === 0) return Promise.resolve();
+  if (
+    Object.keys(updateDbPayload).length === 0 &&
+    Object.keys(updateAuthPayload).length === 0
+  )
+    return Promise.resolve();
 
-  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updatePayload);
+  const updates = [
+    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
+    updateProfile(updateAuthPayload),
+  ];
+
+  return Promise.allSettled(updates).then((results) => {
+    const errors = results
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason);
+    if (errors.length > 0) return Promise.reject(errors);
+    return Promise.resolve();
+  });
 }
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
@@ -334,11 +373,11 @@ export function AuthProvider({ children }) {
       RtDbPaths.IDENTITY,
       `${finalUser.uid}/`,
       (data) => {
-        // console.error("onDbContentChange updated, data = ", data);
-        // console.error(
-        //   "onDbContentChange updated, user = ",
-        //   User.loadCurrentUser()
-        // );
+        console.error("onDbContentChange updated, data = ", data);
+        console.error(
+          "onDbContentChange updated, user = ",
+          User.loadCurrentUser()
+        );
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
@@ -348,7 +387,7 @@ export function AuthProvider({ children }) {
 
         setFinalUser(() => {
           const newUser = User.loadCurrentUser();
-          if (data.type !== "EMPTY") newUser.setType(data.type);
+          if (data.type && data.type !== "EMPTY") newUser.setType(data.type);
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
@@ -375,7 +414,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      updateUserDetailsInDb(finalUser.uid, { type })
+      updateUserDetails(finalUser.uid, { type })
         .then(() => tiggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
@@ -458,7 +497,6 @@ export function AuthProvider({ children }) {
      */
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
-        // .then(() => removeUserDetailsInDb([UserDetailsEnum.mobile]))
         .then(() => tiggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number unlinked successfully", "success")),
     [finalUser.uid, notify]
@@ -488,8 +526,8 @@ export function AuthProvider({ children }) {
       value={{
         state: authState,
         user: finalUser,
-        updateUserDetailsInDb,
-        removeUserDetailsInDb,
+        updateUserDetails,
+        removeUserDetails,
         updateProfileType,
         updateProfilePhoto,
         updateProfileName,
