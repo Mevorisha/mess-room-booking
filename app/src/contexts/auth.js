@@ -138,19 +138,19 @@ export const UserDetailsEnum = {
  *   lastName?: string
  * }} UserDetailsUpdatePayload
  *
- * @typedef {(payload: UserDetailsUpdatePayload) => Promise<void>} FnUserDetailsUpdate
+ * @typedef {(uid: string, payload: UserDetailsUpdatePayload) => Promise<void>} FnUserDetailsUpdate
  *
  * @typedef  {Object} AuthContextType
  * @property {AuthStateEnum} state
  * @property {User} user
  * @property {FnUserDetailsUpdate} updateUserDetailsInDb
- * @property {(keys: UserDetailsEnum[])             => Promise<void>} removeUserDetailsInDb
- * @property {(type: "TENANT" | "OWNER")            => Promise<void>} updateProfileType
- * @property {(image: File)                         => Promise<string>} updateProfilePhoto
- * @property {(firstName: string, lastName: string) => Promise<void>} updateProfileName
- * @property {(number: string)                      => Promise<void>} sendPhoneVerificationCode
- * @property {(otp: string)                         => Promise<void>} verifyPhoneVerificationCode
- * @property {()                                    => Promise<void>} unlinkPhoneNumber
+ * @property {(uid: string, keys: UserDetailsEnum[])  => Promise<void>} removeUserDetailsInDb
+ * @property {(type: "TENANT" | "OWNER")              => Promise<void>} updateProfileType
+ * @property {(image: File)                           => Promise<string>} updateProfilePhoto
+ * @property {(firstName: string, lastName: string)   => Promise<void>} updateProfileName
+ * @property {(number: string)                        => Promise<void>} sendPhoneVerificationCode
+ * @property {(otp: string)                           => Promise<void>} verifyPhoneVerificationCode
+ * @property {()                                      => Promise<void>} unlinkPhoneNumber
  */
 
 const AuthContext = createContext(
@@ -169,6 +169,86 @@ const AuthContext = createContext(
 );
 
 export default AuthContext;
+
+/* ------------------------------------ UPDATE MAJOR FN ----------------------------------- */
+
+/**
+ * @param {string} uid
+ * @returns {Promise<void>}
+ */
+async function tiggerAuthDataRefresh(uid) {
+  if (!uid) {
+    console.error("triggerAuthDataRefresh: uid = ", uid);
+    return Promise.resolve();
+  }
+
+  const currentVal = Date.now();
+  console.log("triggerAuthDataRefresh: ", currentVal);
+
+  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, {
+    refresh: "" + currentVal,
+  });
+}
+
+/**
+ * @param {string} uid
+ * @param {UserDetailsUpdatePayload} payload
+ * @returns {Promise<void>}
+ */
+async function updateUserDetailsInDb(
+  uid,
+  { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
+) {
+  if (!uid) {
+    console.error("updateUserDetailsInDb: uid = ", uid);
+    return Promise.resolve();
+  }
+
+  console.log("updateUserDetailsInDb: ", {
+    type,
+    photoURL,
+    mobile,
+    firstName,
+    lastName,
+  });
+
+  const updatePayload = {};
+
+  if (type !== "EMPTY") updatePayload.type = type;
+  /* following are not updated in rtdb as these are set in Firebase Auth User object */
+  // if (photoURL) updatePayload.photoURL = photoURL;
+  // if (mobile) updatePayload.mobile = mobile;
+  // if (firstName) updatePayload.firstName = firstName;
+  // if (lastName) updatePayload.lastName = lastName;
+  if (Object.keys(updatePayload).length === 0) return Promise.resolve();
+
+  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updatePayload);
+}
+
+/**
+ * @param {string} uid
+ * @param {UserDetailsEnum[]} keys
+ * @returns {Promise<void>}
+ */
+async function removeUserDetailsInDb(uid, keys) {
+  if (!uid) {
+    console.error("removeUserDetailsInDb: uid = ", uid);
+    return Promise.resolve();
+  }
+
+  console.log("removeUserDetailsInDb: ", keys);
+
+  const updatePayload = {};
+  keys.forEach((key) => {
+    updatePayload[key] = null;
+  });
+
+  if (Object.keys(updatePayload).length === 0) return Promise.resolve();
+
+  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updatePayload);
+}
+
+/* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
 export function AuthProvider({ children }) {
   const [authState, setAuthState] = useState(
@@ -264,68 +344,9 @@ export function AuthProvider({ children }) {
       // console.error("onDbContentChange stopped");
       unsubscribe();
     };
-  }, [authState, userUid, setFinalUser]);
+  }, [authState, finalUser.uid, setFinalUser]);
 
-  const tiggerAuthDataRefresh = useCallback(async () => {
-    const currentVal = Date.now();
-    return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, {
-      refresh: "" + currentVal,
-    });
-  }, [userUid]);
-
-  const updateUserDetailsInDb = useCallback(
-    /**
-     * @param {UserDetailsUpdatePayload} payload
-     * @returns {Promise<void>}
-     */
-    async ({
-      type = "EMPTY",
-      photoURL = "",
-      mobile = "",
-      firstName = "",
-      lastName = "",
-    }) => {
-      const updatePayload = {};
-
-      if (type !== "EMPTY") updatePayload.type = type;
-      /* following are not updated in rtdb as these are set in Firebase Auth User object */
-      // if (photoURL) updatePayload.photoURL = photoURL;
-      // if (mobile) updatePayload.mobile = mobile;
-      // if (firstName) updatePayload.firstName = firstName;
-      // if (lastName) updatePayload.lastName = lastName;
-
-      if (Object.keys(updatePayload).length === 0) return Promise.resolve();
-
-      return await fbRtdbUpdate(
-        RtDbPaths.IDENTITY,
-        `${userUid}/`,
-        updatePayload
-      );
-    },
-    [userUid]
-  );
-
-  const removeUserDetailsInDb = useCallback(
-    /**
-     * @param {UserDetailsEnum[]} keys
-     * @returns {Promise<void>}
-     */
-    async (keys) => {
-      const updatePayload = {};
-      keys.forEach((key) => {
-        updatePayload[key] = null;
-      });
-
-      if (Object.keys(updatePayload).length === 0) return Promise.resolve();
-
-      return await fbRtdbUpdate(
-        RtDbPaths.IDENTITY,
-        `${userUid}/`,
-        updatePayload
-      );
-    },
-    [userUid]
-  );
+  /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
     /**
