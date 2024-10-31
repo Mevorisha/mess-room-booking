@@ -162,12 +162,39 @@ export function AuthProvider({ children }) {
     /**
      * @param {UserDetailsUpdatePayload} payload
      */
-    ({ type = "EMPTY", photoURL = "", mobile = "" }) => {
+    ({
+      type = "EMPTY",
+      photoURL = "",
+      mobile = "",
+      firstName = "",
+      lastName = "",
+    }) => {
       const updatePayload = {};
 
       if (type !== "EMPTY") updatePayload.type = type;
       if (photoURL) updatePayload.photoURL = photoURL;
       if (mobile) updatePayload.mobile = mobile;
+      if (firstName) updatePayload.firstName = firstName;
+      if (lastName) updatePayload.lastName = lastName;
+
+      if (Object.keys(updatePayload).length === 0) return;
+
+      fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, updatePayload).catch(
+        (e) => notify(e.toString(), "error")
+      );
+    },
+    [userUid, notify]
+  );
+
+  const removeUserDetailsInDb = useCallback(
+    /**
+     * @param {UserDetailsEnum[]} keys
+     */
+    (keys) => {
+      const updatePayload = {};
+      keys.forEach((key) => {
+        updatePayload[key] = null;
+      });
 
       if (Object.keys(updatePayload).length === 0) return;
 
