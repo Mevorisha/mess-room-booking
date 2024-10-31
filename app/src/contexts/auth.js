@@ -175,7 +175,7 @@ export function AuthProvider({ children }) {
     /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)
   );
   const [userUid, setUserUid] = useState("");
-  const [finalUser, setFinalUser] = useState(User.empty());
+  const [finalUser, setFinalUser] = useState(User.loadCurrentUser());
 
   const notify = useNotification();
 
@@ -197,16 +197,22 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // console.error("onAuthStateChanged started");
 
-    const unsubscribe = onAuthStateChanged((uid) => {
-      if (null == uid) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
+    const unsubscribe = onAuthStateChanged((user) => {
+      if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
+        setUserUid(user.uid);
+        setFinalUser(User.fromFirebaseAuthUser(user));
+        /* mark as still loading as type and identity details are yet to be fetched from rtdb */
         setAuthState(AuthStateEnum.STILL_LOADING);
-        setUserUid(uid);
-        setFinalUser(new User(uid));
       }
 
-      // console.error(`onAuthStateChanged updated, new = ${uid}`);
-      if (null == uid) notify("You are not logged in", "warning");
+      // console.error(
+      //   `onAuthStateChanged updated, new = ${
+      //     user ? User.fromFirebaseAuthUser(user) : null
+      //   }`
+      // );
+
+      if (null == user) notify("You are not logged in", "warning");
     });
 
     return () => {
