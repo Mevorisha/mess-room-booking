@@ -109,7 +109,15 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => setItemClicked("View Profile")}
           >
-            View profile
+            {`View ${auth.user.type === "OWNER" ? "Owner" : "Tenant"} profile`}
+          </div>
+          <div
+            className="dropdown-item"
+            onClick={() => setItemClicked("Change profile type")}
+          >
+            {`Switch to ${
+              auth.user.type === "OWNER" ? "Tenant" : "Owner"
+            } profile`}
           </div>
           <div
             className="dropdown-item"
@@ -121,21 +129,13 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => setItemClicked("Change Password")}
           >
-            Change password
+            Request password change
           </div>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Change Mobile Number")}
           >
             Change mobile number
-          </div>
-          <div
-            className="dropdown-item"
-            onClick={() => setItemClicked("Change profile type")}
-          >
-            {`Switch to ${
-              auth.user.type === "OWNER" ? "tenant" : "owner"
-            } profile`}
           </div>
           <div
             className="dropdown-item"
