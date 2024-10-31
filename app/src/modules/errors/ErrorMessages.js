@@ -13,6 +13,8 @@ const ErrorMessages = {
   DATA_UPDATE_FAILED: "Error updating data in the database.",
   DATA_DELETE_FAILED: "Error deleting data from the database.",
   UNKNOWN_ERROR: "An unknown error occurred.",
+  FILE_UPLOAD_FAILED: "Error uploading file.",
+  FILE_DOWNLOAD_FAILED: "Error downloading file.",
 };
 
 export default ErrorMessages;
