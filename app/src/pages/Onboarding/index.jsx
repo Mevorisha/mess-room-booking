@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { LinkMobileNumber } from "../../modules/firebase/auth.js";
 import { AuthStateEnum } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
@@ -8,22 +7,22 @@ import ButtonText from "../../components/ButtonText";
 import "./styles.css";
 
 /**
- * @param {{ auth: {
- *   state: AuthStateEnum;
- *   user: import("../../contexts/auth").User;
- *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
- * } }} props
+ * @param {{ auth: import("../../contexts/auth").AuthContextType }} props
  */
 function SelectInitialType({ auth }) {
   const [accountType, setAccountType] = useState(
     /** @type {"TENANT" | "OWNER" | "EMPTY"} */ ("EMPTY")
   );
 
+  const notify = useNotification();
+
   useEffect(() => {
     if ("EMPTY" === accountType) return;
     // write the account type to the database
-    auth.updateUserDetailsInDb({ type: accountType });
-  }, [auth, accountType]);
+    auth
+      .updateProfileType(accountType)
+      .catch((e) => notify(e.toString(), "error"));
+  }, [auth, notify, accountType]);
 
   return (
     <div className="pages-Onboarding">
@@ -54,11 +53,7 @@ function SelectInitialType({ auth }) {
 }
 
 /**
- * @param {{ auth: {
- *   state: AuthStateEnum;
- *   user: import("../../contexts/auth").User;
- *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
- * } }} props
+ * @param {{ auth: import("../../contexts/auth").AuthContextType }} props
  */
 function SetMobileNumber({ auth }) {
   const [action, setAction] = useState(
@@ -79,33 +74,21 @@ function SetMobileNumber({ auth }) {
       const otp = e.target[1]?.value;
 
       // request otp
-      if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
-        LinkMobileNumber.sendOtp(mobile)
-          .then(() => {
-            notify("Check your mobile for OTP", "info");
-            setAction("Verify & Submit");
-          })
-          .catch((e) => notify(e.toString(), "error"));
-      }
-
+      if (mobile && (action === "Request OTP" || action === "Resend OTP"))
+        auth
+          .sendPhoneVerificationCode(mobile)
+          .then(() => setAction("Verify & Submit"))
+          .catch((e) => {
+            setAction("Resend OTP");
+            notify(e.toString(), "error");
+          });
       // verify otp and submit
-      else if (otp && action === "Verify & Submit") {
-        // verify otp and submit
-        LinkMobileNumber.verifyOtp(otp)
-          .then((/** @type {boolean} */ verified) => {
-            if (verified && mobile) auth.updateUserDetailsInDb({ mobile });
-            else {
-              notify("Verification false", "error");
-              setAction("Resend OTP");
-            }
-          })
-          .catch((e) => notify(e.toString(), "error"));
-      }
-
+      else if (otp && action === "Verify & Submit")
+        auth
+          .verifyPhoneVerificationCode(otp)
+          .catch(() => setAction("Resend OTP"));
       // invalid action
-      else {
-        notify("Please enter a valid mobile number", "error");
-      }
+      else notify("Please enter a valid mobile number", "error");
     },
     [action, auth, notify]
   );
