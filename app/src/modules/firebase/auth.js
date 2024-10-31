@@ -5,6 +5,7 @@ import {
   signInWithPhoneNumber,
   signOut,
   linkWithCredential,
+  // updatePhoneNumber,
   unlink,
   updateProfile as fbAuthUpdateProfile,
   GoogleAuthProvider,
@@ -167,9 +168,11 @@ class LinkMobileNumber {
         return Promise.reject("No user logged in.");
       }
 
-      // also updates the user's phone number so updatePhoneNumber is not required
       try {
+        // also updates the user's phone number so updatePhoneNumber is not required
         await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
+        // Optional: Update phone number in user's profile if linking is not required
+        // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
       } catch (error) {
         if (error.code === "auth/provider-already-linked") {
           // TODO: THIS WILL BE REMOVED AND USER NEEDS TO CALL unlinkPhoneNumber() IF NUMBER NEEDS TO BE CHANGED
@@ -177,17 +180,20 @@ class LinkMobileNumber {
           console.warn("remove unlink phone in LinkMobileNumber.verifyOtp");
           // unlink the existing phone number and link the new one
           await unlink(FirebaseAuth.currentUser, "phone");
+          // also updates the user's phone number so updatePhoneNumber is not required
           await linkWithCredential(
             FirebaseAuth.currentUser,
             phoneAuthCredential
           );
+          // Optional: Update phone number in user's profile if linking is not required
+          // await updatePhoneNumber(
+          //   FirebaseAuth.currentUser,
+          //   phoneAuthCredential
+          // );
         } else {
           throw error;
         }
       }
-
-      // Optional: Update phone number in user's profile if linking is not required
-      // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
 
       return Promise.resolve(true);
     } catch (error) {
