@@ -266,6 +266,13 @@ export function AuthProvider({ children }) {
     };
   }, [authState, userUid, setFinalUser]);
 
+  const tiggerAuthDataRefresh = useCallback(async () => {
+    const currentVal = Date.now();
+    return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${userUid}/`, {
+      refresh: "" + currentVal,
+    });
+  }, [userUid]);
+
   const updateUserDetailsInDb = useCallback(
     /**
      * @param {UserDetailsUpdatePayload} payload
