@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import useAuth from "../../hooks/auth.js";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
@@ -8,6 +9,8 @@ import "./styles.css";
  * @param {{ children }} props
  */
 export default function TopBar({ children }) {
+  const auth = useAuth();
+
   const [dropdownState, setDropdownState] = useState(
     /** @type {"init" | "showing" | "visible" | "hiding"} */ ("init")
   );
@@ -87,31 +90,31 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => setItemClicked("View Profile")}
           >
-            View Profile
+            View profile
           </div>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Change Name")}
           >
-            Change Name
+            Change display name
           </div>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Change Password")}
           >
-            Change Password
+            Change password
           </div>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Change Mobile Number")}
           >
-            Change Mobile Number
+            Change mobile number
           </div>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Change profile type")}
           >
-            Change profile type
+            {`Switch to ${auth.user.type === "OWNER" ? "tenant" : "owner"} profile`}
           </div>
           <div
             className="dropdown-item"
@@ -122,8 +125,9 @@ export default function TopBar({ children }) {
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("Logout")}
+            style={{ color: "red" }}
           >
-            Logout
+            Log out
           </div>
         </div>
       </div>

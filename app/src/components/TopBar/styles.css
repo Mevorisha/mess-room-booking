@@ -82,7 +82,7 @@
   transition: all 100ms ease-in-out;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 361px) {
   .components-TopBar .action-buttons-container .dropdown {
     top: 50px;
     right: var(--pad-0);
@@ -114,6 +114,12 @@
 }
 
 .components-TopBar .action-buttons-container .dropdown-item:hover {
+  cursor: pointer;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+}
+
+.components-TopBar .action-buttons-container .dropdown-item:active {
   cursor: pointer;
   background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
