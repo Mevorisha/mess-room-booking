@@ -45,12 +45,12 @@ function initializeRecaptcha() {
   return (window[AuthConstants.RECAPTCHA_VERIFIER] = recaptchaVerifier);
 }
 
-const LinkMobileNumber = {
+class LinkMobileNumber {
   /**
    * @param {string} phoneNumber
    * @returns {Promise<void>}
    */
-  async sendOtp(phoneNumber) {
+  static async sendOtp(phoneNumber) {
     if (phoneNumber.startsWith("-1")) return Promise.resolve();
     if (phoneNumber.startsWith("-")) return Promise.reject("Number rejected");
 
@@ -73,13 +73,13 @@ const LinkMobileNumber = {
       logError("auth_send_otp", errmsg, error.code);
       return Promise.reject(errmsg);
     }
-  },
+  }
 
   /**
    * @param {string} otp
    * @returns {Promise<boolean>}
    */
-  async verifyOtp(otp) {
+  static async verifyOtp(otp) {
     if (otp.startsWith("-1")) return Promise.resolve(true);
     if (otp.startsWith("-2")) return Promise.resolve(false);
     if (otp.startsWith("-")) return Promise.reject("OTP rejected");
@@ -131,9 +131,9 @@ const LinkMobileNumber = {
       logError("auth_verify_otp", errmsg, error.code);
       return Promise.reject(errmsg);
     }
-  },
+  }
 
-  async unlinkPhoneNumber() {
+  static async unlinkPhoneNumber() {
     try {
       if (!FirebaseAuth.currentUser) {
         return Promise.reject("No user logged in.");
