@@ -336,7 +336,36 @@ export function AuthProvider({ children }) {
         .then(() => notify("Profile name updated successfully", "success"))
         .catch((e) => notify(e.toString(), "error"));
     },
-    [updateUserDetailsInDb]
+    [updateUserDetailsInDb, notify]
+  );
+
+  const updateProfileMobileNo = useCallback(
+    /**
+     * @param {string} mobile
+     * @param {() => Promise<string>} getOtpFromUser - You need to define this function in your component to get OTP from user
+     */
+    (mobile, getOtpFromUser) => {
+      LinkMobileNumber.sendOtp(mobile)
+        .then(() => getOtpFromUser())
+        .then((otp) =>
+          LinkMobileNumber.verifyOtp(otp)
+            .then((result) => {
+              if (!result)
+                return Promise.reject("Mobile number verification failed");
+              return Promise.resolve();
+            })
+            .catch(async (error) => {
+              if (error?.code !== "auth/provider-already-linked")
+                return Promise.reject(error);
+              await LinkMobileNumber.unlinkPhoneNumber();
+              return await LinkMobileNumber.verifyOtp(otp);
+            })
+        )
+        .then(() => updateUserDetailsInDb({ mobile }))
+        .then(() => notify("Mobile number updated successfully", "success"))
+        .catch((e) => notify(e.toString(), "error"));
+    },
+    [updateUserDetailsInDb, notify]
   );
 
   return (
@@ -349,6 +378,7 @@ export function AuthProvider({ children }) {
         updateProfileType,
         updateProfilePhoto,
         updateProfileName,
+        updateProfileMobileNo,
       }}
     >
       {children}
