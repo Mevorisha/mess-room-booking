@@ -1,0 +1,39 @@
+{
+  "rules": {
+    "db_ProviderProfile": {
+      ".read": "auth != null",                        // Anyone logged in can read
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
+      }
+    },
+    "db_TenantProfile": {
+      ".read": "auth != null",                        // Anyone logged in can read
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
+      }
+    },
+    "db_Identity": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+        ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+        // Validate specific fields
+        ".validate": "(newData.child('type').val() == null || newData.child('type').val() == 'OWNER' || newData.child('type').val() == 'TENANT') && (newData.child('mobile').val() == null || newData.child('mobile').val() == auth.token.phone_number)"
+      }
+    },
+    "db_Logs": {
+      ".read": "false",                               // No one can read
+      ".write": "true"                                // Anyone can write
+    },
+    "db_Feedback": {
+      ".read": "false",         											// No one can read
+      ".write": "auth != null" 											  // Anyone logged in can write
+    },
+    "db_Notification": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their notifications
+        ".write": "auth != null"                      // Anyone logged in can write notifications
+      }
+    }
+  }
+}
