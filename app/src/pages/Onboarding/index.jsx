@@ -110,7 +110,7 @@ function SetMobileNumber({ auth }) {
             Mobile number is required for communication and allows your room{" "}
             {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
           </p>
-          <h4 style={{ marginTop: "20px" }}>
+          {/* <h4 style={{ marginTop: "20px" }}>
             Development Phase - Testing Notes
           </h4>
           <p style={{ fontSize: "0.8rem" }}>
@@ -122,7 +122,7 @@ function SetMobileNumber({ auth }) {
             - If OTP starts with -2, verify simulated will resolve false.
             <br />- If OTP starts with - anything else, verify simulated will
             reject.
-          </p>
+          </p> */}
         </div>
 
         <form className="form-container" onSubmit={handleSubmit}>

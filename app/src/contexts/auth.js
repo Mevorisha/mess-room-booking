@@ -202,7 +202,7 @@ async function tiggerAuthDataRefresh(uid) {
   }
 
   const currentVal = Date.now();
-  console.log("triggerAuthDataRefresh: ", currentVal);
+  // console.log("triggerAuthDataRefresh: ", currentVal);
 
   return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, {
     refresh: "" + currentVal,
@@ -223,13 +223,13 @@ async function updateUserDetails(
     return Promise.resolve();
   }
 
-  console.log("updateUserDetailsInDb: ", {
-    type,
-    photoURL,
-    mobile,
-    firstName,
-    lastName,
-  });
+  // console.log("updateUserDetailsInDb: ", {
+  //   type,
+  //   photoURL,
+  //   mobile,
+  //   firstName,
+  //   lastName,
+  // });
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
@@ -276,7 +276,7 @@ async function removeUserDetails(uid, keys) {
     return Promise.resolve();
   }
 
-  console.log("removeUserDetails: ", keys);
+  // console.log("removeUserDetails: ", keys);
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
