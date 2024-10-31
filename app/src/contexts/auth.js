@@ -19,7 +19,7 @@ import useNotification from "../hooks/notification.js";
 export const AuthStateEnum = {
   STILL_LOADING: /** @type {"STILL_LOADING"} */ ("STILL_LOADING"),
   NOT_LOGGED_IN: /** @type {"NOT_LOGGED_IN"} */ ("NOT_LOGGED_IN"),
-  LOGGED_IN: /** @type {"LOGGED_IN"} */ ("LOGGED_IN"),
+  LOGGED_IN: /**     @type {"LOGGED_IN"}     */ ("LOGGED_IN"),
 };
 
 /**
@@ -122,11 +122,11 @@ export class User {
  * @enum {"type" | "photoURL" | "mobile" | "firstName" | "lastName"}
  */
 export const UserDetailsEnum = {
-  type: /** @type {"type"} */ ("type"),
-  photoURL: /** @type {"photoURL"} */ ("photoURL"),
-  mobile: /** @type {"mobile"} */ ("mobile"),
+  type: /**      @type {"type"}      */ ("type"),
+  photoURL: /**  @type {"photoURL"}  */ ("photoURL"),
+  mobile: /**    @type {"mobile"}    */ ("mobile"),
   firstName: /** @type {"firstName"} */ ("firstName"),
-  lastName: /** @type {"lastName"} */ ("lastName"),
+  lastName: /**  @type {"lastName"}  */ ("lastName"),
 };
 
 /**
@@ -139,26 +139,34 @@ export const UserDetailsEnum = {
  * }} UserDetailsUpdatePayload
  *
  * @typedef {(payload: UserDetailsUpdatePayload) => Promise<void>} FnUserDetailsUpdate
+ *
+ * @typedef  {Object} AuthContextType
+ * @property {AuthStateEnum} state
+ * @property {User} user
+ * @property {FnUserDetailsUpdate} updateUserDetailsInDb
+ * @property {(keys: UserDetailsEnum[])             => Promise<void>} removeUserDetailsInDb
+ * @property {(type: "TENANT" | "OWNER")            => Promise<void>} updateProfileType
+ * @property {(image: File)                         => Promise<string>} updateProfilePhoto
+ * @property {(firstName: string, lastName: string) => Promise<void>} updateProfileName
+ * @property {(number: string)                      => Promise<void>} sendPhoneVerificationCode
+ * @property {(otp: string)                         => Promise<void>} verifyPhoneVerificationCode
+ * @property {()                                    => Promise<void>} unlinkPhoneNumber
  */
 
-const AuthContext = createContext({
-  /** @type {AuthStateEnum} */
-  state: AuthStateEnum.STILL_LOADING,
-  /** @type {User} */
-  user: User.empty(),
-  /** @type {FnUserDetailsUpdate} */
-  updateUserDetailsInDb: async () => {},
-  /** @type {(keys: UserDetailsEnum[]) => Promise<void>} */
-  removeUserDetailsInDb: async () => {},
-  /** @type {(type: "TENANT" | "OWNER") => void} */
-  updateProfileType: () => {},
-  /** @type {(image: File) => void} */
-  updateProfilePhoto: () => {},
-  /** @type {(firstName: string, lastName: string) => void} */
-  updateProfileName: () => {},
-  /** @type {(mobile: string, getOtpFromUser: () => Promise<string>) => void} */
-  updateProfileMobileNo: () => {},
-});
+const AuthContext = createContext(
+  /** @type {AuthContextType} */ ({
+    state: AuthStateEnum.STILL_LOADING,
+    user: User.empty(),
+    updateUserDetailsInDb: async () => {},
+    removeUserDetailsInDb: async () => {},
+    updateProfileType: async () => {},
+    updateProfilePhoto: async () => "",
+    updateProfileName: async () => {},
+    sendPhoneVerificationCode: async () => {},
+    verifyPhoneVerificationCode: async () => {},
+    unlinkPhoneNumber: async () => {},
+  })
+);
 
 export default AuthContext;
 
