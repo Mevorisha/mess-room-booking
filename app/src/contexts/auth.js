@@ -70,8 +70,8 @@ export const UserDetailsEnum = {
  */
 
 const AuthContext = createContext({
-  /** @type {AuthState} */
-  state: AuthState.STILL_LOADING,
+  /** @type {AuthStateEnum} */
+  state: AuthStateEnum.STILL_LOADING,
   /** @type {User} */
   user: User.empty(),
   /** @type {FnUserDetailsUpdate} */
@@ -81,7 +81,9 @@ const AuthContext = createContext({
 export default AuthContext;
 
 export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState(/** @type {AuthState} */ (AuthState.STILL_LOADING));
+  const [authState, setAuthState] = useState(
+    /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)
+  );
   const [userUid, setUserUid] = useState("");
   const [finalUser, setFinalUser] = useState(User.empty());
 
@@ -106,9 +108,9 @@ export function AuthProvider({ children }) {
     // console.error("onAuthStateChanged started");
 
     const unsubscribe = onAuthStateChanged((uid) => {
-      if (null == uid) setAuthState(AuthState.NOT_LOGGED_IN);
+      if (null == uid) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
-        setAuthState(AuthState.STILL_LOADING);
+        setAuthState(AuthStateEnum.STILL_LOADING);
         setUserUid(uid);
         setFinalUser(new User(uid));
       }
@@ -127,7 +129,7 @@ export function AuthProvider({ children }) {
    * and update the final user with additional data from rtdb */
   useEffect(() => {
     if (!userUid) return;
-    if (authState === AuthState.NOT_LOGGED_IN) return;
+    if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
     // console.error("onDbContentChange started");
 
@@ -146,7 +148,7 @@ export function AuthProvider({ children }) {
               data.mobile ?? ""
             )
           );
-        setAuthState(AuthState.LOGGED_IN);
+        setAuthState(AuthStateEnum.LOGGED_IN);
       }
     );
 
