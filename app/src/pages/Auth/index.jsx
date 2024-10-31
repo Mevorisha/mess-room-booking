@@ -10,17 +10,14 @@ import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 
 // write a auth page that has 2 tabs: login and register and also 2=3 buttons "Sign in with Google", "Sign in with Apple", "Sign in with Microsoft"
 export default function Auth() {
-  /**
-   * @type {["login" | "register", React.Dispatch<React.SetStateAction<"login" | "register">>]}
-   */
   const [showSection, setShowSection] = React.useState(
-    /** @type {"login" | "register"} */ ("login")
+    /** @type {"login" | "register" | "resetPasswd"} */ ("login")
   );
 
   const notify = useNotification();
 
   /**
-   * @param {"EMAIL_LOGIN" | "EMAIL_REGISTER"} kind
+   * @param {"EMAIL_LOGIN" | "EMAIL_REGISTER" | "EMAIL_RESET_PASSWD"} kind
    */
   const handleSubmit = (e, kind) => {
     e.preventDefault();
@@ -58,6 +55,13 @@ export default function Auth() {
             notify("Passwords do not match", "error");
           }
           break;
+        case "EMAIL_RESET_PASSWD":
+          EmailPasswdAuth.requestPasswordReset(email)
+            .then(() =>
+              notify("Check your email for password reset link", "success")
+            )
+            .catch((e) => notify(e.toString(), "error"));
+          break;
         default:
           break;
       }
@@ -83,7 +87,11 @@ export default function Auth() {
             title="Login"
             onclick={() => setShowSection("login")}
             rounded="all"
-            kind={showSection === "login" ? "primary" : "cannibalized"}
+            kind={
+              showSection === "login" || showSection == "resetPasswd"
+                ? "primary"
+                : "cannibalized"
+            }
             width="50%"
           />
           <ButtonText
@@ -94,30 +102,60 @@ export default function Auth() {
             width="50%"
           />
         </div>
-        {showSection === "login" ? (
-          <form
-            className="form-container"
-            onSubmit={(e) => handleSubmit(e, "EMAIL_LOGIN")}
-          >
-            <input required type="email" placeholder="Email" />
-            <input required type="password" placeholder="Password" />
-            <div className="submit-container">
-              <ButtonText title="Login" rounded="all" width="50%" />
-            </div>
-          </form>
-        ) : (
-          <form
-            className="form-container"
-            onSubmit={(e) => handleSubmit(e, "EMAIL_REGISTER")}
-          >
-            <input required type="email" placeholder="Email" />
-            <input required type="password" placeholder="Password" />
-            <input required type="password" placeholder="Confirm Password" />
-            <div className="submit-container">
-              <ButtonText title="Register" rounded="all" width="50%" />
-            </div>
-          </form>
-        )}
+        {
+          /* login form */
+          showSection === "login" ? (
+            <form
+              className="form-container"
+              onSubmit={(e) => handleSubmit(e, "EMAIL_LOGIN")}
+            >
+              <input required type="email" placeholder="Email" />
+              <input required type="password" placeholder="Password" />
+              <span
+                className="reset-passwd-link"
+                onClick={() => setShowSection("resetPasswd")}
+              >
+                Reset password
+              </span>
+              <div className="submit-container">
+                <ButtonText title="Login" rounded="all" width="50%" />
+              </div>
+            </form>
+          ) : /* registration form */
+          showSection === "register" ? (
+            <form
+              className="form-container"
+              onSubmit={(e) => handleSubmit(e, "EMAIL_REGISTER")}
+            >
+              <input required type="email" placeholder="Email" />
+              <input required type="password" placeholder="Password" />
+              <input required type="password" placeholder="Confirm Password" />
+              <div className="submit-container">
+                <ButtonText title="Register" rounded="all" width="50%" />
+              </div>
+            </form>
+          ) : (
+            /* reset password form */
+            <form
+              className="form-container"
+              onSubmit={(e) => handleSubmit(e, "EMAIL_RESET_PASSWD")}
+            >
+              <input required type="email" placeholder="Email" />
+              <p style={{ fontSize: "0.9rem", textAlign: "justify" }}>
+                If the email exists in our database, you will receive a password
+                reset link. If you don't receive an email, try again or contact
+                us at{" "}
+                <a href="mailto:mevorisha@gmail.com" target="_blank">
+                  mevorisha@gmail.com
+                </a>
+                .
+              </p>
+              <div className="submit-container">
+                <ButtonText title="Reset Password" rounded="all" width="50%" />
+              </div>
+            </form>
+          )
+        }
         {/* implement login with Google, Apple & Microsoft */}
         <div className="oauth-container">
           <div

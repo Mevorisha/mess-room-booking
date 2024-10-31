@@ -89,6 +89,32 @@
   border: 1px solid var(--color-light);
 }
 
+.pages-Auth .form-container .reset-passwd-link {
+  margin-top: var(--pad-2);
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--color-link);
+  cursor: pointer;
+}
+
+.pages-Auth .form-container .reset-passwd-link:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.pages-Auth .form-container .reset-passwd-link:active {
+  color: var(--color-link);
+}
+
+.pages-Auth .form-container a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.pages-Auth .form-container a:hover {
+  text-decoration: underline;
+}
+
 .pages-Auth .container .button-container {
   display: flex;
   justify-content: space-around;
@@ -98,7 +124,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: var(--pad-8);
+  margin-top: var(--pad-4);
 }
 
 .pages-Auth .container .oauth-container {
