@@ -28,34 +28,42 @@ export default function Auth() {
     const password = e.target[1].value;
     const confirmPassword = e.target[2]?.value;
 
+    let waitForEasterEggTime = 0;
+
     const easterEggsInEmail = checkForEasterEgg(email);
     if (easterEggsInEmail) {
       notify(easterEggsInEmail, "warning");
+      waitForEasterEggTime = 4000;
     } else {
       const easterEggsInPassword = checkForEasterEgg(password);
       if (easterEggsInPassword) {
         notify(easterEggsInPassword, "warning");
+        waitForEasterEggTime = 4000;
       }
     }
 
-    switch (kind) {
-      case "EMAIL_LOGIN":
-        EmailPasswdAuth.login(email, password).catch((e) =>
-          notify(e.toString(), "error")
-        );
-        break;
-      case "EMAIL_REGISTER":
-        if (password === confirmPassword) {
-          EmailPasswdAuth.register(email, password).catch((e) =>
+    const timeout = setTimeout(() => {
+      switch (kind) {
+        case "EMAIL_LOGIN":
+          EmailPasswdAuth.login(email, password).catch((e) =>
             notify(e.toString(), "error")
           );
-        } else {
-          notify("Passwords do not match", "error");
-        }
-        break;
-      default:
-        break;
-    }
+          break;
+        case "EMAIL_REGISTER":
+          if (password === confirmPassword) {
+            EmailPasswdAuth.register(email, password).catch((e) =>
+              notify(e.toString(), "error")
+            );
+          } else {
+            notify("Passwords do not match", "error");
+          }
+          break;
+        default:
+          break;
+      }
+    }, waitForEasterEggTime);
+
+    return () => clearTimeout(timeout);
   };
 
   return (
