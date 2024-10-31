@@ -1,7 +1,8 @@
 // Import Firebase modules from CDN
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref } from "firebase/database";
+import { getDatabase, ref as rtdbRef } from "firebase/database";
+import { getStorage, ref as storageRef } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
 // Firebase configuration (replace with your config)
@@ -31,17 +32,38 @@ const FirebaseRtDb = getDatabase(FirebaseApp);
 // Firebase Auth
 const FirebaseAuth = getAuth(FirebaseApp);
 
+const FirebaseStorage = getStorage(FirebaseApp);
+
 /**
  * Realtime Database paths
- * @enum {string}
+ * @enum {"/db_ProviderProfile" | "/db_TenantProfile" | "/db_Identity" | "/db_Logs" | "/db_Feedback" | "/db_Notification"}
  */
 const RtDbPaths = {
-  PROVIDER_PROFILE: "/db_ProviderProfile",
-  TENANT_PROFILE: "/db_TenantProfile",
-  IDENTITY: "/db_Identity",
-  LOGS: "/db_Logs",
-  FEEDBACK: "/db_Feedback",
-  NOTIFICATION: "/db_Notification",
+  PROVIDER_PROFILE: /** @type {"/db_ProviderProfile"} */ (
+    "/db_ProviderProfile"
+  ),
+  TENANT_PROFILE: /** @type {"/db_TenantProfile"} */ ("/db_TenantProfile"),
+  IDENTITY: /** @type {"/db_Identity"} */ ("/db_Identity"),
+  LOGS: /** @type {"/db_Logs"} */ ("/db_Logs"),
+  FEEDBACK: /** @type {"/db_Feedback"} */ ("/db_Feedback"),
+  NOTIFICATION: /** @type {"/db_Notification"} */ ("/db_Notification"),
+};
+
+/**
+ * Storage paths
+ * @enum {"/storg_ProfilePhotos" | "/storg_MessPhotos" | "/storg_IdentityDocuments" | "/storg_FeedbackPhotos"}
+ */
+const StoragePaths = {
+  PROFILE_PHOTOS: /** @type {"/storg_ProfilePhotos"} */ (
+    "/storg_ProfilePhotos"
+  ),
+  MESS_PHOTOS: /** @type {"/storg_MessPhotos"} */ ("/storg_MessPhotos"),
+  IDENTITY_DOCUMENTS: /** @type {"/storg_IdentityDocuments"} */ (
+    "/storg_IdentityDocuments"
+  ),
+  FEEDBACK_PHOTOS: /** @type {"/storg_FeedbackPhotos"} */ (
+    "/storg_FeedbackPhotos"
+  ),
 };
 
 /**Path
@@ -53,14 +75,23 @@ function fbRtdbGetRef() {
   // convert arguments keyword into an array
   const args = Array.from(arguments);
   const path = args.join("/");
-  return ref(FirebaseRtDb, path);
+  return rtdbRef(FirebaseRtDb, path);
+}
+
+function fbStorageGetRef() {
+  const args = Array.from(arguments);
+  const path = args.join("/");
+  return storageRef(FirebaseStorage, path);
 }
 
 export {
   fbRtdbGetRef,
+  fbStorageGetRef,
   FirebaseApp,
   FirebaseAnalytics,
   FirebaseRtDb,
   FirebaseAuth,
+  FirebaseStorage,
   RtDbPaths,
+  StoragePaths,
 };
