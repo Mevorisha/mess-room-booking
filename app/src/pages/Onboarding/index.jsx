@@ -79,7 +79,8 @@ function SetMobileNumber({ auth }) {
       const otp = e.target[1]?.value;
 
       // request otp
-      if (mobile && (action === "Request OTP" || action === "Resend OTP"))
+      if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
+        notify("Please wait while we send the OTP", "warning");
         auth
           .sendPhoneVerificationCode(mobile)
           .then(() => setAction("Verify & Submit"))
@@ -87,12 +88,17 @@ function SetMobileNumber({ auth }) {
             setAction("Resend OTP");
             notify(e.toString(), "error");
           });
+      }
+
       // verify otp and submit
-      else if (otp && action === "Verify & Submit")
+      else if (otp && action === "Verify & Submit") {
+        notify("Please wait while we verify the OTP", "warning");
         auth.verifyPhoneVerificationCode(otp).catch((e) => {
           setAction("Resend OTP");
           notify(e.toString(), "error");
         });
+      }
+
       // invalid action
       else notify("Please enter a valid mobile number", "error");
     },
