@@ -23,14 +23,14 @@ const AuthConstants = {
 };
 
 /**
- * @param {(uid: string | null) => void} callback
+ * @param {(uid: import("firebase/auth").User | null) => void} callback
  * @returns {import("firebase/auth").Unsubscribe}
  */
 function onAuthStateChanged(callback) {
   const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
     if (user) {
       localStorage.setItem("uid", user.uid);
-      callback(user.uid);
+      callback(user);
     } else {
       localStorage.removeItem("uid");
       callback(null);
