@@ -13,6 +13,8 @@ import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
 
+/* -------------------------------------- ENUMS ----------------------------------- */
+
 /**
  * @enum {"STILL_LOADING" | "NOT_LOGGED_IN" | "LOGGED_IN"}
  */
@@ -21,6 +23,19 @@ export const AuthStateEnum = {
   NOT_LOGGED_IN: /** @type {"NOT_LOGGED_IN"} */ ("NOT_LOGGED_IN"),
   LOGGED_IN: /**     @type {"LOGGED_IN"}     */ ("LOGGED_IN"),
 };
+
+/**
+ * @enum {"type" | "photoURL" | "mobile" | "firstName" | "lastName"}
+ */
+export const UserDetailsEnum = {
+  type: /**      @type {"type"}      */ ("type"),
+  photoURL: /**  @type {"photoURL"}  */ ("photoURL"),
+  mobile: /**    @type {"mobile"}    */ ("mobile"),
+  firstName: /** @type {"firstName"} */ ("firstName"),
+  lastName: /**  @type {"lastName"}  */ ("lastName"),
+};
+
+/* -------------------------------------- USER CLASS ----------------------------------- */
 
 /**
  * @class
@@ -85,6 +100,13 @@ export class User {
   }
 
   /**
+   * @returns {boolean}
+   */
+  isNotEmpty() {
+    return this.uid !== "";
+  }
+
+  /**
    * @returns {User}
    */
   clone() {
@@ -118,16 +140,7 @@ export class User {
   }
 }
 
-/**
- * @enum {"type" | "photoURL" | "mobile" | "firstName" | "lastName"}
- */
-export const UserDetailsEnum = {
-  type: /**      @type {"type"}      */ ("type"),
-  photoURL: /**  @type {"photoURL"}  */ ("photoURL"),
-  mobile: /**    @type {"mobile"}    */ ("mobile"),
-  firstName: /** @type {"firstName"} */ ("firstName"),
-  lastName: /**  @type {"lastName"}  */ ("lastName"),
-};
+/* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
 /**
  * @typedef {{
@@ -272,6 +285,8 @@ export function AuthProvider({ children }) {
    * This stops the first listener and keeps only the 2nd listener active.
    */
 
+  /* ------------------------------------ USE EFFECTS AUTH STATE LISTENER ----------------------------------- */
+
   /* listen for auth state changes and update the temporary user */
   useEffect(() => {
     // console.error("onAuthStateChanged started");
@@ -279,7 +294,6 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged((user) => {
       if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
-        setUserUid(user.uid);
         setFinalUser(User.fromFirebaseAuthUser(user));
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
         setAuthState(AuthStateEnum.STILL_LOADING);
@@ -298,7 +312,9 @@ export function AuthProvider({ children }) {
       // console.error("onAuthStateChanged stopped");
       unsubscribe();
     };
-  }, [setUserUid, notify]);
+  }, [notify]);
+
+  /* --------------------------------------- USE EFFECTS RTDB LISTENER ----------------------------------- */
 
   /* listen for changes at rtdb at RtDbPaths.IDENTITY/user.uid/ if temp user is updated
    * and update the final user with additional data from rtdb */
