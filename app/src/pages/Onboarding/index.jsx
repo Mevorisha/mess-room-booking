@@ -16,13 +16,18 @@ function SelectInitialType({ auth }) {
 
   const notify = useNotification();
 
+  const updateProfileType = useCallback(
+    /** @param {"TENANT" | "OWNER"} type */
+    (type) => auth.updateProfileType(type),
+    [auth]
+  );
+
   useEffect(() => {
     if ("EMPTY" === accountType) return;
+    console.log("Account type selected:", accountType);
     // write the account type to the database
-    auth
-      .updateProfileType(accountType)
-      .catch((e) => notify(e.toString(), "error"));
-  }, [auth, notify, accountType]);
+    updateProfileType(accountType).catch((e) => notify(e.toString(), "error"));
+  }, [updateProfileType, notify, accountType]);
 
   return (
     <div className="pages-Onboarding">
@@ -84,12 +89,10 @@ function SetMobileNumber({ auth }) {
           });
       // verify otp and submit
       else if (otp && action === "Verify & Submit")
-        auth
-          .verifyPhoneVerificationCode(otp)
-          .catch((e) => {
-            setAction("Resend OTP");
-            notify(e.toString(), "error");
-          });
+        auth.verifyPhoneVerificationCode(otp).catch((e) => {
+          setAction("Resend OTP");
+          notify(e.toString(), "error");
+        });
       // invalid action
       else notify("Please enter a valid mobile number", "error");
     },
