@@ -1,0 +1,120 @@
+.components-TopBar {
+  position: fixed;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 2 * var(--pad-4));
+  padding: var(--pad-2) var(--pad-4);
+  background-color: var(--color-bg-primary);
+}
+
+.components-TopBar .logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-2);
+}
+
+.components-TopBar .logo-container img {
+  width: 30px;
+  height: 30px;
+  /* crop the image */
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #b3b3b3;
+}
+
+.components-TopBar .logo-container h1 {
+  margin: var(--pad-0);
+  font-size: 1rem;
+  color: #333;
+}
+
+@media (max-width: 500px) {
+  .components-TopBar .logo-container h1 {
+    display: none;
+  }
+}
+
+.components-TopBar .section-buttons-container {
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .section-buttons-container {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 500px) {
+  .components-TopBar .section-buttons-container {
+    max-width: 200px;
+  }
+}
+
+.components-TopBar .action-buttons-container {
+  display: flex;
+  gap: var(--pad-4);
+  user-select: none;
+}
+
+.components-TopBar .action-buttons-container span {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.components-TopBar .action-buttons-container span:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.components-TopBar .action-buttons-container .dropdown {
+  position: absolute;
+  top: 45px;
+  right: var(--pad-3);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-bg-secondary);
+  box-shadow: var(--shadow);
+  padding: var(--pad-2);
+  transition: all 100ms ease-in-out;
+}
+
+@media (max-width: 360px) {
+  .components-TopBar .action-buttons-container .dropdown {
+    top: 50px;
+    right: var(--pad-0);
+    width: calc(100% - 2 * var(--pad-2));
+  }
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-init {
+  display: none;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-showing {
+  display: block;
+  opacity: 0;
+  transition: opacity 100ms ease-in-out;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-visible {
+  opacity: 1;
+  transition: opacity 100ms ease-in-out;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-hiding {
+  opacity: 0;
+}
+
+.components-TopBar .action-buttons-container .dropdown-item {
+  padding: var(--pad-2);
+}
+
+.components-TopBar .action-buttons-container .dropdown-item:hover {
+  cursor: pointer;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+}
