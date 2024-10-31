@@ -373,11 +373,11 @@ export function AuthProvider({ children }) {
       RtDbPaths.IDENTITY,
       `${finalUser.uid}/`,
       (data) => {
-        console.error("onDbContentChange updated, data = ", data);
-        console.error(
-          "onDbContentChange updated, user = ",
-          User.loadCurrentUser()
-        );
+        // console.error("onDbContentChange updated, data = ", data);
+        // console.error(
+        //   "onDbContentChange updated, user = ",
+        //   User.loadCurrentUser()
+        // );
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
