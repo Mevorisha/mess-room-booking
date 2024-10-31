@@ -38,6 +38,8 @@ export default function TopBar({ children }) {
           break;
         case "Logout":
           break;
+        default:
+          break;
       }
 
       setItemClicked(null);
@@ -53,6 +55,8 @@ export default function TopBar({ children }) {
       case "hiding":
         setTimeout(() => setDropdownState("init"), 100);
         break;
+      default:
+        break;
     }
   }, [dropdownState]);
 
@@ -66,6 +70,8 @@ export default function TopBar({ children }) {
         break;
       case "visible":
         setDropdownState("hiding");
+        break;
+      default:
         break;
     }
   };
@@ -85,7 +91,7 @@ export default function TopBar({ children }) {
             onClick={() => handleDropdownClick(dropdownState)}
           ></i>
         </span>
-        <div className={"dropdown " + `dropdown-anim-${dropdownState}`}>
+        <div className={`dropdown dropdown-anim-${dropdownState}`}>
           <div
             className="dropdown-item"
             onClick={() => setItemClicked("View Profile")}
