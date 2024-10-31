@@ -6,6 +6,7 @@ import useNotification from "../../hooks/notification.js";
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
+import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 
 // write a auth page that has 2 tabs: login and register and also 2=3 buttons "Sign in with Google", "Sign in with Apple", "Sign in with Microsoft"
 export default function Auth() {
@@ -26,6 +27,16 @@ export default function Auth() {
     const email = e.target[0].value;
     const password = e.target[1].value;
     const confirmPassword = e.target[2]?.value;
+
+    const easterEggsInEmail = checkForEasterEgg(email);
+    if (easterEggsInEmail) {
+      notify(easterEggsInEmail, "warning");
+    } else {
+      const easterEggsInPassword = checkForEasterEgg(password);
+      if (easterEggsInPassword) {
+        notify(easterEggsInPassword, "warning");
+      }
+    }
 
     switch (kind) {
       case "EMAIL_LOGIN":
