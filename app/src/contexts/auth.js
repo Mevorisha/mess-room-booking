@@ -234,16 +234,28 @@ export function AuthProvider({ children }) {
       `${userUid}/`,
       (data) => {
         // console.error("onDbContentChange updated, data = ", data);
-        if (!data) setFinalUser(new User(userUid));
-        else
-          setFinalUser(
-            new User(
-              userUid,
-              data.type ?? "EMPTY",
-              data.photoURL ?? "",
-              data.mobile ?? ""
-            )
-          );
+        // console.error(
+        //   "onDbContentChange updated, user = ",
+        //   User.loadCurrentUser()
+        // );
+
+        if (!data) {
+          setFinalUser(User.loadCurrentUser());
+          setAuthState(AuthStateEnum.LOGGED_IN);
+          return;
+        }
+
+        setFinalUser(() => {
+          const newUser = User.loadCurrentUser();
+          if (data.type !== "EMPTY") newUser.setType(data.type);
+          /* following are not updated here as these are set by onAuthStateChanged */
+          // if (data.photoURL) newUser.photoURL = data.photoURL;
+          // if (data.mobile) newUser.mobile = data.mobile;
+          // if (data.firstName) newUser.firstName = data.firstName;
+          // if (data.lastName) newUser.lastName = data.lastName;
+          return newUser;
+        });
+
         setAuthState(AuthStateEnum.LOGGED_IN);
       }
     );
