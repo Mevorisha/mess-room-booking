@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/auth.js";
+import useNotification from "../../hooks/notification.js";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
@@ -10,6 +11,7 @@ import "./styles.css";
  */
 export default function TopBar({ children }) {
   const auth = useAuth();
+  const notify = useNotification();
 
   const [dropdownState, setDropdownState] = useState(
     /** @type {"init" | "showing" | "visible" | "hiding"} */ ("init")
@@ -29,14 +31,25 @@ export default function TopBar({ children }) {
         case "Change Name":
           break;
         case "Change Password":
+          auth
+            .requestPasswordReset()
+            .catch((e) => notify(e.toString(), "error"));
           break;
         case "Change Mobile Number":
+          auth
+            .unlinkPhoneNumber()
+            .then(() => notify("Mobile number unlinked", "info"))
+            .catch((e) => notify(e.toString(), "error"));
           break;
         case "Change profile type":
+          auth
+            .removeUserDetails(auth.user.uid, ["type"])
+            .catch((e) => notify(e.toString(), "error"));
           break;
         case "Change profile picture":
           break;
         case "Logout":
+          auth.logOut().catch((e) => notify(e.toString(), "error"));
           break;
         default:
           break;
@@ -45,7 +58,7 @@ export default function TopBar({ children }) {
       setItemClicked(null);
       setDropdownState("hiding");
     }
-  }, [itemClicked]);
+  }, [auth, auth.user.uid, notify, itemClicked]);
 
   useEffect(() => {
     switch (dropdownState) {
@@ -120,7 +133,9 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => setItemClicked("Change profile type")}
           >
-            {`Switch to ${auth.user.type === "OWNER" ? "tenant" : "owner"} profile`}
+            {`Switch to ${
+              auth.user.type === "OWNER" ? "tenant" : "owner"
+            } profile`}
           </div>
           <div
             className="dropdown-item"
