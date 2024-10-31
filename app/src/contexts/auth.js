@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import { RtDbPaths } from "../modules/firebase/init.js";
+import { RtDbPaths, StoragePaths } from "../modules/firebase/init.js";
 import { onAuthStateChanged } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
+import { fbStorageUpload } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
 
 /**
@@ -76,6 +77,14 @@ const AuthContext = createContext({
   user: User.empty(),
   /** @type {FnUserDetailsUpdate} */
   updateUserDetailsInDb: () => {},
+  /** @type {(keys: UserDetailsEnum[]) => void} */
+  removeUserDetailsInDb: () => {},
+  /** @type {(type: "TENANT" | "OWNER" | "EMPTY") => void} */
+  updateProfileType: () => {},
+  /** @type {(image: File) => void} */
+  updateProfilePhoto: () => {},
+  /** @type {(firstName: string, lastName: string) => void} */
+  updateProfileName: () => {},
 });
 
 export default AuthContext;
@@ -205,9 +214,55 @@ export function AuthProvider({ children }) {
     [userUid, notify]
   );
 
+  const updateProfileType = useCallback(
+    /**
+     * @param {"TENANT" | "OWNER" | "EMPTY"} type
+     */
+    (type) => {
+      updateUserDetailsInDb({ type });
+    },
+    [updateUserDetailsInDb]
+  );
+
+  const updateProfilePhoto = useCallback(
+    /**
+     * @param {File} image
+     */
+    (image) => {
+      // upload image to firebase storage
+      // get the url of the uploaded image
+      // update the user's photoURL
+      fbStorageUpload(StoragePaths.PROFILE_PHOTOS, userUid, image)
+        .then((photoURL) => {
+          updateUserDetailsInDb({ photoURL });
+        })
+        .catch((e) => notify(e.toString(), "error"));
+    },
+    [userUid, notify, updateUserDetailsInDb]
+  );
+
+  const updateProfileName = useCallback(
+    /**
+     * @param {string} firstName
+     * @param {string} lastName
+     */
+    (firstName, lastName) => {
+      updateUserDetailsInDb({ firstName, lastName });
+    },
+    [updateUserDetailsInDb]
+  );
+
   return (
     <AuthContext.Provider
-      value={{ state: authState, user: finalUser, updateUserDetailsInDb }}
+      value={{
+        state: authState,
+        user: finalUser,
+        updateUserDetailsInDb,
+        removeUserDetailsInDb,
+        updateProfileType,
+        updateProfilePhoto,
+        updateProfileName,
+      }}
     >
       {children}
     </AuthContext.Provider>
