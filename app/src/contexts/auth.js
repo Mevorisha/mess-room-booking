@@ -1,6 +1,14 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
-import { RtDbPaths, StoragePaths } from "../modules/firebase/init.js";
-import { onAuthStateChanged } from "../modules/firebase/auth.js";
+import {
+  FirebaseAuth,
+  RtDbPaths,
+  StoragePaths,
+} from "../modules/firebase/init.js";
+import {
+  LinkMobileNumber,
+  onAuthStateChanged,
+  updateProfile,
+} from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
@@ -14,29 +22,34 @@ export const AuthStateEnum = {
   LOGGED_IN: /** @type {"LOGGED_IN"} */ ("LOGGED_IN"),
 };
 
+/**
+ * @class
+ * @property {string} uid
+ * @property {string} photoURL
+ * @property {string} mobile
+ * @property {string} firstName
+ * @property {string} lastName
+ * @property {"EMPTY" | "TENANT" | "OWNER"} type
+ * @method setType
+ */
 export class User {
   /**
+   * The type is set to "EMPTY" by default.
+   * Type is not included in the constructor because it is not available in Firebase Auth User object.
+   * It is to be set using the setType method after the user details are fetched from the database.
    * @param {string} uid
-   * @param {"TENANT" | "OWNER" | "EMPTY"} type
    * @param {string} photoURL
    * @param {string} mobile
    * @param {string} firstName
    * @param {string} lastName
    */
-  constructor(
-    uid,
-    type = "EMPTY",
-    photoURL = "",
-    mobile = "",
-    firstName = "",
-    lastName = ""
-  ) {
+  constructor(uid, photoURL = "", mobile = "", firstName = "", lastName = "") {
     this.uid = uid;
-    this.type = type;
     this.photoURL = photoURL;
     this.mobile = mobile;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.type = /** @type {"EMPTY" | "TENANT" | "OWNER"} */ ("EMPTY");
   }
 
   /**
@@ -44,6 +57,64 @@ export class User {
    */
   static empty() {
     return new User("");
+  }
+
+  /**
+   * Extracts user details from Firebase Auth User object.
+   * @param {import("firebase/auth").User} user
+   * @returns {User}
+   */
+  static fromFirebaseAuthUser(user) {
+    return new User(
+      user.uid,
+      user.photoURL ?? "",
+      user.phoneNumber ?? "",
+      user.displayName?.split(" ")[0] ?? "",
+      user.displayName?.split(" ")[1] ?? ""
+    );
+  }
+
+  /**
+   * Loads the current user from Firebase Auth.
+   * @returns {User}
+   */
+  static loadCurrentUser() {
+    const authUser = FirebaseAuth.currentUser;
+    if (!authUser) return User.empty();
+    return User.fromFirebaseAuthUser(authUser);
+  }
+
+  /**
+   * @returns {User}
+   */
+  clone() {
+    const user = new User(
+      this.uid,
+      this.photoURL,
+      this.mobile,
+      this.firstName,
+      this.lastName
+    );
+    if (this.type !== "EMPTY") user.setType(this.type);
+    return user;
+  }
+
+  /**
+   * Type does not exist on Firebase Auth User object.
+   * Therefore, it is not included in the constructor.
+   * @param {"TENANT" | "OWNER"} type
+   * @returns {this}
+   */
+  setType(type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString() {
+    return JSON.stringify(this, null, 2);
   }
 }
 
