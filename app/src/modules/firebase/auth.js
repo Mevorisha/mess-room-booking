@@ -6,6 +6,7 @@ import {
   signOut,
   linkWithCredential,
   unlink,
+  updateProfile as fbAuthUpdateProfile,
   GoogleAuthProvider,
   signInWithPopup,
   OAuthProvider,
@@ -20,6 +21,69 @@ const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
   CONFIRMATION_RESULT: "AUTH_OTP_CONFIRMATION_RESULT",
 };
+
+/**
+ * @param {(uid: string | null) => void} callback
+ * @returns {import("firebase/auth").Unsubscribe}
+ */
+function onAuthStateChanged(callback) {
+  const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
+    if (user) {
+      localStorage.setItem("uid", user.uid);
+      callback(user.uid);
+    } else {
+      localStorage.removeItem("uid");
+      callback(null);
+    }
+  });
+
+  return unsubscribe;
+}
+
+/**
+ *
+ * @param {{
+ *   firstName?: string;
+ *   lastName?: string;
+ *   photoURL?: string;
+ * }} details
+ */
+async function updateProfile({ firstName, lastName, photoURL }) {
+  const updatePayload = {};
+  if (firstName && lastName) {
+    updatePayload.displayName = `${firstName} ${lastName}`;
+  } else if (firstName || lastName) {
+    return Promise.reject("Both first name and last name are required.");
+  }
+  if (photoURL) {
+    updatePayload.photoURL = photoURL;
+  }
+  if (!FirebaseAuth.currentUser) {
+    return Promise.reject("No user logged in.");
+  }
+  try {
+    await fbAuthUpdateProfile(FirebaseAuth.currentUser, updatePayload);
+    return Promise.resolve();
+  } catch (error) {
+    const errmsg = getCleanFirebaseErrMsg(error);
+    logError("auth_update_profile", errmsg, error.code);
+    return Promise.reject(errmsg);
+  }
+}
+
+/**
+ * @returns {Promise<string>} A success message. Disregard the return value.
+ */
+async function logOut() {
+  try {
+    await signOut(FirebaseAuth);
+    return Promise.resolve("Successfully logged out.");
+  } catch (error) {
+    const errmsg = getCleanFirebaseErrMsg(error);
+    logError("auth_microsoft_logout", errmsg, error.code);
+    return Promise.reject(errmsg);
+  }
+}
 
 /**
  * @returns {RecaptchaVerifier}
@@ -146,25 +210,7 @@ class LinkMobileNumber {
       logError("auth_unlink_phone", errmsg, error.code);
       return Promise.reject(errmsg);
     }
-  },
-};
-
-/**
- * @param {(uid: string | null) => void} callback
- * @returns {import("firebase/auth").Unsubscribe}
- */
-function onAuthStateChanged(callback) {
-  const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
-    if (user) {
-      localStorage.setItem("uid", user.uid);
-      callback(user.uid);
-    } else {
-      localStorage.removeItem("uid");
-      callback(null);
-    }
-  });
-
-  return unsubscribe;
+  }
 }
 
 class GoogleAuth {
@@ -311,8 +357,10 @@ class EmailPasswdAuth {
 }
 
 export {
-  LinkMobileNumber,
   onAuthStateChanged,
+  updateProfile,
+  logOut,
+  LinkMobileNumber,
   GoogleAuth,
   AppleAuth,
   MicrosoftAuth,
