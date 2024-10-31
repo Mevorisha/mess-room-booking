@@ -354,10 +354,10 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      updateUserDetailsInDb({ type }).then(() =>
-        notify("Profile type updated successfully", "success")
-      ),
-    [updateUserDetailsInDb, notify]
+      updateUserDetailsInDb(finalUser.uid, { type })
+        .then(() => tiggerAuthDataRefresh(finalUser.uid))
+        .then(() => notify("Profile type updated successfully", "success")),
+    [finalUser.uid, notify]
   );
 
   const updateProfilePhoto = useCallback(
@@ -367,10 +367,9 @@ export function AuthProvider({ children }) {
      */
     async (image) =>
       new Promise((resolve, reject) =>
-        fbStorageUpload(StoragePaths.PROFILE_PHOTOS, userUid, image)
+        fbStorageUpload(StoragePaths.PROFILE_PHOTOS, finalUser.uid, image)
           .then(async (photoURL) => {
-            // await updateUserDetailsInDb({ photoURL });
-            await tiggerAuthDataRefresh();
+            await tiggerAuthDataRefresh(finalUser.uid);
             return photoURL;
           })
           .then((photoURL) => {
@@ -380,7 +379,7 @@ export function AuthProvider({ children }) {
           .then(() => notify("Profile photo updated successfully", "success"))
           .catch((e) => reject(e))
       ),
-    [userUid, /* updateUserDetailsInDb, */ notify]
+    [finalUser.uid, notify]
   );
 
   const updateProfileName = useCallback(
@@ -391,10 +390,9 @@ export function AuthProvider({ children }) {
      */
     async (firstName, lastName) =>
       updateProfile({ firstName, lastName })
-        // .then(() => updateUserDetailsInDb({ firstName, lastName }))
-        .then(() => tiggerAuthDataRefresh())
+        .then(() => tiggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Profile name updated successfully", "success")),
-    [/* updateUserDetailsInDb, */ notify]
+    [finalUser.uid, notify]
   );
 
   const sendPhoneVerificationCode = useCallback(
@@ -427,10 +425,10 @@ export function AuthProvider({ children }) {
           return await LinkMobileNumber.verifyOtp(otp);
         })
         // .then(() => updateUserDetailsInDb({ mobile: finalUser.mobile }))
-        .then(() => tiggerAuthDataRefresh())
+        .then(() => tiggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number verified successfully", "success")),
 
-    [notify /* updateUserDetailsInDb, finalUser.mobile */]
+    [finalUser.uid, notify]
   );
 
   const unlinkPhoneNumber = useCallback(
@@ -440,9 +438,9 @@ export function AuthProvider({ children }) {
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
         // .then(() => removeUserDetailsInDb([UserDetailsEnum.mobile]))
-        .then(() => tiggerAuthDataRefresh())
+        .then(() => tiggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number unlinked successfully", "success")),
-    [notify /*, removeUserDetailsInDb */]
+    [finalUser.uid, notify]
   );
 
   return (
