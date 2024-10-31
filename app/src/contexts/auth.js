@@ -19,12 +19,23 @@ export class User {
    * @param {"TENANT" | "OWNER" | "EMPTY"} type
    * @param {string} photoURL
    * @param {string} mobile
+   * @param {string} firstName
+   * @param {string} lastName
    */
-  constructor(uid, type = "EMPTY", photoURL = "", mobile = "") {
+  constructor(
+    uid,
+    type = "EMPTY",
+    photoURL = "",
+    mobile = "",
+    firstName = "",
+    lastName = ""
+  ) {
     this.uid = uid;
     this.type = type;
     this.photoURL = photoURL;
     this.mobile = mobile;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
   /**
@@ -36,7 +47,25 @@ export class User {
 }
 
 /**
- * @typedef {{ type?: "TENANT" | "OWNER" | "EMPTY", photoURL?: string, mobile?: string }} UserDetailsUpdatePayload
+ * @enum {"type" | "photoURL" | "mobile" | "firstName" | "lastName"}
+ */
+export const UserDetailsEnum = {
+  type: /** @type {"type"} */ ("type"),
+  photoURL: /** @type {"photoURL"} */ ("photoURL"),
+  mobile: /** @type {"mobile"} */ ("mobile"),
+  firstName: /** @type {"firstName"} */ ("firstName"),
+  lastName: /** @type {"lastName"} */ ("lastName"),
+};
+
+/**
+ * @typedef {{
+ *   type?: "TENANT" | "OWNER" | "EMPTY",
+ *   photoURL?: string,
+ *   mobile?: string,
+ *   firstName?: string,
+ *   lastName?: string
+ * }} UserDetailsUpdatePayload
+ *
  * @typedef {(payload: UserDetailsUpdatePayload) => void} FnUserDetailsUpdate
  */
 
