@@ -52,7 +52,12 @@ export function checkForEasterEgg(str) {
   }
 
   // Check for standalone numbers 69 or 420
-  if (/\b69\b/.test(str) || /\b420\b/.test(str)) {
+  if (
+    /\b69\b/.test(str) ||
+    /\b420\b/.test(str) ||
+    /\b42069\b/.test(str) ||
+    /\b69420\b/.test(str)
+  ) {
     return "I see you're a man of culture";
   }
 
