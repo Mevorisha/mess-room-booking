@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { LinkMobileNumber } from "../../modules/firebase/auth.js";
-import { AuthState } from "../../contexts/auth";
+import { AuthStateEnum } from "../../contexts/auth";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
@@ -9,7 +9,7 @@ import "./styles.css";
 
 /**
  * @param {{ auth: {
- *   state: AuthState;
+ *   state: AuthStateEnum;
  *   user: import("../../contexts/auth").User;
  *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
  * } }} props
@@ -55,7 +55,7 @@ function SelectInitialType({ auth }) {
 
 /**
  * @param {{ auth: {
- *   state: AuthState;
+ *   state: AuthStateEnum;
  *   user: import("../../contexts/auth").User;
  *   updateUserDetailsInDb: import("../../contexts/auth").FnUserDetailsUpdate;
  * } }} props
@@ -172,7 +172,7 @@ function SetMobileNumber({ auth }) {
 export default function Onboarding() {
   const auth = useAuth();
 
-  if (auth.state === AuthState.STILL_LOADING) return null;
+  if (auth.state === AuthStateEnum.STILL_LOADING) return null;
   if (auth.user.type === "EMPTY") return <SelectInitialType auth={auth} />;
   if (!auth.user.mobile) return <SetMobileNumber auth={auth} />;
 

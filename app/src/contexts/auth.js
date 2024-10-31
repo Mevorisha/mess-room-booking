@@ -7,7 +7,7 @@ import useNotification from "../hooks/notification.js";
 /**
  * @enum {"STILL_LOADING" | "NOT_LOGGED_IN" | "LOGGED_IN"}
  */
-export const AuthState = {
+export const AuthStateEnum = {
   STILL_LOADING: /** @type {"STILL_LOADING"} */ ("STILL_LOADING"),
   NOT_LOGGED_IN: /** @type {"NOT_LOGGED_IN"} */ ("NOT_LOGGED_IN"),
   LOGGED_IN: /** @type {"LOGGED_IN"} */ ("LOGGED_IN"),

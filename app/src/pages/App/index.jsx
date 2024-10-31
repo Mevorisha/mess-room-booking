@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
-import { AuthProvider, AuthState } from "../../contexts/auth.js";
+import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
 import LoadingPage from "../../pages/Loading";
@@ -16,9 +16,9 @@ function AuthCheck() {
   const navigate = useNavigate();
   const auth = useAuth();
   useEffect(() => {
-    if (auth.state === AuthState.STILL_LOADING) navigate("/");
-    else if (auth.state === AuthState.NOT_LOGGED_IN) navigate("/auth");
-    else if (auth.state === AuthState.LOGGED_IN) {
+    if (auth.state === AuthStateEnum.STILL_LOADING) navigate("/");
+    else if (auth.state === AuthStateEnum.NOT_LOGGED_IN) navigate("/auth");
+    else if (auth.state === AuthStateEnum.LOGGED_IN) {
       if (auth.user.type === "EMPTY") navigate("/onboarding");
       else if (!auth.user.mobile) navigate("/onboarding");
       else navigate("/home");
