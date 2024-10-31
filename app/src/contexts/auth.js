@@ -269,10 +269,11 @@ export function AuthProvider({ children }) {
       const updatePayload = {};
 
       if (type !== "EMPTY") updatePayload.type = type;
-      if (photoURL) updatePayload.photoURL = photoURL;
-      if (mobile) updatePayload.mobile = mobile;
-      if (firstName) updatePayload.firstName = firstName;
-      if (lastName) updatePayload.lastName = lastName;
+      /* following are not updated in rtdb as these are set in Firebase Auth User object */
+      // if (photoURL) updatePayload.photoURL = photoURL;
+      // if (mobile) updatePayload.mobile = mobile;
+      // if (firstName) updatePayload.firstName = firstName;
+      // if (lastName) updatePayload.lastName = lastName;
 
       if (Object.keys(updatePayload).length === 0) return Promise.resolve();
 
@@ -311,10 +312,10 @@ export function AuthProvider({ children }) {
     /**
      * @param {"TENANT" | "OWNER"} type
      */
-    (type) => {
-      updateUserDetailsInDb({ type })
-        .then(() => notify("Profile type updated successfully", "success"))
-        .catch((e) => notify(e.toString(), "error"));
+    async (type) => {
+      return updateUserDetailsInDb({ type }).then(() =>
+        notify("Profile type updated successfully", "success")
+      );
     },
     [updateUserDetailsInDb, notify]
   );
@@ -322,21 +323,27 @@ export function AuthProvider({ children }) {
   const updateProfilePhoto = useCallback(
     /**
      * @param {File} image
+     * @returns {Promise<string>}
      */
-    (image) => {
+    async (image) => {
       // upload image to firebase storage
       // get the url of the uploaded image
       // update the user's photoURL
-      fbStorageUpload(StoragePaths.PROFILE_PHOTOS, userUid, image)
-        .then(async (photoURL) => {
-          await updateUserDetailsInDb({ photoURL });
-          return photoURL;
-        })
-        .then((photoURL) => updateProfile({ photoURL }))
-        .then(() => notify("Profile photo updated successfully", "success"))
-        .catch((e) => notify(e.toString(), "error"));
+      return new Promise((resolve, reject) =>
+        fbStorageUpload(StoragePaths.PROFILE_PHOTOS, userUid, image)
+          .then(async (photoURL) => {
+            // await updateUserDetailsInDb({ photoURL });
+            return photoURL;
+          })
+          .then((photoURL) => {
+            updateProfile({ photoURL });
+            resolve(photoURL);
+          })
+          .then(() => notify("Profile photo updated successfully", "success"))
+          .catch((e) => reject(e))
+      );
     },
-    [userUid, updateUserDetailsInDb, notify]
+    [userUid, /* updateUserDetailsInDb, */ notify]
   );
 
   const updateProfileName = useCallback(
@@ -344,13 +351,12 @@ export function AuthProvider({ children }) {
      * @param {string} firstName
      * @param {string} lastName
      */
-    (firstName, lastName) => {
-      updateUserDetailsInDb({ firstName, lastName })
-        .then(() => updateProfile({ firstName, lastName }))
-        .then(() => notify("Profile name updated successfully", "success"))
-        .catch((e) => notify(e.toString(), "error"));
+    async (firstName, lastName) => {
+      updateProfile({ firstName, lastName })
+        // .then(() => updateUserDetailsInDb({ firstName, lastName }))
+        .then(() => notify("Profile name updated successfully", "success"));
     },
-    [updateUserDetailsInDb, notify]
+    [/* updateUserDetailsInDb, */ notify]
   );
 
   const sendPhoneVerificationCode = useCallback(
