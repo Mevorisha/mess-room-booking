@@ -254,7 +254,6 @@ export function AuthProvider({ children }) {
   const [authState, setAuthState] = useState(
     /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)
   );
-  const [userUid, setUserUid] = useState("");
   const [finalUser, setFinalUser] = useState(User.loadCurrentUser());
 
   const notify = useNotification();
@@ -304,14 +303,14 @@ export function AuthProvider({ children }) {
   /* listen for changes at rtdb at RtDbPaths.IDENTITY/user.uid/ if temp user is updated
    * and update the final user with additional data from rtdb */
   useEffect(() => {
-    if (!userUid) return;
+    if (!finalUser.uid) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
     // console.error("onDbContentChange started");
 
     const unsubscribe = onDbContentChange(
       RtDbPaths.IDENTITY,
-      `${userUid}/`,
+      `${finalUser.uid}/`,
       (data) => {
         // console.error("onDbContentChange updated, data = ", data);
         // console.error(
