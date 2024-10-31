@@ -86,7 +86,10 @@ function SetMobileNumber({ auth }) {
       else if (otp && action === "Verify & Submit")
         auth
           .verifyPhoneVerificationCode(otp)
-          .catch(() => setAction("Resend OTP"));
+          .catch((e) => {
+            setAction("Resend OTP");
+            notify(e.toString(), "error");
+          });
       // invalid action
       else notify("Please enter a valid mobile number", "error");
     },
