@@ -6,6 +6,7 @@ import {
   signOut,
   linkWithCredential,
   // updatePhoneNumber,
+  sendPasswordResetEmail,
   unlink,
   updateProfile as fbAuthUpdateProfile,
   GoogleAuthProvider,
@@ -357,6 +358,29 @@ class EmailPasswdAuth {
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
       logError("auth_legacy_login", errmsg, error.code);
+      return Promise.reject(errmsg);
+    }
+  }
+
+  /**
+   * @param {string} email
+   * @returns {Promise<void>}
+   */
+  static async requestPasswordReset(email = "") {
+    if (!email && !FirebaseAuth.currentUser?.email) {
+      return Promise.reject("No email provided.");
+    }
+
+    if (!email && FirebaseAuth.currentUser?.email) {
+      email = FirebaseAuth.currentUser.email;
+    }
+
+    try {
+      await sendPasswordResetEmail(FirebaseAuth, email);
+      return Promise.resolve();
+    } catch (error) {
+      const errmsg = getCleanFirebaseErrMsg(error);
+      logError("auth_legacy_reset", errmsg, error.code);
       return Promise.reject(errmsg);
     }
   }

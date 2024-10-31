@@ -5,7 +5,9 @@ import {
   StoragePaths,
 } from "../modules/firebase/init.js";
 import {
+  EmailPasswdAuth,
   LinkMobileNumber,
+  logOut as fbAuthLogOut,
   onAuthStateChanged,
   updateProfile,
 } from "../modules/firebase/auth.js";
@@ -164,6 +166,8 @@ export class User {
  * @property {(number: string)                        => Promise<void>} sendPhoneVerificationCode
  * @property {(otp: string)                           => Promise<void>} verifyPhoneVerificationCode
  * @property {()                                      => Promise<void>} unlinkPhoneNumber
+ * @property {()                                      => Promise<void>} requestPasswordReset
+ * @property {()                                      => Promise<void>} logOut
  */
 
 const AuthContext = createContext(
@@ -178,6 +182,8 @@ const AuthContext = createContext(
     sendPhoneVerificationCode: async () => {},
     verifyPhoneVerificationCode: async () => {},
     unlinkPhoneNumber: async () => {},
+    requestPasswordReset: async () => {},
+    logOut: async () => {},
   })
 );
 
@@ -458,6 +464,25 @@ export function AuthProvider({ children }) {
     [finalUser.uid, notify]
   );
 
+  const requestPasswordReset = useCallback(
+    /**
+     * @returns {Promise<void>}
+     */
+    async () =>
+      EmailPasswdAuth.requestPasswordReset().then(() =>
+        notify("Check your email for password reset link", "info")
+      ),
+    [notify]
+  );
+
+  const logOut = useCallback(
+    /**
+     * @returns {Promise<void>}
+     */
+    () => fbAuthLogOut().then(() => notify("Logged out", "info")),
+    [notify]
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -471,6 +496,8 @@ export function AuthProvider({ children }) {
         sendPhoneVerificationCode,
         verifyPhoneVerificationCode,
         unlinkPhoneNumber,
+        requestPasswordReset,
+        logOut,
       }}
     >
       {children}
