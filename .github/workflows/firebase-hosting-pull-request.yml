@@ -12,11 +12,32 @@ jobs:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: cd ./app; export NODE_OPTIONS=--openssl-legacy-provider; npm install; npm run build; mv
-          build ../public; cd ../
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          cd app
+          npm ci
+      - name: Build
+        run: |
+          cd app
+          npm run build
+          mv build ../public
+      - name: Obfuscate
+        run: |
+          npm install -g javascript-obfuscator
+          javascript-obfuscator public --output public
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MESS_BOOKING_APP_SERVERLESS }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: ${{ github.event.number }}
+          expires: 5d
           projectId: mess-booking-app-serverless
+      # - name: Comment Preview URL on PR
+      #   run: |
+      #     echo "Preview URL: ${{ steps.deploy.outputs.details_url }}"
+      #     curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+      #       -d '{"body": "🔥 Preview URL: '${{ steps.deploy.outputs.details_url }}'"}' \
+      #       "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
