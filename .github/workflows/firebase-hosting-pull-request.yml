@@ -21,9 +21,7 @@ jobs:
       - name: Build
         run: |
           cd app
-          NODE_OPTIONS=--openssl-legacy-provider
           npm run build
-          NODE_OPTIONS=''
           mv build ../public
       - name: Obfuscate
         run: |
