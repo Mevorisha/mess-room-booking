@@ -10,12 +10,25 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: cd ./app; export NODE_OPTIONS=--openssl-legacy-provider; npm install; npm run build; mv
-          build ../public; cd ../
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: |
+          cd app
+          npm ci
+      - name: Build
+        run: |
+          cd app
+          npm run build
+          mv build ../public
+      - name: Obfuscate
+        run: |
+          npm install -g javascript-obfuscator
+          javascript-obfuscator public --output public
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MESS_BOOKING_APP_SERVERLESS }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_TOKEN }}
           channelId: live
           projectId: mess-booking-app-serverless
