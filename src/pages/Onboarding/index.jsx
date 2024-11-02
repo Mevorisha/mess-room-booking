@@ -24,7 +24,6 @@ function SelectInitialType({ auth }) {
 
   useEffect(() => {
     if ("EMPTY" === accountType) return;
-    console.log("Account type selected:", accountType);
     // write the account type to the database
     updateProfileType(accountType).catch((e) => notify(e.toString(), "error"));
   }, [updateProfileType, notify, accountType]);
