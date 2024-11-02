@@ -347,7 +347,7 @@ export function AuthProvider({ children }) {
         setAuthState(AuthStateEnum.STILL_LOADING);
       }
 
-      console.error(
+      console.log(
         `${MODULE_NAME}::onAuthStateChanged: new user =`,
         user ? User.fromFirebaseAuthUser(user) : null
       );
