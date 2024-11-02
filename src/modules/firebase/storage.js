@@ -1,6 +1,5 @@
 import { fbStorageGetRef } from "./init";
 import { getDownloadURL, uploadBytesResumable } from "firebase/storage";
-// import { logError } from "./util";
 import ErrorMessages from "../errors/ErrorMessages";
 
 /**
@@ -58,9 +57,7 @@ async function fbStorageUpload(path, filename, file) {
     const downloadURL = await getDownloadURL(snapshot.ref);
     return Promise.resolve(downloadURL);
   } catch (error) {
-    // const fullpath = `${path}/${filename}`;
     console.error(error.toString());
-    // await logError("storage_upload", fullpath, error.code ?? error.toString());
     return Promise.reject(ErrorMessages.FILE_UPLOAD_FAILED);
   }
 }
@@ -77,7 +74,6 @@ async function fbStorageDownload(url) {
     return Promise.resolve(blob);
   } catch (error) {
     console.error(error.toString());
-    // await logError("storage_download", url, error.code ?? error.toString());
     return Promise.reject(ErrorMessages.FILE_DOWNLOAD_FAILED);
   }
 }
