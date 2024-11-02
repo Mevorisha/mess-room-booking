@@ -1,6 +1,5 @@
 import { fbRtdbGetRef } from "./init.js";
 import { get, set, update, remove, onValue } from "firebase/database";
-// import { logError } from "./util.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
 
 /**
@@ -33,9 +32,7 @@ async function fbRtdbCreate(subdb, path, data) {
     await set(dbRef, data);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subdb}/${path}`;
     console.error(error.toString());
-    // await logError("rtdb_create", fullpath, error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_WRITE_FAILED);
   }
 }
@@ -56,9 +53,7 @@ async function fbRtdbRead(subdb, path) {
       return Promise.resolve(null);
     }
   } catch (error) {
-    // const fullpath = `${subdb}/${path}`;
     console.error(error.toString());
-    // await logError("rtdb_read", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_READ_FAILED);
   }
 }
@@ -76,9 +71,7 @@ async function fbRtdbUpdate(subpath, path, data) {
     await update(dbRef, data);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subpath}/${path}`;
     console.error(error.toString());
-    // await logError("rtdb_update", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_UPDATE_FAILED);
   }
 }
@@ -95,9 +88,7 @@ async function fbRtdbDelete(subpath, path) {
     await remove(dbRef);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subpath}/${path}`;
     console.error(error.toString());
-    // await logError("rtdb_delete", error.code ?? error.toString());
     return Promise.reject(ErrorMessages.DATA_DELETE_FAILED);
   }
 }
