@@ -94,10 +94,10 @@ if (
 ) {
   // add a -preview prefix to each RtDbPaths and StoragePaths
   for (const key in RtDbPaths) {
-    RtDbPaths[key] = RtDbPaths[key].replace("/db_", "/db-preview_");
+    RtDbPaths[key] = RtDbPaths[key].replace("/db_", "/preview_db_");
   }
   for (const key in StoragePaths) {
-    StoragePaths[key] = StoragePaths[key].replace("/storg_", "/storg-preview_");
+    StoragePaths[key] = StoragePaths[key].replace("/storg_", "/preview_storg_");
   }
 }
 
