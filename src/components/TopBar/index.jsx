@@ -71,12 +71,6 @@ export default function TopBar({ children }) {
       case TopBarActions.RESET_PASSWORD:
         auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
         break;
-      case TopBarActions.CHANGE_MOBILE_NUMBER:
-        auth
-          .unlinkPhoneNumber()
-          .then(() => notify("Mobile number unlinked", "info"))
-          .catch((e) => notify(e.toString(), "error"));
-        break;
       case TopBarActions.SWITCH_PROFILE_TYPE:
         auth
           .removeUserDetails(auth.user.uid, ["type"])

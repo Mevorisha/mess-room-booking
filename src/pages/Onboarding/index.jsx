@@ -74,6 +74,7 @@ function SetMobileNumber({ auth }) {
   );
 
   const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSubmit = useCallback(
     (e) => {
@@ -99,10 +100,14 @@ function SetMobileNumber({ auth }) {
       // verify otp and submit
       else if (otp && action === "Verify & Submit") {
         notify("Please wait while we verify the OTP", "warning");
-        auth.verifyPhoneVerificationCode(otp).catch((e) => {
-          setAction("Resend OTP");
-          notify(e.toString(), "error");
-        });
+        auth
+          .verifyPhoneVerificationCode(otp)
+          .then(() => searchParams.delete("action"))
+          .then(() => setSearchParams(searchParams))
+          .catch((e) => {
+            setAction("Resend OTP");
+            notify(e.toString(), "error");
+          });
       }
 
       // invalid action

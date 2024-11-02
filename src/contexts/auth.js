@@ -471,12 +471,14 @@ export function AuthProvider({ children }) {
           return Promise.resolve();
         })
         .catch(async (error) => {
-          if (error?.code !== "auth/provider-already-linked")
+          if (error.toString() !== "Auth error: Provider already linked") {
             return Promise.reject(error);
+          }
+          notify("Unlinking existing mobile number", "info");
           await LinkMobileNumber.unlinkPhoneNumber();
+          notify("Verifying new mobile number", "info");
           return await LinkMobileNumber.verifyOtp(otp);
         })
-        // .then(() => updateUserDetailsInDb({ mobile: finalUser.mobile }))
         .then(() => triggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number verified successfully", "success")),
 
