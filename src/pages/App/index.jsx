@@ -53,7 +53,10 @@ function AuthCheck() {
       else if (searchParams.has("action")) {
         switch (searchParams.get("action")) {
           case TopBarActions.VIEW_PROFILE:
-            navigate("/profile");
+            navigate({
+              pathname: "/profile",
+              search: searchParams.toString(),
+            });
             break;
           case TopBarActions.CHANGE_NAME:
             navigate({
@@ -89,6 +92,8 @@ function AuthCheck() {
           // no action required but not /404
           case TopBarActions.RESET_PASSWORD:
           case TopBarActions.LOGOUT:
+            searchParams.delete("action");
+            setSearchParams(searchParams);
             break;
 
           // default to /404 if param is not recognized
@@ -103,7 +108,15 @@ function AuthCheck() {
         navigate("/home");
       }
     }
-  }, [auth.state, auth.user.type, auth.user.mobile, navigate, searchParams]);
+  }, [
+    auth.state,
+    auth.user.type,
+    auth.user.mobile,
+    navigate,
+    searchParams,
+    setSearchParams,
+    location.pathname,
+  ]);
 
   return null;
 }
