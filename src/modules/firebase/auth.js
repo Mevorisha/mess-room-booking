@@ -177,7 +177,11 @@ class LinkMobileNumber {
 
       return Promise.resolve(true);
     } catch (error) {
-      const errmsg = getCleanFirebaseErrMsg(error);
+      let errmsg = getCleanFirebaseErrMsg(error);
+      if (error?.code === "auth/account-exists-with-different-credential") {
+        errmsg =
+          "Phone number linked to an existing account. Use a different number.";
+      }
       logError("auth_verify_otp", errmsg, error.code);
       return Promise.reject(errmsg);
     }

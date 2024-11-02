@@ -61,13 +61,52 @@
 }
 
 .components-TopBar .action-buttons-container span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pad-2);
   font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete {
+  cursor: pointer;
+  color: red;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete span {
+  margin-bottom: 1.5px;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete i {
+  font-size: 1.2rem;
+}
+
+.components-TopBar .action-buttons-container span.profile-complete {
+  cursor: pointer;
   color: #333;
 }
 
-.components-TopBar .action-buttons-container span:hover {
-  cursor: pointer;
+.components-TopBar .action-buttons-container span.profile-complete .display-name {
+  margin-bottom: 1.5px;
+}
+
+.components-TopBar .action-buttons-container span.profile-complete .display-name:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .action-buttons-container span.profile-complete .display-name {
+    display: none;
+  }
+}
+
+.components-TopBar .action-buttons-container span.profile-complete .profile-image {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 1px solid #b3b3b3;
 }
 
 .components-TopBar .action-buttons-container .dropdown {
@@ -110,6 +149,8 @@
 }
 
 .components-TopBar .action-buttons-container .dropdown-item {
+  display: flex;
+  gap: var(--pad-2);
   padding: var(--pad-2);
 }
 

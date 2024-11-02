@@ -137,6 +137,26 @@ export class User {
   }
 
   /**
+   * @param {string} photoURL
+   * @returns {this}
+   */
+  setPhotoURL(photoURL) {
+    this.photoURL = photoURL;
+    return this;
+  }
+
+  /**
+   * @param {string} firstName
+   * @param {string} lastName
+   * @returns {this}
+   */
+  setProfileName(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    return this;
+  }
+
+  /**
    * @returns {string}
    */
   toString() {
@@ -197,7 +217,7 @@ export default AuthContext;
  * @param {string} uid
  * @returns {Promise<void>}
  */
-async function tiggerAuthDataRefresh(uid) {
+async function triggerAuthDataRefresh(uid) {
   if (!uid) {
     console.error(`${MODULE_NAME}::tiggerAuthDataRefresh: uid =`, uid);
     return Promise.resolve();
@@ -259,6 +279,7 @@ async function updateUserDetails(
   const updates = [
     fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
     updateProfile(updateAuthPayload),
+    triggerAuthDataRefresh(uid),
   ];
 
   return Promise.allSettled(updates).then((results) => {
@@ -288,7 +309,7 @@ async function removeUserDetails(uid, keys) {
 
   keys.forEach((key) => {
     if (key === UserDetailsEnum.type) updateDbPayload.type = null;
-    else updateAuthPayload[key] = null;
+    else updateAuthPayload[key] = "EMPTY";
   });
 
   if (
@@ -300,6 +321,7 @@ async function removeUserDetails(uid, keys) {
   const updates = [
     fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
     updateProfile(updateAuthPayload),
+    triggerAuthDataRefresh(uid),
   ];
 
   return Promise.allSettled(updates).then((results) => {
@@ -405,7 +427,8 @@ export function AuthProvider({ children }) {
      */
     async (type) =>
       updateUserDetails(finalUser.uid, { type })
-        .then(() => tiggerAuthDataRefresh(finalUser.uid))
+        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() => setFinalUser((user) => user.clone().setType(type)))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
   );
@@ -419,7 +442,8 @@ export function AuthProvider({ children }) {
       new Promise((resolve, reject) =>
         fbStorageUpload(StoragePaths.PROFILE_PHOTOS, finalUser.uid, image)
           .then(async (photoURL) => {
-            await tiggerAuthDataRefresh(finalUser.uid);
+            await triggerAuthDataRefresh(finalUser.uid);
+            setFinalUser((user) => user.clone().setPhotoURL(photoURL));
             return photoURL;
           })
           .then((photoURL) => {
@@ -440,7 +464,12 @@ export function AuthProvider({ children }) {
      */
     async (firstName, lastName) =>
       updateProfile({ firstName, lastName })
-        .then(() => tiggerAuthDataRefresh(finalUser.uid))
+        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() =>
+          setFinalUser((user) =>
+            user.clone().setProfileName(firstName, lastName)
+          )
+        )
         .then(() => notify("Profile name updated successfully", "success")),
     [finalUser.uid, notify]
   );
@@ -469,13 +498,15 @@ export function AuthProvider({ children }) {
           return Promise.resolve();
         })
         .catch(async (error) => {
-          if (error?.code !== "auth/provider-already-linked")
+          if (error.toString() !== "Auth error: Provider already linked") {
             return Promise.reject(error);
+          }
+          notify("Unlinking existing mobile number", "info");
           await LinkMobileNumber.unlinkPhoneNumber();
+          notify("Verifying new mobile number", "info");
           return await LinkMobileNumber.verifyOtp(otp);
         })
-        // .then(() => updateUserDetailsInDb({ mobile: finalUser.mobile }))
-        .then(() => tiggerAuthDataRefresh(finalUser.uid))
+        .then(() => triggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number verified successfully", "success")),
 
     [finalUser.uid, notify]
@@ -487,7 +518,7 @@ export function AuthProvider({ children }) {
      */
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => tiggerAuthDataRefresh(finalUser.uid))
+        .then(() => triggerAuthDataRefresh(finalUser.uid))
         .then(() => notify("Mobile number unlinked successfully", "success")),
     [finalUser.uid, notify]
   );

@@ -1,9 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 import { AuthStateEnum } from "../../contexts/auth";
+import { isEmpty } from "../../modules/util/validations.js";
+import { TopBarActions } from "../../components/TopBar";
+import PageNotFound from "../PageNotFound";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
+// @ts-ignore
+import dpGeneric from "../../assets/images/dpGeneric.png";
 import "./styles.css";
 
 /**
@@ -67,6 +74,7 @@ function SetMobileNumber({ auth }) {
   );
 
   const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSubmit = useCallback(
     (e) => {
@@ -92,10 +100,14 @@ function SetMobileNumber({ auth }) {
       // verify otp and submit
       else if (otp && action === "Verify & Submit") {
         notify("Please wait while we verify the OTP", "warning");
-        auth.verifyPhoneVerificationCode(otp).catch((e) => {
-          setAction("Resend OTP");
-          notify(e.toString(), "error");
-        });
+        auth
+          .verifyPhoneVerificationCode(otp)
+          .then(() => searchParams.delete("action"))
+          .then(() => setSearchParams(searchParams))
+          .catch((e) => {
+            setAction("Resend OTP");
+            notify(e.toString(), "error");
+          });
       }
 
       // invalid action
@@ -163,12 +175,153 @@ function SetMobileNumber({ auth }) {
   );
 }
 
+/**
+ * @param {{ auth: import("../../contexts/auth").AuthContextType }} props
+ */
+function SetProfilePhoto({ auth }) {
+  const [photoURL, setPhotoURL] = useState(dpGeneric);
+
+  const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+  const handleUpdatePhoto = useCallback(() => {
+    loadFileFromFilePicker("image/*", maxSizeInBytes)
+      .then((file) => auth.updateProfilePhoto(file))
+      .then((url) => setPhotoURL(url))
+      .then(() => searchParams.delete("action"))
+      .then(() => setSearchParams(searchParams))
+      .catch((e) => notify(e.toString(), "error"));
+  }, [auth, notify, searchParams, setSearchParams, maxSizeInBytes]);
+
+  return (
+    <div className="pages-Onboarding">
+      <div className="onboarding-container">
+        <h1>Set Profile Photo</h1>
+        <h4>Photo can be changed later</h4>
+
+        <div className="desc">
+          <p>
+            Photo is required for identification and allows your room{" "}
+            {auth.user.type === "TENANT" ? "owner" : "tenant"} to recognize you.
+          </p>
+        </div>
+
+        <div className="photo-container">
+          <img
+            src={auth.user.photoURL || photoURL || dpGeneric}
+            alt="profile"
+          />
+          <ButtonText
+            rounded="all"
+            title="Update Photo"
+            kind="primary"
+            onclick={handleUpdatePhoto}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * @param {{ auth: import("../../contexts/auth").AuthContextType }} props
+ */
+function SetDisplayName({ auth }) {
+  const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleUpdateName = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      /** @type {string} */
+      const firstName = e.target[0]?.value;
+      /** @type {string} */
+      const lastName = e.target[1]?.value;
+
+      if (firstName && lastName)
+        auth
+          .updateProfileName(firstName, lastName)
+          .then(() => searchParams.delete("action"))
+          .then(() => setSearchParams(searchParams))
+          .catch((e) => notify(e.toString(), "error"));
+      else notify("Please enter a valid name", "error");
+    },
+    [auth, notify, searchParams, setSearchParams]
+  );
+
+  return (
+    <div className="pages-Onboarding">
+      <div className="onboarding-container">
+        <h1>Set Display Name</h1>
+        <h4>Name can be changed later</h4>
+
+        <div className="desc">
+          <p>
+            Name is required for identification and allows your room{" "}
+            {auth.user.type === "TENANT" ? "owner" : "tenant"} to address you.
+          </p>
+        </div>
+
+        <form className="form-container" onSubmit={handleUpdateName}>
+          <input
+            required
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            defaultValue={
+              isEmpty(auth.user.firstName) ? "" : auth.user.firstName
+            }
+          />
+          <input
+            required
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            defaultValue={
+              1 && isEmpty(auth.user.lastName) ? "" : auth.user.lastName
+            }
+          />
+          <div className="submit-container">
+            <ButtonText
+              width="40%"
+              rounded="all"
+              title="Update Name"
+              kind="primary"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Onboarding() {
   const auth = useAuth();
+  const [searchParams] = useSearchParams();
+
+  if (searchParams.has("action"))
+    switch (searchParams.get("action")) {
+      case TopBarActions.SWITCH_PROFILE_TYPE:
+        return <SelectInitialType auth={auth} />;
+      case TopBarActions.CHANGE_NAME:
+        return <SetDisplayName auth={auth} />;
+      case TopBarActions.CHANGE_MOBILE_NUMBER:
+        return <SetMobileNumber auth={auth} />;
+      case TopBarActions.UPDATE_PROFILE_PHOTO:
+        return <SetProfilePhoto auth={auth} />;
+      default:
+        return <PageNotFound />;
+    }
 
   if (auth.state === AuthStateEnum.STILL_LOADING) return null;
-  if (auth.user.type === "EMPTY") return <SelectInitialType auth={auth} />;
-  if (!auth.user.mobile) return <SetMobileNumber auth={auth} />;
+  if (isEmpty(auth.user.type)) return <SelectInitialType auth={auth} />;
+  if (isEmpty(auth.user.mobile)) return <SetMobileNumber auth={auth} />;
+  if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
+  if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+    return <SetDisplayName auth={auth} />;
 
-  return null;
+  return <PageNotFound />;
 }
