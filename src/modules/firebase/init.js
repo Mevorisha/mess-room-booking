@@ -1,7 +1,7 @@
 // Import Firebase modules from CDN
 import { initializeApp, } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getAuth, /* connectAuthEmulator */ } from "firebase/auth";
 import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/database";
 import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
