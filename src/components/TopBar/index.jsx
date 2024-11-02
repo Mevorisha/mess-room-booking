@@ -91,7 +91,7 @@ export default function TopBar({ children }) {
 
     setItemClicked(null);
     setDropdownState("hiding");
-  }, [auth, auth.user.uid, notify, itemClicked]);
+  }, [auth, auth.user.uid, notify, itemClicked, searchParams, setSearchParams]);
 
   useEffect(() => {
     switch (dropdownState) {
@@ -148,18 +148,14 @@ export default function TopBar({ children }) {
           {/* Switch Profile Type */}
           <div
             className="dropdown-item"
-            onClick={() =>
-              setItemClicked(TopBarActions.SWITCH_PROFILE_TYPE)
-            }
+            onClick={() => setItemClicked(TopBarActions.SWITCH_PROFILE_TYPE)}
           >
             Switch to {auth.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
           </div>
           {/* Update Profile Photo */}
           <div
             className="dropdown-item"
-            onClick={() =>
-              setItemClicked(TopBarActions.UPDATE_PROFILE_PHOTO)
-            }
+            onClick={() => setItemClicked(TopBarActions.UPDATE_PROFILE_PHOTO)}
           >
             {TopBarActions.UPDATE_PROFILE_PHOTO}
           </div>
@@ -187,9 +183,7 @@ export default function TopBar({ children }) {
           {/* Change Mobile Number */}
           <div
             className="dropdown-item"
-            onClick={() =>
-              setItemClicked(TopBarActions.CHANGE_MOBILE_NUMBER)
-            }
+            onClick={() => setItemClicked(TopBarActions.CHANGE_MOBILE_NUMBER)}
           >
             {TopBarActions.CHANGE_MOBILE_NUMBER}
           </div>
