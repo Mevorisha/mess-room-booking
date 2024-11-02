@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": "build",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -18,23 +18,31 @@
   },
   "emulators": {
     "auth": {
-      "port": 9099
+      "port": 9001
     },
     "database": {
-      "port": 9000
+      "port": 9002
     },
     "hosting": {
-      "port": 5000
+      "port": 3000
     },
     "storage": {
-      "port": 9199
+      "port": 9003
+    },
+    "singleProjectMode": true,
+    "firestore": {
+      "port": 9004
     },
     "ui": {
-      "enabled": true
-    },
-    "singleProjectMode": true
+      "enabled": true,
+      "port": 9000
+    }
   },
   "database": {
     "rules": "firebase/database.rules.json"
+  },
+  "firestore": {
+    "rules": "firebase/firestore.rules",
+    "indexes": "firebase/firestore.indexes.json"
   }
 }
