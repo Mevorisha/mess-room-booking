@@ -23,7 +23,7 @@ jobs:
       - name: Obfuscate
         run: |
           npm install -g javascript-obfuscator
-          javascript-obfuscator public --output public
+          javascript-obfuscator build --output build
       - name: Deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
