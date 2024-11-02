@@ -37,6 +37,23 @@
   box-shadow: var(--shadow);
 }
 
+.pages-Onboarding .onboarding-container .photo-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--pad-2);
+  margin-bottom: var(--pad-4);
+}
+
+.pages-Onboarding .onboarding-container .photo-container img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-light);
+}
+
 .pages-Onboarding .onboarding-container .form-container {
   display: flex;
   flex-direction: column;
