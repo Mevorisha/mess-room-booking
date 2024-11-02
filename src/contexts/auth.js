@@ -1,3 +1,5 @@
+const MODULE_NAME = "contexts/auth.js";
+
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import {
   FirebaseAuth,
@@ -197,12 +199,15 @@ export default AuthContext;
  */
 async function tiggerAuthDataRefresh(uid) {
   if (!uid) {
-    console.error("triggerAuthDataRefresh: uid = ", uid);
+    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
     return Promise.resolve();
   }
 
   const currentVal = Date.now();
-  // console.log("triggerAuthDataRefresh: ", currentVal);
+  console.log(
+    `${MODULE_NAME}::${arguments.callee.name}: currentVal =`,
+    currentVal
+  );
 
   return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, {
     refresh: "" + currentVal,
@@ -219,17 +224,19 @@ async function updateUserDetails(
   { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
 ) {
   if (!uid) {
-    console.error("updateUserDetails: uid = ", uid);
+    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
     return Promise.resolve();
   }
 
-  // console.log("updateUserDetailsInDb: ", {
-  //   type,
-  //   photoURL,
-  //   mobile,
-  //   firstName,
-  //   lastName,
-  // });
+  const payload = { type, photoURL, mobile, firstName, lastName };
+  const updateKeys = Object.keys(payload).filter(
+    (key) =>
+      payload[key] !== "" && payload[key] !== undefined && payload[key] !== null
+  );
+
+  console.log(
+    `${MODULE_NAME}::${arguments.callee.name}: db updates = ${updateKeys}`
+  );
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
@@ -272,11 +279,11 @@ async function updateUserDetails(
  */
 async function removeUserDetails(uid, keys) {
   if (!uid) {
-    console.error("removeUserDetails: uid = ", uid);
+    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
     return Promise.resolve();
   }
 
-  // console.log("removeUserDetails: ", keys);
+  console.log(`${MODULE_NAME}::${arguments.callee.name}: rm keys =`, keys);
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
@@ -334,8 +341,6 @@ export function AuthProvider({ children }) {
 
   /* listen for auth state changes and update the temporary user */
   useEffect(() => {
-    // console.error("onAuthStateChanged started");
-
     const unsubscribe = onAuthStateChanged((user) => {
       if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
@@ -344,19 +349,15 @@ export function AuthProvider({ children }) {
         setAuthState(AuthStateEnum.STILL_LOADING);
       }
 
-      // console.error(
-      //   `onAuthStateChanged updated, new = ${
-      //     user ? User.fromFirebaseAuthUser(user) : null
-      //   }`
-      // );
+      console.error(
+        `${MODULE_NAME}::${arguments.callee.name}: new user =`,
+        user ? User.fromFirebaseAuthUser(user) : null
+      );
 
       if (null == user) notify("You are not logged in", "warning");
     });
 
-    return () => {
-      // console.error("onAuthStateChanged stopped");
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [notify]);
 
   /* --------------------------------------- USE EFFECTS RTDB LISTENER ----------------------------------- */
@@ -367,17 +368,14 @@ export function AuthProvider({ children }) {
     if (!finalUser.uid) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    // console.error("onDbContentChange started");
-
     const unsubscribe = onDbContentChange(
       RtDbPaths.IDENTITY,
       `${finalUser.uid}/`,
       (data) => {
-        // console.error("onDbContentChange updated, data = ", data);
-        // console.error(
-        //   "onDbContentChange updated, user = ",
-        //   User.loadCurrentUser()
-        // );
+        console.log(
+          `${MODULE_NAME}::${arguments.callee.name}: new data =`,
+          data
+        );
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
@@ -400,10 +398,7 @@ export function AuthProvider({ children }) {
       }
     );
 
-    return () => {
-      // console.error("onDbContentChange stopped");
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [authState, finalUser.uid, setFinalUser]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
