@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { isEmpty } from "../../modules/util/validations.js";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 
@@ -39,10 +40,73 @@ export const TopBarActions = {
   CHANGE_MOBILE_NUMBER: /**   @type {"Change Mobile Number"}   */ (
     "Change Mobile Number"
   ),
-  LOGOUT: /**                 @type {"Log Out"}                */ (
-    "Log Out"
-  ),
+  LOGOUT: /**                 @type {"Log Out"}                */ ("Log Out"),
 };
+
+/**
+ * @param {{
+ *   dropdownState: "init" | "showing" | "visible" | "hiding";
+ *   handleDropdownClick: (dropdownState: "init" | "showing" | "visible" | "hiding") => void;
+ * }} props
+ */
+function ActionMenu({ dropdownState, handleDropdownClick }) {
+  const auth = useAuth();
+  let text = "Profile Incomplete!";
+
+  if (
+    isEmpty(auth.user.photoURL) &&
+    (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+  )
+    text = "Profile Incomplete!";
+  else if (isEmpty(auth.user.photoURL)) text = "Add Profile Photo!";
+  else if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+    text = "Add Display Name!";
+
+  if (
+    isEmpty(auth.user.photoURL) ||
+    isEmpty(auth.user.firstName) ||
+    isEmpty(auth.user.lastName)
+  )
+    return (
+      <span
+        className="profile-incomplete"
+        onClick={() => handleDropdownClick(dropdownState)}
+      >
+        <span>{text}</span>
+        <i className="fa fa-exclamation-circle"></i>
+      </span>
+    );
+
+  return (
+    <span
+      className="profile-complete"
+      onClick={() => handleDropdownClick(dropdownState)}
+    >
+      <span className="display-name">
+        {auth.user.firstName} {auth.user.lastName}
+      </span>
+      <img className="profile-image" src={auth.user.photoURL} alt="profile" />
+    </span>
+  );
+}
+
+/**
+ * @param {{ checkForIncompletion: any; }} props
+ */
+function MarkOfIncompletion({ checkForIncompletion }) {
+  // returns a red exclamation mark if isEmpty(checkForIncompletion) is true
+  if (isEmpty(checkForIncompletion))
+    return (
+      <span className="profile-incomplete">
+        <i
+          style={{ marginTop: "1px", fontSize: "1.1rem" }}
+          className="fa fa-exclamation-circle"
+        ></i>
+      </span>
+    );
+  // else returns null
+  return null;
+}
 
 /**
  * @param {{ children }} props
@@ -124,13 +188,11 @@ export default function TopBar({ children }) {
       </div>
       <div className="section-buttons-container">{children}</div>
       <div className="action-buttons-container">
-        <span>
-          <i
-            style={{ fontSize: "1rem" }}
-            className="fa fa-bars"
-            onClick={() => handleDropdownClick(dropdownState)}
-          ></i>
-        </span>
+        <ActionMenu
+          dropdownState={dropdownState}
+          handleDropdownClick={handleDropdownClick}
+        />
+
         <div className={`dropdown dropdown-anim-${dropdownState}`}>
           {/* View Profile */}
           <div
@@ -152,6 +214,7 @@ export default function TopBar({ children }) {
             onClick={() => setItemClicked(TopBarActions.UPDATE_PROFILE_PHOTO)}
           >
             {TopBarActions.UPDATE_PROFILE_PHOTO}
+            <MarkOfIncompletion checkForIncompletion={auth.user.photoURL} />
           </div>
           {/* Update ID Documents */}
           <div
@@ -166,6 +229,9 @@ export default function TopBar({ children }) {
             onClick={() => setItemClicked(TopBarActions.CHANGE_NAME)}
           >
             {TopBarActions.CHANGE_NAME}
+            <MarkOfIncompletion
+              checkForIncompletion={auth.user.firstName || auth.user.lastName}
+            />
           </div>
           {/* Request Password Reset */}
           <div
