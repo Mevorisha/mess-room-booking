@@ -137,6 +137,26 @@ export class User {
   }
 
   /**
+   * @param {string} photoURL
+   * @returns {this}
+   */
+  setPhotoURL(photoURL) {
+    this.photoURL = photoURL;
+    return this;
+  }
+
+  /**
+   * @param {string} firstName
+   * @param {string} lastName
+   * @returns {this}
+   */
+  setProfileName(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    return this;
+  }
+
+  /**
    * @returns {string}
    */
   toString() {
@@ -408,6 +428,7 @@ export function AuthProvider({ children }) {
     async (type) =>
       updateUserDetails(finalUser.uid, { type })
         .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() => setFinalUser((user) => user.clone().setType(type)))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
   );
@@ -422,6 +443,7 @@ export function AuthProvider({ children }) {
         fbStorageUpload(StoragePaths.PROFILE_PHOTOS, finalUser.uid, image)
           .then(async (photoURL) => {
             await triggerAuthDataRefresh(finalUser.uid);
+            setFinalUser((user) => user.clone().setPhotoURL(photoURL));
             return photoURL;
           })
           .then((photoURL) => {
@@ -443,6 +465,11 @@ export function AuthProvider({ children }) {
     async (firstName, lastName) =>
       updateProfile({ firstName, lastName })
         .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() =>
+          setFinalUser((user) =>
+            user.clone().setProfileName(firstName, lastName)
+          )
+        )
         .then(() => notify("Profile name updated successfully", "success")),
     [finalUser.uid, notify]
   );
