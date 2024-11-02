@@ -1,10 +1,48 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
+
+/**
+ * @enum {"View Profile" |
+ *   "Switch Profile Type" |
+ *   "Update Profile Photo" |
+ *   "Update ID Documents" |
+ *   "Change Display Name" |
+ *   "Request Password Reset" |
+ *   "Change Mobile Number" |
+ *   "Log Out"}
+ */
+export const TopBarActions = {
+  VIEW_PROFILE: /**           @type {"View Profile"}           */ (
+    "View Profile"
+  ),
+  SWITCH_PROFILE_TYPE: /**    @type {"Switch Profile Type"}    */ (
+    "Switch Profile Type"
+  ),
+  UPDATE_PROFILE_PHOTO: /**   @type {"Update Profile Photo"}   */ (
+    "Update Profile Photo"
+  ),
+  UPDATE_ID_DOCS: /**         @type {"Update ID Documents"}    */ (
+    "Update ID Documents"
+  ),
+  CHANGE_NAME: /**            @type {"Change Display Name"}    */ (
+    "Change Display Name"
+  ),
+  RESET_PASSWORD: /**         @type {"Request Password Reset"} */ (
+    "Request Password Reset"
+  ),
+  CHANGE_MOBILE_NUMBER: /**   @type {"Change Mobile Number"}   */ (
+    "Change Mobile Number"
+  ),
+  LOGOUT: /**                 @type {"Log Out"}                */ (
+    "Log Out"
+  ),
+};
 
 /**
  * @param {{ children }} props
@@ -18,46 +56,41 @@ export default function TopBar({ children }) {
   );
 
   const [itemClicked, setItemClicked] = useState(
-    /** @type {null | "View Profile" | "Change Name" | "Change Password" | "Change Mobile Number"| "Change profile type" | "Change profile picture" | "Logout"} */ (
-      null
-    )
+    /** @type {null | TopBarActions} */ (null)
   );
 
-  useEffect(() => {
-    if (itemClicked) {
-      switch (itemClicked) {
-        case "View Profile":
-          break;
-        case "Change Name":
-          break;
-        case "Change Password":
-          auth
-            .requestPasswordReset()
-            .catch((e) => notify(e.toString(), "error"));
-          break;
-        case "Change Mobile Number":
-          auth
-            .unlinkPhoneNumber()
-            .then(() => notify("Mobile number unlinked", "info"))
-            .catch((e) => notify(e.toString(), "error"));
-          break;
-        case "Change profile type":
-          auth
-            .removeUserDetails(auth.user.uid, ["type"])
-            .catch((e) => notify(e.toString(), "error"));
-          break;
-        case "Change profile picture":
-          break;
-        case "Logout":
-          auth.logOut().catch((e) => notify(e.toString(), "error"));
-          break;
-        default:
-          break;
-      }
+  const [searchParams, setSearchParams] = useSearchParams();
 
-      setItemClicked(null);
-      setDropdownState("hiding");
+  useEffect(() => {
+    if (!itemClicked) return;
+    searchParams.set("action", itemClicked);
+    setSearchParams(searchParams);
+
+    // additonal actions to be taken based on the item clicked
+    switch (itemClicked) {
+      case TopBarActions.RESET_PASSWORD:
+        auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
+        break;
+      case TopBarActions.CHANGE_MOBILE_NUMBER:
+        auth
+          .unlinkPhoneNumber()
+          .then(() => notify("Mobile number unlinked", "info"))
+          .catch((e) => notify(e.toString(), "error"));
+        break;
+      case TopBarActions.SWITCH_PROFILE_TYPE:
+        auth
+          .removeUserDetails(auth.user.uid, ["type"])
+          .catch((e) => notify(e.toString(), "error"));
+        break;
+      case TopBarActions.LOGOUT:
+        auth.logOut().catch((e) => notify(e.toString(), "error"));
+        break;
+      default:
+        break;
     }
+
+    setItemClicked(null);
+    setDropdownState("hiding");
   }, [auth, auth.user.uid, notify, itemClicked]);
 
   useEffect(() => {
@@ -105,50 +138,68 @@ export default function TopBar({ children }) {
           ></i>
         </span>
         <div className={`dropdown dropdown-anim-${dropdownState}`}>
+          {/* View Profile */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("View Profile")}
+            onClick={() => setItemClicked(TopBarActions.VIEW_PROFILE)}
           >
-            {`View ${auth.user.type === "OWNER" ? "Owner" : "Tenant"} profile`}
+            View {auth.user.type === "OWNER" ? "Owner" : "Tenant"} Profile
           </div>
+          {/* Switch Profile Type */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Change profile type")}
+            onClick={() =>
+              setItemClicked(TopBarActions.SWITCH_PROFILE_TYPE)
+            }
           >
-            {`Switch to ${
-              auth.user.type === "OWNER" ? "Tenant" : "Owner"
-            } profile`}
+            Switch to {auth.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
           </div>
+          {/* Update Profile Photo */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Change Name")}
+            onClick={() =>
+              setItemClicked(TopBarActions.UPDATE_PROFILE_PHOTO)
+            }
           >
-            Change display name
+            {TopBarActions.UPDATE_PROFILE_PHOTO}
           </div>
+          {/* Update ID Documents */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Change Password")}
+            onClick={() => setItemClicked(TopBarActions.UPDATE_ID_DOCS)}
           >
-            Request password change
+            {TopBarActions.UPDATE_ID_DOCS}
           </div>
+          {/* Change Name */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Change Mobile Number")}
+            onClick={() => setItemClicked(TopBarActions.CHANGE_NAME)}
           >
-            Change mobile number
+            {TopBarActions.CHANGE_NAME}
           </div>
+          {/* Request Password Reset */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Change profile picture")}
+            onClick={() => setItemClicked(TopBarActions.RESET_PASSWORD)}
           >
-            Change profile picture
+            {TopBarActions.RESET_PASSWORD}
           </div>
+          {/* Change Mobile Number */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked("Logout")}
+            onClick={() =>
+              setItemClicked(TopBarActions.CHANGE_MOBILE_NUMBER)
+            }
+          >
+            {TopBarActions.CHANGE_MOBILE_NUMBER}
+          </div>
+          {/* Log Out */}
+          <div
             style={{ color: "red" }}
+            className="dropdown-item"
+            onClick={() => setItemClicked(TopBarActions.LOGOUT)}
           >
-            Log out
+            {TopBarActions.LOGOUT}
           </div>
         </div>
       </div>
