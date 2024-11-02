@@ -1,6 +1,5 @@
 import { fbRtdbGetRef } from "./init.js";
 import { get, set, update, remove, onValue } from "firebase/database";
-// import { logError } from "./util.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
 
 /**
@@ -10,13 +9,20 @@ import ErrorMessages from "../errors/ErrorMessages.js";
  */
 export function onDbContentChange(subdb, path, callback) {
   const dbRef = fbRtdbGetRef(subdb, path);
-  const unsubscribe = onValue(dbRef, (snapshot) => {
-    if (snapshot.exists()) {
-      callback(snapshot.val());
-    } else {
-      callback(null);
+  const unsubscribe = onValue(
+    dbRef,
+    (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.val());
+      } else {
+        callback(null);
+      }
+    },
+    (error) => {
+      const fullpath = `${subdb}/${path}`;
+      console.error(fullpath, error.toString());
     }
-  });
+  );
   return unsubscribe;
 }
 
@@ -33,9 +39,8 @@ async function fbRtdbCreate(subdb, path, data) {
     await set(dbRef, data);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subdb}/${path}`;
-    console.error(error.toString());
-    // await logError("rtdb_create", fullpath, error.code ?? error.toString());
+    const fullpath = `${subdb}/${path}`;
+    console.error(fullpath, error.toString());
     return Promise.reject(ErrorMessages.DATA_WRITE_FAILED);
   }
 }
@@ -56,48 +61,45 @@ async function fbRtdbRead(subdb, path) {
       return Promise.resolve(null);
     }
   } catch (error) {
-    // const fullpath = `${subdb}/${path}`;
-    console.error(error.toString());
-    // await logError("rtdb_read", error.code ?? error.toString());
+    const fullpath = `${subdb}/${path}`;
+    console.error(fullpath, error.toString());
     return Promise.reject(ErrorMessages.DATA_READ_FAILED);
   }
 }
 
 /**
  * Update specific fields in the Realtime Database
- * @param {import("./init.js").RtDbPaths} subpath - Sub-database in the Realtime Database
+ * @param {import("./init.js").RtDbPaths} subdb - Sub-database in the Realtime Database
  * @param {string} path - Path in the database to read data
  * @param {object} data - Data to update in the database
  * @returns {Promise<void>}
  */
-async function fbRtdbUpdate(subpath, path, data) {
+async function fbRtdbUpdate(subdb, path, data) {
   try {
-    const dbRef = fbRtdbGetRef(subpath, path);
+    const dbRef = fbRtdbGetRef(subdb, path);
     await update(dbRef, data);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subpath}/${path}`;
-    console.error(error.toString());
-    // await logError("rtdb_update", error.code ?? error.toString());
+    const fullpath = `${subdb}/${path}`;
+    console.error(fullpath, error.toString());
     return Promise.reject(ErrorMessages.DATA_UPDATE_FAILED);
   }
 }
 
 /**
  * Delete data from the Realtime Database
- * @param {import("./init.js").RtDbPaths} subpath - Sub-database in the Realtime Database
+ * @param {import("./init.js").RtDbPaths} subdb - Sub-database in the Realtime Database
  * @param {string} path - Path in the database to delete data
  * @returns {Promise<void>}
  */
-async function fbRtdbDelete(subpath, path) {
+async function fbRtdbDelete(subdb, path) {
   try {
-    const dbRef = fbRtdbGetRef(subpath, path);
+    const dbRef = fbRtdbGetRef(subdb, path);
     await remove(dbRef);
     return Promise.resolve();
   } catch (error) {
-    // const fullpath = `${subpath}/${path}`;
-    console.error(error.toString());
-    // await logError("rtdb_delete", error.code ?? error.toString());
+    const fullpath = `${subdb}/${path}`;
+    console.error(fullpath, error.toString());
     return Promise.reject(ErrorMessages.DATA_DELETE_FAILED);
   }
 }

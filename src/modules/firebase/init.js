@@ -1,9 +1,18 @@
 // Import Firebase modules from CDN
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getDatabase, ref as rtdbRef } from "firebase/database";
-import { getStorage, ref as storageRef } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+import { getAuth /* connectAuthEmulator */ } from "firebase/auth";
+import {
+  getDatabase,
+  ref as rtdbRef,
+  connectDatabaseEmulator,
+} from "firebase/database";
+import {
+  getStorage,
+  ref as storageRef,
+  connectStorageEmulator,
+} from "firebase/storage";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {
@@ -33,6 +42,17 @@ const FirebaseRtDb = getDatabase(FirebaseApp);
 const FirebaseAuth = getAuth(FirebaseApp);
 
 const FirebaseStorage = getStorage(FirebaseApp);
+
+const FirebaseFirestore = getFirestore(FirebaseApp);
+
+if (/localhost|127\.0\.0\.1/i.test(window.location.href)) {
+  // auth disabled coz otp and captcha not working in emulator
+  // auth at 9001, rtdb at 9002, storage at 9003, firestore at 9004
+  // connectAuthEmulator(FirebaseAuth, "http://localhost:9001");
+  connectDatabaseEmulator(FirebaseRtDb, "localhost", 9002);
+  connectStorageEmulator(FirebaseStorage, "localhost", 9003);
+  connectFirestoreEmulator(FirebaseFirestore, "localhost", 9004);
+}
 
 /**
  * Realtime Database paths
@@ -66,6 +86,21 @@ const StoragePaths = {
   ),
 };
 
+// if app is running in preview mode, change the paths to preview paths
+if (
+  !/localhost|127\.0\.0\.1/i.test(window.location.href) &&
+  window.location.hostname !== "mess-booking-app-serverless.web.app" &&
+  window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com"
+) {
+  // add a -preview prefix to each RtDbPaths and StoragePaths
+  for (const key in RtDbPaths) {
+    RtDbPaths[key] = RtDbPaths[key].replace("/db_", "/preview_db_");
+  }
+  for (const key in StoragePaths) {
+    StoragePaths[key] = StoragePaths[key].replace("/storg_", "/preview_storg_");
+  }
+}
+
 /**Path
  * Get a reference to a path in the Realtime Database
  * @param {...string} args - Path segments to join
@@ -92,6 +127,7 @@ export {
   FirebaseRtDb,
   FirebaseAuth,
   FirebaseStorage,
+  FirebaseFirestore,
   RtDbPaths,
   StoragePaths,
 };

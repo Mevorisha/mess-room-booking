@@ -1,9 +1,16 @@
 import React, { useEffect } from "react";
-import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  useNavigate,
+  BrowserRouter,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
 import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import useAuth from "../../hooks/auth.js";
 import Notification from "../../components/Notification";
+import PageNotFound from "../PageNotFound/index.jsx";
 import LoadingPage from "../../pages/Loading";
 import AuthPage from "../../pages/Auth";
 import OnboardingPage from "../../pages/Onboarding";
@@ -12,11 +19,16 @@ import HomePage from "../../pages/Home";
 // import ProfilePage from "../../pages/Profile";
 // import AccountPage from "../../pages/Account";
 
+const VALID_PATHS = ["/", "/onboarding", "/auth", "/home"];
+
 function AuthCheck() {
+  const location = useLocation();
   const navigate = useNavigate();
   const auth = useAuth();
+
   useEffect(() => {
-    if (auth.state === AuthStateEnum.STILL_LOADING) navigate("/");
+    if (!VALID_PATHS.includes(location.pathname)) navigate("/404");
+    else if (auth.state === AuthStateEnum.STILL_LOADING) navigate("/");
     else if (auth.state === AuthStateEnum.NOT_LOGGED_IN) navigate("/auth");
     else if (auth.state === AuthStateEnum.LOGGED_IN) {
       if (auth.user.type === "EMPTY") navigate("/onboarding");
@@ -24,6 +36,7 @@ function AuthCheck() {
       else navigate("/home");
     }
   }, [auth.state, auth.user.type, auth.user.mobile, navigate]);
+
   return null;
 }
 
@@ -44,6 +57,8 @@ export default function App() {
               <Route path="/profile" component={ProfilePage} />
               <Route path="/account" component={AccountPage} />
             */}
+            <Route path="/404" Component={PageNotFound} />
+            <Route path="*" Component={PageNotFound} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

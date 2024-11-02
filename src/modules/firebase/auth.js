@@ -169,32 +169,11 @@ class LinkMobileNumber {
         return Promise.reject("No user logged in.");
       }
 
-      try {
-        // also updates the user's phone number so updatePhoneNumber is not required
-        await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
-        // Optional: Update phone number in user's profile if linking is not required
-        // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
-      } catch (error) {
-        if (error.code === "auth/provider-already-linked") {
-          // TODO: THIS WILL BE REMOVED AND USER NEEDS TO CALL unlinkPhoneNumber() IF NUMBER NEEDS TO BE CHANGED
-          // NOTE: unlinkPhoneNumber() will be called by useAuth().changeMobileNumber() which also unsets the phone number in DB
-          console.warn("remove unlink phone in LinkMobileNumber.verifyOtp");
-          // unlink the existing phone number and link the new one
-          await unlink(FirebaseAuth.currentUser, "phone");
-          // also updates the user's phone number so updatePhoneNumber is not required
-          await linkWithCredential(
-            FirebaseAuth.currentUser,
-            phoneAuthCredential
-          );
-          // Optional: Update phone number in user's profile if linking is not required
-          // await updatePhoneNumber(
-          //   FirebaseAuth.currentUser,
-          //   phoneAuthCredential
-          // );
-        } else {
-          throw error;
-        }
-      }
+      // also updates the user's phone number so updatePhoneNumber is not required
+      await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
+
+      // Optional: Update phone number in user's profile if linking is not required
+      // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
 
       return Promise.resolve(true);
     } catch (error) {
