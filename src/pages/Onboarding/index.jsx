@@ -177,6 +177,7 @@ function SetProfilePhoto({ auth }) {
   const [photoURL, setPhotoURL] = useState(dpGeneric);
 
   const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
@@ -184,8 +185,10 @@ function SetProfilePhoto({ auth }) {
     loadFileFromFilePicker("image/*", maxSizeInBytes)
       .then((file) => auth.updateProfilePhoto(file))
       .then((url) => setPhotoURL(url))
+      .then(() => searchParams.delete("action"))
+      .then(() => setSearchParams(searchParams))
       .catch((e) => notify(e.toString(), "error"));
-  }, [auth, notify]);
+  }, [auth, notify, searchParams, setSearchParams, maxSizeInBytes]);
 
   return (
     <div className="pages-Onboarding">
@@ -228,6 +231,7 @@ function SetProfilePhoto({ auth }) {
  */
 function SetDisplayName({ auth }) {
   const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleUpdateName = useCallback(
     (e) => {
@@ -241,10 +245,12 @@ function SetDisplayName({ auth }) {
       if (firstName && lastName)
         auth
           .updateProfileName(firstName, lastName)
+          .then(() => searchParams.delete("action"))
+          .then(() => setSearchParams(searchParams))
           .catch((e) => notify(e.toString(), "error"));
       else notify("Please enter a valid name", "error");
     },
-    [auth, notify]
+    [auth, notify, searchParams, setSearchParams]
   );
 
   return (
@@ -297,26 +303,26 @@ export default function Onboarding() {
   const auth = useAuth();
   const [searchParams] = useSearchParams();
 
+  if (searchParams.has("action"))
+    switch (searchParams.get("action")) {
+      case TopBarActions.SWITCH_PROFILE_TYPE:
+        return <SelectInitialType auth={auth} />;
+      case TopBarActions.CHANGE_NAME:
+        return <SetDisplayName auth={auth} />;
+      case TopBarActions.CHANGE_MOBILE_NUMBER:
+        return <SetMobileNumber auth={auth} />;
+      case TopBarActions.UPDATE_PROFILE_PHOTO:
+        return <SetProfilePhoto auth={auth} />;
+      default:
+        return <PageNotFound />;
+    }
+
   if (auth.state === AuthStateEnum.STILL_LOADING) return null;
   if (isEmpty(auth.user.type)) return <SelectInitialType auth={auth} />;
   if (isEmpty(auth.user.mobile)) return <SetMobileNumber auth={auth} />;
+  if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
+  if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+    return <SetDisplayName auth={auth} />;
 
-  // if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
-  // if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
-  //   return <SetDisplayName auth={auth} />;
-
-  if (!searchParams.has("action")) return null;
-
-  switch (searchParams.get("action")) {
-    case TopBarActions.SWITCH_PROFILE_TYPE:
-      return <SelectInitialType auth={auth} />;
-    case TopBarActions.CHANGE_NAME:
-      return <SetDisplayName auth={auth} />;
-    case TopBarActions.CHANGE_MOBILE_NUMBER:
-      return <SetMobileNumber auth={auth} />;
-    case TopBarActions.UPDATE_PROFILE_PHOTO:
-      return <SetProfilePhoto auth={auth} />;
-    default:
-      return <PageNotFound />;
-  }
+  return <PageNotFound />;
 }
