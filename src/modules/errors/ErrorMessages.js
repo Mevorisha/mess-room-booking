@@ -35,6 +35,9 @@ export function getCleanFirebaseErrMsg(error) {
   if (error.code === "auth/email-already-in-use") {
     return "Email already in use. Please login.";
   }
+  if (error.code === "auth/account-exists-with-different-credential") {
+    return "Credentials linked to an existing account. Try a different credential.";
+  }
 
   let errmsg = error
     .toString()
