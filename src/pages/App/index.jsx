@@ -86,6 +86,11 @@ function AuthCheck() {
             });
             break;
 
+          // no action required but not /404
+          case TopBarActions.RESET_PASSWORD:
+          case TopBarActions.LOGOUT:
+            break;
+
           // default to /404 if param is not recognized
           default:
             navigate("/404");
