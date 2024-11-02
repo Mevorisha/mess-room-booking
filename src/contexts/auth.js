@@ -199,13 +199,13 @@ export default AuthContext;
  */
 async function tiggerAuthDataRefresh(uid) {
   if (!uid) {
-    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
+    console.error(`${MODULE_NAME}::tiggerAuthDataRefresh: uid =`, uid);
     return Promise.resolve();
   }
 
   const currentVal = Date.now();
   console.log(
-    `${MODULE_NAME}::${arguments.callee.name}: currentVal =`,
+    `${MODULE_NAME}::tiggerAuthDataRefresh: currentVal =`,
     currentVal
   );
 
@@ -224,7 +224,7 @@ async function updateUserDetails(
   { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
 ) {
   if (!uid) {
-    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
+    console.error(`${MODULE_NAME}::updateUserDetails: uid =`, uid);
     return Promise.resolve();
   }
 
@@ -234,9 +234,7 @@ async function updateUserDetails(
       payload[key] !== "" && payload[key] !== undefined && payload[key] !== null
   );
 
-  console.log(
-    `${MODULE_NAME}::${arguments.callee.name}: db updates = ${updateKeys}`
-  );
+  console.log(`${MODULE_NAME}::updateUserDetails: db updates = ${updateKeys}`);
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
@@ -279,11 +277,11 @@ async function updateUserDetails(
  */
 async function removeUserDetails(uid, keys) {
   if (!uid) {
-    console.error(`${MODULE_NAME}::${arguments.callee.name}: uid =`, uid);
+    console.error(`${MODULE_NAME}::removeUserDetails: uid =`, uid);
     return Promise.resolve();
   }
 
-  console.log(`${MODULE_NAME}::${arguments.callee.name}: rm keys =`, keys);
+  console.log(`${MODULE_NAME}::removeUserDetails: rm keys =`, keys);
 
   const updateDbPayload = {};
   const updateAuthPayload = {};
@@ -350,7 +348,7 @@ export function AuthProvider({ children }) {
       }
 
       console.error(
-        `${MODULE_NAME}::${arguments.callee.name}: new user =`,
+        `${MODULE_NAME}::onAuthStateChanged: new user =`,
         user ? User.fromFirebaseAuthUser(user) : null
       );
 
@@ -372,10 +370,7 @@ export function AuthProvider({ children }) {
       RtDbPaths.IDENTITY,
       `${finalUser.uid}/`,
       (data) => {
-        console.log(
-          `${MODULE_NAME}::${arguments.callee.name}: new data =`,
-          data
-        );
+        console.log(`${MODULE_NAME}::onDbContentChange: new data =`, data);
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
