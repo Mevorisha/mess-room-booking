@@ -1,7 +1,11 @@
 import React from "react";
 import "./styles.css";
+import ButtonText from "../../components/ButtonText";
+import { useNavigate } from "react-router-dom";
 
 export default function PageNotFound() {
+  const navigate = useNavigate();
+
   return (
     <div className="pages-PageNotFound">
       <div className="container">
@@ -14,6 +18,7 @@ export default function PageNotFound() {
             removed.
           </p>
         </div>
+        <ButtonText rounded="all" title="Go Home" kind="primary" onclick={() => (navigate("/"), 0)} />
       </div>
     </div>
   );

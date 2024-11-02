@@ -300,9 +300,10 @@ export default function Onboarding() {
   if (auth.state === AuthStateEnum.STILL_LOADING) return null;
   if (isEmpty(auth.user.type)) return <SelectInitialType auth={auth} />;
   if (isEmpty(auth.user.mobile)) return <SetMobileNumber auth={auth} />;
-  if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
-  if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
-    return <SetDisplayName auth={auth} />;
+
+  // if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
+  // if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+  //   return <SetDisplayName auth={auth} />;
 
   if (!searchParams.has("action")) return null;
 
