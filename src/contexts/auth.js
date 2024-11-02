@@ -1,5 +1,3 @@
-const MODULE_NAME = "contexts/auth.js";
-
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import {
   FirebaseAuth,
@@ -16,6 +14,8 @@ import {
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
+
+const MODULE_NAME = "contexts/auth.js";
 
 /* -------------------------------------- ENUMS ----------------------------------- */
 
