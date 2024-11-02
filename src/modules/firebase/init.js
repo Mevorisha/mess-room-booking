@@ -1,9 +1,17 @@
 // Import Firebase modules from CDN
-import { initializeApp, } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, /* connectAuthEmulator */ } from "firebase/auth";
-import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/database";
-import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
+import { getAuth /* connectAuthEmulator */ } from "firebase/auth";
+import {
+  getDatabase,
+  ref as rtdbRef,
+  connectDatabaseEmulator,
+} from "firebase/database";
+import {
+  getStorage,
+  ref as storageRef,
+  connectStorageEmulator,
+} from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // Firebase configuration (replace with your config)
@@ -77,6 +85,21 @@ const StoragePaths = {
     "/storg_FeedbackPhotos"
   ),
 };
+
+// if app is running in preview mode, change the paths to preview paths
+if (
+  !/localhost|127\.0\.0\.1/i.test(window.location.href) &&
+  window.location.hostname !== "mess-booking-app-serverless.web.app" &&
+  window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com"
+) {
+  // add a -preview prefix to each RtDbPaths and StoragePaths
+  for (const key in RtDbPaths) {
+    RtDbPaths[key] = RtDbPaths[key].replace("/db_", "/db-preview_");
+  }
+  for (const key in StoragePaths) {
+    StoragePaths[key] = StoragePaths[key].replace("/storg_", "/storg-preview_");
+  }
+}
 
 /**Path
  * Get a reference to a path in the Realtime Database
