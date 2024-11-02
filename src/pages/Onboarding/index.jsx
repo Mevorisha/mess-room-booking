@@ -210,13 +210,7 @@ function SetProfilePhoto({ auth }) {
 
         <div className="photo-container">
           <img
-            src={
-              isEmpty(photoURL)
-                ? isEmpty(auth.user.photoURL)
-                  ? dpGeneric
-                  : auth.user.photoURL
-                : photoURL
-            }
+            src={auth.user.photoURL || photoURL || dpGeneric}
             alt="profile"
           />
           <ButtonText
