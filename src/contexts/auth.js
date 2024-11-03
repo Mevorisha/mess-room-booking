@@ -538,7 +538,10 @@ export function AuthProvider({ children }) {
     /**
      * @returns {Promise<void>}
      */
-    () => fbAuthLogOut().then(() => notify("Logged out", "info")),
+    () =>
+      fbAuthLogOut()
+        .then(() => notify("Logged out", "info"))
+        .then(() => setFinalUser(User.empty())),
     [notify]
   );
 
