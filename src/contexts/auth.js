@@ -191,8 +191,6 @@ export class User {
  * @typedef  {Object} AuthContextType
  * @property {AuthStateEnum} state
  * @property {User} user
- * @property {FnUserDetailsUpdate} updateUserDetails
- * @property {(uid: string, keys: UserDetailsEnum[])  => Promise<void>} removeUserDetails
  * @property {(type: "TENANT" | "OWNER")              => Promise<void>} updateProfileType
  * @property {(image: File)                           => Promise<string>} updateProfilePhoto
  * @property {(firstName: string, lastName: string)   => Promise<void>} updateProfileName
@@ -207,8 +205,6 @@ const AuthContext = createContext(
   /** @type {AuthContextType} */ ({
     state: AuthStateEnum.STILL_LOADING,
     user: User.empty(),
-    updateUserDetails: async () => {},
-    removeUserDetails: async () => {},
     updateProfileType: async () => {},
     updateProfilePhoto: async () => "",
     updateProfileName: async () => {},
@@ -221,128 +217,6 @@ const AuthContext = createContext(
 );
 
 export default AuthContext;
-
-/* ------------------------------------ UPDATE MAJOR FN ----------------------------------- */
-
-/**
- * @param {string} uid
- * @returns {Promise<void>}
- */
-async function triggerAuthDataRefresh(uid) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::tiggerAuthDataRefresh: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  const currentVal = Date.now();
-  console.log(
-    `${MODULE_NAME}::tiggerAuthDataRefresh: currentVal =`,
-    currentVal
-  );
-
-  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, {
-    refresh: "" + currentVal,
-  });
-}
-
-/**
- * @param {string} uid
- * @param {UserDetailsUpdatePayload} payload
- * @returns {Promise<void>}
- */
-async function updateUserDetails(
-  uid,
-  { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
-) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::updateUserDetails: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  const payload = { type, photoURL, mobile, firstName, lastName };
-  const updateKeys = Object.keys(payload).filter(
-    (key) =>
-      payload[key] !== "" && payload[key] !== undefined && payload[key] !== null
-  );
-
-  console.log(`${MODULE_NAME}::updateUserDetails: db updates = ${updateKeys}`);
-
-  const updateDbPayload = {};
-  const updateAuthPayload = {};
-
-  /* following are updated in Firebase Realtime Database */
-  if (!isEmpty(type)) updateDbPayload.type = type;
-
-  /* following are updated in Firebase Auth */
-  if (photoURL) updateAuthPayload.photoURL = photoURL;
-  if (firstName && lastName) {
-    updateAuthPayload.displayName = `${firstName} ${lastName}`;
-  } else if ((!firstName && lastName) || (firstName && !lastName)) {
-    return Promise.reject("First name and last name are both required");
-  }
-
-  if (
-    Object.keys(updateDbPayload).length === 0 &&
-    Object.keys(updateAuthPayload).length === 0
-  )
-    return Promise.resolve();
-
-  const updates = [
-    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
-    updateProfile(updateAuthPayload),
-    triggerAuthDataRefresh(uid),
-  ];
-
-  return Promise.allSettled(updates).then((results) => {
-    const errors = results
-      .filter((result) => result.status === "rejected")
-      .map((result) => result.reason);
-    if (errors.length > 0) return Promise.reject(errors);
-    return Promise.resolve();
-  });
-}
-
-/**
- * @param {string} uid
- * @param {UserDetailsEnum[]} keys
- * @returns {Promise<void>}
- */
-async function removeUserDetails(uid, keys) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::removeUserDetails: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  console.log(`${MODULE_NAME}::removeUserDetails: rm keys =`, keys);
-
-  const updateDbPayload = {};
-  const updateAuthPayload = {};
-
-  keys.forEach((key) => {
-    if (key === UserDetailsEnum.type) updateDbPayload.type = null;
-    else updateAuthPayload[key] = "EMPTY";
-  });
-
-  if (
-    Object.keys(updateDbPayload).length === 0 &&
-    Object.keys(updateAuthPayload).length === 0
-  )
-    return Promise.resolve();
-
-  const updates = [
-    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
-    updateProfile(updateAuthPayload),
-    triggerAuthDataRefresh(uid),
-  ];
-
-  return Promise.allSettled(updates).then((results) => {
-    const errors = results
-      .filter((result) => result.status === "rejected")
-      .map((result) => result.reason);
-    if (errors.length > 0) return Promise.reject(errors);
-    return Promise.resolve();
-  });
-}
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
@@ -555,8 +429,6 @@ export function AuthProvider({ children }) {
       value={{
         state: authState,
         user: finalUser,
-        updateUserDetails,
-        removeUserDetails,
         updateProfileType,
         updateProfilePhoto,
         updateProfileName,
