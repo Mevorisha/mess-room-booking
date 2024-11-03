@@ -140,7 +140,7 @@ class LinkMobileNumber {
 
   /**
    * @param {string} otp
-   * @returns {Promise<boolean>}
+   * @returns {Promise<string>}
    */
   static async verifyOtp(otp) {
     /**
@@ -168,7 +168,9 @@ class LinkMobileNumber {
       // Optional: Update phone number in user's profile if linking is not required
       // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
 
-      return Promise.resolve(true);
+      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? "";
+      console.log("Phone number linked:", phoneNumber);
+      return Promise.resolve(phoneNumber);
     } catch (error) {
       let errmsg = getCleanFirebaseErrMsg(error);
       if (error?.code === "auth/account-exists-with-different-credential") {
