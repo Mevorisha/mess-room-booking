@@ -78,8 +78,24 @@
   margin-bottom: 1.5px;
 }
 
+.components-TopBar .action-buttons-container span.profile-incomplete span:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .action-buttons-container span.profile-incomplete span {
+    display: none;
+  }
+}
+
 .components-TopBar .action-buttons-container span.profile-incomplete i {
   font-size: 1.2rem;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .action-buttons-container span.profile-incomplete i {
+    font-size: 1.7rem;
+  }
 }
 
 .components-TopBar .action-buttons-container span.profile-complete {
@@ -109,9 +125,16 @@
   border: 1px solid #b3b3b3;
 }
 
+@media (max-width: 650px) {
+  .components-TopBar .action-buttons-container span.profile-complete .profile-image {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 .components-TopBar .action-buttons-container .dropdown {
   position: absolute;
-  top: 45px;
+  top: 50px;
   right: var(--pad-3);
   background-color: var(--color-bg-primary);
   border-radius: var(--rounded-rad);
@@ -123,7 +146,7 @@
 
 @media (max-width: 361px) {
   .components-TopBar .action-buttons-container .dropdown {
-    top: 50px;
+    top: 45px;
     right: var(--pad-0);
     width: calc(100% - 2 * var(--pad-2));
   }

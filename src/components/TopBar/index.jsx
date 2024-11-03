@@ -73,6 +73,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
         onClick={() => handleDropdownClick(dropdownState)}
       >
         <span>{text}</span>
+        {/* <i className="fa fa-exclamation-triangle"></i> */}
         <i className="fa fa-exclamation-circle"></i>
       </span>
     );
@@ -134,11 +135,6 @@ export default function TopBar({ children }) {
     switch (itemClicked) {
       case TopBarActions.RESET_PASSWORD:
         auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
-        break;
-      case TopBarActions.SWITCH_PROFILE_TYPE:
-        auth
-          .removeUserDetails(auth.user.uid, ["type"])
-          .catch((e) => notify(e.toString(), "error"));
         break;
       case TopBarActions.LOGOUT:
         auth.logOut().catch((e) => notify(e.toString(), "error"));

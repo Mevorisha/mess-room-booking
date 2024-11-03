@@ -9,10 +9,11 @@ import {
   LinkMobileNumber,
   logOut as fbAuthLogOut,
   onAuthStateChanged,
-  updateProfile,
+  updateProfile as updateAuthProfile,
 } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
+import { isEmpty } from "../modules/util/validations.js";
 import useNotification from "../hooks/notification.js";
 
 const MODULE_NAME = "contexts/auth.js";
@@ -121,7 +122,8 @@ export class User {
       this.firstName,
       this.lastName
     );
-    if (this.type !== "EMPTY") user.setType(this.type);
+    if (!isEmpty(this.type))
+      user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
     return user;
   }
 
@@ -157,6 +159,15 @@ export class User {
   }
 
   /**
+   * @param {string} mobile
+   * @returns {this}
+   */
+  setMobile(mobile) {
+    this.mobile = mobile;
+    return this;
+  }
+
+  /**
    * @returns {string}
    */
   toString() {
@@ -180,8 +191,6 @@ export class User {
  * @typedef  {Object} AuthContextType
  * @property {AuthStateEnum} state
  * @property {User} user
- * @property {FnUserDetailsUpdate} updateUserDetails
- * @property {(uid: string, keys: UserDetailsEnum[])  => Promise<void>} removeUserDetails
  * @property {(type: "TENANT" | "OWNER")              => Promise<void>} updateProfileType
  * @property {(image: File)                           => Promise<string>} updateProfilePhoto
  * @property {(firstName: string, lastName: string)   => Promise<void>} updateProfileName
@@ -196,8 +205,6 @@ const AuthContext = createContext(
   /** @type {AuthContextType} */ ({
     state: AuthStateEnum.STILL_LOADING,
     user: User.empty(),
-    updateUserDetails: async () => {},
-    removeUserDetails: async () => {},
     updateProfileType: async () => {},
     updateProfilePhoto: async () => "",
     updateProfileName: async () => {},
@@ -210,128 +217,6 @@ const AuthContext = createContext(
 );
 
 export default AuthContext;
-
-/* ------------------------------------ UPDATE MAJOR FN ----------------------------------- */
-
-/**
- * @param {string} uid
- * @returns {Promise<void>}
- */
-async function triggerAuthDataRefresh(uid) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::tiggerAuthDataRefresh: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  const currentVal = Date.now();
-  console.log(
-    `${MODULE_NAME}::tiggerAuthDataRefresh: currentVal =`,
-    currentVal
-  );
-
-  return await fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, {
-    refresh: "" + currentVal,
-  });
-}
-
-/**
- * @param {string} uid
- * @param {UserDetailsUpdatePayload} payload
- * @returns {Promise<void>}
- */
-async function updateUserDetails(
-  uid,
-  { type = "EMPTY", photoURL = "", mobile = "", firstName = "", lastName = "" }
-) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::updateUserDetails: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  const payload = { type, photoURL, mobile, firstName, lastName };
-  const updateKeys = Object.keys(payload).filter(
-    (key) =>
-      payload[key] !== "" && payload[key] !== undefined && payload[key] !== null
-  );
-
-  console.log(`${MODULE_NAME}::updateUserDetails: db updates = ${updateKeys}`);
-
-  const updateDbPayload = {};
-  const updateAuthPayload = {};
-
-  /* following are updated in Firebase Realtime Database */
-  if (type !== "EMPTY") updateDbPayload.type = type;
-
-  /* following are updated in Firebase Auth */
-  if (photoURL) updateAuthPayload.photoURL = photoURL;
-  if (firstName && lastName) {
-    updateAuthPayload.displayName = `${firstName} ${lastName}`;
-  } else if ((!firstName && lastName) || (firstName && !lastName)) {
-    return Promise.reject("First name and last name are both required");
-  }
-
-  if (
-    Object.keys(updateDbPayload).length === 0 &&
-    Object.keys(updateAuthPayload).length === 0
-  )
-    return Promise.resolve();
-
-  const updates = [
-    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
-    updateProfile(updateAuthPayload),
-    triggerAuthDataRefresh(uid),
-  ];
-
-  return Promise.allSettled(updates).then((results) => {
-    const errors = results
-      .filter((result) => result.status === "rejected")
-      .map((result) => result.reason);
-    if (errors.length > 0) return Promise.reject(errors);
-    return Promise.resolve();
-  });
-}
-
-/**
- * @param {string} uid
- * @param {UserDetailsEnum[]} keys
- * @returns {Promise<void>}
- */
-async function removeUserDetails(uid, keys) {
-  if (!uid) {
-    console.error(`${MODULE_NAME}::removeUserDetails: uid =`, uid);
-    return Promise.resolve();
-  }
-
-  console.log(`${MODULE_NAME}::removeUserDetails: rm keys =`, keys);
-
-  const updateDbPayload = {};
-  const updateAuthPayload = {};
-
-  keys.forEach((key) => {
-    if (key === UserDetailsEnum.type) updateDbPayload.type = null;
-    else updateAuthPayload[key] = "EMPTY";
-  });
-
-  if (
-    Object.keys(updateDbPayload).length === 0 &&
-    Object.keys(updateAuthPayload).length === 0
-  )
-    return Promise.resolve();
-
-  const updates = [
-    fbRtdbUpdate(RtDbPaths.IDENTITY, `${uid}/`, updateDbPayload),
-    updateProfile(updateAuthPayload),
-    triggerAuthDataRefresh(uid),
-  ];
-
-  return Promise.allSettled(updates).then((results) => {
-    const errors = results
-      .filter((result) => result.status === "rejected")
-      .map((result) => result.reason);
-    if (errors.length > 0) return Promise.reject(errors);
-    return Promise.resolve();
-  });
-}
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
@@ -402,7 +287,7 @@ export function AuthProvider({ children }) {
 
         setFinalUser(() => {
           const newUser = User.loadCurrentUser();
-          if (data.type && data.type !== "EMPTY") newUser.setType(data.type);
+          if (!isEmpty(data.type)) newUser.setType(data.type);
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
@@ -426,8 +311,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      updateUserDetails(finalUser.uid, { type })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+      fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, { type })
         .then(() => setFinalUser((user) => user.clone().setType(type)))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
@@ -438,21 +322,17 @@ export function AuthProvider({ children }) {
      * @param {File} image
      * @returns {Promise<string>}
      */
-    async (image) =>
-      new Promise((resolve, reject) =>
-        fbStorageUpload(StoragePaths.PROFILE_PHOTOS, finalUser.uid, image)
-          .then(async (photoURL) => {
-            await triggerAuthDataRefresh(finalUser.uid);
-            setFinalUser((user) => user.clone().setPhotoURL(photoURL));
-            return photoURL;
-          })
-          .then((photoURL) => {
-            updateProfile({ photoURL });
-            resolve(photoURL);
-          })
-          .then(() => notify("Profile photo updated successfully", "success"))
-          .catch((e) => reject(e))
-      ),
+    async (image) => {
+      const url = await fbStorageUpload(
+        StoragePaths.PROFILE_PHOTOS,
+        finalUser.uid,
+        image
+      );
+      await updateAuthProfile({ photoURL: url });
+      setFinalUser((user) => user.clone().setPhotoURL(url));
+      notify("Profile photo updated successfully", "success");
+      return url;
+    },
     [finalUser.uid, notify]
   );
 
@@ -463,8 +343,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (firstName, lastName) =>
-      updateProfile({ firstName, lastName })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+      updateAuthProfile({ firstName, lastName })
         .then(() =>
           setFinalUser((user) =>
             user.clone().setProfileName(firstName, lastName)
@@ -492,11 +371,11 @@ export function AuthProvider({ children }) {
      */
     async (otp) =>
       LinkMobileNumber.verifyOtp(otp)
-        .then((result) => {
-          if (!result)
-            return Promise.reject("Mobile number verification failed");
-          return Promise.resolve();
-        })
+        .then((phno) =>
+          isEmpty(phno)
+            ? Promise.reject("Mobile number verification failed")
+            : Promise.resolve(phno)
+        )
         .catch(async (error) => {
           if (error.toString() !== "Auth error: Provider already linked") {
             return Promise.reject(error);
@@ -504,9 +383,9 @@ export function AuthProvider({ children }) {
           notify("Unlinking existing mobile number", "info");
           await LinkMobileNumber.unlinkPhoneNumber();
           notify("Verifying new mobile number", "info");
-          return await LinkMobileNumber.verifyOtp(otp);
+          return LinkMobileNumber.verifyOtp(otp);
         })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then((phno) => setFinalUser((user) => user.clone().setMobile(phno)))
         .then(() => notify("Mobile number verified successfully", "success")),
 
     [finalUser.uid, notify]
@@ -518,7 +397,7 @@ export function AuthProvider({ children }) {
      */
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() => setFinalUser((user) => user.clone().setMobile("")))
         .then(() => notify("Mobile number unlinked successfully", "success")),
     [finalUser.uid, notify]
   );
@@ -538,7 +417,10 @@ export function AuthProvider({ children }) {
     /**
      * @returns {Promise<void>}
      */
-    () => fbAuthLogOut().then(() => notify("Logged out", "info")),
+    () =>
+      fbAuthLogOut()
+        .then(() => notify("Logged out", "info"))
+        .then(() => setFinalUser(User.empty())),
     [notify]
   );
 
@@ -547,8 +429,6 @@ export function AuthProvider({ children }) {
       value={{
         state: authState,
         user: finalUser,
-        updateUserDetails,
-        removeUserDetails,
         updateProfileType,
         updateProfilePhoto,
         updateProfileName,

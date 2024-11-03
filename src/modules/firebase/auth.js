@@ -117,9 +117,6 @@ class LinkMobileNumber {
    * @returns {Promise<void>}
    */
   static async sendOtp(phoneNumber) {
-    if (phoneNumber.startsWith("-1")) return Promise.resolve();
-    if (phoneNumber.startsWith("-")) return Promise.reject("Number rejected");
-
     try {
       initializeRecaptcha();
       /**
@@ -143,13 +140,9 @@ class LinkMobileNumber {
 
   /**
    * @param {string} otp
-   * @returns {Promise<boolean>}
+   * @returns {Promise<string>}
    */
   static async verifyOtp(otp) {
-    if (otp.startsWith("-1")) return Promise.resolve(true);
-    if (otp.startsWith("-2")) return Promise.resolve(false);
-    if (otp.startsWith("-")) return Promise.reject("OTP rejected");
-
     /**
      * @type {import("firebase/auth").ConfirmationResult | null}
      */
@@ -175,7 +168,9 @@ class LinkMobileNumber {
       // Optional: Update phone number in user's profile if linking is not required
       // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
 
-      return Promise.resolve(true);
+      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? "";
+      console.log("Phone number linked:", phoneNumber);
+      return Promise.resolve(phoneNumber);
     } catch (error) {
       let errmsg = getCleanFirebaseErrMsg(error);
       if (error?.code === "auth/account-exists-with-different-credential") {
