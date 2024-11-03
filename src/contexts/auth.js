@@ -494,11 +494,11 @@ export function AuthProvider({ children }) {
      */
     async (otp) =>
       LinkMobileNumber.verifyOtp(otp)
-        .then((result) => {
-          if (!result)
-            return Promise.reject("Mobile number verification failed");
-          return Promise.resolve();
-        })
+        .then((phno) =>
+          isEmpty(phno)
+            ? Promise.reject("Mobile number verification failed")
+            : Promise.resolve(phno)
+        )
         .catch(async (error) => {
           if (error.toString() !== "Auth error: Provider already linked") {
             return Promise.reject(error);
