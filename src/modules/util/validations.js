@@ -1,5 +1,5 @@
 /**
- * Check if the value is empty
+ * Checks if value is (undefined), (null), ("") or ("EMPTY").
  * @param {any} value
  * @returns {boolean}
  */

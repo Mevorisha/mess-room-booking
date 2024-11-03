@@ -13,6 +13,7 @@ import {
 } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
+import { isEmpty } from "../modules/util/validations.js";
 import useNotification from "../hooks/notification.js";
 
 const MODULE_NAME = "contexts/auth.js";
@@ -121,7 +122,8 @@ export class User {
       this.firstName,
       this.lastName
     );
-    if (this.type !== "EMPTY") user.setType(this.type);
+    if (!isEmpty(this.type))
+      user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
     return user;
   }
 
@@ -260,7 +262,7 @@ async function updateUserDetails(
   const updateAuthPayload = {};
 
   /* following are updated in Firebase Realtime Database */
-  if (type !== "EMPTY") updateDbPayload.type = type;
+  if (!isEmpty(type)) updateDbPayload.type = type;
 
   /* following are updated in Firebase Auth */
   if (photoURL) updateAuthPayload.photoURL = photoURL;
@@ -402,7 +404,7 @@ export function AuthProvider({ children }) {
 
         setFinalUser(() => {
           const newUser = User.loadCurrentUser();
-          if (data.type && data.type !== "EMPTY") newUser.setType(data.type);
+          if (!isEmpty(data.type)) newUser.setType(data.type);
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
