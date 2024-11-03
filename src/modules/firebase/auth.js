@@ -117,9 +117,6 @@ class LinkMobileNumber {
    * @returns {Promise<void>}
    */
   static async sendOtp(phoneNumber) {
-    if (phoneNumber.startsWith("-1")) return Promise.resolve();
-    if (phoneNumber.startsWith("-")) return Promise.reject("Number rejected");
-
     try {
       initializeRecaptcha();
       /**
@@ -146,10 +143,6 @@ class LinkMobileNumber {
    * @returns {Promise<boolean>}
    */
   static async verifyOtp(otp) {
-    if (otp.startsWith("-1")) return Promise.resolve(true);
-    if (otp.startsWith("-2")) return Promise.resolve(false);
-    if (otp.startsWith("-")) return Promise.reject("OTP rejected");
-
     /**
      * @type {import("firebase/auth").ConfirmationResult | null}
      */
