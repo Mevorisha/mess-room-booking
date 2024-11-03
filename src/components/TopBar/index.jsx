@@ -73,6 +73,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
         onClick={() => handleDropdownClick(dropdownState)}
       >
         <span>{text}</span>
+        {/* <i className="fa fa-exclamation-triangle"></i> */}
         <i className="fa fa-exclamation-circle"></i>
       </span>
     );

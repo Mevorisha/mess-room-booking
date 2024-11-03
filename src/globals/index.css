@@ -9,8 +9,14 @@ body {
 }
 
 * {
-  font-size: 100%;
+  font-size: 1rem;
   outline: thin;
+}
+
+@media (max-width: 361px) {
+  * {
+    font-size: 0.95rem;
+  }
 }
 
 a {
