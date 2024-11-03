@@ -383,7 +383,7 @@ export function AuthProvider({ children }) {
           notify("Unlinking existing mobile number", "info");
           await LinkMobileNumber.unlinkPhoneNumber();
           notify("Verifying new mobile number", "info");
-          return await LinkMobileNumber.verifyOtp(otp);
+          return LinkMobileNumber.verifyOtp(otp);
         })
         .then((phno) => setFinalUser((user) => user.clone().setMobile(phno)))
         .then(() => notify("Mobile number verified successfully", "success")),
