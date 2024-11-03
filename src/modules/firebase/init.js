@@ -13,6 +13,7 @@ import {
   connectStorageEmulator,
 } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {
@@ -30,6 +31,15 @@ const firebaseConfig = {
 // Initialize Firebase
 const FirebaseApp = initializeApp(firebaseConfig);
 const FirebaseAnalytics = getAnalytics(FirebaseApp);
+
+// App check
+if (!FirebaseApp) {
+  throw new Error("Firebase app not initialized");
+}
+const appCheck = initializeAppCheck(FirebaseApp, {
+  provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),
+  isTokenAutoRefreshEnabled: true,
+});
 
 /**
  * Rt stands for Realtime, Rt stands for ROOT.
