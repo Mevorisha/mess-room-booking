@@ -37,7 +37,9 @@ if (!FirebaseApp) {
   throw new Error("Firebase app not initialized");
 }
 
-self["FIREBASE_APPCHECK_DEBUG_TOKEN"] = process.env.FIREBASE_APPCHECK_DEBUG_TOKEN;
+/* eslint-disable-next-line no-restricted-globals */
+self["FIREBASE_APPCHECK_DEBUG_TOKEN"] =
+  process.env.FIREBASE_APPCHECK_DEBUG_TOKEN ?? undefined;
 
 const FirebaseAppCheck = initializeAppCheck(FirebaseApp, {
   provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),
