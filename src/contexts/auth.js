@@ -439,21 +439,17 @@ export function AuthProvider({ children }) {
      * @param {File} image
      * @returns {Promise<string>}
      */
-    async (image) =>
-      new Promise((resolve, reject) =>
-        fbStorageUpload(StoragePaths.PROFILE_PHOTOS, finalUser.uid, image)
-          .then(async (photoURL) => {
-            await triggerAuthDataRefresh(finalUser.uid);
-            setFinalUser((user) => user.clone().setPhotoURL(photoURL));
-            return photoURL;
-          })
-          .then((photoURL) => {
-            updateProfile({ photoURL });
-            resolve(photoURL);
-          })
-          .then(() => notify("Profile photo updated successfully", "success"))
-          .catch((e) => reject(e))
-      ),
+    async (image) => {
+      const url = await fbStorageUpload(
+        StoragePaths.PROFILE_PHOTOS,
+        finalUser.uid,
+        image
+      );
+      await updateAuthProfile({ photoURL: url });
+      setFinalUser((user) => user.clone().setPhotoURL(url));
+      notify("Profile photo updated successfully", "success");
+      return url;
+    },
     [finalUser.uid, notify]
   );
 
