@@ -36,7 +36,10 @@ const FirebaseAnalytics = getAnalytics(FirebaseApp);
 if (!FirebaseApp) {
   throw new Error("Firebase app not initialized");
 }
-const appCheck = initializeAppCheck(FirebaseApp, {
+
+self["FIREBASE_APPCHECK_DEBUG_TOKEN"] = process.env.FIREBASE_APPCHECK_DEBUG_TOKEN;
+
+const FirebaseAppCheck = initializeAppCheck(FirebaseApp, {
   provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),
   isTokenAutoRefreshEnabled: true,
 });
@@ -133,6 +136,7 @@ export {
   fbRtdbGetRef,
   fbStorageGetRef,
   FirebaseApp,
+  FirebaseAppCheck,
   FirebaseAnalytics,
   FirebaseRtDb,
   FirebaseAuth,
