@@ -159,6 +159,15 @@ export class User {
   }
 
   /**
+   * @param {string} mobile
+   * @returns {this}
+   */
+  setMobile(mobile) {
+    this.mobile = mobile;
+    return this;
+  }
+
+  /**
    * @returns {string}
    */
   toString() {
