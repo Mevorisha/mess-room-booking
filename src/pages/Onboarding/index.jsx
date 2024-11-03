@@ -17,23 +17,22 @@ import "./styles.css";
  * @param {{ auth: import("../../contexts/auth").AuthContextType }} props
  */
 function SelectInitialType({ auth }) {
-  const [accountType, setAccountType] = useState(
-    /** @type {"TENANT" | "OWNER" | "EMPTY"} */ ("EMPTY")
-  );
-
   const notify = useNotification();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const updateProfileType = useCallback(
-    /** @param {"TENANT" | "OWNER"} type */
-    (type) => auth.updateProfileType(type),
-    [auth]
+  const handleSubmit = useCallback(
+    /**
+     * @param {"TENANT" | "OWNER"} type
+     */
+    (type) => {
+      auth
+        .updateProfileType(type)
+        .then(() => searchParams.delete("action"))
+        .then(() => setSearchParams(searchParams))
+        .catch((e) => notify(e.toString(), "error"));
+    },
+    [auth, notify, searchParams, setSearchParams]
   );
-
-  useEffect(() => {
-    if ("EMPTY" === accountType) return;
-    // write the account type to the database
-    updateProfileType(accountType).catch((e) => notify(e.toString(), "error"));
-  }, [updateProfileType, notify, accountType]);
 
   return (
     <div className="pages-Onboarding">
@@ -50,13 +49,13 @@ function SelectInitialType({ auth }) {
           rounded="all"
           title="Tenant"
           kind="primary"
-          onclick={() => setAccountType("TENANT")}
+          onclick={() => handleSubmit("TENANT")}
         />
         <ButtonText
           rounded="all"
           title="Owner"
           kind="primary"
-          onclick={() => setAccountType("OWNER")}
+          onclick={() => handleSubmit("OWNER")}
         />
       </div>
     </div>
