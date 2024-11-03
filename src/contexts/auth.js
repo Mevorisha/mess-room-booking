@@ -9,7 +9,7 @@ import {
   LinkMobileNumber,
   logOut as fbAuthLogOut,
   onAuthStateChanged,
-  updateProfile,
+  updateProfile as updateAuthProfile,
 } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
 import { fbStorageUpload } from "../modules/firebase/storage.js";
@@ -428,8 +428,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      updateUserDetails(finalUser.uid, { type })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+      fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, { type })
         .then(() => setFinalUser((user) => user.clone().setType(type)))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
@@ -465,8 +464,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (firstName, lastName) =>
-      updateProfile({ firstName, lastName })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+      updateAuthProfile({ firstName, lastName })
         .then(() =>
           setFinalUser((user) =>
             user.clone().setProfileName(firstName, lastName)
@@ -508,7 +506,7 @@ export function AuthProvider({ children }) {
           notify("Verifying new mobile number", "info");
           return await LinkMobileNumber.verifyOtp(otp);
         })
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then((phno) => setFinalUser((user) => user.clone().setMobile(phno)))
         .then(() => notify("Mobile number verified successfully", "success")),
 
     [finalUser.uid, notify]
@@ -520,7 +518,7 @@ export function AuthProvider({ children }) {
      */
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => triggerAuthDataRefresh(finalUser.uid))
+        .then(() => setFinalUser((user) => user.clone().setMobile("")))
         .then(() => notify("Mobile number unlinked successfully", "success")),
     [finalUser.uid, notify]
   );
