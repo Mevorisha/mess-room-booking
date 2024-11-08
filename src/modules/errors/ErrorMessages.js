@@ -46,10 +46,10 @@ export function getCleanFirebaseErrMsg(error) {
   if (!errmsg || errmsg === "Error") {
     const errcode = error.code;
     /* convert errcode from {service}/{error-code} to {Service} error: {Error code} */
-    errmsg = errcode.replace(/(.+)\/(.+)/g, "$1 error: $2").replace(/-/g, " ");
+    errmsg = errcode.replace(/(.+)\/(.+)/g, "$2").replace(/-/g, " ");
     /* upper case 1st char and 1st char after ": " */
     errmsg = errmsg.charAt(0).toUpperCase() + errmsg.slice(1);
-    errmsg = errmsg.replace(/: (.)/g, (match) => match.toUpperCase());
+    errmsg = errmsg.replace(/^(.)/g, (match) => match.toUpperCase());
   }
 
   return errmsg;
