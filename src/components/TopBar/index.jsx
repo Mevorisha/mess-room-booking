@@ -1,47 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
+import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
-
-/**
- * @enum {"View Profile" |
- *   "Switch Profile Type" |
- *   "Update Profile Photo" |
- *   "Update ID Documents" |
- *   "Change Display Name" |
- *   "Request Password Reset" |
- *   "Change Mobile Number" |
- *   "Log Out"}
- */
-export const TopBarActions = {
-  VIEW_PROFILE: /**           @type {"View Profile"}           */ (
-    "View Profile"
-  ),
-  SWITCH_PROFILE_TYPE: /**    @type {"Switch Profile Type"}    */ (
-    "Switch Profile Type"
-  ),
-  UPDATE_PROFILE_PHOTO: /**   @type {"Update Profile Photo"}   */ (
-    "Update Profile Photo"
-  ),
-  UPDATE_ID_DOCS: /**         @type {"Update ID Documents"}    */ (
-    "Update ID Documents"
-  ),
-  CHANGE_NAME: /**            @type {"Change Display Name"}    */ (
-    "Change Display Name"
-  ),
-  RESET_PASSWORD: /**         @type {"Request Password Reset"} */ (
-    "Request Password Reset"
-  ),
-  CHANGE_MOBILE_NUMBER: /**   @type {"Change Mobile Number"}   */ (
-    "Change Mobile Number"
-  ),
-  LOGOUT: /**                 @type {"Log Out"}                */ ("Log Out"),
-};
 
 /**
  * @param {{
