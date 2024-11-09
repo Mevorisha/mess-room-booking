@@ -1,7 +1,8 @@
 import React from "react";
-import "./styles.css";
-import ButtonText from "../../components/ButtonText";
 import { useNavigate } from "react-router-dom";
+import { PageUrls } from "../../modules/util/pageUrls";
+import ButtonText from "../../components/ButtonText";
+import "./styles.css";
 
 export default function PageNotFound() {
   const navigate = useNavigate();
@@ -14,11 +15,15 @@ export default function PageNotFound() {
 
         <div className="desc">
           <p>
-            The resource you are looking for doesn't exist or has been
-            removed.
+            The resource you are looking for doesn't exist or has been removed.
           </p>
         </div>
-        <ButtonText rounded="all" title="Go Home" kind="primary" onclick={() => (navigate("/"), 0)} />
+        <ButtonText
+          rounded="all"
+          title="Go Home"
+          kind="primary"
+          onclick={() => navigate(PageUrls.HOME)}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { isEmpty } from "../../modules/util/validations.js";
+import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import useAuth from "../../hooks/auth.js";
+import LoadingPage from "../Loading/index.jsx";
 import ButtonText from "../../components/ButtonText";
 import TopBar from "../../components/TopBar";
 
@@ -63,7 +67,35 @@ function HomeForOwner({ user }) {
 
 export default function Home() {
   const auth = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
+  useEffect(() => {
+    // user logged in but profile type not set
+    if (isEmpty(auth.user.type)) {
+      searchParams.set("action", ActionParams.SWITCH_PROFILE_TYPE);
+      navigate({
+        pathname: PageUrls.ONBOARDING,
+        search: searchParams.toString(),
+      });
+    }
+
+    // user logged in but mobile number not set
+    else if (isEmpty(auth.user.mobile)) {
+      searchParams.set("action", ActionParams.CHANGE_MOBILE_NUMBER);
+      navigate({
+        pathname: PageUrls.ONBOARDING,
+        search: searchParams.toString(),
+      });
+    }
+  }, [auth.user.type, auth.user.mobile, searchParams, navigate]);
+
+  // user logged in but not onboarded
+  if (isEmpty(auth.user.type) || isEmpty(auth.user.mobile)) {
+    return <LoadingPage />;
+  }
+
+  // home page content
   return auth.user.type === "TENANT" ? (
     <HomeForTenant user={auth.user} />
   ) : (
