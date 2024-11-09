@@ -80,38 +80,60 @@ function MarkOfIncompletion({ checkForIncompletion }) {
  */
 export default function TopBar({ children }) {
   const auth = useAuth();
+  const navigate = useNavigate();
   const notify = useNotification();
 
   const [dropdownState, setDropdownState] = useState(
     /** @type {"init" | "showing" | "visible" | "hiding"} */ ("init")
   );
 
-  const [itemClicked, setItemClicked] = useState(
-    /** @type {null | TopBarActions} */ (null)
-  );
+  const [searchParams] = useSearchParams();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  useEffect(() => {
+  /**
+   * @param {ActionParams} itemClicked
+   */
+  function handleItemClick(itemClicked) {
     if (!itemClicked) return;
     searchParams.set("action", itemClicked);
-    setSearchParams(searchParams);
 
-    // additonal actions to be taken based on the item clicked
+    /* redirect or take action based on the item clicked */
     switch (itemClicked) {
-      case TopBarActions.RESET_PASSWORD:
+      // view profile action
+      case ActionParams.VIEW_PROFILE:
+        navigate({
+          pathname: PageUrls.PROFILE,
+          search: searchParams.toString(),
+        });
+        break;
+      // onboarding actions
+      case ActionParams.CHANGE_NAME:
+      case ActionParams.CHANGE_MOBILE_NUMBER:
+      case ActionParams.SWITCH_PROFILE_TYPE:
+      case ActionParams.UPDATE_PROFILE_PHOTO:
+      case ActionParams.UPDATE_ID_DOCS:
+        navigate({
+          pathname: PageUrls.ONBOARDING,
+          search: searchParams.toString(),
+        });
+        break;
+      // reset password action
+      case ActionParams.RESET_PASSWORD:
         auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
+        searchParams.delete("action");
         break;
-      case TopBarActions.LOGOUT:
+      // log out action
+      case ActionParams.LOGOUT:
         auth.logOut().catch((e) => notify(e.toString(), "error"));
+        searchParams.delete("action");
         break;
+      // invalid action
       default:
+        notify("Action not recognized", "error");
         break;
     }
 
-    setItemClicked(null);
     setDropdownState("hiding");
-  }, [auth, auth.user.uid, notify, itemClicked, searchParams, setSearchParams]);
+  }
 
   useEffect(() => {
     switch (dropdownState) {
@@ -129,7 +151,7 @@ export default function TopBar({ children }) {
   /**
    * @param {"init" | "showing" | "visible" | "hiding"} dropdownState
    */
-  const handleDropdownClick = (dropdownState) => {
+  function handleDropdownClick(dropdownState) {
     switch (dropdownState) {
       case "init":
         setDropdownState("showing");
@@ -140,7 +162,7 @@ export default function TopBar({ children }) {
       default:
         break;
     }
-  };
+  }
 
   return (
     <div className="components-TopBar">
@@ -159,38 +181,38 @@ export default function TopBar({ children }) {
           {/* View Profile */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.VIEW_PROFILE)}
+            onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
           >
             View {auth.user.type === "OWNER" ? "Owner" : "Tenant"} Profile
           </div>
           {/* Switch Profile Type */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.SWITCH_PROFILE_TYPE)}
+            onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
           >
             Switch to {auth.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
           </div>
           {/* Update Profile Photo */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.UPDATE_PROFILE_PHOTO)}
+            onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
           >
-            {TopBarActions.UPDATE_PROFILE_PHOTO}
+            {ActionParams.UPDATE_PROFILE_PHOTO}
             <MarkOfIncompletion checkForIncompletion={auth.user.photoURL} />
           </div>
           {/* Update ID Documents */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.UPDATE_ID_DOCS)}
+            onClick={() => handleItemClick(ActionParams.UPDATE_ID_DOCS)}
           >
-            {TopBarActions.UPDATE_ID_DOCS}
+            {ActionParams.UPDATE_ID_DOCS}
           </div>
           {/* Change Name */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.CHANGE_NAME)}
+            onClick={() => handleItemClick(ActionParams.CHANGE_NAME)}
           >
-            {TopBarActions.CHANGE_NAME}
+            {ActionParams.CHANGE_NAME}
             <MarkOfIncompletion
               checkForIncompletion={auth.user.firstName || auth.user.lastName}
             />
@@ -198,24 +220,24 @@ export default function TopBar({ children }) {
           {/* Request Password Reset */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.RESET_PASSWORD)}
+            onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}
           >
-            {TopBarActions.RESET_PASSWORD}
+            {ActionParams.RESET_PASSWORD}
           </div>
           {/* Change Mobile Number */}
           <div
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.CHANGE_MOBILE_NUMBER)}
+            onClick={() => handleItemClick(ActionParams.CHANGE_MOBILE_NUMBER)}
           >
-            {TopBarActions.CHANGE_MOBILE_NUMBER}
+            {ActionParams.CHANGE_MOBILE_NUMBER}
           </div>
           {/* Log Out */}
           <div
             style={{ color: "red" }}
             className="dropdown-item"
-            onClick={() => setItemClicked(TopBarActions.LOGOUT)}
+            onClick={() => handleItemClick(ActionParams.LOGOUT)}
           >
-            {TopBarActions.LOGOUT}
+            {ActionParams.LOGOUT}
           </div>
         </div>
       </div>
