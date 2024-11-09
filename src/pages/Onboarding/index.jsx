@@ -5,7 +5,6 @@ import { AuthStateEnum } from "../../contexts/auth";
 import { isEmpty } from "../../modules/util/validations.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import { ActionParams } from "../../modules/util/pageUrls.js";
-import LoadingPage from "../Loading/index.jsx";
 import PageNotFound from "../PageNotFound";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
@@ -308,5 +307,5 @@ export default function Onboarding() {
   if (isEmpty(auth.user.type)) return <SelectInitialType auth={auth} />;
   if (isEmpty(auth.user.mobile)) return <SetMobileNumber auth={auth} />;
 
-  return <LoadingPage />;
+  return <PageNotFound />;
 }
