@@ -14,10 +14,14 @@ function Notification() {
   );
 
   /* this state is used to clear the display timeout */
-  const [notifDisplayTimeout, setNotifDisplayTimeout] = useState(0);
+  const [notifDisplayTimeout, setNotifDisplayTimeout] = useState(
+    setTimeout(() => {}, 0)
+  );
 
   /* this state is used to clear the content clearing timeout */
-  const [notifClearContentTimeout, setNotifClearContentTimeout] = useState(0);
+  const [notifClearContentTimeout, setNotifClearContentTimeout] = useState(
+    setTimeout(() => {}, 0)
+  );
 
   /* get current notification and setter function from context */
   const { currentNotification, setCurrentNotification } =
@@ -26,7 +30,7 @@ function Notification() {
   /* destructure message and kind from currentNotification */
   const { message, kind } = currentNotification;
 
-  const handleSlideIn = () => {
+  function handleSlideIn() {
     /* clear hide animation timeout if it exists:
      * this is necessary because user may issue a new notification
      * before the hide animation is completed, which would cause
@@ -34,9 +38,9 @@ function Notification() {
     clearTimeout(notifClearContentTimeout);
     /* begin sliding in animation */
     setAnimState("visible");
-  };
+  }
 
-  const handleSlideOut = () => {
+  function handleSlideOut() {
     /* clear timeout if it exists:
      * this is necessary because the notification may be manually
      * closed before the timeout is reached */
@@ -51,7 +55,7 @@ function Notification() {
     /* set timeout state so it can be cleared if new notification is issued
      * before the timeout is reached */
     setNotifClearContentTimeout(timeout);
-  };
+  }
 
   useEffect(() => {
     /* if no message, following doesn't happen:
