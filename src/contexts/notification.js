@@ -1,47 +1,83 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 
 const NotificationContext = createContext({
-  currentNotification:
-    /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }} */
-    ({
-      message: "",
-      kind: "error",
-    }),
-  setCurrentNotification:
-    /** @type {React.Dispatch<React.SetStateAction<{ message: string, kind: "info" | "success" | "warning" | "error" }>>} */ (
+  message: /** @type {string} */ (""),
+  kind: /** @type {"info" | "success" | "warning" | "error"} */ ("error"),
+
+  setMessage: /** @type {(val: string) => void} */ (() => {}),
+  setKind:
+    /** @type {(val: "info" | "success" | "warning" | "error") => void} */ (
       () => {}
     ),
-  notificationQueue:
-    /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }[]} */ ([]),
-  setNotificationQueue:
-    /** @type {React.Dispatch<React.SetStateAction<{ message: string, kind: "info" | "success" | "warning" | "error" }[]>>} */ (
-      () => {}
-    ),
+
+  animstate: /** @type {"init" | "visible" | "gone"} */ ("init"),
+  setAnimState: /** @type {(val: "init" | "visible" | "gone") => void} */ (
+    () => {}
+  ),
+
+  showNotification: /** @type {() => void} */ (() => {}),
+  hideNotification: /** @type {() => void} */ (() => {}),
+
+  setNotifDisplayTimeout: /** @type {(val: NodeJS.Timeout) => void} */ (
+    () => {}
+  ),
+  clearNotifDisplayTimeout: /** @type {() => void} */ (() => {}),
 });
 
 export default NotificationContext;
 
 export function NotificationProvider({ children }) {
-  const [currentNotification, setCurrentNotification] = useState(
-    /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }} */
-    ({
-      message: "",
-      kind: "error",
-    })
+  const [message, setMessage] = useState("");
+
+  const [kind, setKind] = useState(
+    /** @type {"info" | "success" | "warning" | "error"} */ ("error")
   );
 
-  const [notificationQueue, setNotificationQueue] = useState(
-    /** @type {{ message: string, kind: "info" | "success" | "warning" | "error" }[]} */
-    ([])
+  const [animstate, setAnimState] = useState(
+    /** @type {"init" | "visible" | "gone"} */ ("init")
+  );
+
+  /* this state is used to clear the display timeout */
+  const [notifDisplayTimeout, setNotifDisplayTimeout] = useState(
+    setTimeout(() => {}, 0)
+  );
+
+  const showNotification = useCallback(
+    () =>
+      /* begin sliding in animation */
+      setAnimState("visible"),
+    [setAnimState]
+  );
+
+  const clearNotifDisplayTimeout = useCallback(
+    () =>
+      /* clear timeout if it exists:
+       * this is necessary because the notification may be manually
+       * closed before the timeout is reached */
+      clearTimeout(notifDisplayTimeout),
+    [notifDisplayTimeout]
+  );
+
+  const hideNotification = useCallback(
+    () =>
+      /* begins sliding out animation */
+      setAnimState("gone"),
+    [setAnimState]
   );
 
   return (
     <NotificationContext.Provider
       value={{
-        currentNotification,
-        setCurrentNotification,
-        notificationQueue,
-        setNotificationQueue,
+        message,
+        kind,
+        setMessage,
+        setKind,
+        animstate,
+        setAnimState,
+        showNotification,
+        hideNotification,
+        setNotifDisplayTimeout,
+        clearNotifDisplayTimeout,
       }}
     >
       {children}
