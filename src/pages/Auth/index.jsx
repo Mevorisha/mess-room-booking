@@ -1,12 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { EmailPasswdAuth, GoogleAuth } from "../../modules/firebase/auth.js";
-import ButtonText from "../../components/ButtonText";
+import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
+import { PageUrls } from "../../modules/util/pageUrls.js";
+import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
+import LoadingPage from "../Loading/index.jsx";
+import ButtonText from "../../components/ButtonText";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
-import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 
 // write a auth page that has 2 tabs: login and register and also 2=3 buttons "Sign in with Google", "Sign in with Apple", "Sign in with Microsoft"
 export default function Auth() {
@@ -14,12 +18,15 @@ export default function Auth() {
     /** @type {"login" | "register" | "resetPasswd"} */ ("login")
   );
 
+  const auth = useAuth();
+  const navigate = useNavigate();
   const notify = useNotification();
 
   /**
+   * @param {React.FormEvent<HTMLFormElement>} e
    * @param {"EMAIL_LOGIN" | "EMAIL_REGISTER" | "EMAIL_RESET_PASSWD"} kind
    */
-  const handleSubmit = (e, kind) => {
+  function handleSubmit(e, kind) {
     e.preventDefault();
     const email = e.target[0].value;
     const password = e.target[1].value;
@@ -42,14 +49,12 @@ export default function Auth() {
     const timeout = setTimeout(() => {
       switch (kind) {
         case "EMAIL_LOGIN":
-          EmailPasswdAuth.login(email, password).catch((e) =>
-            notify(e.toString(), "error")
+          EmailPasswdAuth.login(email, password).catch((e) => notify(e.toString(), "error")
           );
           break;
         case "EMAIL_REGISTER":
           if (password === confirmPassword) {
-            EmailPasswdAuth.register(email, password).catch((e) =>
-              notify(e.toString(), "error")
+            EmailPasswdAuth.register(email, password).catch((e) => notify(e.toString(), "error")
             );
           } else {
             notify("Passwords do not match", "error");
@@ -57,8 +62,7 @@ export default function Auth() {
           break;
         case "EMAIL_RESET_PASSWD":
           EmailPasswdAuth.requestPasswordReset(email)
-            .then(() =>
-              notify("Check your email for password reset link", "success")
+            .then(() => notify("Check your email for password reset link", "success")
             )
             .catch((e) => notify(e.toString(), "error"));
           break;
@@ -68,7 +72,12 @@ export default function Auth() {
     }, waitForEasterEggTime);
 
     return () => clearTimeout(timeout);
-  };
+  }
+
+  if (auth.state === "LOGGED_IN") {
+    navigate(PageUrls.HOME);
+    return <LoadingPage />;
+  }
 
   return (
     <div className="pages-Auth">

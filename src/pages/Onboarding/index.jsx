@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 import { AuthStateEnum } from "../../contexts/auth";
 import { isEmpty } from "../../modules/util/validations.js";
-import { TopBarActions } from "../../components/TopBar";
+import { PageUrls } from "../../modules/util/pageUrls.js";
+import { ActionParams } from "../../modules/util/pageUrls.js";
+import LoadingPage from "../Loading/index.jsx";
 import PageNotFound from "../PageNotFound";
 import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
@@ -18,21 +20,17 @@ import "./styles.css";
  */
 function SelectInitialType({ auth }) {
   const notify = useNotification();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const handleSubmit = useCallback(
-    /**
-     * @param {"TENANT" | "OWNER"} type
-     */
-    (type) => {
-      auth
-        .updateProfileType(type)
-        .then(() => searchParams.delete("action"))
-        .then(() => setSearchParams(searchParams))
-        .catch((e) => notify(e.toString(), "error"));
-    },
-    [auth, notify, searchParams, setSearchParams]
-  );
+  /**
+   * @param {"TENANT" | "OWNER"} type
+   */
+  function handleSubmit(type) {
+    auth
+      .updateProfileType(type)
+      .then(() => navigate(PageUrls.HOME))
+      .catch((e) => notify(e.toString(), "error"));
+  }
 
   return (
     <div className="pages-Onboarding">
@@ -73,47 +71,43 @@ function SetMobileNumber({ auth }) {
   );
 
   const notify = useNotification();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const handleSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
+  function handleSubmit(e) {
+    e.preventDefault();
 
-      /** @type {string} */
-      const mobile = e.target[0]?.value;
-      /** @type {string} */
-      const otp = e.target[1]?.value;
+    /** @type {string} */
+    const mobile = e.target[0]?.value;
+    /** @type {string} */
+    const otp = e.target[1]?.value;
 
-      // request otp
-      if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
-        notify("Please wait while we send the OTP", "warning");
-        auth
-          .sendPhoneVerificationCode(mobile)
-          .then(() => setAction("Verify & Submit"))
-          .catch((e) => {
-            setAction("Resend OTP");
-            notify(e.toString(), "error");
-          });
-      }
+    // request otp
+    if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
+      notify("Please wait while we send the OTP", "warning");
+      auth
+        .sendPhoneVerificationCode(mobile)
+        .then(() => setAction("Verify & Submit"))
+        .catch((e) => {
+          setAction("Resend OTP");
+          notify(e.toString(), "error");
+        });
+    }
 
-      // verify otp and submit
-      else if (otp && action === "Verify & Submit") {
-        notify("Please wait while we verify the OTP", "warning");
-        auth
-          .verifyPhoneVerificationCode(otp)
-          .then(() => searchParams.delete("action"))
-          .then(() => setSearchParams(searchParams))
-          .catch((e) => {
-            setAction("Resend OTP");
-            notify(e.toString(), "error");
-          });
-      }
+    // verify otp and submit
+    else if (otp && action === "Verify & Submit") {
+      notify("Please wait while we verify the OTP", "warning");
+      auth
+        .verifyPhoneVerificationCode(otp)
+        .then(() => navigate(PageUrls.HOME))
+        .catch((e) => {
+          setAction("Resend OTP");
+          notify(e.toString(), "error");
+        });
+    }
 
-      // invalid action
-      else notify("Please enter a valid mobile number", "error");
-    },
-    [action, auth, notify]
-  );
+    // invalid action
+    else notify("Please enter a valid mobile number", "error");
+  }
 
   return (
     <div className="pages-Onboarding">
@@ -181,18 +175,17 @@ function SetProfilePhoto({ auth }) {
   const [photoURL, setPhotoURL] = useState(dpGeneric);
 
   const notify = useNotification();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
-  const handleUpdatePhoto = useCallback(() => {
+  function handleUpdatePhoto() {
     loadFileFromFilePicker("image/*", maxSizeInBytes)
       .then((file) => auth.updateProfilePhoto(file))
       .then((url) => setPhotoURL(url))
-      .then(() => searchParams.delete("action"))
-      .then(() => setSearchParams(searchParams))
+      .then(() => navigate(PageUrls.HOME))
       .catch((e) => notify(e.toString(), "error"));
-  }, [auth, notify, searchParams, setSearchParams, maxSizeInBytes]);
+  }
 
   return (
     <div className="pages-Onboarding">
@@ -229,27 +222,23 @@ function SetProfilePhoto({ auth }) {
  */
 function SetDisplayName({ auth }) {
   const notify = useNotification();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const handleUpdateName = useCallback(
-    (e) => {
-      e.preventDefault();
+  function handleUpdateName(e) {
+    e.preventDefault();
 
-      /** @type {string} */
-      const firstName = e.target[0]?.value;
-      /** @type {string} */
-      const lastName = e.target[1]?.value;
+    /** @type {string} */
+    const firstName = e.target[0]?.value;
+    /** @type {string} */
+    const lastName = e.target[1]?.value;
 
-      if (firstName && lastName)
-        auth
-          .updateProfileName(firstName, lastName)
-          .then(() => searchParams.delete("action"))
-          .then(() => setSearchParams(searchParams))
-          .catch((e) => notify(e.toString(), "error"));
-      else notify("Please enter a valid name", "error");
-    },
-    [auth, notify, searchParams, setSearchParams]
-  );
+    if (firstName && lastName)
+      auth
+        .updateProfileName(firstName, lastName)
+        .then(() => navigate(PageUrls.HOME))
+        .catch((e) => notify(e.toString(), "error"));
+    else notify("Please enter a valid name", "error");
+  }
 
   return (
     <div className="pages-Onboarding">
@@ -303,13 +292,13 @@ export default function Onboarding() {
 
   if (searchParams.has("action"))
     switch (searchParams.get("action")) {
-      case TopBarActions.SWITCH_PROFILE_TYPE:
+      case ActionParams.SWITCH_PROFILE_TYPE:
         return <SelectInitialType auth={auth} />;
-      case TopBarActions.CHANGE_NAME:
+      case ActionParams.CHANGE_NAME:
         return <SetDisplayName auth={auth} />;
-      case TopBarActions.CHANGE_MOBILE_NUMBER:
+      case ActionParams.CHANGE_MOBILE_NUMBER:
         return <SetMobileNumber auth={auth} />;
-      case TopBarActions.UPDATE_PROFILE_PHOTO:
+      case ActionParams.UPDATE_PROFILE_PHOTO:
         return <SetProfilePhoto auth={auth} />;
       default:
         return <PageNotFound />;
@@ -318,9 +307,6 @@ export default function Onboarding() {
   if (auth.state === AuthStateEnum.STILL_LOADING) return null;
   if (isEmpty(auth.user.type)) return <SelectInitialType auth={auth} />;
   if (isEmpty(auth.user.mobile)) return <SetMobileNumber auth={auth} />;
-  if (isEmpty(auth.user.photoURL)) return <SetProfilePhoto auth={auth} />;
-  if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
-    return <SetDisplayName auth={auth} />;
 
-  return <PageNotFound />;
+  return <LoadingPage />;
 }
