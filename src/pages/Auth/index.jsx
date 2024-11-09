@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthStateEnum } from "../../contexts/auth.js";
 import { EmailPasswdAuth, GoogleAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
@@ -21,6 +22,12 @@ export default function Auth() {
   const auth = useAuth();
   const navigate = useNavigate();
   const notify = useNotification();
+
+  useEffect(() => {
+    if (auth.state === AuthStateEnum.LOGGED_IN) {
+      navigate(PageUrls.ROOT);
+    }
+  }, [auth.state, navigate]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -74,10 +81,7 @@ export default function Auth() {
     return () => clearTimeout(timeout);
   }
 
-  if (auth.state === "LOGGED_IN") {
-    navigate(PageUrls.HOME);
-    return <LoadingPage />;
-  }
+  if (auth.state === "LOGGED_IN") return <LoadingPage />;
 
   return (
     <div className="pages-Auth">
@@ -97,7 +101,7 @@ export default function Auth() {
             onclick={() => setShowSection("login")}
             rounded="all"
             kind={
-              showSection === "login" || showSection == "resetPasswd"
+              showSection === "login" || showSection === "resetPasswd"
                 ? "primary"
                 : "cannibalized"
             }
@@ -154,7 +158,7 @@ export default function Auth() {
                 If the email exists in our database, you will receive a password
                 reset link. If you don't receive an email, try again or contact
                 us at{" "}
-                <a href="mailto:mevorisha@gmail.com" target="_blank">
+                <a href="mailto:mevorisha@gmail.com" target="_blank" rel="noreferrer">
                   mevorisha@gmail.com
                 </a>
                 .
