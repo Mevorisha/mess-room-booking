@@ -20,6 +20,7 @@
   - [Forms v/s State & `onChange`](#forms-vs-state--onchange)
   - [Properly using `navigate`](#properly-using-navigate)
   - [Search Parameters](#search-parameters)
+  - [Firebase Wrapper Usage](#firebase-wrapper-usage)
 
 
 ## Introduction
