@@ -211,7 +211,7 @@ A large number of global variables are defined in `globals/*.css`. These variabl
 
 Most of these are variables rather than classes and can be used in any component. Importing is not necessary as they are imported in `App/index.jsx`.
 
-Just make sure you haven"t made a typo or you"ll be tearing your hair out trying to figure out why your styles aren"t working.
+Just make sure you haven't made a typo or you'll be tearing your hair out trying to figure out why your styles aren't working.
 
 ```css
 .pages-MyPage .button {
@@ -276,9 +276,9 @@ Well, those are the basics. Here comes the fun part.
   You'll notice the notify on catch format in many places.This is to ensure that the user is notified of any errors that occur.
 
 ### React Standards
-- Use functional components with hooks. Class components are not allowed. I"ll personally come to your house and haunt your dreams if you commit a class component. Why? Because they"re there"s a new way to do things.
+- Use functional components with hooks. Class components are not allowed. I'll personally come to your house and haunt your dreams if you commit a class component. Why? Because there's a new way to do things.
 
-- Redux isn"t used. Instead, use React Contexts for global state management.
+- Redux isn't used. Instead, use React Contexts for global state management.
 
 - Use `react-router-dom` for routing. Use `useNavigate` to navigate programmatically. Use `useSearchParams` to get URL parameters. Use `useLocation` to get the current location and fetch origin name.
 
