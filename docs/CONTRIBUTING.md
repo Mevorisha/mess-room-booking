@@ -240,6 +240,27 @@ Well, those are the basics. Here comes the fun part.
 
 - Use VSCode. This project is easier to work with in VSCode. This includes JSDOC support, and if added later, ESLint support.
 - Use JSDOC. Make sure every function has a JSDOC comment. This ensures that VSCode can provide you with in-line error checking and documentation. I'll personally come to your house and haunt your dreams if you don't use JSDOC. For e.g.
+  ```js
+  /**
+   * This is a function that does something.
+   * @param {string} param1
+   * @param {number} param2
+   * @returns {string} The result.
+   * @throws {Error} Any error that may occur and what they mean.
+   */
+  function myFunction(param1, param2) {
+      return param1 + param2;
+  }
+  ```
+
+  Regarding JSDOC, sometimes a value may be an empty array but JSDOC may recognize it as `never[]`. In such cases, use `@type {Array<type>}` or `@type {type[]}` to specify the type of the array.
+
+  This is typecasting in JSDOC and can be sparingly used to fix type errors. For e.g.
+  ```js
+  /** @type {string[]} */ ([])
+  ```
+
+  **Note**: Don't forget to add the `()` when casting using `@type` JSDOC. If you miss it, the cast will not work.
 - Other than callbacks, all functions should be named functions.
 - In `async` functions, use `Promise.reject` instead of throw.
 - Try to chain promises rather than nesting them. For e.g.
@@ -252,29 +273,7 @@ Well, those are the basics. Here comes the fun part.
     .catch((error) => notify(error.message, "error"));
   ```
 
-You'll notice the notify on catch format in many places. This is to ensure that the user is notified of any errors that occur.
-
-```js
-/**
- * This is a function that does something.
- * @param {string} param1
- * @param {number} param2
- * @returns {string} The result.
- * @throws {Error} Any error that may occur and what they mean.
- */
-function myFunction(param1, param2) {
-    return param1 + param2;
-}
-```
-
-Regarding JSDOC, sometimes a value may be an empty array but JSDOC may recognize it as `never[]`. In such cases, use `@type {Array<type>}` or `@type {type[]}` to specify the type of the array.
-
-This is typecasting in JSDOC and can be sparingly used to fix type errors. For e.g.
-```js
-/** @type {string[]} */ ([])
-```
-
-**Note**: Don't forget to add the `()` when casting using `@type` JSDOC. If you miss it, the cast will not work.
+  You'll notice the notify on catch format in many places.This is to ensure that the user is notified of any errors that occur.
 
 ### React Standards
 - Use functional components with hooks. Class components are not allowed. I"ll personally come to your house and haunt your dreams if you commit a class component. Why? Because they"re there"s a new way to do things.
