@@ -304,7 +304,7 @@ const auth = useAuth();
 ```
 
 An auth context provides the following properties:
-- `state`: can be `"STILL_LOADING"`, `"LOGGED_IN"` or `"NOT_LOGGED_IN"`.
+- `state`: is an enum that can be `"STILL_LOADING"`, `"LOGGED_IN"` or `"NOT_LOGGED_IN"`.
 - `user`: See the `User` class in [`contexts/auth.js`](../src/contexts/auth.js).
 - Other functions to update the user state both locally and on Firebase.
 
