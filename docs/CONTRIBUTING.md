@@ -294,7 +294,7 @@ const notify = useNotification();
 notify("This is a notification", "success");
 ```
 
-The satus can be `success`, `error`, `warning` or `info`. The respective colors are `Green`, `Red`, `Yellow` and `Teal`.
+The status can be `success`, `error`, `warning` or `info`. The respective colors are `Green`, `Red`, `Yellow` and `Teal`.
 
 #### How to use Auth Context
 ```jsx
