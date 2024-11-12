@@ -431,7 +431,7 @@ Search parameters are used in the following way:
 
 The hook `useSearchParams` also returns a `setSearchParams` function that can be used to update the search parameters in the URL. However, this function is not used in this application. Instead, the `searchParams` object is converted to a string and passed to the `navigate` function during navigation.
 
-### Remote Updates
+### Firebase Wrapper Usage
 Use existing wrappers in [`modules/firebase/*.js`](../src/modules/firebase) to perform operations on remote (auth, database, firestore, storage, etc.).
 
 **Note**: You may sometimes want to link a react state to a firebase listener. For e.g. the `AuthProvider` internally uses `onAuthStateChanged`.
