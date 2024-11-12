@@ -410,6 +410,8 @@ return (
 
 **Note**: `navigate` is to be used inside event handlers or in functions that are called in event handlers or in `useEffect` hooks. Using `navigate` directly in the component body may cause errors.
 
+Also note, use `PageUrls` to navigate between pages. Additionally use constants in objects rather than strings directly to make code dray and error free.
+
 ### Search Parameters
 Search parameters are used to pass data between pages in the application. They are used to pass data that is not sensitive and can be shared between pages.
 
