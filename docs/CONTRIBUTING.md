@@ -434,6 +434,12 @@ The hook `useSearchParams` also returns a `setSearchParams` function that can be
 ### Firebase Wrapper Usage
 Use existing wrappers in [`modules/firebase/*.js`](../src/modules/firebase) to perform operations on remote (auth, database, firestore, storage, etc.).
 
+If you need a different functionality, create a wrapper first. See the wrapper functions already defined to get an idea of:
+- Initialization
+- Logic flow
+- Error cleanup
+- Error reporting
+
 **Note**: You may sometimes want to link a react state to a firebase listener. For e.g. the `AuthProvider` internally uses `onAuthStateChanged`.
 
 However, for certain auth operations like `updateProfile`, `onAuthStateChanged` is not triggered. In such cases, you need to work as follows:
