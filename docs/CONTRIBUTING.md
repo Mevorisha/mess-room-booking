@@ -261,7 +261,7 @@ Well, those are the basics. Here comes the fun part.
   ```
 
   **Note**: Don't forget to add the `()` when casting using `@type` JSDOC. If you miss it, the cast will not work.
-- Other than callbacks, all functions should be named functions.
+- Other than callbacks, all functions should be named functions (as long as it doesn't cause issues with `this`).
 - In `async` functions, use `Promise.reject` instead of throw.
 - Try to chain promises rather than nesting them. For e.g.
   ```js
