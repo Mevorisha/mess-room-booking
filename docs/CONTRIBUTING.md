@@ -443,4 +443,12 @@ onAuthStateChanged((user) => setUser(User.from(user)));
 getSomePayload()
   .then((payload) => updateProfile(payload))
   .then(() => setUser(User.updateByPayload(payload))
-  .catch((e) => notify(e.toString(), "error");
+  .catch((e) => notify(e.toString(), "error"));
+```
+
+Points to note:
+1. `updateProfile` is a remote function. This is to be given priority over local state updates.
+2. `setUser` is local state update. It should happen after remote update.
+3. `catch` will generally have a call of `notify` with the string of error. This is to be done to report errors as they occur.
+
+All errors received from firebase wrappers are guaranteed to be user friendly messages.
