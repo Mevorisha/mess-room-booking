@@ -284,6 +284,7 @@ Well, those are the basics. Here comes the fun part.
 - Certain contexts are provided in the [`contexts`](../src/contexts) directory. These are:
   - [`auth.js`](../src/contexts/auth.js): Provides user authentication state (to be accessed via [`hooks/auth.js`](../src/hooks/auth.js)).
   - [`notification.js`](../src/contexts/notification.js): Provides in-app notifications (to be accessed via [`hooks/notification.js`](../src/hooks/notification.js)).
+- If there exists a hook to wrap over a context, use the hook rather than the context directly. The hook may have some optimization or additional logic. For example, `useNotification` simplifies `NotificationContext` into a single function call rather than four seperate calls.
 - If there exists an object with constant definitions (enums), use it rather than using literals directly in code. Some existing constants are given in:
   - [`modules/util/pageUrls.js:PageUrls`](../src/modules/util/pageUrls.js): Paths to various pages as used in router.
   - [`modules/util/pageUrls.js:ActionParams`](../src/modules/util/pageUrls.js): URL params as used in navigation for special actions.
