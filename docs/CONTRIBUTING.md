@@ -288,6 +288,7 @@ Well, those are the basics. Here comes the fun part.
   - [`modules/util/pageUrls.js:PageUrls`](../src/modules/util/pageUrls.js): Paths to various pages as used in router.
   - [`modules/util/pageUrls.js:ActionParams`](../src/modules/util/pageUrls.js): URL params as used in navigation for special actions.
   - [`modules/errors/ErrorMessages.js:ErrorMessages`](../src/modules/errors/ErrorMessages.js): Generic error messages; Use only if no good error message can be provided.
+  - [`contexts/auth.js/AuthStateEnum`](../src/contexts/auth.js): Various auth states.
 
 
 #### How to use Notification Context
