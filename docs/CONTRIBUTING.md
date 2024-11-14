@@ -280,7 +280,7 @@ Well, those are the basics. Here comes the fun part.
 - Use functional components with hooks. Class components are not allowed. I'll personally come to your house and haunt your dreams if you commit a class component. Why? Because there's a new way to do things.
 - Redux isn't used. Instead, use React Contexts for global state management.
 - Use `react-router-dom` for routing. Use `useNavigate` to navigate programmatically. Use `useSearchParams` to get URL parameters. Use `useLocation` to get the current location and fetch origin name.
-- Do not put a lot of side effects in a single `useEffect`. Instead, create seperate `useEffect`s for unrelated side effects.
+- Do not put a lot of side effects in a single `useEffect`. Instead, create seperate `useEffect`s for unrelated side effects. This is to avoid convolution of logic when taking actions due to state update.
 - Certain contexts are provided in the [`contexts`](../src/contexts) directory. These are:
   - [`auth.js`](../src/contexts/auth.js): Provides user authentication state (to be accessed via [`hooks/auth.js`](../src/hooks/auth.js)).
   - [`notification.js`](../src/contexts/notification.js): Provides in-app notifications (to be accessed via [`hooks/notification.js`](../src/hooks/notification.js)).
