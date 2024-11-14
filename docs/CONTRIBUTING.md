@@ -357,6 +357,8 @@ return (
 
 In other words, don't `useState` if all the state does is trigger `useEffect`. Instead, use the function directly.
 
+Also note, do not put a lot of side effects in a single `useEffect`. Instead, crete seperate `useEffect`s for unrelated side effects.
+
 ### Forms v/s State & `onChange`
 When working with forms, it is common to use `useState` to manage form state and `onChange` to update the state when the user types in the form.
 
