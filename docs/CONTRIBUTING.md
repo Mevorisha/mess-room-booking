@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-This guidline is complementary to the code and therefore references the codebase. You'll have to be able to read code to understand the guidlines.
+This guideline is complementary to the code and therefore references the codebase. You'll have to be able to read code to understand the guidelines.
 
 ## Table of Contents
 - [Introduction](#introduction)
