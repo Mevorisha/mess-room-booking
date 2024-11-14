@@ -417,8 +417,6 @@ return (
 
 **Note**: `navigate` is to be used inside event handlers or in functions that are called in event handlers or in `useEffect` hooks. Using `navigate` directly in the component body may cause errors.
 
-Also note, use `PageUrls` to navigate between pages. Additionally use constants in objects rather than strings directly to make code DRY and error free.
-
 ### Search Parameters
 Search parameters are used to pass data between pages in the application. They are used to pass data that is not sensitive and can be shared between pages.
 
@@ -426,17 +424,17 @@ Search parameters are used in the following way:
 - To get search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const key = searchParams.get(SearchKeys.CONSTANT);
+  const key = searchParams.get(ActionParams.CONSTANT);
   ```
 - To set search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  searchParams.set(SearchKeys.CONSTANT, value);
+  searchParams.set(ActionParams.CONSTANT, value);
   ```
 - To check if a search parameter exists in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const hasKey = searchParams.has(SearchKeys.CONSTANT);
+  const hasKey = searchParams.has(ActionParams.CONSTANT);
   ```
 
 The hook `useSearchParams` also returns a `setSearchParams` function that can be used to update the search parameters in the URL. However, this function is not used in this application. Instead, the `searchParams` object is converted to a string and passed to the `navigate` function during navigation.
