@@ -312,7 +312,7 @@ An auth context provides the following properties:
 ### A Word on useCallback
 `useCallback` is a React hook that is used to prevent re-creation of functions on every render. This is useful when passing functions as props to child components or when such functions are used in `useEffect` dependencies.
 
-Do not use `useCallback` unnecessarily. While using it may not cause major performance issues, it can make the code harder to read and introduce bugs if incorrect dependencies are passed to the `useCallback` hook.
+Do not use `useCallback` unnecessarily. While using it may not cause noticeable performance issues, it can make the code harder to read and introduce bugs if incorrect dependencies are passed to the `useCallback` hook.
 
 **Note**: You should pass states to functions if you're using `useCallback` and haven't used the state as a dependency. For e.g.
 ```jsx
