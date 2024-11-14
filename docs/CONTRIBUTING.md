@@ -1,5 +1,7 @@
 # Contribution Guidelines
 
+This guidline is complementary to the code and therefore references the codebase. You'll have to be able to read code to understand the guidlines.
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
