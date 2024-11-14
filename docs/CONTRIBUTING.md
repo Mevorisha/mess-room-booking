@@ -287,6 +287,8 @@ Well, those are the basics. Here comes the fun part.
 - If there exists an object with constant definitions (enums), use it rather than using literals directly in code. Some existing constants are given in:
   - [`modules/util/pageUrls.js:PageUrls`](../src/modules/util/pageUrls.js): Paths to various pages as used in router.
   - [`modules/util/pageUrls.js:ActionParams`](../src/modules/util/pageUrls.js): URL params as used in navigation for special actions.
+  - [`modules/errors/ErrorMessages.js:ErrorMessages`](../src/modules/errors/ErrorMessages.js): Generic error messages; Use only if no good error message can be provided.
+
 
 #### How to use Notification Context
 ```jsx
