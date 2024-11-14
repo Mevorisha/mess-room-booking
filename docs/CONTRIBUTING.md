@@ -402,7 +402,7 @@ return (
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   ...
-  searchParams.set("key", SearchKeys.CONSTANT);
+  searchParams.set("key", ActionParams.CONSTANT);
   navigate({
     pathname: PageUrls.PAGE_CONSTANT,
     search: searchParams.toString(),
