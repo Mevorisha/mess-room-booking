@@ -1,5 +1,7 @@
 # Contribution Guidelines
 
+This guideline is complementary to the code and therefore references the codebase. You'll have to be able to read code to understand the guidelines.
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
@@ -20,6 +22,7 @@
   - [Forms v/s State & `onChange`](#forms-vs-state--onchange)
   - [Properly using `navigate`](#properly-using-navigate)
   - [Search Parameters](#search-parameters)
+  - [Firebase Wrapper Usage](#firebase-wrapper-usage)
 
 
 ## Introduction
@@ -211,7 +214,7 @@ A large number of global variables are defined in `globals/*.css`. These variabl
 
 Most of these are variables rather than classes and can be used in any component. Importing is not necessary as they are imported in `App/index.jsx`.
 
-Just make sure you haven"t made a typo or you"ll be tearing your hair out trying to figure out why your styles aren"t working.
+Just make sure you haven't made a typo or you'll be tearing your hair out trying to figure out why your styles aren't working.
 
 ```css
 .pages-MyPage .button {
@@ -240,8 +243,29 @@ Well, those are the basics. Here comes the fun part.
 
 - Use VSCode. This project is easier to work with in VSCode. This includes JSDOC support, and if added later, ESLint support.
 - Use JSDOC. Make sure every function has a JSDOC comment. This ensures that VSCode can provide you with in-line error checking and documentation. I'll personally come to your house and haunt your dreams if you don't use JSDOC. For e.g.
-- Other than callbacks, all functions should be named functions.
-- In `async` functions, use `Promise.reject` instead of throw.
+  ```js
+  /**
+   * This is a function that does something.
+   * @param {string} param1
+   * @param {number} param2
+   * @returns {string} The result.
+   * @throws {Error} Any error that may occur and what they mean.
+   */
+  function myFunction(param1, param2) {
+      return param1 + param2;
+  }
+  ```
+
+  Regarding JSDOC, sometimes a value may be an empty array but JSDOC may recognize it as `never[]`. In such cases, use `@type {Array<type>}` or `@type {type[]}` to specify the type of the array.
+
+  This is typecasting in JSDOC and can be sparingly used to fix type errors. For e.g.
+  ```js
+  /** @type {string[]} */ ([])
+  ```
+
+  **Note**: Don't forget to add the `()` when casting using `@type` JSDOC. If you miss it, the cast will not work.
+- Other than callbacks, all functions should be named functions (as long as it doesn't cause issues with `this`).
+- In `async` functions, use `return Promise.reject` instead of throw.
 - Try to chain promises rather than nesting them. For e.g.
   ```js
   auth
@@ -252,40 +276,23 @@ Well, those are the basics. Here comes the fun part.
     .catch((error) => notify(error.message, "error"));
   ```
 
-You'll notice the notify on catch format in many places. This is to ensure that the user is notified of any errors that occur.
-
-```js
-/**
- * This is a function that does something.
- * @param {string} param1
- * @param {number} param2
- * @returns {string} The result.
- * @throws {Error} Any error that may occur and what they mean.
- */
-function myFunction(param1, param2) {
-    return param1 + param2;
-}
-```
-
-Regarding JSDOC, sometimes a value may be an empty array but JSDOC may recognize it as `never[]`. In such cases, use `@type {Array<type>}` or `@type {type[]}` to specify the type of the array.
-
-This is typecasting in JSDOC and can be sparingly used to fix type errors. For e.g.
-```js
-/** @type {string[]} */ ([])
-```
-
-**Note**: Don't forget to add the `()` when casting using `@type` JSDOC. If you miss it, the cast will not work.
+  You'll notice the notify on catch format in many places.This is to ensure that the user is notified of any errors that occur.
 
 ### React Standards
-- Use functional components with hooks. Class components are not allowed. I"ll personally come to your house and haunt your dreams if you commit a class component. Why? Because they"re there"s a new way to do things.
-
-- Redux isn"t used. Instead, use React Contexts for global state management.
-
+- Use functional components with hooks. Class components are not allowed. I'll personally come to your house and haunt your dreams if you commit a class component. Why? Because there's a new way to do things.
+- Redux isn't used. Instead, use React Contexts for global state management.
 - Use `react-router-dom` for routing. Use `useNavigate` to navigate programmatically. Use `useSearchParams` to get URL parameters. Use `useLocation` to get the current location and fetch origin name.
-
-- Certain contexts are provided in the `contexts` directory. These are:
-  - `auth.js`: Provides user authentication state.
-  - `notification.js`: Provides in-app notifications.
+- Do not put a lot of side effects in a single `useEffect`. Instead, create seperate `useEffect`s for unrelated side effects. This is to avoid convolution of logic when taking actions due to state update.
+- Certain contexts are provided in the [`contexts`](../src/contexts) directory. These are:
+  - [`auth.js`](../src/contexts/auth.js): Provides user authentication state (to be accessed via [`hooks/auth.js`](../src/hooks/auth.js)).
+  - [`notification.js`](../src/contexts/notification.js): Provides in-app notifications (to be accessed via [`hooks/notification.js`](../src/hooks/notification.js)).
+- If there exists a hook to wrap over a context, use the hook rather than the context directly. The hook may have some optimization or additional logic. For e.g., `useNotification` simplifies `NotificationContext` into a single function call rather than four seperate calls.
+- If there exists an object with constant definitions (enums), use it rather than using literals directly in code. Some existing constants are given in:
+  - [`modules/util/pageUrls.js:PageUrls`](../src/modules/util/pageUrls.js): Paths to various pages as used in router.
+  - [`modules/util/pageUrls.js:ActionParams`](../src/modules/util/pageUrls.js): URL params as used in navigation for special actions.
+  - [`modules/errors/ErrorMessages.js:ErrorMessages`](../src/modules/errors/ErrorMessages.js): Generic error messages; Use only if no good error message can be provided.
+  - [`contexts/auth.js:AuthStateEnum`](../src/contexts/auth.js): Various auth states, see [How to use Auth Context](#how-to-use-auth-context).
+- States that are strings often get initialised to `""`. However, if you cannot use an empty string, you can set it to `"EMPTY"`. A function `isEmpty` is provided to check if a value is empty. See [`modules/util/validations.js`](../src/modules/util/validations.js).
 
 #### How to use Notification Context
 ```jsx
@@ -295,7 +302,7 @@ const notify = useNotification();
 notify("This is a notification", "success");
 ```
 
-The satus can be `success`, `error`, `warning` or `info`. The respective colors are `Green`, `Red`, `Yellow` and `Teal`.
+The status can be `success`, `error`, `warning` or `info`. The respective colors are `Green`, `Red`, `Yellow` and `Teal`.
 
 #### How to use Auth Context
 ```jsx
@@ -305,14 +312,14 @@ const auth = useAuth();
 ```
 
 An auth context provides the following properties:
-- `state`: can be `"STILL_LOADING"`, `"LOGGED_IN"` or `"NOT_LOGGED_IN"`.
+- `state`: is an enum that can be `"STILL_LOADING"`, `"LOGGED_IN"` or `"NOT_LOGGED_IN"`.
 - `user`: See the `User` class in [`contexts/auth.js`](../src/contexts/auth.js).
 - Other functions to update the user state both locally and on Firebase.
 
 ### A Word on useCallback
 `useCallback` is a React hook that is used to prevent re-creation of functions on every render. This is useful when passing functions as props to child components or when such functions are used in `useEffect` dependencies.
 
-Do not use `useCallback` unnecessarily. While using it may not cause major performance issues, it can make the code harder to read and introduce bugs if incorrect dependencies are passed to the `useCallback` hook.
+Do not use `useCallback` unnecessarily. While using it may not cause noticeable performance issues, it can make the code harder to read and introduce bugs if incorrect dependencies are passed to the `useCallback` hook.
 
 **Note**: You should pass states to functions if you're using `useCallback` and haven't used the state as a dependency. For e.g.
 ```jsx
@@ -395,7 +402,7 @@ return (
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   ...
-  searchParams.set("key", SearchKeys.CONSTANT);
+  searchParams.set("action", ActionParams.CONSTANT);
   navigate({
     pathname: PageUrls.PAGE_CONSTANT,
     search: searchParams.toString(),
@@ -417,17 +424,45 @@ Search parameters are used in the following way:
 - To get search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const key = searchParams.get(SearchKeys.CONSTANT);
+  const key = searchParams.get("action");
   ```
 - To set search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  searchParams.set(SearchKeys.CONSTANT, value);
+  searchParams.set("action", ActionParams.CONSTANT);
   ```
 - To check if a search parameter exists in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const hasKey = searchParams.has(SearchKeys.CONSTANT);
+  const hasKey = searchParams.has("action");
   ```
 
 The hook `useSearchParams` also returns a `setSearchParams` function that can be used to update the search parameters in the URL. However, this function is not used in this application. Instead, the `searchParams` object is converted to a string and passed to the `navigate` function during navigation.
+
+### Firebase Wrapper Usage
+Use existing wrappers in [`modules/firebase/*.js`](../src/modules/firebase) to perform operations on remote (auth, database, firestore, storage, etc.).
+
+If you need a different functionality, create a wrapper first. See the wrapper functions already defined to get an idea of:
+- Initialization
+- Logic flow
+- Error cleanup
+- Error reporting
+
+**Note**: You may sometimes want to link a react state to a firebase listener. For e.g. the `AuthProvider` internally uses `onAuthStateChanged`.
+
+However, for certain auth operations like `updateProfile`, `onAuthStateChanged` is not triggered. In such cases, you need to work as follows:
+```jsx
+onAuthStateChanged((user) => setUser(User.from(user)));
+...
+getSomePayload()
+  .then((payload) => updateProfile(payload))
+  .then(() => setUser(User.updateByPayload(payload)))
+  .catch((e) => notify(e.toString(), "error"));
+```
+
+Points to note:
+1. `updateProfile` is a remote function. This is to be given priority over local state updates.
+2. `setUser` is local state update. It should happen after remote update.
+3. `catch` will generally have a call of `notify` with the string of error. This is to be done to report errors as they occur.
+
+All errors received from firebase wrappers are guaranteed to be user friendly messages.
