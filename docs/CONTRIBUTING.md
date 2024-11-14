@@ -424,17 +424,17 @@ Search parameters are used in the following way:
 - To get search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const key = searchParams.get(ActionParams.CONSTANT);
+  const key = searchParams.get("action");
   ```
 - To set search parameters in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  searchParams.set(ActionParams.CONSTANT, value);
+  searchParams.set("action", ActionParams.CONSTANT);
   ```
 - To check if a search parameter exists in a page.
   ```jsx
   const [searchParams] = useSearchParams();
-  const hasKey = searchParams.has(ActionParams.CONSTANT);
+  const hasKey = searchParams.has("action");
   ```
 
 The hook `useSearchParams` also returns a `setSearchParams` function that can be used to update the search parameters in the URL. However, this function is not used in this application. Instead, the `searchParams` object is converted to a string and passed to the `navigate` function during navigation.
