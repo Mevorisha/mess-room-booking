@@ -350,7 +350,7 @@ export function AuthProvider({ children }) {
           )
         )
         .then(() => notify("Profile name updated successfully", "success")),
-    [finalUser.uid, notify]
+    [notify]
   );
 
   const sendPhoneVerificationCode = useCallback(
@@ -394,7 +394,7 @@ export function AuthProvider({ children }) {
         .then((phno) => setFinalUser((user) => user.clone().setMobile(phno)))
         .then(() => notify("Mobile number verified successfully", "success")),
 
-    [finalUser.uid, notify]
+    [notify]
   );
 
   const unlinkPhoneNumber = useCallback(
@@ -405,7 +405,7 @@ export function AuthProvider({ children }) {
       LinkMobileNumber.unlinkPhoneNumber()
         .then(() => setFinalUser((user) => user.clone().setMobile("")))
         .then(() => notify("Mobile number unlinked successfully", "success")),
-    [finalUser.uid, notify]
+    [notify]
   );
 
   const requestPasswordReset = useCallback(
