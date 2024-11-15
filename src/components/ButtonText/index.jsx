@@ -1,21 +1,20 @@
-import React, { useCallback } from "react";
+import React from "react";
 import "./styles.css";
 
 /**
  * @typedef {Object} ButtonTextProps
- * @property {string} title - The text to be displayed on the button.
+ * @property {string} title                                                   - The text to be displayed on the button.
  * @property {(
- *   event: React.MouseEvent<HTMLDivElement, MouseEvent>,
- *   stopSpinningAnim: () => void
- * ) => void} [onClick] - The function to be called when the button is clicked. Second argument is a function to stop the spinning animation.
- * @property {React.RefObject<HTMLFormElement>} [linkToForm] - A ref using `useRef` to the form to be submitted when the button is clicked.
- *                                                             If provided, the button will submit the form when clicked with validations.
- * @property {boolean} [animateSpinner] - Whether to show the spinning animation. If no `linkToForm` is provided, this will have no effect
- *                                        and no spinning animation will be shown.
+ *   event: React.MouseEvent<HTMLDivElement, MouseEvent>
+ * ) => void} [onClick]                                                       - The function to be called when the button is clicked. Second argument is a
+ *                                                                              function to stop the spinning animation.
+ * @property {React.RefObject<HTMLFormElement>} [linkToForm]                  - A ref using `useRef` to the form to be submitted when the button is clicked.
+ *                                                                              If provided, the button will submit the form when clicked with validations.
  * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - The placement of rounded corners on the button.
- * @property {"primary" | "secondary" | "cannibalized"} [kind] - The kind of button. Primary has background and border, secondary has
- *                                                               light background and light border, cannibalized has no background and no border.
- * @property {"default" | "full" | string} [width] - The width of the button in CSS units.
+ * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind]    - The kind of button. Primary has background and border, secondary has
+ *                                                                              light background and light border, cannibalized has no background and no border.
+ *                                                                              Loading is a special kind that shows a spinning animation.
+ * @property {"default" | "full" | string} [width]                            - The width of the button in CSS units.
  *
  * @param {ButtonTextProps} props
  */
@@ -23,7 +22,6 @@ export default function ButtonText({
   title,
   onClick,
   linkToForm,
-  animateSpinner = false,
   rounded = "none",
   kind = "primary",
   width = "default",
@@ -38,21 +36,14 @@ export default function ButtonText({
     none: "0",
   };
 
-  const [showSpinningAnim, setShowSpinningAnim] = React.useState(false);
-
-  /**
-   * Stop the spinning animation after custom logic
-   */
-  const stopSpinningAnim = useCallback(() => {
-    setShowSpinningAnim(false);
-  }, [setShowSpinningAnim]);
-
   if (kind === "primary") {
     classes.push("components-ButtonText-primary");
   } else if (kind === "secondary") {
     classes.push("components-ButtonText-secondary");
   } else if (kind === "cannibalized") {
     classes.push("components-ButtonText-cannibalized");
+  } else if (kind === "loading") {
+    classes.push("components-ButtonText-loading");
   }
 
   let minWidth = /** @type {string} */ (width);
@@ -67,10 +58,10 @@ export default function ButtonText({
   // whatever be the width, subtract 2 * var(--pad-2) from it
   minWidth = `calc(${width} - 2 * var(--pad-2))`;
 
-  if (showSpinningAnim) {
+  if (kind === "loading") {
     return (
       <div
-        className="components-ButtonText-spinner"
+        className="components-ButtonText-loading"
         style={{ width: width, borderRadius: borderRadiusStyle[rounded] }}
       >
         <div className="circle"></div>
@@ -88,11 +79,9 @@ export default function ButtonText({
           linkToForm.current.requestSubmit();
           // if not valid, stop here
           if (!linkToForm.current.reportValidity()) return;
-          // if valid, show spinning animation
-          if (animateSpinner) setShowSpinningAnim(true);
         }
         // finally, perform additional tasks if provided
-        if (onClick) onClick(event, stopSpinningAnim);
+        if (onClick) onClick(event);
       }}
     >
       <input
