@@ -32,8 +32,9 @@ function AuthCheck({ children }) {
 
   /* show loading page if the auth state is still loading
      and do not render routing */
-  if (auth.state === AuthStateEnum.STILL_LOADING)
+  if (auth.state === AuthStateEnum.STILL_LOADING) {
     return <LoadingPage />;
+  }
 
   /* render routing instead of directly loading some page
      and let the pages navigate to the correct page */
@@ -41,12 +42,13 @@ function AuthCheck({ children }) {
 }
 
 export default function App() {
+  // prettier-ignore
   return (
     <NotificationProvider>            {/* provide the notification context */}
       <AuthProvider>                  {/* provide the auth context; used to handle user state */}
         <BrowserRouter>               {/* use the browser router to handle routing */}
           <Notification />            {/* display notifications */}
-          <AuthCheck>               {/* redirect to /home if user is logged in, else redirect to /auth */}
+          <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
             <Routes>
               <Route path={PageUrls.ROOT} Component={HomePage} />
               <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />

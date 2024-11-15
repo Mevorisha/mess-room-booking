@@ -56,12 +56,14 @@ export default function Auth() {
     const timeout = setTimeout(() => {
       switch (kind) {
         case "EMAIL_LOGIN":
-          EmailPasswdAuth.login(email, password).catch((e) => notify(e.toString(), "error")
+          EmailPasswdAuth.login(email, password).catch((e) =>
+            notify(e.toString(), "error")
           );
           break;
         case "EMAIL_REGISTER":
           if (password === confirmPassword) {
-            EmailPasswdAuth.register(email, password).catch((e) => notify(e.toString(), "error")
+            EmailPasswdAuth.register(email, password).catch((e) =>
+              notify(e.toString(), "error")
             );
           } else {
             notify("Passwords do not match", "error");
@@ -69,7 +71,8 @@ export default function Auth() {
           break;
         case "EMAIL_RESET_PASSWD":
           EmailPasswdAuth.requestPasswordReset(email)
-            .then(() => notify("Check your email for password reset link", "success")
+            .then(() =>
+              notify("Check your email for password reset link", "success")
             )
             .catch((e) => notify(e.toString(), "error"));
           break;
@@ -158,7 +161,11 @@ export default function Auth() {
                 If the email exists in our database, you will receive a password
                 reset link. If you don't receive an email, try again or contact
                 us at{" "}
-                <a href="mailto:mevorisha@gmail.com" target="_blank" rel="noreferrer">
+                <a
+                  href="mailto:mevorisha@gmail.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   mevorisha@gmail.com
                 </a>
                 .
