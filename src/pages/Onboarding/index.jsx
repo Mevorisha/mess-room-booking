@@ -46,13 +46,13 @@ function SelectInitialType({ auth }) {
           rounded="all"
           title="Tenant"
           kind="primary"
-          onclick={() => handleSubmit("TENANT")}
+          onClick={() => handleSubmit("TENANT")}
         />
         <ButtonText
           rounded="all"
           title="Owner"
           kind="primary"
-          onclick={() => handleSubmit("OWNER")}
+          onClick={() => handleSubmit("OWNER")}
         />
       </div>
     </div>
@@ -208,7 +208,10 @@ function SetProfilePhoto({ auth }) {
             rounded="all"
             title="Update Photo"
             kind="primary"
-            onclick={handleUpdatePhoto}
+            onClick={(_, stopSpinningAnim) => {
+              handleUpdatePhoto();
+              setTimeout(stopSpinningAnim, 2000);
+            }}
           />
         </div>
       </div>
