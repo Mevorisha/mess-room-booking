@@ -23,8 +23,10 @@ function SectionButtons({ showSection, setShowSection }) {
         onClick={() => setShowSection("login")}
         rounded="all"
         kind={
-          showSection === "login" || showSection === "resetPasswd"
+          showSection === "login"
             ? "primary"
+            : showSection === "resetPasswd"
+            ? "secondary"
             : "cannibalized"
         }
         width="50%"

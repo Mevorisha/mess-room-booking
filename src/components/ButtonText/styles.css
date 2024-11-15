@@ -46,10 +46,11 @@
 }
 
 .components-ButtonText-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
+  background-color: var(--color-primary-lighter);
+  color: var(--color-link);
+  font-weight: bolder;
   cursor: pointer;
-  border: 1px solid var(--color-secondary);
+  border: 2px solid var(--color-primary-light);
   transition: filter 0.2s, scale 0.2s;
 }
 
@@ -59,7 +60,7 @@
 
 @media (hover: hover) {
   .components-ButtonText-secondary:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.05);
   }
 }
 
