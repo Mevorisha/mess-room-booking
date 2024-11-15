@@ -11,7 +11,7 @@ import ButtonText from "../../components/ButtonText";
 function DialogContent({ confirmButtonKind, handleConfirmClick }) {
   return (
     <div className="form-container" style={{ padding: "var(--pad-5)" }}>
-      <h2>Note</h2>
+      <h2>Confirm Send Reset Email</h2>
       <p style={{ textAlign: "justify" }}>
         If the email exists in our database, you will receive a password reset
         link. If you don't receive an email, try again or contact us at{" "}
@@ -37,7 +37,7 @@ function DialogContent({ confirmButtonKind, handleConfirmClick }) {
         }}
       >
         <ButtonText
-          title="Continue"
+          title="Confirm"
           rounded="all"
           kind={confirmButtonKind}
           width="50%"
@@ -62,9 +62,9 @@ export default function ResetPasswdSection() {
   function handleConfirmClick(email) {
     Promise.resolve()
       .then(() => setResetButtonKind("loading"))
+      .then(() => dialog.hide())
       .then(() => EmailPasswdAuth.requestPasswordReset(email))
       .then(() => notify("Check your email for password reset link", "success"))
-      .then(() => dialog.hide())
       .then(() => setResetButtonKind("primary"))
       .catch((e) => {
         dialog.hide();
