@@ -2,14 +2,76 @@ import React from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
+import useDialogBox from "../../hooks/dialogbox.js";
 import ButtonText from "../../components/ButtonText";
+
+/**
+ * @param {{ confirmButtonKind: "primary" | "loading"; handleConfirmClick: () => void; }} props
+ */
+function DialogContent({ confirmButtonKind, handleConfirmClick }) {
+  return (
+    <div className="form-container" style={{ padding: "var(--pad-5)" }}>
+      <h2>Note</h2>
+      <p style={{ textAlign: "justify" }}>
+        If the email exists in our database, you will receive a password reset
+        link. If you don't receive an email, try again or contact us at{" "}
+        <a
+          style={{ color: "var(--color-link)" }}
+          href="mailto:mevorisha@gmail.com"
+          target="_blank"
+          rel="noreferrer"
+        >
+          mevorisha@gmail.com
+        </a>
+        .
+      </p>
+      <p style={{ textAlign: "justify" }}>
+        To keep your account secure, do not share your reset link with anyone.
+      </p>
+      <div
+        style={{
+          marginTop: "var(--pad-5)",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <ButtonText
+          title="Continue"
+          rounded="all"
+          kind={confirmButtonKind}
+          width="50%"
+          onClick={handleConfirmClick}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function ResetPasswdSection() {
   const notify = useNotification();
+  const dialog = useDialogBox();
 
-  const [buttonKind, setButtonKind] = React.useState(
+  const [resetButtonKind, setResetButtonKind] = React.useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
+
+  /**
+   * @param {string} email
+   */
+  function handleConfirmClick(email) {
+    Promise.resolve()
+      .then(() => setResetButtonKind("loading"))
+      .then(() => EmailPasswdAuth.requestPasswordReset(email))
+      .then(() => notify("Check your email for password reset link", "success"))
+      .then(() => dialog.hide())
+      .then(() => setResetButtonKind("primary"))
+      .catch((e) => {
+        dialog.hide();
+        setResetButtonKind("primary");
+        notify(e.toString(), "error");
+      });
+  }
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -34,21 +96,14 @@ export default function ResetPasswdSection() {
       }
     }
 
-    return setTimeout(
-      () =>
-        Promise.resolve()
-          .then(() => setButtonKind("loading"))
-          .then(() => EmailPasswdAuth.requestPasswordReset(email))
-          .then(() =>
-            notify("Check your email for password reset link", "success")
-          )
-          .then(() => setButtonKind("primary"))
-          .catch((e) => {
-            setButtonKind("primary");
-            notify(e.toString(), "error");
-          }),
-      waitForEasterEggTime
-    );
+    return setTimeout(() => {
+      dialog.show(
+        <DialogContent
+          confirmButtonKind={resetButtonKind}
+          handleConfirmClick={() => handleConfirmClick(email)}
+        />
+      );
+    }, waitForEasterEggTime);
   }
 
   return (
@@ -67,7 +122,7 @@ export default function ResetPasswdSection() {
           title="Reset Password"
           rounded="all"
           width="50%"
-          kind={buttonKind}
+          kind={resetButtonKind}
         />
       </div>
     </form>
