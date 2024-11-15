@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import { isEmpty } from "../../modules/util/validations.js";
@@ -11,6 +11,10 @@ export default function SetDisplayName() {
   const notify = useNotification();
   const navigate = useNavigate();
 
+  const [buttonKind, setButtonKind] = useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
+
   function handleUpdateName(e) {
     e.preventDefault();
 
@@ -20,10 +24,15 @@ export default function SetDisplayName() {
     const lastName = e.target[1]?.value;
 
     if (firstName && lastName)
-      auth
-        .updateProfileName(firstName, lastName)
+      Promise.resolve()
+        .then(() => setButtonKind("loading"))
+        .then(() => auth.updateProfileName(firstName, lastName))
+        .then(() => setButtonKind("primary"))
         .then(() => navigate(PageUrls.HOME))
-        .catch((e) => notify(e.toString(), "error"));
+        .catch((e) => {
+          setButtonKind("primary");
+          notify(e.toString(), "error");
+        });
     else notify("Please enter a valid name", "error");
   }
 
@@ -64,7 +73,7 @@ export default function SetDisplayName() {
               width="40%"
               rounded="all"
               title="Update Name"
-              kind="primary"
+              kind={buttonKind}
             />
           </div>
         </form>

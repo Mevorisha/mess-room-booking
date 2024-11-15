@@ -12,6 +12,10 @@ import dpGeneric from "../../assets/images/dpGeneric.png";
 export default function SetProfilePhoto() {
   const [photoURL, setPhotoURL] = useState(dpGeneric);
 
+  const [buttonKind, setButtonKind] = useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
+
   const auth = useAuth();
   const notify = useNotification();
   const navigate = useNavigate();
@@ -19,11 +23,23 @@ export default function SetProfilePhoto() {
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
   function handleUpdatePhoto() {
-    loadFileFromFilePicker("image/*", maxSizeInBytes)
+    Promise.resolve()
+      .then(() => loadFileFromFilePicker("image/*", maxSizeInBytes))
+      .then((file) => {
+        setButtonKind("loading");
+        return file;
+      })
       .then((file) => auth.updateProfilePhoto(file))
+      .then((url) => {
+        setButtonKind("primary");
+        return url;
+      })
       .then((url) => setPhotoURL(url))
       .then(() => navigate(PageUrls.HOME))
-      .catch((e) => notify(e.toString(), "error"));
+      .catch((e) => {
+        setButtonKind("primary");
+        notify(e.toString(), "error");
+      });
   }
 
   return (
@@ -47,11 +63,9 @@ export default function SetProfilePhoto() {
           <ButtonText
             rounded="all"
             title="Update Photo"
-            kind="primary"
-            onClick={(_, stopSpinningAnim) => {
-              handleUpdatePhoto();
-              setTimeout(stopSpinningAnim, 2000);
-            }}
+            kind={buttonKind}
+            width="50%"
+            onClick={handleUpdatePhoto}
           />
         </div>
       </div>

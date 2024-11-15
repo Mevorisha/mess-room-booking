@@ -10,12 +10,21 @@ export default function SelectInitialType() {
   const notify = useNotification();
   const navigate = useNavigate();
 
+  const [buttonKind, setButtonKind] = React.useState({
+    TENANT: /** @type {"primary" | "loading"} */ ("primary"),
+    OWNER: /**  @type {"primary" | "loading"} */ ("primary"),
+  });
+
   /**
    * @param {"TENANT" | "OWNER"} type
    */
   function handleSubmit(type) {
-    auth
-      .updateProfileType(type)
+    Promise.resolve()
+      .then(() =>
+        setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" }))
+      )
+      .then(() => auth.updateProfileType(type))
+      .then(() => setButtonKind({ TENANT: "primary", OWNER: "primary" }))
       .then(() => navigate(PageUrls.HOME))
       .catch((e) => notify(e.toString(), "error"));
   }
@@ -34,13 +43,13 @@ export default function SelectInitialType() {
         <ButtonText
           rounded="all"
           title="Tenant"
-          kind="primary"
+          kind={buttonKind.TENANT}
           onClick={() => handleSubmit("TENANT")}
         />
         <ButtonText
           rounded="all"
           title="Owner"
-          kind="primary"
+          kind={buttonKind.OWNER}
           onClick={() => handleSubmit("OWNER")}
         />
       </div>
