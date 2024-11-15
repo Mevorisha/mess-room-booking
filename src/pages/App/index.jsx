@@ -4,7 +4,6 @@ import { NotificationProvider } from "../../contexts/notification.js";
 import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import useAuth from "../../hooks/auth.js";
-import Notification from "../../components/Notification";
 import PageNotFound from "../PageNotFound";
 import AuthPage from "../../pages/Auth";
 import OnboardingPage from "../../pages/Onboarding";
@@ -47,7 +46,6 @@ export default function App() {
     <NotificationProvider>            {/* provide the notification context */}
       <AuthProvider>                  {/* provide the auth context; used to handle user state */}
         <BrowserRouter>               {/* use the browser router to handle routing */}
-          <Notification />            {/* display notifications */}
           <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
             <Routes>
               <Route path={PageUrls.ROOT} Component={HomePage} />
