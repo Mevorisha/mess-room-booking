@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
+import { DialogBoxProvider } from "../../contexts/dialogbox.js";
 import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import useAuth from "../../hooks/auth.js";
@@ -44,25 +45,27 @@ export default function App() {
   // prettier-ignore
   return (
     <NotificationProvider>            {/* provide the notification context */}
-      <AuthProvider>                  {/* provide the auth context; used to handle user state */}
-        <BrowserRouter>               {/* use the browser router to handle routing */}
-          <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
-            <Routes>
-              <Route path={PageUrls.ROOT} Component={HomePage} />
-              <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />
-              <Route path={PageUrls.AUTH} Component={AuthPage} />
-              <Route path={PageUrls.HOME} Component={HomePage} />
-              <Route path={PageUrls.PROFILE} Component={ProfilePage} />
-              {/*
-                <Route path="/notif" component={NotifPage} />
-                <Route path="/account" component={AccountPage} />
-              */}
-              <Route path={PageUrls.PAGE_NOT_FOUND} Component={PageNotFound} />
-              <Route path="*" Component={PageNotFound} />
-            </Routes>
-          </AuthCheck>
-        </BrowserRouter>
-      </AuthProvider>
+      <DialogBoxProvider>               {/* provide the dialog box context */}
+        <AuthProvider>                  {/* provide the auth context; used to handle user state */}
+          <BrowserRouter>               {/* use the browser router to handle routing */}
+            <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
+              <Routes>
+                <Route path={PageUrls.ROOT} Component={HomePage} />
+                <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />
+                <Route path={PageUrls.AUTH} Component={AuthPage} />
+                <Route path={PageUrls.HOME} Component={HomePage} />
+                <Route path={PageUrls.PROFILE} Component={ProfilePage} />
+                {/*
+                  <Route path="/notif" component={NotifPage} />
+                  <Route path="/account" component={AccountPage} />
+                */}
+                <Route path={PageUrls.PAGE_NOT_FOUND} Component={PageNotFound} />
+                <Route path="*" Component={PageNotFound} />
+              </Routes>
+            </AuthCheck>
+          </BrowserRouter>
+        </AuthProvider>
+      </DialogBoxProvider>
     </NotificationProvider>
   );
 }
