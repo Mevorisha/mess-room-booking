@@ -377,7 +377,13 @@ export function AuthProvider({ children }) {
             : Promise.resolve(phno)
         )
         .catch(async (error) => {
-          if (error.toString() !== "Auth error: Provider already linked") {
+          if (
+            !(
+              error.toString().toLowerCase().includes("provider") &&
+              error.toString().toLowerCase().includes("already") &&
+              error.toString().toLowerCase().includes("linked")
+            )
+          ) {
             return Promise.reject(error);
           }
           notify("Unlinking existing mobile number", "info");
