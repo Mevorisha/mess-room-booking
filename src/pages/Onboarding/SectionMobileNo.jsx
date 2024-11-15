@@ -14,6 +14,10 @@ export default function SetMobileNumber() {
     )
   );
 
+  const [buttonKind, setButtonKind] = useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
+
   const notify = useNotification();
   const navigate = useNavigate();
 
@@ -28,11 +32,14 @@ export default function SetMobileNumber() {
     // request otp
     if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
       notify("Please wait while we send the OTP", "warning");
-      auth
-        .sendPhoneVerificationCode(mobile)
+      Promise.resolve()
+        .then(() => setButtonKind("loading"))
+        .then(() => auth.sendPhoneVerificationCode(mobile))
         .then(() => setAction("Verify & Submit"))
+        .then(() => setButtonKind("primary"))
         .catch((e) => {
           setAction("Resend OTP");
+          setButtonKind("primary");
           notify(e.toString(), "error");
         });
     }
@@ -40,11 +47,13 @@ export default function SetMobileNumber() {
     // verify otp and submit
     else if (otp && action === "Verify & Submit") {
       notify("Please wait while we verify the OTP", "warning");
-      auth
-        .verifyPhoneVerificationCode(otp)
+      Promise.resolve()
+        .then(() => setButtonKind("loading"))
+        .then(() => auth.verifyPhoneVerificationCode(otp))
         .then(() => navigate(PageUrls.HOME))
         .catch((e) => {
           setAction("Resend OTP");
+          setButtonKind("primary");
           notify(e.toString(), "error");
         });
     }
@@ -103,7 +112,7 @@ export default function SetMobileNumber() {
               width="40%"
               rounded="all"
               title={action}
-              kind="primary"
+              kind={buttonKind}
             />
           </div>
         </form>
