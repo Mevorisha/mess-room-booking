@@ -1,10 +1,38 @@
+.components-ButtonText-primary,
+.components-ButtonText-secondary,
+.components-ButtonText-cannibalized,
+.components-ButtonText-loading {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  border: none;
+}
+
+.components-ButtonText-primary input[type="submit"],
+.components-ButtonText-secondary input[type="submit"],
+.components-ButtonText-cannibalized input[type="submit"] {
+  border: none;
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+  background-color: transparent;
+  color: inherit;
+  cursor: inherit;
+}
+
 .components-ButtonText-primary {
   background-color: var(--color-primary);
   color: var(--color-white);
-  padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-primary);
   transition: filter 0.2s, scale 0.2s;
+}
+
+.components-ButtonText-primary input[type="submit"] {
+  padding: var(--pad-2);
 }
 
 @media (hover: hover) {
@@ -20,10 +48,13 @@
 .components-ButtonText-secondary {
   background-color: var(--color-secondary);
   color: var(--color-white);
-  padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid var(--color-secondary);
   transition: filter 0.2s, scale 0.2s;
+}
+
+.components-ButtonText-secondary input[type="submit"] {
+  padding: var(--pad-2);
 }
 
 @media (hover: hover) {
@@ -39,9 +70,12 @@
 .components-ButtonText-cannibalized {
   background-color: transparent;
   color: black;
-  padding: var(--pad-2);
   cursor: pointer;
   border: 1px solid transparent;
+}
+
+.components-ButtonText-cannibalized input[type="submit"] {
+  padding: var(--pad-2);
 }
 
 @media (hover: hover) {
@@ -52,4 +86,22 @@
 
 .components-ButtonText-cannibalized:active {
   text-decoration: underline;
+}
+
+.components-ButtonText-loading {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: var(--pad-2) calc(var(--pad-2) - 1.3rem);
+  cursor: not-allowed;
+  border: 1px solid var(--color-primary);
+  filter: brightness(1.2);
+}
+
+.components-ButtonText-loading .circle {
+  width: calc(1rem - 0.15rem);
+  height: calc(1rem - 0.15rem);
+  border: 0.2rem solid var(--color-white);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }

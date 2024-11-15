@@ -22,7 +22,7 @@ export default function PageNotFound() {
           rounded="all"
           title="Go Home"
           kind="primary"
-          onclick={() => navigate(PageUrls.HOME)}
+          onClick={() => navigate(PageUrls.HOME)}
         />
       </div>
     </div>

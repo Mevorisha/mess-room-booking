@@ -10,10 +10,11 @@ import {
   unlink,
   updateProfile as fbAuthUpdateProfile,
   GoogleAuthProvider,
-  signInWithPopup,
   OAuthProvider,
   RecaptchaVerifier,
   PhoneAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
 } from "firebase/auth";
 import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
@@ -219,10 +220,11 @@ class GoogleAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        GoogleAuth.googleProvider
-      );
+      await signInWithRedirect(FirebaseAuth, GoogleAuth.googleProvider);
+      const result = await getRedirectResult(FirebaseAuth);
+      if (!result) {
+        return Promise.reject("Failed to sign in with Google.");
+      }
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -251,10 +253,11 @@ class AppleAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        AppleAuth.appleProvider
-      );
+      await signInWithRedirect(FirebaseAuth, AppleAuth.appleProvider);
+      const result = await getRedirectResult(FirebaseAuth);
+      if (!result) {
+        return Promise.reject("Failed to sign in with Apple.");
+      }
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -285,10 +288,11 @@ class MicrosoftAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        MicrosoftAuth.microsoftProvider
-      );
+      await signInWithRedirect(FirebaseAuth, MicrosoftAuth.microsoftProvider);
+      const result = await getRedirectResult(FirebaseAuth);
+      if (!result) {
+        return Promise.reject("Failed to sign in with Microsoft.");
+      }
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);

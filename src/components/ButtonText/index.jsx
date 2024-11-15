@@ -2,17 +2,26 @@ import React from "react";
 import "./styles.css";
 
 /**
- * @param {{
- *   title: string,
- *   onclick?: (e: any) => void,
- *   rounded?: "all" | "left" | "right" | "top" | "bottom" | "none",
- *   kind?: "primary" | "secondary" | "cannibalized",
- *   width?: "default" | "full" | string
- * }} props
+ * @typedef {Object} ButtonTextProps
+ * @property {string} title                                                   - The text to be displayed on the button.
+ * @property {(
+ *   event: React.MouseEvent<HTMLDivElement, MouseEvent>
+ * ) => void} [onClick]                                                       - The function to be called when the button is clicked. Second argument is a
+ *                                                                              function to stop the spinning animation.
+ * @property {React.RefObject<HTMLFormElement>} [linkToForm]                  - A ref using `useRef` to the form to be submitted when the button is clicked.
+ *                                                                              If provided, the button will submit the form when clicked with validations.
+ * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - The placement of rounded corners on the button.
+ * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind]    - The kind of button. Primary has background and border, secondary has
+ *                                                                              light background and light border, cannibalized has no background and no border.
+ *                                                                              Loading is a special kind that shows a spinning animation.
+ * @property {"default" | "full" | string} [width]                            - The width of the button in CSS units.
+ *
+ * @param {ButtonTextProps} props
  */
 export default function ButtonText({
   title,
-  onclick,
+  onClick,
+  linkToForm,
   rounded = "none",
   kind = "primary",
   width = "default",
@@ -33,22 +42,53 @@ export default function ButtonText({
     classes.push("components-ButtonText-secondary");
   } else if (kind === "cannibalized") {
     classes.push("components-ButtonText-cannibalized");
+  } else if (kind === "loading") {
+    classes.push("components-ButtonText-loading");
   }
 
-  if (width === "full") {
-    width = "100%";
+  let minWidth = /** @type {string} */ (width);
+
+  if (minWidth === "full") {
+    minWidth = "100%";
   }
-  if (width === "default") {
-    width = "auto";
+  if (minWidth === "default") {
+    minWidth = "auto";
+  }
+
+  // whatever be the width, subtract 2 * var(--pad-2) from it
+  minWidth = `calc(${width} - 2 * var(--pad-2))`;
+
+  if (kind === "loading") {
+    return (
+      <div
+        className="components-ButtonText-loading"
+        style={{ minWidth, borderRadius: borderRadiusStyle[rounded] }}
+      >
+        <div className="circle"></div>
+      </div>
+    );
   }
 
   return (
-    <input
-      type="submit"
+    <div
       className={classes.join(" ")}
-      onClick={onclick}
-      style={{ minWidth: width, borderRadius: borderRadiusStyle[rounded] }}
-      value={title}
-    />
+      style={{ minWidth, borderRadius: borderRadiusStyle[rounded] }}
+      onClick={(event) => {
+        if (linkToForm?.current) {
+          // if form present, submit with validations
+          linkToForm.current.requestSubmit();
+          // if not valid, stop here
+          if (!linkToForm.current.reportValidity()) return;
+        }
+        // finally, perform additional tasks if provided
+        if (onClick) onClick(event);
+      }}
+    >
+      <input
+        style={{ borderRadius: borderRadiusStyle[rounded] }}
+        type="submit"
+        value={title}
+      />
+    </div>
   );
 }
