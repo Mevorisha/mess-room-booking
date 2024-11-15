@@ -38,7 +38,7 @@ export function NotificationProvider({ children }) {
   );
 
   /* this state is used to clear the display timeout */
-  const [notifDisplayTimeout, setNotifDisplayTimeout] = useState(
+  const [notifDisplayTimeout, setNotifDisplayTimeout_] = useState(
     setTimeout(() => {}, 0)
   );
 
@@ -47,6 +47,16 @@ export function NotificationProvider({ children }) {
       /* begin sliding in animation */
       setAnimState("visible"),
     [setAnimState]
+  );
+
+  const setNotifDisplayTimeout = useCallback(
+    /** @param {NodeJS.Timeout} newVal */
+    (newVal) =>
+      setNotifDisplayTimeout_((oldVal) => {
+        clearTimeout(oldVal);
+        return newVal;
+      }),
+    [setNotifDisplayTimeout_]
   );
 
   const clearNotifDisplayTimeout = useCallback(
