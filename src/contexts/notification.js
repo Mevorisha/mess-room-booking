@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useState } from "react";
+import Notification from "../components/Notification";
 
 const NotificationContext = createContext({
   message: /** @type {string} */ (""),
@@ -91,6 +92,7 @@ export function NotificationProvider({ children }) {
       }}
     >
       {children}
+      <Notification />
     </NotificationContext.Provider>
   );
 }

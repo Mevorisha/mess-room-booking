@@ -1,0 +1,90 @@
+.components-DialogBox {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(40, 40, 40, 0.752);
+  visibility: hidden;
+  z-index: 100;
+}
+
+.components-DialogBox .dialog-box {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  border: 0;
+  padding: 0;
+  max-width: var(--wid-dialog);
+  height: fit-content;
+  height: -moz-fit-content; /* mozilla doesn't support fit-content */
+  background-color: #fff;
+  border-radius: var(--rounded-rad);
+}
+
+/* if screen is >= 400px set max-width to 360px */
+@media (min-width: 400px) {
+  .components-DialogBox .dialog-box {
+    max-width: 360px;
+  }
+}
+
+.components-DialogBox .dialog-box hr {
+  width: calc(100% - 4px);
+  padding: 0;
+  margin: auto;
+  border: 0.5px solid #eee;
+  border-radius: 2px;
+  background-color: #eee;
+}
+
+/* ----------------- DIALOG ANIMATIONS -----------------------
+ * Note that using a key frame while another is
+ * already active will cause wierd animations
+ */
+@keyframes fadeIn {
+  0% {
+    z-index: 100;
+    visibility: visible;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    visibility: visible;
+    opacity: 1;
+  }
+  99% {
+    z-index: 100;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    z-index: -2;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.85);
+  }
+  65% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.95);
+  }
+}

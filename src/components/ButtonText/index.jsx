@@ -14,7 +14,8 @@ import "./styles.css";
  * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind]    - The kind of button. Primary has background and border, secondary has
  *                                                                              light background and light border, cannibalized has no background and no border.
  *                                                                              Loading is a special kind that shows a spinning animation.
- * @property {"default" | "full" | string} [width]                            - The width of the button in CSS units.
+ * @property {"default" | "full" | string} [width]                            - The minimum width of the button in CSS units. To use less width, encapsulate the
+ *                                                                              button in a container with the desired width.
  *
  * @param {ButtonTextProps} props
  */

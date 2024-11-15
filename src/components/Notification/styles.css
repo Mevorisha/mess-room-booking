@@ -7,7 +7,6 @@
   padding: var(--pad-4);
   border-radius: var(--rounded-rad);
   text-align: center;
-  z-index: 1000;
   transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
   opacity: 0;
   display: flex;

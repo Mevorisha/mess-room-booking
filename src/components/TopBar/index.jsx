@@ -58,21 +58,19 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
 }
 
 /**
- * @param {{ checkForIncompletion: any; }} props
+ * @param {{ isIncomplete: boolean; }} props
  */
-function MarkOfIncompletion({ checkForIncompletion }) {
-  // returns a red exclamation mark if isEmpty(checkForIncompletion) is true
-  if (isEmpty(checkForIncompletion))
-    return (
-      <span className="profile-incomplete">
-        <i
-          style={{ marginTop: "1px", fontSize: "1.1rem" }}
-          className="fa fa-exclamation-circle"
-        ></i>
-      </span>
-    );
-  // else returns null
-  return null;
+function MarkOfIncompletion({ isIncomplete }) {
+  // returns a red exclamation mark if isIncomplete true
+  if (!isIncomplete) return null;
+  return (
+    <span className="profile-incomplete">
+      <i
+        style={{ marginTop: "1px", fontSize: "1.1rem" }}
+        className="fa fa-exclamation-circle"
+      ></i>
+    </span>
+  );
 }
 
 /**
@@ -198,7 +196,7 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
           >
             {ActionParams.UPDATE_PROFILE_PHOTO}
-            <MarkOfIncompletion checkForIncompletion={auth.user.photoURL} />
+            <MarkOfIncompletion isIncomplete={isEmpty(auth.user.photoURL)} />
           </div>
           {/* Update ID Documents */}
           <div
@@ -214,7 +212,9 @@ export default function TopBar({ children }) {
           >
             {ActionParams.CHANGE_NAME}
             <MarkOfIncompletion
-              checkForIncompletion={auth.user.firstName || auth.user.lastName}
+              isIncomplete={
+                isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName)
+              }
             />
           </div>
           {/* Request Password Reset */}
