@@ -6,6 +6,9 @@ import ButtonText from "../../components/ButtonText";
 
 export default function RegisterSection() {
   const notify = useNotification();
+  const [buttonKind, setButtonKind] = React.useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -32,13 +35,19 @@ export default function RegisterSection() {
     }
 
     return setTimeout(() => {
-      if (password === confirmPassword) {
-        EmailPasswdAuth.register(email, password).catch((e) =>
-          notify(e.toString(), "error")
-        );
-      } else {
+      if (password !== confirmPassword) {
         notify("Passwords do not match", "error");
+        return;
       }
+
+      Promise.resolve()
+        .then(() => setButtonKind("loading"))
+        .then(() => EmailPasswdAuth.register(email, password))
+        .then(() => setButtonKind("primary"))
+        .catch((e) => {
+          notify(e.toString(), "error");
+          setButtonKind("primary");
+        });
     }, waitForEasterEggTime);
   }
 
@@ -48,7 +57,12 @@ export default function RegisterSection() {
       <input required type="password" placeholder="Password" />
       <input required type="password" placeholder="Confirm Password" />
       <div className="submit-container">
-        <ButtonText title="Register" rounded="all" width="50%" />
+        <ButtonText
+          title="Register"
+          rounded="all"
+          width="50%"
+          kind={buttonKind}
+        />
       </div>
     </form>
   );

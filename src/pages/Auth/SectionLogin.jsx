@@ -6,6 +6,9 @@ import ButtonText from "../../components/ButtonText";
 
 export default function LoginSection({ setShowSection }) {
   const notify = useNotification();
+  const [buttonKind, setButtonKind] = React.useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -32,9 +35,14 @@ export default function LoginSection({ setShowSection }) {
 
     return setTimeout(
       () =>
-        EmailPasswdAuth.login(email, password).catch((e) =>
-          notify(e.toString(), "error")
-        ),
+        Promise.resolve()
+          .then(() => setButtonKind("loading"))
+          .then(() => EmailPasswdAuth.login(email, password))
+          .then(() => setButtonKind("primary"))
+          .catch((e) => {
+            notify(e.toString(), "error");
+            setButtonKind("primary");
+          }),
       waitForEasterEggTime
     );
   }
@@ -50,7 +58,7 @@ export default function LoginSection({ setShowSection }) {
         Reset password
       </span>
       <div className="submit-container">
-        <ButtonText title="Login" rounded="all" width="50%" />
+        <ButtonText title="Log In" rounded="all" width="50%" kind={buttonKind} />
       </div>
     </form>
   );

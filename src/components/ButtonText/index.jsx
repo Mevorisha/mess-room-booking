@@ -62,7 +62,7 @@ export default function ButtonText({
     return (
       <div
         className="components-ButtonText-loading"
-        style={{ width: width, borderRadius: borderRadiusStyle[rounded] }}
+        style={{ minWidth, borderRadius: borderRadiusStyle[rounded] }}
       >
         <div className="circle"></div>
       </div>

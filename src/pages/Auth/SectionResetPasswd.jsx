@@ -7,6 +7,10 @@ import ButtonText from "../../components/ButtonText";
 export default function ResetPasswdSection() {
   const notify = useNotification();
 
+  const [buttonKind, setButtonKind] = React.useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
+
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
    */
@@ -30,13 +34,21 @@ export default function ResetPasswdSection() {
       }
     }
 
-    return setTimeout(() => {
-      EmailPasswdAuth.requestPasswordReset(email)
-        .then(() =>
-          notify("Check your email for password reset link", "success")
-        )
-        .catch((e) => notify(e.toString(), "error"));
-    }, waitForEasterEggTime);
+    return setTimeout(
+      () =>
+        Promise.resolve()
+          .then(() => setButtonKind("loading"))
+          .then(() => EmailPasswdAuth.requestPasswordReset(email))
+          .then(() =>
+            notify("Check your email for password reset link", "success")
+          )
+          .then(() => setButtonKind("primary"))
+          .catch((e) => {
+            setButtonKind("primary");
+            notify(e.toString(), "error");
+          }),
+      waitForEasterEggTime
+    );
   }
 
   return (
@@ -51,7 +63,12 @@ export default function ResetPasswdSection() {
         .
       </p>
       <div className="submit-container">
-        <ButtonText title="Reset Password" rounded="all" width="50%" />
+        <ButtonText
+          title="Reset Password"
+          rounded="all"
+          width="50%"
+          kind={buttonKind}
+        />
       </div>
     </form>
   );
