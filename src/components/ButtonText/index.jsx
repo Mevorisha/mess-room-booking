@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useCallback } from "react";
 import "./styles.css";
 
 /**
- * @param {{
- *   title: string,
- *   onclick?: (e: any) => void,
- *   rounded?: "all" | "left" | "right" | "top" | "bottom" | "none",
- *   kind?: "primary" | "secondary" | "cannibalized",
- *   width?: "default" | "full" | string
- * }} props
+ * @typedef {Object} ButtonTextProps
+ * @property {string} title - The text to be displayed on the button.
+ * @property {(
+ *   event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+ *   stopSpinningAnim: () => void
+ * ) => void} [onClick] - The function to be called when the button is clicked. Second argument is a function to stop the spinning animation.
+ * @property {React.RefObject<HTMLFormElement>} [linkToForm] - A ref using `useRef` to the form to be submitted when the button is clicked.
+ *                                                             If provided, the button will submit the form when clicked with validations.
+ * @property {boolean} [animateSpinner] - Whether to show the spinning animation. If no `linkToForm` is provided, this will have no effect
+ *                                        and no spinning animation will be shown.
+ * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - The placement of rounded corners on the button.
+ * @property {"primary" | "secondary" | "cannibalized"} [kind] - The kind of button. Primary has background and border, secondary has
+ *                                                               light background and light border, cannibalized has no background and no border.
+ * @property {"default" | "full" | string} [width] - The width of the button in CSS units.
+ *
+ * @param {ButtonTextProps} props
  */
 export default function ButtonText({
   title,
-  onclick,
+  onClick,
+  linkToForm,
+  animateSpinner = false,
   rounded = "none",
   kind = "primary",
   width = "default",
@@ -27,6 +38,15 @@ export default function ButtonText({
     none: "0",
   };
 
+  const [showSpinningAnim, setShowSpinningAnim] = React.useState(false);
+
+  /**
+   * Stop the spinning animation after custom logic
+   */
+  const stopSpinningAnim = useCallback(() => {
+    setShowSpinningAnim(false);
+  }, [setShowSpinningAnim]);
+
   if (kind === "primary") {
     classes.push("components-ButtonText-primary");
   } else if (kind === "secondary") {
@@ -35,20 +55,51 @@ export default function ButtonText({
     classes.push("components-ButtonText-cannibalized");
   }
 
-  if (width === "full") {
-    width = "100%";
+  let minWidth = /** @type {string} */ (width);
+
+  if (minWidth === "full") {
+    minWidth = "100%";
   }
-  if (width === "default") {
-    width = "auto";
+  if (minWidth === "default") {
+    minWidth = "auto";
+  }
+
+  // whatever be the width, subtract 2 * var(--pad-2) from it
+  minWidth = `calc(${width} - 2 * var(--pad-2))`;
+
+  if (showSpinningAnim) {
+    return (
+      <div
+        className="components-ButtonText-spinner"
+        style={{ width: width, borderRadius: borderRadiusStyle[rounded] }}
+      >
+        <div className="circle"></div>
+      </div>
+    );
   }
 
   return (
-    <input
-      type="submit"
+    <div
       className={classes.join(" ")}
-      onClick={onclick}
-      style={{ minWidth: width, borderRadius: borderRadiusStyle[rounded] }}
-      value={title}
-    />
+      style={{ minWidth, borderRadius: borderRadiusStyle[rounded] }}
+      onClick={(event) => {
+        if (linkToForm?.current) {
+          // if form present, submit with validations
+          linkToForm.current.requestSubmit();
+          // if not valid, stop here
+          if (!linkToForm.current.reportValidity()) return;
+          // if valid, show spinning animation
+          if (animateSpinner) setShowSpinningAnim(true);
+        }
+        // finally, perform additional tasks if provided
+        if (onClick) onClick(event, stopSpinningAnim);
+      }}
+    >
+      <input
+        style={{ borderRadius: borderRadiusStyle[rounded] }}
+        type="submit"
+        value={title}
+      />
+    </div>
   );
 }
