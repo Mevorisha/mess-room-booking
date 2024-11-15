@@ -23,6 +23,7 @@ This guideline is complementary to the code and therefore references the codebas
   - [Properly using `navigate`](#properly-using-navigate)
   - [Search Parameters](#search-parameters)
   - [Firebase Wrapper Usage](#firebase-wrapper-usage)
+- [Linting and Beautification](#linting-and-beautification)
 
 
 ## Introduction
@@ -466,3 +467,10 @@ Points to note:
 3. `catch` will generally have a call of `notify` with the string of error. This is to be done to report errors as they occur.
 
 All errors received from firebase wrappers are guaranteed to be user friendly messages.
+
+## Linting and Beautification
+Create React App uses ESLint internally and is not configured anywhere else. However, ESLint is disabled during production builds because sometimes certain warnings may need to be ignored. However...
+
+**WARNING**: Fix any ESLint warnings or errors during development. Otherwise, you may be introducing bugs or convoluted logic. Refactor and modify your logic, especially if you have missing dependencies in `useEffect` or `useCallback`.
+
+Prettier is a recommended extension for VSCode. Only run Pretter on `.js` and `.jsx` files.
