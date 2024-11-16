@@ -12,26 +12,12 @@
 export function checkForEasterEgg(str) {
   // Define the list of mild, humorous cuss words
   const mildCussWords = [
-    "dingus",
-    "numpty",
-    "nincompoop",
-    "dunce",
-    "numbskull",
-    "nitwit",
-    "twit",
-    "wally",
-    "goofball",
-    "wuss",
     "gadha",
     "ullu ka pattha",
-    "bewakoof",
-    "nalayak",
-    "chirkut",
-    "buddhu",
-    "chappal chor",
-    "darpok",
-    "ghochu",
-    "fuddu",
+    "idiot",
+    "moron",
+    "jackass",
+    "asshole",
   ];
 
   // Check for mild cuss words (case insensitive)
@@ -53,12 +39,12 @@ export function checkForEasterEgg(str) {
 
   // Check for standalone numbers 69 or 420
   if (
-    /\b69\b/.test(str) ||
-    /\b420\b/.test(str) ||
-    /\b42069\b/.test(str) ||
-    /\b69420\b/.test(str)
+    /(?<!\d)69(?!\d)/.test(str) ||
+    /(?<!\d)420(?!\d)/.test(str) ||
+    /(?<!\d)42069(?!\d)/.test(str) ||
+    /(?<!\d)69420(?!\d)/.test(str)
   ) {
-    return "I see you're a man of culture";
+    return "I see you're a man of culture!";
   }
 
   // Return null if no easter egg is found
