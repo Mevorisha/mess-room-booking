@@ -13,6 +13,9 @@ import SelectInitialType from "./SectionProfileType";
 
 import "./styles.css";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function Onboarding() {
   const auth = useAuth();
   const [searchParams] = useSearchParams();
@@ -31,7 +34,7 @@ export default function Onboarding() {
         return <PageNotFound />;
     }
 
-  if (auth.state === AuthStateEnum.STILL_LOADING) return null;
+  if (auth.state === AuthStateEnum.STILL_LOADING) return <></>;
   if (isEmpty(auth.user.type)) return <SelectInitialType />;
   if (isEmpty(auth.user.mobile)) return <SetMobileNumber />;
 
