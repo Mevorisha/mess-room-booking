@@ -115,6 +115,10 @@
   text-decoration: underline;
 }
 
+.pages-Auth .form-container p {
+  margin-bottom: 0;
+}
+
 .pages-Auth .container .button-container {
   display: flex;
   justify-content: space-around;

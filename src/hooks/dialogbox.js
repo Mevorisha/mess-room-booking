@@ -1,9 +1,18 @@
 import { useCallback, useContext } from "react";
 import DialogBoxContext from "../contexts/dialogbox.js";
 
+/**
+ * @returns {{
+ *   isVisible: boolean;
+ *   show: (children: React.ReactNode) => void;
+ *   hide: () => void;
+ * }}
+ */
 export default function useDialogBox() {
-  const { setChildren, setOverlayState, setDialogState } =
+  const { dialogState, setChildren, setOverlayState, setDialogState } =
     useContext(DialogBoxContext);
+
+  const isVisible = dialogState === "scaleIn";
 
   const show = useCallback(
     /**
@@ -23,5 +32,5 @@ export default function useDialogBox() {
     setDialogState("scaleOut");
   }, [setOverlayState, setDialogState]);
 
-  return { show, hide };
+  return { isVisible, show, hide };
 }
