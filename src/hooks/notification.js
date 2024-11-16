@@ -1,6 +1,9 @@
 import { useCallback, useContext } from "react";
 import NotificationContext from "../contexts/notification.js";
 
+/**
+ * @returns {(message: string, kind: "info" | "success" | "warning" | "error") => void}
+ */
 export default function useNotification() {
   const {
     setMessage,
