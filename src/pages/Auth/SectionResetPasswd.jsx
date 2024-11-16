@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
