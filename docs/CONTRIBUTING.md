@@ -294,6 +294,7 @@ Well, those are the basics. Here comes the fun part.
   - [`modules/errors/ErrorMessages.js:ErrorMessages`](../src/modules/errors/ErrorMessages.js): Generic error messages; Use only if no good error message can be provided.
   - [`contexts/auth.js:AuthStateEnum`](../src/contexts/auth.js): Various auth states, see [How to use Auth Context](#how-to-use-auth-context).
 - States that are strings often get initialised to `""`. However, if you cannot use an empty string, you can set it to `"EMPTY"`. A function `isEmpty` is provided to check if a value is empty. See [`modules/util/validations.js`](../src/modules/util/validations.js).
+- Custom defined react components should nnot return `null`. In case nothing is to be rendered, return `<></>`. To enforce this, add a JSDOC `@returns {React.JSX.Element}` to the functional component.
 
 #### How to use Notification Context
 ```jsx
