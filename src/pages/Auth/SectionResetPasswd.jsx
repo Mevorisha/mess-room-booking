@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
@@ -6,9 +6,39 @@ import useDialogBox from "../../hooks/dialogbox.js";
 import ButtonText from "../../components/ButtonText";
 
 /**
- * @param {{ confirmButtonKind: "primary" | "loading"; handleConfirmClick: () => void; }} props
+ * @param {{
+ *   email: string;
+ *   setResetButtonKind: (val: "primary" | "loading") => void;
+ * }} props
+ * @returns {React.JSX.Element}
  */
-function DialogContent({ confirmButtonKind, handleConfirmClick }) {
+function DialogContent({ email, setResetButtonKind }) {
+  const notify = useNotification();
+  const dialog = useDialogBox();
+
+  const [confirmButtonKind, setConfirmButtonKind] = React.useState(
+    /** @type {"primary" | "loading"} */ ("primary")
+  );
+
+  useEffect(() => {
+    // if dialog is gone or is going out, primary reset button, else loading button
+    if (dialog.isVisible) setResetButtonKind("loading");
+    else setResetButtonKind("primary");
+  }, [dialog.isVisible]);
+
+  function handleConfirmClick() {
+    Promise.resolve()
+      .then(() => setConfirmButtonKind("loading"))
+      .then(() => EmailPasswdAuth.requestPasswordReset(email))
+      .then(() => setConfirmButtonKind("primary"))
+      .then(() => dialog.hide())
+      .then(() => notify("Check your email for password reset link", "success"))
+      .catch((e) => {
+        dialog.hide();
+        notify(e.toString(), "error");
+      });
+  }
+
   return (
     <div className="form-container" style={{ padding: "var(--pad-5)" }}>
       <h2>Confirm Send Reset Email</h2>
@@ -57,30 +87,12 @@ export default function ResetPasswdSection() {
   );
 
   /**
-   * @param {string} email
-   */
-  function handleConfirmClick(email) {
-    Promise.resolve()
-      .then(() => setResetButtonKind("loading"))
-      .then(() => dialog.hide())
-      .then(() => EmailPasswdAuth.requestPasswordReset(email))
-      .then(() => notify("Check your email for password reset link", "success"))
-      .then(() => setResetButtonKind("primary"))
-      .catch((e) => {
-        dialog.hide();
-        setResetButtonKind("primary");
-        notify(e.toString(), "error");
-      });
-  }
-
-  /**
    * @param {React.FormEvent<HTMLFormElement>} e
    */
   function handleSubmit(e) {
     e.preventDefault();
 
     const email = e.target[0].value;
-    const password = e.target[1].value;
 
     let waitForEasterEggTime = 0;
 
@@ -88,20 +100,11 @@ export default function ResetPasswdSection() {
     if (easterEggsInEmail) {
       notify(easterEggsInEmail, "warning");
       waitForEasterEggTime = 4000;
-    } else {
-      const easterEggsInPassword = checkForEasterEgg(password);
-      if (easterEggsInPassword) {
-        notify(easterEggsInPassword, "warning");
-        waitForEasterEggTime = 4000;
-      }
     }
 
     return setTimeout(() => {
       dialog.show(
-        <DialogContent
-          confirmButtonKind={resetButtonKind}
-          handleConfirmClick={() => handleConfirmClick(email)}
-        />
+        <DialogContent email={email} setResetButtonKind={setResetButtonKind} />
       );
     }, waitForEasterEggTime);
   }
