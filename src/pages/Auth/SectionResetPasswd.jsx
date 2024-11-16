@@ -24,7 +24,7 @@ function DialogContent({ email, setResetButtonKind }) {
     // if dialog is gone or is going out, primary reset button, else loading button
     if (dialog.isVisible) setResetButtonKind("loading");
     else setResetButtonKind("primary");
-  }, [dialog.isVisible]);
+  }, [dialog.isVisible, setResetButtonKind]);
 
   function handleConfirmClick() {
     Promise.resolve()
