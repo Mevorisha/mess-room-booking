@@ -44,7 +44,7 @@ function AuthCheck({ children }) {
 export default function App() {
   // prettier-ignore
   return (
-    <NotificationProvider>            {/* provide the notification context */}
+    <NotificationProvider>              {/* provide the notification context */}
       <DialogBoxProvider>               {/* provide the dialog box context */}
         <AuthProvider>                  {/* provide the auth context; used to handle user state */}
           <BrowserRouter>               {/* use the browser router to handle routing */}
