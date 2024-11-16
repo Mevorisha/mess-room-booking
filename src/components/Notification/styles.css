@@ -12,6 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  z-index: var(--zindex-always-top);
+  /* box-shadow: var(--shadow); */
 }
 
 /* keep width to calc(var(--wid-dialog) - 2 * var(--pad-8))

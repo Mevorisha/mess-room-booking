@@ -17,7 +17,10 @@
 
   --rounded-rad: 10px;
 
-  --shadow: 0 0 0.5rem rgba(0, 0, 0, 0.15);
+  --shadow: 0 0 0.7rem rgba(0, 0, 0, 0.239);
+
+  --zindex-always-under: -1;
+  --zindex-always-top: 1000;
 }
 
 .rounded {
