@@ -323,11 +323,18 @@ export function AuthProvider({ children }) {
      * @returns {Promise<string>}
      */
     async (image) => {
+      // start uploading, monitor progress and get URL
       const url = await fbStorageUpload(
         StoragePaths.PROFILE_PHOTOS,
         finalUser.uid,
         image
-      );
+      )
+        .fbStorageMonitorUpload((percent) => {
+          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
+        })
+        .fbStorageGetURL();
+
+      // update auth profile
       await updateAuthProfile({ photoURL: url });
       setFinalUser((user) => user.clone().setPhotoURL(url));
       notify("Profile photo updated successfully", "success");
