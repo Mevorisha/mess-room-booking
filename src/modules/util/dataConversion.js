@@ -19,24 +19,25 @@ export function sizehuman(bytes) {
 
 /**
  * Resizes an image blob
- * @param {Blob} blob
+ * @param {File} file
  * @param {number} maxWidth
  * @param {number} maxHeight
  * @param {string} mimeType
  * @param {number} quality
- * @returns {Promise<Blob>}
+ * @returns {Promise<File>}
  * @throws {Error}
  */
 export function resizeImageBlob(
-  blob,
+  file,
   maxWidth,
   maxHeight,
   mimeType = "image/jpeg",
   quality = 0.8
 ) {
   return new Promise((resolve, reject) => {
+    const filename = file.name;
     const img = new Image();
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(file);
 
     img.onload = () => {
       URL.revokeObjectURL(url); // Clean up URL object
@@ -68,7 +69,7 @@ export function resizeImageBlob(
       // Convert the canvas back to a blob
       canvas.toBlob(
         (resizedBlob) => {
-          if (resizedBlob) resolve(resizedBlob);
+          if (resizedBlob) resolve(new File([resizedBlob], filename));
           else reject(new Error("Canvas conversion failed"));
         },
         mimeType,
