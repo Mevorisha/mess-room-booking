@@ -10,6 +10,9 @@ const DialogBoxContext = createContext({
     () => {}
   ),
 
+  size: /** @type {"small" | "large"} */ ("small"),
+  setSize: /** @type {(val: "small" | "large") => void} */ (() => {}),
+
   dialogState: /** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone"),
   setDialogState:
     /** @type {(val: "scaleIn" | "scaleOut" | "gone") => void} */ (() => {}),
@@ -26,6 +29,8 @@ export function DialogBoxProvider({ children }) {
     /** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone")
   );
 
+  const [size, setSize] = useState(/** @type {"small" | "large"} */ ("small"));
+
   const [children_, setChildren_] = useState(
     /** @type {React.ReactNode | null} */ (null)
   );
@@ -38,6 +43,9 @@ export function DialogBoxProvider({ children }) {
 
         overlayState,
         setOverlayState,
+
+        size,
+        setSize,
 
         dialogState,
         setDialogState,

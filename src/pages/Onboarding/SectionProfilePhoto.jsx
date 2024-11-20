@@ -18,9 +18,7 @@ function DialogContent({ largeImageUrl }) {
   const dialog = useDialog();
 
   return (
-    <div
-      className="pages-Onboarding-ProfilePhoto-DialogContent"
-    >
+    <div className="pages-Onboarding-ProfilePhoto-DialogContent">
       <img src={largeImageUrl} alt="profile" />
       <i
         className="btn-close fa fa-close"
@@ -73,7 +71,8 @@ export default function SetProfilePhoto() {
     if (!auth.user.photoURLs?.large) return;
 
     dialog.show(
-      <DialogContent largeImageUrl={auth.user.photoURLs?.large} />
+      <DialogContent largeImageUrl={auth.user.photoURLs?.large} />,
+      "large"
     );
   }
 
