@@ -70,17 +70,19 @@ export class User {
    * Type is not included in the constructor because it is not available in Firebase Auth User object.
    * It is to be set using the setType method after the user details are fetched from the database.
    * @param {string} uid
-   * @param {string} photoURL
    * @param {string} mobile
    * @param {string} firstName
    * @param {string} lastName
    */
-  constructor(uid, photoURL = "", mobile = "", firstName = "", lastName = "") {
+  constructor(uid, mobile = "", firstName = "", lastName = "") {
     this.uid = uid;
-    this.photoURL = photoURL;
     this.mobile = mobile;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.photoURLs =
+      /** @type {{small: string, medium: string, large: string} | null} */ (
+        null
+      );
     this.type = /** @type {"EMPTY" | "TENANT" | "OWNER"} */ ("EMPTY");
   }
 
@@ -99,7 +101,6 @@ export class User {
   static fromFirebaseAuthUser(user) {
     return new User(
       user.uid,
-      user.photoURL ?? "",
       user.phoneNumber ?? "",
       user.displayName?.split(" ")[0] ?? "",
       user.displayName?.split(" ")[1] ?? ""
@@ -127,15 +128,17 @@ export class User {
    * @returns {User}
    */
   clone() {
-    const user = new User(
-      this.uid,
-      this.photoURL,
-      this.mobile,
-      this.firstName,
-      this.lastName
-    );
+    const user = new User(this.uid, this.mobile, this.firstName, this.lastName);
     if (!isEmpty(this.type))
       user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
+
+    if (!isEmpty(this.photoURLs))
+      user.setPhotoURL(
+        /** @type {{small: string, medium: string, large: string}} */ (
+          this.photoURLs
+        )
+      );
+
     return user;
   }
 
@@ -151,11 +154,11 @@ export class User {
   }
 
   /**
-   * @param {string} photoURL
+   * @param {{small: string, medium: string, large: string}} photoURLs
    * @returns {this}
    */
-  setPhotoURL(photoURL) {
-    this.photoURL = photoURL;
+  setPhotoURL({ small, medium, large }) {
+    this.photoURLs = { small, medium, large };
     return this;
   }
 
@@ -300,6 +303,7 @@ export function AuthProvider({ children }) {
         setFinalUser(() => {
           const newUser = User.loadCurrentUser();
           if (!isEmpty(data.type)) newUser.setType(data.type);
+          if (!isEmpty(data.photoURLs)) newUser.setPhotoURL(data.photoURLs);
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
