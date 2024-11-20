@@ -121,16 +121,18 @@ if (
  * @param {...string} args - Path segments to join
  * @returns {import("firebase/database").DatabaseReference}
  */
-function fbRtdbGetRef() {
-  // convert arguments keyword into an array
-  const args = Array.from(arguments);
-  const path = args.join("/");
+function fbRtdbGetRef(...args) {
+  const path = Array.from(args).join("/");
   return rtdbRef(FirebaseRtDb, path);
 }
 
-function fbStorageGetRef() {
-  const args = Array.from(arguments);
-  const path = args.join("/");
+/**
+ * Get a reference to a path in Firebase Storage
+ * @param {...string} args - Path segments to join
+ * @returns {import("firebase/storage").StorageReference}
+ */
+function fbStorageGetRef(...args) {
+  const path = Array.from(args).join("/");
   return storageRef(FirebaseStorage, path);
 }
 
