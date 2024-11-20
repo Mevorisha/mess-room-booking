@@ -5,7 +5,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages";
-import { sizehuman } from "../util/unitConversion.js";
+import { sizehuman } from "../util/dataConversion.js";
 
 class FbStorageTransferTask {
   /**
@@ -148,6 +148,20 @@ function fbStorageUpload(path, filename, file) {
 }
 
 /**
+ * Modify the URL of a file in Firebase Storage with parameters
+ * @param {string} url - URL of the file to modify
+ * @param {{ maxWidth?: number, maxHeight?: number }} params - Parameters to modify the URL with
+ * @returns {string} - Modified URL
+ */
+function fbStorageModURL(url, { maxWidth, maxHeight }) {
+  if (!url) return "";
+  const modURL = new URL(url);
+  if (maxWidth) modURL.searchParams.set("w", maxWidth.toString());
+  if (maxHeight) modURL.searchParams.set("h", maxHeight.toString());
+  return modURL.toString();
+}
+
+/**
  * Download a file from Firebase Storage
  * @param {string} url - URL of the file to download
  * @returns {Promise<Blob>} - File blob
@@ -200,6 +214,7 @@ async function fbStorageDelete(path, filename) {
 
 export {
   FbStorageTransferTask as FbStorageUploadTask,
+  fbStorageModURL,
   loadFileFromFilePicker,
   fbStorageUpload,
   fbStorageDownload,
