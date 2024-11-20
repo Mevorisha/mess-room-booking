@@ -14,6 +14,7 @@ const ErrorMessages = {
   DATA_DELETE_FAILED: "Error deleting data from the database",
   UNKNOWN_ERROR: "An unknown error occurred",
   FILE_UPLOAD_FAILED: "Error uploading file",
+  FILE_DELETE_FAILED: "Error deleting file",
   FILE_DOWNLOAD_FAILED: "Error downloading file",
 };
 
