@@ -144,7 +144,9 @@ function loadFileFromFilePicker(accept, size) {
  */
 function fbStorageUpload(path, filename, file) {
   const storageRef = fbStorageGetRef(path, filename);
-  return FbStorageTransferTask.wrap(uploadBytesResumable(storageRef, file));
+  return FbStorageTransferTask.wrap(
+    uploadBytesResumable(storageRef, file, { contentType: file.type })
+  );
 }
 
 /**
@@ -201,7 +203,9 @@ async function fbStorageDownload(url) {
  */
 function fbStorageUpdate(path, filename, file) {
   const storageRef = fbStorageGetRef(path, filename);
-  return FbStorageTransferTask.wrap(uploadBytesResumable(storageRef, file));
+  return FbStorageTransferTask.wrap(
+    uploadBytesResumable(storageRef, file, { contentType: file.type })
+  );
 }
 
 /**
