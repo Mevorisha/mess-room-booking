@@ -27,7 +27,7 @@ const MODULE_NAME = "contexts/auth.js";
 export const PROFILE_PHOTO_SIZES = {
   small: { w: 30, h: 30 },
   medium: { w: 90, h: 90 },
-  large: { w: 200, h: 200 },
+  large: { w: 500, h: 500 },
 };
 
 /* -------------------------------------- ENUMS ----------------------------------- */

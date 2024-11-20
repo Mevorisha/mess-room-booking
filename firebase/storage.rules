@@ -14,7 +14,7 @@ service firebase.storage {
                    && request.auth.uid == uid
                    && ((w == '30' && h == '30') ||
                        (w == '90' && h == '90') ||
-                       (w == '200' && h == '200'));                       // User can write their own profile photo
+                       (w == '500' && h == '500'));                       // User can write their own profile photo
     }
 
     match /storg_MessPhotos/{uid} {
