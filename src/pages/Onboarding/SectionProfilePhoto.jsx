@@ -10,15 +10,18 @@ import ButtonText from "../../components/ButtonText";
 import dpGeneric from "../../assets/images/dpGeneric.png";
 
 export default function SetProfilePhoto() {
-  const [photoURL, setPhotoURL] = useState(dpGeneric);
+  const auth = useAuth();
+  const notify = useNotification();
+  const navigate = useNavigate();
+
+  // state
+  const [photoURL, setPhotoURL] = useState(
+    auth.user.photoURLs?.medium || dpGeneric
+  );
 
   const [buttonKind, setButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
-
-  const auth = useAuth();
-  const notify = useNotification();
-  const navigate = useNavigate();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
@@ -56,10 +59,7 @@ export default function SetProfilePhoto() {
         </div>
 
         <div className="photo-container">
-          <img
-            src={auth.user.photoURL || photoURL || dpGeneric}
-            alt="profile"
-          />
+          <img src={photoURL} alt="profile" />
           <ButtonText
             rounded="all"
             title="Update Photo"
