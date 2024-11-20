@@ -148,6 +148,16 @@ function fbStorageUpload(path, filename, file) {
 }
 
 /**
+ * Modify the path of a file in Firebase Storage
+ * @param {string} filename - Name of the file
+ * @param {...string} modifiers - Modifiers to add to the path
+ * @returns {string} - Modified path
+ */
+function fbStorageModFilename(filename, ...modifiers) {
+  return [filename, ...modifiers].join("/");
+}
+
+/**
  * Modify the URL of a file in Firebase Storage with parameters
  * @param {string} url - URL of the file to modify
  * @param {{ maxWidth?: number, maxHeight?: number }} params - Parameters to modify the URL with
@@ -215,6 +225,7 @@ async function fbStorageDelete(path, filename) {
 export {
   FbStorageTransferTask as FbStorageUploadTask,
   fbStorageModURL,
+  fbStorageModFilename,
   loadFileFromFilePicker,
   fbStorageUpload,
   fbStorageDownload,
