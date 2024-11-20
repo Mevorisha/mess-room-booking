@@ -12,11 +12,23 @@ import {
   updateProfile as updateAuthProfile,
 } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
-import { fbStorageUpload } from "../modules/firebase/storage.js";
+import {
+  fbStorageModFilename,
+  fbStorageUpload,
+} from "../modules/firebase/storage.js";
 import { isEmpty } from "../modules/util/validations.js";
+import { resizeImageBlob } from "../modules/util/dataConversion.js";
 import useNotification from "../hooks/notification.js";
 
 const MODULE_NAME = "contexts/auth.js";
+
+/* -------------------------------------- CONSTANTS ----------------------------------- */
+
+export const PROFILE_PHOTO_SIZES = {
+  small: { w: 30, h: 30 },
+  medium: { w: 90, h: 90 },
+  large: { w: 200, h: 200 },
+};
 
 /* -------------------------------------- ENUMS ----------------------------------- */
 
@@ -323,11 +335,66 @@ export function AuthProvider({ children }) {
      * @returns {Promise<string>}
      */
     async (image) => {
-      // start uploading, monitor progress and get URL
-      const url = await fbStorageUpload(
-        StoragePaths.PROFILE_PHOTOS,
+      /* --------------------- SMALL PHOTO --------------------- */
+      const smallfilename = fbStorageModFilename(
         finalUser.uid,
-        image
+        PROFILE_PHOTO_SIZES.small.w.toString(),
+        PROFILE_PHOTO_SIZES.small.h.toString()
+      );
+      const smallimg = await resizeImageBlob(
+        image,
+        PROFILE_PHOTO_SIZES.small.w,
+        PROFILE_PHOTO_SIZES.small.h,
+        image.type
+      );
+      const small = await fbStorageUpload(
+        StoragePaths.PROFILE_PHOTOS,
+        smallfilename,
+        smallimg
+      )
+        .fbStorageMonitorUpload((percent) => {
+          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
+        })
+        .fbStorageGetURL();
+
+      /* --------------------- MEDIUM PHOTO --------------------- */
+      const medfilename = fbStorageModFilename(
+        finalUser.uid,
+        PROFILE_PHOTO_SIZES.medium.w.toString(),
+        PROFILE_PHOTO_SIZES.medium.h.toString()
+      );
+      const mediumimg = await resizeImageBlob(
+        image,
+        PROFILE_PHOTO_SIZES.medium.w,
+        PROFILE_PHOTO_SIZES.medium.h,
+        image.type
+      );
+      const medium = await fbStorageUpload(
+        StoragePaths.PROFILE_PHOTOS,
+        medfilename,
+        mediumimg
+      )
+        .fbStorageMonitorUpload((percent) => {
+          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
+        })
+        .fbStorageGetURL();
+
+      /* --------------------- LARGE PHOTO --------------------- */
+      const largefilename = fbStorageModFilename(
+        finalUser.uid,
+        PROFILE_PHOTO_SIZES.large.w.toString(),
+        PROFILE_PHOTO_SIZES.large.h.toString()
+      );
+      const largeimg = await resizeImageBlob(
+        image,
+        PROFILE_PHOTO_SIZES.large.w,
+        PROFILE_PHOTO_SIZES.large.h,
+        image.type
+      );
+      const large = await fbStorageUpload(
+        StoragePaths.PROFILE_PHOTOS,
+        largefilename,
+        largeimg
       )
         .fbStorageMonitorUpload((percent) => {
           notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
@@ -335,10 +402,17 @@ export function AuthProvider({ children }) {
         .fbStorageGetURL();
 
       // update auth profile
-      await updateAuthProfile({ photoURL: url });
-      setFinalUser((user) => user.clone().setPhotoURL(url));
+      await updateAuthProfile({ photoURL: medium });
+      await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+        photoURLs: { small, medium, large },
+      });
+      setFinalUser((user) =>
+        user.clone().setPhotoURL({ small, medium, large })
+      );
+
       notify("Profile photo updated successfully", "success");
-      return url;
+
+      return medium;
     },
     [finalUser.uid, notify]
   );
