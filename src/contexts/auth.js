@@ -260,6 +260,11 @@ export class User {
  * @returns {Promise<UploadedImage>}
  */
 async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
+  function notifyProgress(smallPercent, mediumPercent, largePercent) {
+    const combinedPercent = (smallPercent + mediumPercent + largePercent) / 3;
+    notify(`Uploading: ${combinedPercent.toFixed(2)}% completed`, "info");
+  }
+
   /* --------------------- SMALL PHOTO --------------------- */
   const smallfilename = fbStorageModFilename(
     uid,
@@ -272,9 +277,7 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     image.type
   );
   const small = await fbStorageUpload(path, smallfilename, smallimg)
-    .fbStorageMonitorUpload((percent) => {
-      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
-    })
+    .fbStorageMonitorUpload((percent) => notifyProgress(percent, 0, 0))
     .fbStorageGetURL();
 
   /* --------------------- MEDIUM PHOTO --------------------- */
@@ -289,9 +292,7 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     image.type
   );
   const medium = await fbStorageUpload(path, medfilename, mediumimg)
-    .fbStorageMonitorUpload((percent) => {
-      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
-    })
+    .fbStorageMonitorUpload((percent) => notifyProgress(100, percent, 0))
     .fbStorageGetURL();
 
   /* --------------------- LARGE PHOTO --------------------- */
@@ -306,9 +307,7 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     image.type
   );
   const large = await fbStorageUpload(path, largefilename, largeimg)
-    .fbStorageMonitorUpload((percent) => {
-      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
-    })
+    .fbStorageMonitorUpload((percent) => notifyProgress(100, 100, percent))
     .fbStorageGetURL();
 
   return new UploadedImage(uid, small, medium, large);
