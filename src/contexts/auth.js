@@ -12,10 +12,7 @@ import {
   updateProfile as updateAuthProfile,
 } from "../modules/firebase/auth.js";
 import { fbRtdbUpdate, onDbContentChange } from "../modules/firebase/db.js";
-import {
-  fbStorageModFilename,
-  fbStorageUpload,
-} from "../modules/firebase/storage.js";
+import { fbStorageUpload } from "../modules/firebase/storage.js";
 import { isEmpty } from "../modules/util/validations.js";
 import { resizeImage } from "../modules/util/dataConversion.js";
 import useNotification from "../hooks/notification.js";
@@ -253,15 +250,22 @@ export class User {
 
 /**
  * Creates 3 sizes of the given image and uploads them to Firebase Storage.
- * Stores file at ${subStorgPath}/${uid}/${pathModifiers}/${width}/${height}.
  * @param {string} uid
- * @param {StoragePaths} subStorgPath
- * @param {string} pathModifiers
+ * @param {string} smallpath
+ * @param {string} mediumpath
+ * @param {string} largepath
  * @param {File} image
  * @param {FnNotifier} notify
  * @returns {Promise<UploadedImage>}
  */
-async function uploadThreeSizesFromOneImage(uid, subStorgPath, pathModifiers, image, notify) {
+async function uploadThreeSizesFromOneImage(
+  uid,
+  smallpath,
+  mediumpath,
+  largepath,
+  image,
+  notify
+) {
   /**
    * Notify the user of the progress of uploading the images.
    * The progress is calculated as the average of the progress of each image.
@@ -275,50 +279,32 @@ async function uploadThreeSizesFromOneImage(uid, subStorgPath, pathModifiers, im
   }
 
   /* --------------------- SMALL PHOTO --------------------- */
-  const smallfilename = fbStorageModFilename(
-    uid,
-    pathModifiers,
-    UploadedImage.Sizes.SMALL.toString(),
-    UploadedImage.Sizes.SMALL.toString()
-  );
   const smallimg = await resizeImage(
     image,
     { w: UploadedImage.Sizes.SMALL },
     image.type
   );
-  const small = await fbStorageUpload(subStorgPath, smallfilename, smallimg)
+  const small = await fbStorageUpload(smallpath, smallimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(percent, 0, 0))
     .fbStorageGetURL();
 
   /* --------------------- MEDIUM PHOTO --------------------- */
-  const medfilename = fbStorageModFilename(
-    uid,
-    pathModifiers,
-    UploadedImage.Sizes.MEDIUM.toString(),
-    UploadedImage.Sizes.MEDIUM.toString()
-  );
   const mediumimg = await resizeImage(
     image,
     { w: UploadedImage.Sizes.MEDIUM },
     image.type
   );
-  const medium = await fbStorageUpload(subStorgPath, medfilename, mediumimg)
+  const medium = await fbStorageUpload(mediumpath, mediumimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(100, percent, 0))
     .fbStorageGetURL();
 
   /* --------------------- LARGE PHOTO --------------------- */
-  const largefilename = fbStorageModFilename(
-    uid,
-    pathModifiers,
-    UploadedImage.Sizes.LARGE.toString(),
-    UploadedImage.Sizes.LARGE.toString()
-  );
   const largeimg = await resizeImage(
     image,
     { w: UploadedImage.Sizes.LARGE },
     image.type
   );
-  const large = await fbStorageUpload(subStorgPath, largefilename, largeimg)
+  const large = await fbStorageUpload(largepath, largeimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(100, 100, percent))
     .fbStorageGetURL();
 
@@ -427,8 +413,7 @@ export function AuthProvider({ children }) {
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
     const unsubscribe = onDbContentChange(
-      RtDbPaths.IDENTITY,
-      `${finalUser.uid}/`,
+      RtDbPaths.Identity(finalUser.uid),
       (data) => {
         console.log(`${MODULE_NAME}::onDbContentChange: new data =`, data);
 
@@ -473,7 +458,7 @@ export function AuthProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, { type })
+      fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), { type })
         .then(() => setFinalUser((user) => user.clone().setType(type)))
         .then(() => notify("Profile type updated successfully", "success")),
     [finalUser.uid, notify]
@@ -486,18 +471,34 @@ export function AuthProvider({ children }) {
      */
     async (image) => {
       const uploadedImages = await uploadThreeSizesFromOneImage(
-        finalUser.uid,                // store aginst uid
-        StoragePaths.PROFILE_PHOTOS,  // sub storage path
-        "",                           // path modifier / params for security
-        image,                        // the file itself
-        notify                        // notify callback
+        finalUser.uid,
+
+        // three paths for upload
+        StoragePaths.ProfilePhotos(
+          finalUser.uid,
+          UploadedImage.Sizes.SMALL,
+          UploadedImage.Sizes.SMALL
+        ),
+        StoragePaths.ProfilePhotos(
+          finalUser.uid,
+          UploadedImage.Sizes.MEDIUM,
+          UploadedImage.Sizes.MEDIUM
+        ),
+        StoragePaths.ProfilePhotos(
+          finalUser.uid,
+          UploadedImage.Sizes.LARGE,
+          UploadedImage.Sizes.LARGE
+        ),
+
+        image, // the file itself
+        notify // notify callback
       );
 
       const { small, medium, large } = uploadedImages;
 
       // update auth profile
       await updateAuthProfile({ photoURL: medium });
-      await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+      await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
         profilePhotos: { small, medium, large },
       });
 
@@ -525,15 +526,37 @@ export function AuthProvider({ children }) {
       // upload id
       if (workId) {
         uploadedWorkId = await uploadThreeSizesFromOneImage(
-          finalUser.uid,                      // store against UID
-          StoragePaths.IDENTITY_DOCUMENTS,    // sub storage path
-          `${privacyCode}/WORK_ID`,           // path modifers or params for security
-          workId,                             // the file itself
-          notify                              // notify callback
+          finalUser.uid,
+
+          // three paths for upload
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "WORK_ID",
+            UploadedImage.Sizes.SMALL,
+            UploadedImage.Sizes.SMALL
+          ),
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "WORK_ID",
+            UploadedImage.Sizes.MEDIUM,
+            UploadedImage.Sizes.MEDIUM
+          ),
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "WORK_ID",
+            UploadedImage.Sizes.LARGE,
+            UploadedImage.Sizes.LARGE
+          ),
+
+          workId, // the file itself
+          notify // notify callback
         );
 
         const { small, medium, large } = uploadedWorkId;
-        await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+        await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
           identityPhotos: { workId: { small, medium, large } },
         });
 
@@ -546,14 +569,36 @@ export function AuthProvider({ children }) {
       if (govId) {
         uploadedGovId = await uploadThreeSizesFromOneImage(
           finalUser.uid,
-          StoragePaths.IDENTITY_DOCUMENTS,
-          `${privacyCode}/GOV_ID`,
+
+          // three paths for upload
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "GOV_ID",
+            UploadedImage.Sizes.SMALL,
+            UploadedImage.Sizes.SMALL
+          ),
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "GOV_ID",
+            UploadedImage.Sizes.MEDIUM,
+            UploadedImage.Sizes.MEDIUM
+          ),
+          StoragePaths.IdentityDocuments(
+            finalUser.uid,
+            privacyCode,
+            "GOV_ID",
+            UploadedImage.Sizes.LARGE,
+            UploadedImage.Sizes.LARGE
+          ),
+
           govId,
           notify
         );
 
         const { small, medium, large } = uploadedGovId;
-        await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+        await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
           identityPhotos: { govId: { small, medium, large } },
         });
 
