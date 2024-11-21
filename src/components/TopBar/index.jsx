@@ -200,7 +200,9 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
           >
             {ActionParams.UPDATE_PROFILE_PHOTO}
-            <MarkOfIncompletion isIncomplete={isEmpty(auth.user.profilePhotos)} />
+            <MarkOfIncompletion
+              isIncomplete={isEmpty(auth.user.profilePhotos)}
+            />
           </div>
           {/* Update ID Documents */}
           <div

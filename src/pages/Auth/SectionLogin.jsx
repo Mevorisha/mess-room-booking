@@ -58,7 +58,12 @@ export default function LoginSection({ setShowSection }) {
         Reset password
       </span>
       <div className="submit-container">
-        <ButtonText title="Log In" rounded="all" width="50%" kind={buttonKind} />
+        <ButtonText
+          title="Log In"
+          rounded="all"
+          width="50%"
+          kind={buttonKind}
+        />
       </div>
     </form>
   );
