@@ -6,7 +6,9 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
+
+    // ------------------------------- PREVIEW RULES ------------------------------------
+
     // Production rules
     match /storg_ProfilePhotos/{uid}/{w}/{h} {
       allow read: if request.auth != null;                                // Anyone logged in can read
@@ -17,42 +19,70 @@ service firebase.storage {
                        (w == '500' && h == '500'));                       // User can write their own profile photo
     }
 
-    match /storg_MessPhotos/{uid} {
+    // The `code` param is an unique identifier for the image
+    match /storg_MessPhotos/{uid}/{code} {
       allow read: if request.auth != null;                                // Anyone logged in can read
       allow write: if request.auth != null && request.auth.uid == uid;    // User can write their own mess photos
     }
 
-    match /storg_IdentityDocuments/{uid} {
-      // Only the user themselves can read/write their documents
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-
-      // Validate specific fields if needed (add custom validation here if applicable)
+    // The `code` param is set to "PUBLIC" if document is set public in app, else it
+    // is an unique identifier that can be known only to the user, who can share it
+    // with someone through the app when needed
+    //
+    // The `type` is either "WORK_ID" or "GOV_ID"
+    match /storg_IdentityDocuments/{uid}/{code}/{type}/{w}/{h} {
+      allow read: if request.auth != null
+                  && (type == "WORK_ID" || type == "GOV_ID");             // Anyone logged in can read
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && (type == "WORK_ID" || type == "GOV_ID")
+                   && ((w == '30' && h == '30') ||
+                       (w == '90' && h == '90') ||
+                       (w == '500' && h == '500'));                       // Only the user themselves can write their documents
     }
 
-    match /storg_FeedbackPhotos/{uid} {
+    // The `code` param is an unique identifier for the image
+    match /storg_FeedbackPhotos/{uid}/{code} {
       allow read: if false;                                               // No one can read feedback photos
       allow write: if request.auth != null;                               // Anyone logged in can write feedback photos
     }
 
+    // ------------------------------- PREVIEW RULES ------------------------------------
+
     // Preview rules
-    match /preview_storg_ProfilePhotos/{uid} {
+    match /preview_storg_ProfilePhotos/{uid}/{w}/{h} {
       allow read: if request.auth != null;                                // Anyone logged in can read
-      allow write: if request.auth != null && request.auth.uid == uid;    // User can write their own profile photo
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && ((w == '30' && h == '30') ||
+                       (w == '90' && h == '90') ||
+                       (w == '500' && h == '500'));                       // User can write their own profile photo
     }
 
-    match /preview_storg_MessPhotos/{uid} {
+    // The `code` param is an unique identifier for the image
+    match /preview_storg_MessPhotos/{uid}/{code} {
       allow read: if request.auth != null;                                // Anyone logged in can read
       allow write: if request.auth != null && request.auth.uid == uid;    // User can write their own mess photos
     }
 
-    match /preview_storg_IdentityDocuments/{uid} {
-      // Only the user themselves can read/write their documents
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-
-      // Validate specific fields if needed (add custom validation here if applicable)
+    // The `code` param is set to "PUBLIC" if document is set public in app, else it
+    // is an unique identifier that can be known only to the user, who can share it
+    // with someone through the app when needed
+    //
+    // The `type` is either "WORK_ID" or "GOV_ID"
+    match /preview_storg_IdentityDocuments/{uid}/{code}/{type}/{w}/{h} {
+      allow read: if request.auth != null
+                  && (type == "WORK_ID" || type == "GOV_ID");             // Anyone logged in can read
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && (type == "WORK_ID" || type == "GOV_ID")
+                   && ((w == '30' && h == '30') ||
+                       (w == '90' && h == '90') ||
+                       (w == '500' && h == '500'));                       // Only the user themselves can write their documents
     }
 
-    match /preview_storg_FeedbackPhotos/{uid} {
+    // The `code` param is an unique identifier for the image
+    match /preview_storg_FeedbackPhotos/{uid}/{code} {
       allow read: if false;                                               // No one can read feedback photos
       allow write: if request.auth != null;                               // Anyone logged in can write feedback photos
     }
