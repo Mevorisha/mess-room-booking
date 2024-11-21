@@ -14,7 +14,7 @@ async function logInfo(operation, descrip, code = "code_unknown") {
   console.log(`I: ${uid}: ${operation}: ${code}: ${descrip}`);
   try {
     const timestamp = new Date().toUTCString();
-    const logRef = fbRtdbGetRef(RtDbPaths.LOGS, timestamp);
+    const logRef = fbRtdbGetRef(RtDbPaths.Logs(), timestamp);
     await set(logRef, `I: ${uid}: ${operation}: ${code}: ${descrip}`);
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));
@@ -31,7 +31,7 @@ async function logError(operation, descrip, code = "code_unknown") {
   console.error(`I: ${uid}: ${operation}: ${code}: ${descrip}`);
   try {
     const timestamp = new Date().toUTCString();
-    const logRef = fbRtdbGetRef(RtDbPaths.LOGS, timestamp);
+    const logRef = fbRtdbGetRef(RtDbPaths.Logs(), timestamp);
     await set(logRef, `E: ${uid}: ${operation}: ${code}: ${descrip}`);
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));

@@ -133,8 +133,7 @@ function loadFileFromFilePicker(accept, size) {
 
 /**
  * Upload a file to Firebase Storage
- * @param {import("./init.js").StoragePaths} path - Path in the storage bucket to upload the file
- * @param {string} filename - Name of the file
+ * @param {string} path - Path in the storage bucket to upload the file
  * @param {File} file - File to upload
  * @returns {FbStorageTransferTask} - URL of the uploaded file
  *
@@ -142,35 +141,11 @@ function loadFileFromFilePicker(accept, size) {
  *       resolved when the upload is completed. For this reason, UploadTask MUST
  *       NOT be wrapped in a Promise.
  */
-function fbStorageUpload(path, filename, file) {
-  const storageRef = fbStorageGetRef(path, filename);
+function fbStorageUpload(path, file) {
+  const storageRef = fbStorageGetRef(path);
   return FbStorageTransferTask.wrap(
     uploadBytesResumable(storageRef, file, { contentType: file.type })
   );
-}
-
-/**
- * Modify the path of a file in Firebase Storage
- * @param {...string} modifiers - Modifiers to add to the path
- * @returns {string} - Modified path
- */
-function fbStorageModFilename(...modifiers) {
-  const modifiers_ = modifiers.filter((f) => f && f.length > 0);
-  return Array.from(modifiers_).join("/");
-}
-
-/**
- * Modify the URL of a file in Firebase Storage with parameters
- * @param {string} url - URL of the file to modify
- * @param {{ maxWidth?: number, maxHeight?: number }} params - Parameters to modify the URL with
- * @returns {string} - Modified URL
- */
-function fbStorageModURL(url, { maxWidth, maxHeight }) {
-  if (!url) return "";
-  const modURL = new URL(url);
-  if (maxWidth) modURL.searchParams.set("w", maxWidth.toString());
-  if (maxHeight) modURL.searchParams.set("h", maxHeight.toString());
-  return modURL.toString();
 }
 
 /**
@@ -192,8 +167,7 @@ async function fbStorageDownload(url) {
 
 /**
  * Replace a file in Firebase Storage
- * @param {import("./init.js").StoragePaths} path - Path in the storage bucket to replace the file
- * @param {string} filename - Name of the file
+ * @param {string} path - Path in the storage bucket to replace the file
  * @param {File} file - File to replace
  * @returns {FbStorageTransferTask} - Firebase upload task
  *
@@ -201,8 +175,8 @@ async function fbStorageDownload(url) {
  *       resolved when the upload is completed. For this reason, UploadTask MUST
  *       NOT be wrapped in a Promise.
  */
-function fbStorageUpdate(path, filename, file) {
-  const storageRef = fbStorageGetRef(path, filename);
+function fbStorageUpdate(path, file) {
+  const storageRef = fbStorageGetRef(path);
   return FbStorageTransferTask.wrap(
     uploadBytesResumable(storageRef, file, { contentType: file.type })
   );
@@ -210,13 +184,12 @@ function fbStorageUpdate(path, filename, file) {
 
 /**
  * Delete a file from Firebase Storage
- * @param {import("./init.js").StoragePaths} path - Path in the storage bucket to delete the file
- * @param {string} filename - Name of the file
+ * @param {string} path - Path in the storage bucket to delete the file
  * @returns {Promise<void>}
  */
-async function fbStorageDelete(path, filename) {
+async function fbStorageDelete(path) {
   try {
-    const storageRef = fbStorageGetRef(path, filename);
+    const storageRef = fbStorageGetRef(path);
     await deleteObject(storageRef);
     return Promise.resolve();
   } catch (error) {
@@ -228,8 +201,6 @@ async function fbStorageDelete(path, filename) {
 
 export {
   FbStorageTransferTask as FbStorageUploadTask,
-  fbStorageModURL,
-  fbStorageModFilename,
   loadFileFromFilePicker,
   fbStorageUpload,
   fbStorageDownload,
