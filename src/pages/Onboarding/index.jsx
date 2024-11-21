@@ -31,6 +31,8 @@ export default function Onboarding() {
         return <SetMobileNumber />;
       case ActionParams.UPDATE_PROFILE_PHOTO:
         return <SetProfilePhoto />;
+      case ActionParams.UPDATE_ID_DOCS:
+        return <SetIdentityDocs />;
       default:
         return <PageNotFound />;
     }
