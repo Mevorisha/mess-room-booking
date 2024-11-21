@@ -435,11 +435,11 @@ export function AuthProvider({ children }) {
                 data.profilePhotos.large
               )
             );
-          /* following are not updated here as these are set by onAuthStateChanged */
-          // if (data.photoURL) newUser.photoURL = data.photoURL;
-          // if (data.mobile) newUser.mobile = data.mobile;
-          // if (data.firstName) newUser.firstName = data.firstName;
-          // if (data.lastName) newUser.lastName = data.lastName;
+          if (!isEmpty(data.identityPhotos))
+            newUser.setIdentityPhotos({
+              workId: data.identityPhotos.workId,
+              govId: data.identityPhotos.govId,
+            });
           return newUser;
         });
 
@@ -474,21 +474,9 @@ export function AuthProvider({ children }) {
         finalUser.uid,
 
         // three paths for upload
-        StoragePaths.ProfilePhotos(
-          finalUser.uid,
-          UploadedImage.Sizes.SMALL,
-          UploadedImage.Sizes.SMALL
-        ),
-        StoragePaths.ProfilePhotos(
-          finalUser.uid,
-          UploadedImage.Sizes.MEDIUM,
-          UploadedImage.Sizes.MEDIUM
-        ),
-        StoragePaths.ProfilePhotos(
-          finalUser.uid,
-          UploadedImage.Sizes.LARGE,
-          UploadedImage.Sizes.LARGE
-        ),
+        StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
+        StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
+        StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
 
         image, // the file itself
         notify // notify callback
@@ -529,27 +517,9 @@ export function AuthProvider({ children }) {
           finalUser.uid,
 
           // three paths for upload
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "WORK_ID",
-            UploadedImage.Sizes.SMALL,
-            UploadedImage.Sizes.SMALL
-          ),
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "WORK_ID",
-            UploadedImage.Sizes.MEDIUM,
-            UploadedImage.Sizes.MEDIUM
-          ),
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "WORK_ID",
-            UploadedImage.Sizes.LARGE,
-            UploadedImage.Sizes.LARGE
-          ),
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
 
           workId, // the file itself
           notify // notify callback
@@ -571,27 +541,9 @@ export function AuthProvider({ children }) {
           finalUser.uid,
 
           // three paths for upload
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "GOV_ID",
-            UploadedImage.Sizes.SMALL,
-            UploadedImage.Sizes.SMALL
-          ),
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "GOV_ID",
-            UploadedImage.Sizes.MEDIUM,
-            UploadedImage.Sizes.MEDIUM
-          ),
-          StoragePaths.IdentityDocuments(
-            finalUser.uid,
-            privacyCode,
-            "GOV_ID",
-            UploadedImage.Sizes.LARGE,
-            UploadedImage.Sizes.LARGE
-          ),
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, privacyCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
 
           govId,
           notify
