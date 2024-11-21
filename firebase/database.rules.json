@@ -3,20 +3,6 @@
     // ---------------------------------- PRODUCTION DATABASE ----------------------------------
 
     // production
-    "db_ProviderProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-
-    "db_TenantProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-
     "db_Identity": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
@@ -82,13 +68,6 @@
       ".write": "auth != null" 											  // Anyone logged in can write
     },
 
-    "db_Notification": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their notifications
-        ".write": "auth != null"                      // Anyone logged in can write notifications
-      }
-    },
-
     "db_Actions": {
       // An action is some task a sender sends to the receiver
       // The action is executed at the front end by a handler fn
@@ -120,20 +99,6 @@
     // ----------------------------------------- PREVIEW DATABASE -----------------------------------------
 
     // preview
-    "preview_db_ProviderProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-
-    "preview_db_TenantProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-
     "preview_db_Identity": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
@@ -197,13 +162,6 @@
     "preview_db_Feedback": {
       ".read": "false",         											// No one can read
       ".write": "auth != null" 											  // Anyone logged in can write
-    },
-
-    "preview_db_Notification": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their notifications
-        ".write": "auth != null"                      // Anyone logged in can write notifications
-      }
     },
 
     "preview_db_Actions": {
