@@ -38,7 +38,7 @@ export default function SetProfilePhoto() {
 
   // state
   const [photoURL, setPhotoURL] = useState(
-    auth.user.photoURLs?.medium || dpGeneric
+    auth.user.profilePhotos?.medium || dpGeneric
   );
 
   const [buttonKind, setButtonKind] = useState(
@@ -68,10 +68,10 @@ export default function SetProfilePhoto() {
   }
 
   function handleShowLargeImage() {
-    if (!auth.user.photoURLs?.large) return;
+    if (!auth.user.profilePhotos?.large) return;
 
     dialog.show(
-      <DialogContent largeImageUrl={auth.user.photoURLs?.large} />,
+      <DialogContent largeImageUrl={auth.user.profilePhotos?.large} />,
       "large"
     );
   }

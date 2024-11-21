@@ -20,16 +20,16 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
   let text = "Profile Incomplete!";
 
   if (
-    isEmpty(auth.user.photoURLs) &&
+    isEmpty(auth.user.profilePhotos) &&
     (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
   )
     text = "Profile Incomplete!";
-  else if (isEmpty(auth.user.photoURLs)) text = "Add Profile Photo!";
+  else if (isEmpty(auth.user.profilePhotos)) text = "Add Profile Photo!";
   else if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
     text = "Add Display Name!";
 
   if (
-    isEmpty(auth.user.photoURLs) ||
+    isEmpty(auth.user.profilePhotos) ||
     isEmpty(auth.user.firstName) ||
     isEmpty(auth.user.lastName)
   )
@@ -54,7 +54,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
       </span>
       <img
         className="profile-image"
-        src={auth.user.photoURLs?.small || ""}
+        src={auth.user.profilePhotos?.small || ""}
         alt="profile"
       />
     </span>
@@ -200,7 +200,7 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
           >
             {ActionParams.UPDATE_PROFILE_PHOTO}
-            <MarkOfIncompletion isIncomplete={isEmpty(auth.user.photoURLs)} />
+            <MarkOfIncompletion isIncomplete={isEmpty(auth.user.profilePhotos)} />
           </div>
           {/* Update ID Documents */}
           <div
