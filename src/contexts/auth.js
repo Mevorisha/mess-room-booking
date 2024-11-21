@@ -24,11 +24,11 @@ const MODULE_NAME = "contexts/auth.js";
 
 /* -------------------------------------- CONSTANTS ----------------------------------- */
 
-export const PROFILE_PHOTO_SIZES = {
-  small: { w: 30, h: 30 },
-  medium: { w: 90, h: 90 },
-  large: { w: 500, h: 500 },
-};
+/* -------------------------------------- TYPEDEFS ----------------------------------- */
+
+/**
+ * @typedef {(message: string, kind: "info" | "success" | "warning" | "error") => void} FnNotifier
+ */
 
 /* -------------------------------------- ENUMS ----------------------------------- */
 
@@ -41,16 +41,51 @@ export const AuthStateEnum = {
   LOGGED_IN: /**     @type {"LOGGED_IN"}     */ ("LOGGED_IN"),
 };
 
+/* ----------------------------- UPLOADED IMAGE CLASS w/ SIZES ------------------------- */
+
 /**
- * @enum {"type" | "photoURL" | "mobile" | "firstName" | "lastName"}
+ * @class
  */
-export const UserDetailsEnum = {
-  type: /**      @type {"type"}      */ ("type"),
-  photoURL: /**  @type {"photoURL"}  */ ("photoURL"),
-  mobile: /**    @type {"mobile"}    */ ("mobile"),
-  firstName: /** @type {"firstName"} */ ("firstName"),
-  lastName: /**  @type {"lastName"}  */ ("lastName"),
-};
+export class UploadedImage {
+  /**
+   * @param {string} filename
+   * @param {string} smallImageURL
+   * @param {string} mediumImageURL
+   * @param {string} largeImageURL
+   */
+  constructor(filename, smallImageURL, mediumImageURL, largeImageURL) {
+    this.filename = filename;
+    this.small = smallImageURL;
+    this.medium = mediumImageURL;
+    this.large = largeImageURL;
+  }
+
+  /** @returns {UploadedImage} */
+  clone() {
+    return new UploadedImage(
+      this.filename,
+      this.small,
+      this.medium,
+      this.large
+    );
+  }
+
+  /** @enum {30 | 90 | 500} */
+  static Sizes = {
+    SMALL: /**  @type {30}  */ (30),
+    MEDIUM: /** @type {90}  */ (90),
+    LARGE: /**  @type {500} */ (500),
+  };
+
+  toString() {
+    return JSON.stringify({
+      filename: this.filename,
+      small: this.small,
+      medium: this.medium,
+      large: this.large,
+    });
+  }
+}
 
 /* -------------------------------------- USER CLASS ----------------------------------- */
 
@@ -190,6 +225,71 @@ export class User {
   }
 }
 
+/* ---------------------------------- UTILS ----------------------------------- */
+
+/**
+ * Creates 3 sizes of the given image and uploads them to Firebase Storage
+ * @param {string} uid
+ * @param {StoragePaths} path
+ * @param {File} image
+ * @param {FnNotifier} notify
+ * @returns {Promise<UploadedImage>}
+ */
+async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
+  /* --------------------- SMALL PHOTO --------------------- */
+  const smallfilename = fbStorageModFilename(
+    uid,
+    UploadedImage.Sizes.SMALL.toString(),
+    UploadedImage.Sizes.SMALL.toString()
+  );
+  const smallimg = await resizeImage(
+    image,
+    { w: UploadedImage.Sizes.SMALL },
+    image.type
+  );
+  const small = await fbStorageUpload(path, smallfilename, smallimg)
+    .fbStorageMonitorUpload((percent) => {
+      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
+    })
+    .fbStorageGetURL();
+
+  /* --------------------- MEDIUM PHOTO --------------------- */
+  const medfilename = fbStorageModFilename(
+    uid,
+    UploadedImage.Sizes.MEDIUM.toString(),
+    UploadedImage.Sizes.MEDIUM.toString()
+  );
+  const mediumimg = await resizeImage(
+    image,
+    { w: UploadedImage.Sizes.MEDIUM },
+    image.type
+  );
+  const medium = await fbStorageUpload(path, medfilename, mediumimg)
+    .fbStorageMonitorUpload((percent) => {
+      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
+    })
+    .fbStorageGetURL();
+
+  /* --------------------- LARGE PHOTO --------------------- */
+  const largefilename = fbStorageModFilename(
+    uid,
+    UploadedImage.Sizes.LARGE.toString(),
+    UploadedImage.Sizes.LARGE.toString()
+  );
+  const largeimg = await resizeImage(
+    image,
+    { w: UploadedImage.Sizes.LARGE },
+    image.type
+  );
+  const large = await fbStorageUpload(path, largefilename, largeimg)
+    .fbStorageMonitorUpload((percent) => {
+      notify(`Uploading: ${percent.toFixed(2)}% completed`, "info");
+    })
+    .fbStorageGetURL();
+
+  return new UploadedImage(uid, small, medium, large);
+}
+
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
 /**
@@ -303,7 +403,8 @@ export function AuthProvider({ children }) {
         setFinalUser(() => {
           const newUser = User.loadCurrentUser();
           if (!isEmpty(data.type)) newUser.setType(data.type);
-          if (!isEmpty(data.photoURLs)) newUser.setPhotoURL(data.photoURLs);
+          if (!isEmpty(data.profilePhotos))
+            newUser.setProfilePhotos(data.profilePhotos);
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
@@ -339,81 +440,22 @@ export function AuthProvider({ children }) {
      * @returns {Promise<string>}
      */
     async (image) => {
-      /* --------------------- SMALL PHOTO --------------------- */
-      const smallfilename = fbStorageModFilename(
+      const uploadedImages = await uploadThreeSizesFromOneImage(
         finalUser.uid,
-        PROFILE_PHOTO_SIZES.small.w.toString(),
-        PROFILE_PHOTO_SIZES.small.h.toString()
-      );
-      const smallimg = await resizeImageBlob(
-        image,
-        PROFILE_PHOTO_SIZES.small.w,
-        PROFILE_PHOTO_SIZES.small.h,
-        image.type
-      );
-      const small = await fbStorageUpload(
         StoragePaths.PROFILE_PHOTOS,
-        smallfilename,
-        smallimg
-      )
-        .fbStorageMonitorUpload((percent) => {
-          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
-        })
-        .fbStorageGetURL();
+        image,
+        notify
+      );
 
-      /* --------------------- MEDIUM PHOTO --------------------- */
-      const medfilename = fbStorageModFilename(
-        finalUser.uid,
-        PROFILE_PHOTO_SIZES.medium.w.toString(),
-        PROFILE_PHOTO_SIZES.medium.h.toString()
-      );
-      const mediumimg = await resizeImageBlob(
-        image,
-        PROFILE_PHOTO_SIZES.medium.w,
-        PROFILE_PHOTO_SIZES.medium.h,
-        image.type
-      );
-      const medium = await fbStorageUpload(
-        StoragePaths.PROFILE_PHOTOS,
-        medfilename,
-        mediumimg
-      )
-        .fbStorageMonitorUpload((percent) => {
-          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
-        })
-        .fbStorageGetURL();
-
-      /* --------------------- LARGE PHOTO --------------------- */
-      const largefilename = fbStorageModFilename(
-        finalUser.uid,
-        PROFILE_PHOTO_SIZES.large.w.toString(),
-        PROFILE_PHOTO_SIZES.large.h.toString()
-      );
-      const largeimg = await resizeImageBlob(
-        image,
-        PROFILE_PHOTO_SIZES.large.w,
-        PROFILE_PHOTO_SIZES.large.h,
-        image.type
-      );
-      const large = await fbStorageUpload(
-        StoragePaths.PROFILE_PHOTOS,
-        largefilename,
-        largeimg
-      )
-        .fbStorageMonitorUpload((percent) => {
-          notify(`Uploading profile photo... ${percent.toFixed(2)}%`, "info");
-        })
-        .fbStorageGetURL();
+      const { small, medium, large } = uploadedImages;
 
       // update auth profile
       await updateAuthProfile({ photoURL: medium });
       await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
-        photoURLs: { small, medium, large },
+        profilePhotos: { small, medium, large },
       });
-      setFinalUser((user) =>
-        user.clone().setPhotoURL({ small, medium, large })
-      );
 
+      setFinalUser((user) => user.clone().setProfilePhotos(uploadedImages));
       notify("Profile photo updated successfully", "success");
 
       return medium;
@@ -439,7 +481,8 @@ export function AuthProvider({ children }) {
   );
 
   const sendPhoneVerificationCode = useCallback(
-    /** @param {string} number
+    /**
+     * @param {string} number
      * @returns {Promise<void>}
      */
     async (number) =>
