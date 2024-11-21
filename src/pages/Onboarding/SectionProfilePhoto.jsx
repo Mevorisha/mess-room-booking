@@ -63,7 +63,7 @@ export default function SetProfilePhoto() {
       .then(() => navigate(PageUrls.HOME))
       .catch((e) => {
         setButtonKind("primary");
-        notify(e.toString(), "error");
+        notify(e, "error");
       });
   }
 

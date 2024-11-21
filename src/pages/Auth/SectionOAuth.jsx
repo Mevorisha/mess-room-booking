@@ -9,9 +9,7 @@ export default function OAuthSection() {
     <div className="oauth-container">
       <div
         className="oauth-button"
-        onClick={() =>
-          GoogleAuth.login().catch((e) => notify(e.toString(), "error"))
-        }
+        onClick={() => GoogleAuth.login().catch((e) => notify(e, "error"))}
       >
         <img
           style={{

@@ -120,12 +120,12 @@ export default function TopBar({ children }) {
         break;
       // reset password action
       case ActionParams.RESET_PASSWORD:
-        auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
+        auth.requestPasswordReset().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // log out action
       case ActionParams.LOGOUT:
-        auth.logOut().catch((e) => notify(e.toString(), "error"));
+        auth.logOut().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // invalid action

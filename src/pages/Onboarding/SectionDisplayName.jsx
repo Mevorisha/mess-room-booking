@@ -31,7 +31,7 @@ export default function SetDisplayName() {
         .then(() => navigate(PageUrls.HOME))
         .catch((e) => {
           setButtonKind("primary");
-          notify(e.toString(), "error");
+          notify(e, "error");
         });
     else notify("Please enter a valid name", "error");
   }

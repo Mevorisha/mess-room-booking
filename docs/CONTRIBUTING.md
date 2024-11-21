@@ -459,7 +459,7 @@ onAuthStateChanged((user) => setUser(User.from(user)));
 getSomePayload()
   .then((payload) => updateProfile(payload))
   .then(() => setUser(User.updateByPayload(payload)))
-  .catch((e) => notify(e.toString(), "error"));
+  .catch((e) => notify(e, "error"));
 ```
 
 Points to note:

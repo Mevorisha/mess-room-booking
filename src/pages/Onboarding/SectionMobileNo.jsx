@@ -40,7 +40,7 @@ export default function SetMobileNumber() {
         .catch((e) => {
           setAction("Resend OTP");
           setButtonKind("primary");
-          notify(e.toString(), "error");
+          notify(e, "error");
         });
     }
 
@@ -54,7 +54,7 @@ export default function SetMobileNumber() {
         .catch((e) => {
           setAction("Resend OTP");
           setButtonKind("primary");
-          notify(e.toString(), "error");
+          notify(e, "error");
         });
     }
 

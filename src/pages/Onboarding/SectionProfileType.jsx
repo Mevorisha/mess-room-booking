@@ -26,7 +26,7 @@ export default function SetProfileType() {
       .then(() => auth.updateProfileType(type))
       .then(() => setButtonKind({ TENANT: "primary", OWNER: "primary" }))
       .then(() => navigate(PageUrls.HOME))
-      .catch((e) => notify(e.toString(), "error"));
+      .catch((e) => notify(e, "error"));
   }
 
   return (
