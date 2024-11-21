@@ -17,7 +17,7 @@ import {
   fbStorageUpload,
 } from "../modules/firebase/storage.js";
 import { isEmpty } from "../modules/util/validations.js";
-import { resizeImageBlob } from "../modules/util/dataConversion.js";
+import { resizeImage } from "../modules/util/dataConversion.js";
 import useNotification from "../hooks/notification.js";
 
 const MODULE_NAME = "contexts/auth.js";
@@ -91,19 +91,39 @@ export class UploadedImage {
 
 /**
  * @class
- * @property {string} uid
- * @property {string} photoURL
- * @property {string} mobile
- * @property {string} firstName
- * @property {string} lastName
- * @property {"EMPTY" | "TENANT" | "OWNER"} type
- * @method setType
  */
 export class User {
+  /** @type {string} */
+  uid;
+
+  /** @type {string} */
+  mobile;
+
+  /** @type {string} */
+  firstName;
+
+  /** @type {string} */
+  lastName;
+
+  /** @type {UploadedImage | null} */
+  profilePhotos;
+
+  /** @type {{ workId: UploadedImage, govId: UploadedImage } | { workId: UploadedImage } | { govId: UploadedImage } | null} */
+  identityPhotos;
+
+  /** @type {"EMPTY" | "TENANT" | "OWNER"} */
+  type;
+
   /**
    * The type is set to "EMPTY" by default.
    * Type is not included in the constructor because it is not available in Firebase Auth User object.
    * It is to be set using the setType method after the user details are fetched from the database.
+   *
+   * The profilePhotos is set to null by default.
+   * PhotoURLs is not included in the constructor because multiple photo sizes are not available in
+   * Firebase Auth User object. It is to be set using the setPhotoURL method after the user details
+   * are fetched from the database.
+   *
    * @param {string} uid
    * @param {string} mobile
    * @param {string} firstName
@@ -114,11 +134,9 @@ export class User {
     this.mobile = mobile;
     this.firstName = firstName;
     this.lastName = lastName;
-    this.photoURLs =
-      /** @type {{small: string, medium: string, large: string} | null} */ (
-        null
-      );
-    this.type = /** @type {"EMPTY" | "TENANT" | "OWNER"} */ ("EMPTY");
+    this.profilePhotos = null;
+    this.identityPhotos = null;
+    this.type = "EMPTY";
   }
 
   /**
@@ -164,15 +182,12 @@ export class User {
    */
   clone() {
     const user = new User(this.uid, this.mobile, this.firstName, this.lastName);
+
     if (!isEmpty(this.type))
       user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
 
-    if (!isEmpty(this.photoURLs))
-      user.setPhotoURL(
-        /** @type {{small: string, medium: string, large: string}} */ (
-          this.photoURLs
-        )
-      );
+    if (this.profilePhotos) user.setProfilePhotos(this.profilePhotos.clone());
+    if (this.identityPhotos) user.setIdentityPhotos({ ...this.identityPhotos });
 
     return user;
   }
@@ -189,11 +204,20 @@ export class User {
   }
 
   /**
-   * @param {{small: string, medium: string, large: string}} photoURLs
+   * @param {UploadedImage} images
    * @returns {this}
    */
-  setPhotoURL({ small, medium, large }) {
-    this.photoURLs = { small, medium, large };
+  setProfilePhotos(images) {
+    this.profilePhotos = images;
+    return this;
+  }
+
+  /**
+   * @param {{ workId: UploadedImage, govId: UploadedImage } | { workId: UploadedImage } | { govId: UploadedImage }} images
+   * @returns {this}
+   */
+  setIdentityPhotos(images) {
+    this.identityPhotos = images;
     return this;
   }
 
@@ -306,14 +330,16 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
  * @typedef  {Object} AuthContextType
  * @property {AuthStateEnum} state
  * @property {User} user
- * @property {(type: "TENANT" | "OWNER")              => Promise<void>} updateProfileType
- * @property {(image: File)                           => Promise<string>} updateProfilePhoto
- * @property {(firstName: string, lastName: string)   => Promise<void>} updateProfileName
- * @property {(number: string)                        => Promise<void>} sendPhoneVerificationCode
- * @property {(otp: string)                           => Promise<void>} verifyPhoneVerificationCode
- * @property {()                                      => Promise<void>} unlinkPhoneNumber
- * @property {()                                      => Promise<void>} requestPasswordReset
- * @property {()                                      => Promise<void>} logOut
+ * @property {(type: "TENANT" | "OWNER")                     => Promise<void>}     updateProfileType
+ * @property {(image: File)                                  => Promise<string>}   updateProfilePhoto
+ * @property {({ workId, govId }: { workId?: File, govId?: File }) =>
+ *                                   Promise<{ workId?: string, govId?: string }>} updateIdentityPhotos
+ * @property {(firstName: string, lastName: string)          => Promise<void>}     updateProfileName
+ * @property {(number: string)                               => Promise<void>}     sendPhoneVerificationCode
+ * @property {(otp: string)                                  => Promise<void>}     verifyPhoneVerificationCode
+ * @property {()                                             => Promise<void>}     unlinkPhoneNumber
+ * @property {()                                             => Promise<void>}     requestPasswordReset
+ * @property {()                                             => Promise<void>}     logOut
  */
 
 const AuthContext = createContext(
@@ -322,6 +348,7 @@ const AuthContext = createContext(
     user: User.empty(),
     updateProfileType: async () => {},
     updateProfilePhoto: async () => "",
+    updateIdentityPhotos: async () => [],
     updateProfileName: async () => {},
     sendPhoneVerificationCode: async () => {},
     verifyPhoneVerificationCode: async () => {},
@@ -463,6 +490,65 @@ export function AuthProvider({ children }) {
     [finalUser.uid, notify]
   );
 
+  const updateIdentityPhotos = useCallback(
+    /**
+     * @param {{ workId?: File, govId?: File }} images
+     * @returns {Promise<{ workId?: string, govId?: string }>}
+     */
+    async ({ workId, govId }) => {
+      if (!workId && !govId) return { workId: undefined, govId: undefined };
+
+      let uploadedWorkId;
+      let uploadedGovId;
+
+      // upload id
+      if (workId) {
+        uploadedWorkId = await uploadThreeSizesFromOneImage(
+          finalUser.uid,
+          StoragePaths.PROFILE_PHOTOS,
+          workId,
+          notify
+        );
+
+        const { small, medium, large } = uploadedWorkId;
+        await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+          identityPhotos: { workId: { small, medium, large } },
+        });
+
+        setFinalUser((user) =>
+          user.clone().setIdentityPhotos({ workId: uploadedWorkId })
+        );
+      }
+
+      // upload govId
+      if (govId) {
+        uploadedGovId = await uploadThreeSizesFromOneImage(
+          finalUser.uid,
+          StoragePaths.PROFILE_PHOTOS,
+          govId,
+          notify
+        );
+
+        const { small, medium, large } = uploadedGovId;
+        await fbRtdbUpdate(RtDbPaths.IDENTITY, `${finalUser.uid}/`, {
+          identityPhotos: { govId: { small, medium, large } },
+        });
+
+        setFinalUser((user) =>
+          user.clone().setIdentityPhotos({ govId: uploadedGovId })
+        );
+      }
+
+      notify("Document(s) updated successfully", "success");
+
+      return {
+        workId: uploadedWorkId?.medium,
+        govId: uploadedGovId?.medium,
+      };
+    },
+    [finalUser.uid, notify]
+  );
+
   const updateProfileName = useCallback(
     /**
      * @param {string} firstName
@@ -565,6 +651,7 @@ export function AuthProvider({ children }) {
         user: finalUser,
         updateProfileType,
         updateProfilePhoto,
+        updateIdentityPhotos,
         updateProfileName,
         sendPhoneVerificationCode,
         verifyPhoneVerificationCode,
