@@ -5,7 +5,7 @@ import useAuth from "../../hooks/auth.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
-export default function SelectInitialType() {
+export default function SetProfileType() {
   const auth = useAuth();
   const notify = useNotification();
   const navigate = useNavigate();
