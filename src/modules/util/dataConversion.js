@@ -43,8 +43,8 @@ export function resizeImage(
 
       // Get image aspect ratio
       const aspectRatio = img.width / img.height;
-      let resultWidth = 0,
-        resultHeight = 0;
+      let resultWidth = 0;
+      let resultHeight = 0;
 
       // neither width nor height is specified, keep original size
       if (!targetWidth && !targetHeight) {
@@ -55,10 +55,12 @@ export function resizeImage(
       // if width is not specified, but height is, calculate width based on aspect ratio
       else if (!targetWidth && targetHeight) {
         resultWidth = Math.floor(targetHeight * aspectRatio);
+        resultHeight = targetHeight;
       }
 
       // if height is not specified, but width is, calculate height based on aspect ratio
       else if (targetWidth && !targetHeight) {
+        resultWidth = targetWidth;
         resultHeight = Math.floor(targetWidth / aspectRatio);
       }
 
