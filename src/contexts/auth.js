@@ -252,14 +252,23 @@ export class User {
 /* ---------------------------------- UTILS ----------------------------------- */
 
 /**
- * Creates 3 sizes of the given image and uploads them to Firebase Storage
+ * Creates 3 sizes of the given image and uploads them to Firebase Storage.
+ * Stores file at ${subStorgPath}/${uid}/${pathModifiers}/${width}/${height}.
  * @param {string} uid
- * @param {StoragePaths} path
+ * @param {StoragePaths} subStorgPath
+ * @param {string} pathModifiers
  * @param {File} image
  * @param {FnNotifier} notify
  * @returns {Promise<UploadedImage>}
  */
-async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
+async function uploadThreeSizesFromOneImage(uid, subStorgPath, pathModifiers, image, notify) {
+  /**
+   * Notify the user of the progress of uploading the images.
+   * The progress is calculated as the average of the progress of each image.
+   * @param {number} smallPercent - Progress of the small image
+   * @param {number} mediumPercent - Progress of the medium image
+   * @param {number} largePercent - Progress of the large image
+   */
   function notifyProgress(smallPercent, mediumPercent, largePercent) {
     const combinedPercent = (smallPercent + mediumPercent + largePercent) / 3;
     notify(`Uploading: ${combinedPercent.toFixed(2)}% completed`, "info");
@@ -268,6 +277,7 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
   /* --------------------- SMALL PHOTO --------------------- */
   const smallfilename = fbStorageModFilename(
     uid,
+    pathModifiers,
     UploadedImage.Sizes.SMALL.toString(),
     UploadedImage.Sizes.SMALL.toString()
   );
@@ -276,13 +286,14 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     { w: UploadedImage.Sizes.SMALL },
     image.type
   );
-  const small = await fbStorageUpload(path, smallfilename, smallimg)
+  const small = await fbStorageUpload(subStorgPath, smallfilename, smallimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(percent, 0, 0))
     .fbStorageGetURL();
 
   /* --------------------- MEDIUM PHOTO --------------------- */
   const medfilename = fbStorageModFilename(
     uid,
+    pathModifiers,
     UploadedImage.Sizes.MEDIUM.toString(),
     UploadedImage.Sizes.MEDIUM.toString()
   );
@@ -291,13 +302,14 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     { w: UploadedImage.Sizes.MEDIUM },
     image.type
   );
-  const medium = await fbStorageUpload(path, medfilename, mediumimg)
+  const medium = await fbStorageUpload(subStorgPath, medfilename, mediumimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(100, percent, 0))
     .fbStorageGetURL();
 
   /* --------------------- LARGE PHOTO --------------------- */
   const largefilename = fbStorageModFilename(
     uid,
+    pathModifiers,
     UploadedImage.Sizes.LARGE.toString(),
     UploadedImage.Sizes.LARGE.toString()
   );
@@ -306,7 +318,7 @@ async function uploadThreeSizesFromOneImage(uid, path, image, notify) {
     { w: UploadedImage.Sizes.LARGE },
     image.type
   );
-  const large = await fbStorageUpload(path, largefilename, largeimg)
+  const large = await fbStorageUpload(subStorgPath, largefilename, largeimg)
     .fbStorageMonitorUpload((percent) => notifyProgress(100, 100, percent))
     .fbStorageGetURL();
 
@@ -474,10 +486,11 @@ export function AuthProvider({ children }) {
      */
     async (image) => {
       const uploadedImages = await uploadThreeSizesFromOneImage(
-        finalUser.uid,
-        StoragePaths.PROFILE_PHOTOS,
-        image,
-        notify
+        finalUser.uid,                // store aginst uid
+        StoragePaths.PROFILE_PHOTOS,  // sub storage path
+        "",                           // path modifier / params for security
+        image,                        // the file itself
+        notify                        // notify callback
       );
 
       const { small, medium, large } = uploadedImages;
@@ -507,13 +520,16 @@ export function AuthProvider({ children }) {
       let uploadedWorkId;
       let uploadedGovId;
 
+      const privacyCode = Date.now();
+
       // upload id
       if (workId) {
         uploadedWorkId = await uploadThreeSizesFromOneImage(
-          finalUser.uid,
-          StoragePaths.PROFILE_PHOTOS,
-          workId,
-          notify
+          finalUser.uid,                      // store against UID
+          StoragePaths.IDENTITY_DOCUMENTS,    // sub storage path
+          `${privacyCode}/WORK_ID`,           // path modifers or params for security
+          workId,                             // the file itself
+          notify                              // notify callback
         );
 
         const { small, medium, large } = uploadedWorkId;
@@ -530,7 +546,8 @@ export function AuthProvider({ children }) {
       if (govId) {
         uploadedGovId = await uploadThreeSizesFromOneImage(
           finalUser.uid,
-          StoragePaths.PROFILE_PHOTOS,
+          StoragePaths.IDENTITY_DOCUMENTS,
+          `${privacyCode}/GOV_ID`,
           govId,
           notify
         );
