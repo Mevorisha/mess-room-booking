@@ -431,7 +431,14 @@ export function AuthProvider({ children }) {
           const newUser = User.loadCurrentUser();
           if (!isEmpty(data.type)) newUser.setType(data.type);
           if (!isEmpty(data.profilePhotos))
-            newUser.setProfilePhotos(data.profilePhotos);
+            newUser.setProfilePhotos(
+              new UploadedImage(
+                newUser.uid,
+                data.profilePhotos.small,
+                data.profilePhotos.medium,
+                data.profilePhotos.large
+              )
+            );
           /* following are not updated here as these are set by onAuthStateChanged */
           // if (data.photoURL) newUser.photoURL = data.photoURL;
           // if (data.mobile) newUser.mobile = data.mobile;
