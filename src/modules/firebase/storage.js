@@ -151,12 +151,12 @@ function fbStorageUpload(path, filename, file) {
 
 /**
  * Modify the path of a file in Firebase Storage
- * @param {string} filename - Name of the file
  * @param {...string} modifiers - Modifiers to add to the path
  * @returns {string} - Modified path
  */
-function fbStorageModFilename(filename, ...modifiers) {
-  return [filename, ...modifiers].join("/");
+function fbStorageModFilename(...modifiers) {
+  const modifiers_ = modifiers.filter((f) => f && f.length > 0);
+  return Array.from(modifiers_).join("/");
 }
 
 /**
