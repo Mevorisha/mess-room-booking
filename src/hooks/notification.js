@@ -29,6 +29,7 @@ export default function useNotification() {
       /* set message and kind */
       setMessage(message);
       setKind(kind);
+      if (kind === "error") console.error(message);
       /* begin sliding in animation */
       showNotification();
       /* schedules notification to slide out after 5 seconds */
