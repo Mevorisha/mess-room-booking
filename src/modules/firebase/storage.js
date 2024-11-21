@@ -1,7 +1,9 @@
 import { fbStorageGetRef } from "./init";
 import {
   deleteObject,
+  getBytes,
   getDownloadURL,
+  uploadBytes,
   uploadBytesResumable,
 } from "firebase/storage";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages";
@@ -183,6 +185,43 @@ function fbStorageUpdate(path, file) {
 }
 
 /**
+ * Move a file in Firebase Storage
+ * @param {string} path1 - Path in the storage bucket to move the file
+ * @param {string} path2 - Path in the storage bucket to move the file to
+ * @param {boolean} del - Delete the original file
+ * @returns {Promise<string>} - URL of the moved file
+ */
+async function fbStorageMove(path1, path2, del = true) {
+  try {
+    const storageRef1 = fbStorageGetRef(path1);
+    const storageRef2 = fbStorageGetRef(path2);
+    // download the file from storageRef1 and upload it to storageRef2
+    const snapshot = await uploadBytes(
+      storageRef2,
+      await getBytes(storageRef1)
+    );
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    // delete the file from storageRef1
+    if (del) await deleteObject(storageRef1);
+    return Promise.resolve(downloadURL);
+  } catch (error) {
+    const errmsg = getCleanFirebaseErrMsg(error);
+    console.error(error.toString());
+    return Promise.reject(errmsg);
+  }
+}
+
+/**
+ * Copy a file in Firebase Storage
+ * @param {string} path1 - Path in the storage bucket to copy the file
+ * @param {string} path2 - Path in the storage bucket to copy the file to
+ * @returns {Promise<string>} - URL of the copied file
+ */
+async function fbStorageCopy(path1, path2) {
+  return fbStorageMove(path1, path2, false);
+}
+
+/**
  * Delete a file from Firebase Storage
  * @param {string} path - Path in the storage bucket to delete the file
  * @returns {Promise<void>}
@@ -205,5 +244,7 @@ export {
   fbStorageUpload,
   fbStorageDownload,
   fbStorageUpdate,
+  fbStorageMove,
+  fbStorageCopy,
   fbStorageDelete,
 };
