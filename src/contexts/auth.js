@@ -58,12 +58,20 @@ export class UploadedImage {
    * @param {string} smallImageURL
    * @param {string} mediumImageURL
    * @param {string} largeImageURL
+   * @param {"PUBLIC" | number} visibilityCode
    */
-  constructor(filename, smallImageURL, mediumImageURL, largeImageURL) {
+  constructor(
+    filename,
+    smallImageURL,
+    mediumImageURL,
+    largeImageURL,
+    visibilityCode
+  ) {
     this.filename = filename;
     this.small = smallImageURL;
     this.medium = mediumImageURL;
     this.large = largeImageURL;
+    this.visibilityCode = visibilityCode;
   }
 
   /** @returns {UploadedImage} */
@@ -72,7 +80,8 @@ export class UploadedImage {
       this.filename,
       this.small,
       this.medium,
-      this.large
+      this.large,
+      this.visibilityCode
     );
   }
 
@@ -275,6 +284,7 @@ function notifyProgress(smallPercent, mediumPercent, largePercent, notify) {
 /**
  * Creates 3 sizes of the given image and uploads them to Firebase Storage.
  * @param {string} uid
+ * @param {"PUBLIC" | number} visibilityCode
  * @param {string} smallpath
  * @param {string} mediumpath
  * @param {string} largepath
@@ -284,6 +294,7 @@ function notifyProgress(smallPercent, mediumPercent, largePercent, notify) {
  */
 async function uploadThreeSizesFromOneImage(
   uid,
+  visibilityCode,
   smallpath,
   mediumpath,
   largepath,
@@ -320,7 +331,7 @@ async function uploadThreeSizesFromOneImage(
   largeTask.onProgress = (percent) => notifyProgress(0, 0, percent, notify);
   const large = await largeTask.monitor().getDownloadURL();
 
-  return new UploadedImage(uid, small, medium, large);
+  return new UploadedImage(uid, small, medium, large, visibilityCode);
 }
 
 /**
@@ -330,7 +341,7 @@ async function uploadThreeSizesFromOneImage(
  * @param {"WORK_ID" | "GOV_ID"} idType - The type of identity document (work or government ID).
  * @param {"PRIVATE" | "PUBLIC"} visibility - Target visibility.
  * @param {FnNotifier} notify - A callback function to notify the user about the status of the operation.
- * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ * @returns {Promise<UploadedImage | null>} - A promise that resolves when the operation is complete.
  */
 async function updateIdenityPhotosVisibilityGenreic(
   userId,
@@ -357,7 +368,7 @@ async function updateIdenityPhotosVisibilityGenreic(
 
   // if old and new codes are same, no need to move, return as is
   if (oldVisibilityCode === "" + targetVisibilityCode) {
-    return;
+    return null;
   }
 
   const smallTask = fbStorageMove(
@@ -392,7 +403,7 @@ async function updateIdenityPhotosVisibilityGenreic(
   // update RtDb
   await fbRtdbUpdate(RtDbPaths.Identity(userId), {
     identityPhotos: {
-      [`${idKey}}Id`]: {
+      [`${idKey}Id`]: {
         small,
         medium,
         large,
@@ -400,6 +411,11 @@ async function updateIdenityPhotosVisibilityGenreic(
       },
     },
   });
+
+  // return url and visibility code
+  return Promise.resolve(
+    new UploadedImage(userId, small, medium, large, targetVisibilityCode)
+  );
 }
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
@@ -537,7 +553,8 @@ export function AuthProvider({ children }) {
                 newUser.uid,
                 data.profilePhotos.small,
                 data.profilePhotos.medium,
-                data.profilePhotos.large
+                data.profilePhotos.large,
+                "PUBLIC"
               )
             );
           if (!isEmpty(data.identityPhotos))
@@ -583,6 +600,7 @@ export function AuthProvider({ children }) {
 
       const uploadedImages = await uploadThreeSizesFromOneImage(
         finalUser.uid,
+        "PUBLIC",
 
         // three paths for upload
         StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
@@ -644,6 +662,7 @@ export function AuthProvider({ children }) {
 
         uploadedWorkId = await uploadThreeSizesFromOneImage(
           finalUser.uid,
+          visibilityCode,
 
           // three paths for upload
           StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
@@ -690,6 +709,7 @@ export function AuthProvider({ children }) {
 
         uploadedGovId = await uploadThreeSizesFromOneImage(
           finalUser.uid,
+          visibilityCode,
 
           // three paths for upload
           StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
@@ -730,10 +750,20 @@ export function AuthProvider({ children }) {
      */
     async ({ workId, govId }) => {
       if (workId) {
-        await updateIdenityPhotosVisibilityGenreic(finalUser.uid, "work", "WORK_ID", workId, notify); // prettier-ignore
+        const uploaded = await updateIdenityPhotosVisibilityGenreic(finalUser.uid, "work", "WORK_ID", workId, notify); // prettier-ignore
+        if (!uploaded) return;
+        setFinalUser(
+          (user) =>
+          user.clone().setIdentityPhotos({ workId: uploaded, govId: user.identityPhotos?.govId }) // prettier-ignore
+        );
       }
       if (govId) {
-        await updateIdenityPhotosVisibilityGenreic(finalUser.uid, "gov", "GOV_ID", govId, notify); // prettier-ignore
+        const uploaded = await updateIdenityPhotosVisibilityGenreic(finalUser.uid, "gov", "GOV_ID", govId, notify); // prettier-ignore
+        if (!uploaded) return;
+        setFinalUser(
+          (user) =>
+          user.clone().setIdentityPhotos({ workId: user.identityPhotos?.workId, govId: uploaded }) // prettier-ignore
+        );
       }
     },
     [finalUser.uid, notify]
