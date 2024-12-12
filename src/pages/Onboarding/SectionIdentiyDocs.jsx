@@ -50,7 +50,25 @@ export default function SectionIdentiyDocs() {
             <form
               className="form-container"
               onSubmit={(e) => handleSubmit(e, "WORK_ID")}
-            ></form>
+            >
+              <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
+              <div className="update-id">
+                <img
+                  alt="Work Identity Document"
+                  src={auth.user.identityPhotos.workId.medium}
+                  className="preview-img"
+                />
+                <div className="id-visibility">
+                  <label>
+                    <input type="radio" name="visibility" value="public" /> Public
+                  </label>
+                  <label>
+                    <input type="radio" name="visibility" value="private" /> Private
+                  </label>
+                </div>
+                <ButtonText title="Re-Upload" rounded="all" kind="secondary" />
+              </div>
+            </form>
           ) : (
             <form
               className="form-container"
