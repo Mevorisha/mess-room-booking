@@ -154,7 +154,7 @@ function loadFileFromFilePicker(accept, size) {
   fileInput.accept = accept;
   fileInput.click();
 
-  return new Promise((resolve, reject) => {
+  const result = new Promise((resolve, reject) => {
     fileInput.addEventListener("change", () => {
       if (fileInput.files && fileInput.files.length > 0) {
         const file = fileInput.files[0];
@@ -168,6 +168,11 @@ function loadFileFromFilePicker(accept, size) {
       }
     });
   });
+
+  // remove the fileInput
+  fileInput.remove();
+
+  return result;
 }
 
 /**
