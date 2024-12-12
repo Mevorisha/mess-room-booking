@@ -343,12 +343,14 @@ async function updateIdenityPhotosVisibilityGenreic(
     /** @type {string} */
     (
       await fbRtdbRead(
-        RtDbPaths.Identity(userId) + "/identityPhotos/workVisibilityCode"
+        RtDbPaths.Identity(userId) + `/identityPhotos/${idKey}Id/visibilityCode`
       )
     ) || undefined;
 
   if (!oldVisibilityCode) {
-    return Promise.reject("Cannot change visibility: Doc not found");
+    return Promise.reject(
+      `Cannot change visibility: ${idKey} identity not found`
+    );
   }
 
   const targetVisibilityCode = visibility == "PRIVATE" ? Date.now() : "PUBLIC";
@@ -389,7 +391,7 @@ async function updateIdenityPhotosVisibilityGenreic(
         small,
         medium,
         large,
-        [`${idKey}VisibilityCode`]: targetVisibilityCode,
+        visibilityCode: targetVisibilityCode,
       },
     },
   });
@@ -607,13 +609,13 @@ export function AuthProvider({ children }) {
 
       // upload id
       if (workId) {
-        const workVisibilityCode = Date.now();
+        const visibilityCode = Date.now();
         const oldVisibilityCode =
           /** @type {string} */
           (
             await fbRtdbRead(
               RtDbPaths.Identity(finalUser.uid) +
-                "/identityPhotos/workVisibilityCode"
+                "/identityPhotos/workId/visibilityCode"
             )
           ) || undefined;
 
@@ -629,9 +631,9 @@ export function AuthProvider({ children }) {
           finalUser.uid,
 
           // three paths for upload
-          StoragePaths.IdentityDocuments(finalUser.uid, workVisibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
-          StoragePaths.IdentityDocuments(finalUser.uid, workVisibilityCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
-          StoragePaths.IdentityDocuments(finalUser.uid, workVisibilityCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
 
           workId, // the file itself
           notify // notify callback
@@ -641,7 +643,7 @@ export function AuthProvider({ children }) {
         await fbRtdbUpdate(
           RtDbPaths.Identity(finalUser.uid) + "/identityPhotos",
           {
-            workId: { small, medium, large, workVisibilityCode },
+            workId: { small, medium, large, visibilityCode },
           }
         );
 
@@ -652,13 +654,13 @@ export function AuthProvider({ children }) {
 
       // upload govId
       if (govId) {
-        const govVisibilityCode = Date.now();
+        const visibilityCode = Date.now();
         const oldVisibilityCode =
           /** @type {string} */
           (
             await fbRtdbRead(
               RtDbPaths.Identity(finalUser.uid) +
-                "/identityPhotos/govVisibilityCode"
+                "/identityPhotos/govId/govId/visibilityCode"
             )
           ) || undefined;
 
@@ -674,9 +676,9 @@ export function AuthProvider({ children }) {
           finalUser.uid,
 
           // three paths for upload
-          StoragePaths.IdentityDocuments(finalUser.uid, govVisibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
-          StoragePaths.IdentityDocuments(finalUser.uid, govVisibilityCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
-          StoragePaths.IdentityDocuments(finalUser.uid, govVisibilityCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
+          StoragePaths.IdentityDocuments(finalUser.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
 
           govId,
           notify
@@ -686,7 +688,7 @@ export function AuthProvider({ children }) {
         await fbRtdbUpdate(
           RtDbPaths.Identity(finalUser.uid) + "/identityPhotos",
           {
-            govId: { small, medium, large, govVisibilityCode },
+            govId: { small, medium, large, visibilityCode },
           }
         );
 
