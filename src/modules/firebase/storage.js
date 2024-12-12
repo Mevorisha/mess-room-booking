@@ -278,6 +278,9 @@ async function fbStorageDelete(path) {
     await deleteObject(storageRef);
     return Promise.resolve();
   } catch (error) {
+    if (error.code === "storage/object-not-found") {
+      return Promise.resolve();
+    }
     const errmsg = getCleanFirebaseErrMsg(error);
     console.error(error.toString());
     return Promise.reject(errmsg);

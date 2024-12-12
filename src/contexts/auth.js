@@ -12,6 +12,7 @@ import {
   updateProfile as updateAuthProfile,
 } from "../modules/firebase/auth.js";
 import {
+  fbRtdbDelete,
   fbRtdbRead,
   fbRtdbUpdate,
   onDbContentChange,
@@ -414,7 +415,7 @@ async function updateIdenityPhotosVisibilityGenreic(
  * @property {(image: File)                                  => Promise<string>}   updateProfilePhoto
  * @property {({ workId, govId }: { workId?: File, govId?: File }) =>
  *                                   Promise<{ workId?: string, govId?: string }>} updateIdentityPhotos
- * @property {({ workId, govId }: 
+ * @property {({ workId, govId }:
  *             { workId?: "PUBLIC" | "PRIVATE"; govId?: "PUBLIC" | "PRIVATE"; })
  *                                                           => Promise<void>}     updateIdentityPhotosVisibility
  * @property {(firstName: string, lastName: string)          => Promise<void>}     updateProfileName
@@ -561,6 +562,7 @@ export function AuthProvider({ children }) {
       await fbStorageDelete(StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
       await fbStorageDelete(StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
       await fbStorageDelete(StoragePaths.ProfilePhotos(finalUser.uid, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
+      await fbRtdbDelete(RtDbPaths.Identity(finalUser.uid) + "/profilePhotos");
 
       const uploadedImages = await uploadThreeSizesFromOneImage(
         finalUser.uid,
@@ -578,8 +580,10 @@ export function AuthProvider({ children }) {
 
       // update auth profile
       await updateAuthProfile({ photoURL: medium });
-      await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
-        profilePhotos: { small, medium, large },
+      await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid) + "/profilePhotos", {
+        small,
+        medium,
+        large,
       });
 
       setFinalUser((user) => user.clone().setProfilePhotos(uploadedImages));
@@ -618,6 +622,7 @@ export function AuthProvider({ children }) {
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
+          await fbRtdbDelete(RtDbPaths.Identity(finalUser.uid) + "/identityPhotos/workId"); // prettier-ignore
         }
 
         uploadedWorkId = await uploadThreeSizesFromOneImage(
@@ -633,11 +638,12 @@ export function AuthProvider({ children }) {
         );
 
         const { small, medium, large } = uploadedWorkId;
-        await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
-          identityPhotos: {
+        await fbRtdbUpdate(
+          RtDbPaths.Identity(finalUser.uid) + "/identityPhotos",
+          {
             workId: { small, medium, large, workVisibilityCode },
-          },
-        });
+          }
+        );
 
         setFinalUser((user) =>
           user.clone().setIdentityPhotos({ workId: uploadedWorkId })
@@ -661,6 +667,7 @@ export function AuthProvider({ children }) {
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
           await fbStorageDelete(StoragePaths.IdentityDocuments(finalUser.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
+          await fbRtdbDelete(RtDbPaths.Identity(finalUser.uid) + "/identityPhotos/govId"); // prettier-ignore
         }
 
         uploadedGovId = await uploadThreeSizesFromOneImage(
@@ -676,11 +683,12 @@ export function AuthProvider({ children }) {
         );
 
         const { small, medium, large } = uploadedGovId;
-        await fbRtdbUpdate(RtDbPaths.Identity(finalUser.uid), {
-          identityPhotos: {
+        await fbRtdbUpdate(
+          RtDbPaths.Identity(finalUser.uid) + "/identityPhotos",
+          {
             govId: { small, medium, large, govVisibilityCode },
-          },
-        });
+          }
+        );
 
         setFinalUser((user) =>
           user.clone().setIdentityPhotos({ govId: uploadedGovId })
