@@ -13,7 +13,7 @@ body {
   outline: thin;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 400px) {
   * {
     font-size: 0.95rem;
   }
