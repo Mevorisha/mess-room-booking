@@ -251,20 +251,16 @@ async function fbStorageCopy(path1, path2) {
  * @returns {Promise<FbStorageTransferTask>} - URL of the moved file
  */
 async function fbStorageMove(path1, path2) {
-  try {
-    const storageRef1 = fbStorageGetRef(path1);
-    const task = await fbStorageCopy(path1, path2);
+  const storageRef1 = fbStorageGetRef(path1);
+  const storageRef2 = fbStorageGetRef(path2);
+  const bytes = await getBytes(storageRef1);
+  await deleteObject(storageRef1);
 
-    // on upload complete, delete the original file
-    task.onSuccess = async () => await deleteObject(storageRef1);
-    task.monitor();
+  const task = FbStorageTransferTask.wrap(
+    uploadBytesResumable(storageRef2, bytes)
+  );
 
-    return Promise.resolve(task);
-  } catch (error) {
-    const errmsg = getCleanFirebaseErrMsg(error);
-    console.error(error.toString());
-    return Promise.reject(errmsg);
-  }
+  return Promise.resolve(task);
 }
 
 /**
