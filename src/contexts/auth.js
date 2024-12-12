@@ -660,7 +660,7 @@ export function AuthProvider({ children }) {
           (
             await fbRtdbRead(
               RtDbPaths.Identity(finalUser.uid) +
-                "/identityPhotos/govId/govId/visibilityCode"
+                "/identityPhotos/govId/visibilityCode"
             )
           ) || undefined;
 
