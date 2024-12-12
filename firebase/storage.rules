@@ -30,7 +30,7 @@ service firebase.storage {
     // with someone through the app when needed
     //
     // The `type` is either "WORK_ID" or "GOV_ID"
-    match /storg_IdentityDocuments/{uid}/{code}/{type}/{w}/{h} {
+    match /storg_IdentityDocuments/{uid}/{type}/{code}/{w}/{h} {
       allow read: if request.auth != null
                   && (type == "WORK_ID" || type == "GOV_ID");             // Anyone logged in can read
       allow write: if request.auth != null
@@ -70,7 +70,7 @@ service firebase.storage {
     // with someone through the app when needed
     //
     // The `type` is either "WORK_ID" or "GOV_ID"
-    match /preview_storg_IdentityDocuments/{uid}/{code}/{type}/{w}/{h} {
+    match /preview_storg_IdentityDocuments/{uid}/{type}/{code}/{w}/{h} {
       allow read: if request.auth != null
                   && (type == "WORK_ID" || type == "GOV_ID");             // Anyone logged in can read
       allow write: if request.auth != null
