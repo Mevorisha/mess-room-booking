@@ -31,6 +31,31 @@ export default function SectionIdentiyDocs() {
     }
   }
 
+  /**
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   * @param {"WORK_ID" | "GOV_ID"} type
+   * @param {"PUBLIC" | "PRIVATE"} value
+   */
+  function handleVisibilityChange(e, type, value) {
+    e.preventDefault();
+    switch (type) {
+      case "WORK_ID":
+        auth
+          .updateIdentityPhotosVisibility({ workId: value })
+          .then(() => notify("Made work ID " + value.toLowerCase(), "success"))
+          .catch((e) => notify(e, "error"));
+        break;
+      case "GOV_ID":
+        auth
+          .updateIdentityPhotosVisibility({ govId: value })
+          .then(() => notify("Made gov ID " + value.toLowerCase(), "success"))
+          .catch((e) => notify(e, "error"));
+        break;
+      default:
+        break;
+    }
+  }
+
   return (
     <div className="pages-Onboarding">
       <div className="onboarding-container">
@@ -60,10 +85,34 @@ export default function SectionIdentiyDocs() {
                 />
                 <div className="id-visibility">
                   <label>
-                    <input type="radio" name="visibility" value="public" /> Public
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="public"
+                      checked={
+                        auth.user.identityPhotos.workId.visibilityCode ===
+                        "PUBLIC"
+                      }
+                      onChange={(e) =>
+                        handleVisibilityChange(e, "WORK_ID", "PUBLIC")
+                      }
+                    />
+                    Public
                   </label>
                   <label>
-                    <input type="radio" name="visibility" value="private" /> Private
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="private"
+                      checked={
+                        auth.user.identityPhotos.workId.visibilityCode !==
+                        "PUBLIC"
+                      }
+                      onChange={(e) =>
+                        handleVisibilityChange(e, "WORK_ID", "PRIVATE")
+                      }
+                    />
+                    Private
                   </label>
                 </div>
                 <ButtonText title="Re-Upload" rounded="all" kind="secondary" />
@@ -90,7 +139,49 @@ export default function SectionIdentiyDocs() {
             <form
               className="form-container"
               onSubmit={(e) => handleSubmit(e, "GOV_ID")}
-            ></form>
+            >
+              <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
+              <div className="update-id">
+                <img
+                  alt="Government Identity Document"
+                  src={auth.user.identityPhotos.govId.medium}
+                  className="preview-img"
+                />
+                <div className="id-visibility">
+                  <label>
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="public"
+                      checked={
+                        auth.user.identityPhotos.govId.visibilityCode ===
+                        "PUBLIC"
+                      }
+                      onChange={(e) =>
+                        handleVisibilityChange(e, "GOV_ID", "PUBLIC")
+                      }
+                    />
+                    Public
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="visibility"
+                      value="private"
+                      checked={
+                        auth.user.identityPhotos.govId.visibilityCode !==
+                        "PUBLIC"
+                      }
+                      onChange={(e) =>
+                        handleVisibilityChange(e, "GOV_ID", "PRIVATE")
+                      }
+                    />
+                    Private
+                  </label>
+                </div>
+                <ButtonText title="Re-Upload" rounded="all" kind="secondary" />
+              </div>
+            </form>
           ) : (
             <form
               className="form-container"
