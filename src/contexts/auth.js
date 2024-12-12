@@ -401,14 +401,12 @@ async function updateIdenityPhotosVisibilityGenreic(
   });
 
   // update RtDb
-  await fbRtdbUpdate(RtDbPaths.Identity(userId), {
-    identityPhotos: {
-      [`${idKey}Id`]: {
-        small,
-        medium,
-        large,
-        visibilityCode: targetVisibilityCode,
-      },
+  await fbRtdbUpdate(RtDbPaths.Identity(userId) + "/identityPhotos", {
+    [`${idKey}Id`]: {
+      small,
+      medium,
+      large,
+      visibilityCode: targetVisibilityCode,
     },
   });
 
