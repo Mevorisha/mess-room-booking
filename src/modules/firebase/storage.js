@@ -1,15 +1,52 @@
 import { fbStorageGetRef } from "./init";
 import {
   deleteObject,
+  getBlob,
   getBytes,
   getDownloadURL,
-  uploadBytes,
+  getMetadata,
   uploadBytesResumable,
 } from "firebase/storage";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages";
 import { sizehuman } from "../util/dataConversion.js";
 
 class FbStorageTransferTask {
+  /**
+   * @private
+   * @type {import("firebase/storage").UploadTask}
+   */
+  uploadTask;
+
+  /**
+   * @public
+   * @type {((percent: number) => void) | undefined}  - Progress callback
+   */
+  onProgress;
+
+  /**
+   * @public
+   * @type {(() => void) | undefined} - When the upload is running
+   */
+  onRunning;
+
+  /**
+   * @public
+   * @type {(() => void) | undefined} - When the upload is paused
+   */
+  onPaused;
+
+  /**
+   * @public
+   * @type {(() => void) | undefined} - When the upload is cancelled
+   */
+  onCancelled;
+
+  /**
+   * @public
+   * @type {(() => void) | undefined} - When the upload is sucessful
+   */
+  onSuccess;
+
   /**
    * @param {import("firebase/storage").UploadTask} uploadTask
    */
@@ -27,11 +64,14 @@ class FbStorageTransferTask {
   }
 
   /**
-   * Monitor the progress of a file upload
-   * @param {(percent: number) => void} onProgress - Progress callback
-   * @param {(() => void) | undefined} onRunning - When the upload is running
-   * @param {(() => void) | undefined} onPaused - When the upload is paused
-   * @param {(() => void) | undefined} onCancelled - When the upload is cancelled
+   * Monitor the progress of a file upload on basis of certain functions.
+   * You must set the following functions before calling this functions:
+   * - this.onProgress
+   * - this.onRunning
+   * - this.onPaused
+   * - this.onCancelled
+   * - this.onSuccess
+   *
    * @returns {FbStorageTransferTask} - Firebase upload task
    * @throws {Error} - Firebase error on error during upload
    *
@@ -39,29 +79,26 @@ class FbStorageTransferTask {
    *       resolved when the upload is completed. For this reason, UploadTask MUST
    *       NOT be wrapped in a Promise.
    */
-  fbStorageMonitorUpload(
-    onProgress,
-    onRunning = undefined,
-    onPaused = undefined,
-    onCancelled = undefined
-  ) {
+  monitor() {
     this.uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        onProgress(progress);
+        this.onProgress && this.onProgress(progress);
         switch (snapshot.state) {
           case "running":
-            onRunning && onRunning();
+            this.onRunning && this.onRunning();
             break;
           case "paused":
-            onPaused && onPaused();
+            this.onPaused && this.onPaused();
             break;
           case "canceled":
-            onCancelled && onCancelled();
+            this.onCancelled && this.onCancelled();
             break;
           case "success":
+            this.onSuccess && this.onSuccess();
+            break;
           case "error":
           default:
             break;
@@ -79,7 +116,7 @@ class FbStorageTransferTask {
    * Get the URL of a file in Firebase Storage
    * @returns {Promise<string>} - URL of the file
    */
-  async fbStorageGetURL() {
+  async getDownloadURL() {
     try {
       const snapshot = await this.uploadTask;
       const downloadURL = await getDownloadURL(snapshot.ref);
@@ -151,15 +188,23 @@ function fbStorageUpload(path, file) {
 }
 
 /**
- * Download a file from Firebase Storage
- * @param {string} url - URL of the file to download
- * @returns {Promise<Blob>} - File blob
+ * Returns a File given a firebase storage path
+ * @param {string} path - Path in the storage bucket to upload the file
+ * @returns {Promise<File>} - File in strorage
  */
-async function fbStorageDownload(url) {
+async function fbStorageDownloadFromPath(path) {
   try {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return Promise.resolve(blob);
+    const storageRef = fbStorageGetRef(path);
+    const metadata = await getMetadata(storageRef);
+    // get mimetype or use a default mimetype for bin data
+    const mimeType = metadata.contentType || "application/octet-stream";
+    // download the file as Blob
+    const blob = await getBlob(storageRef);
+    // if no name, set as untitled.bin
+    const fileName = path.split("/").pop() || "untitled.bin";
+    // convert Blob to File
+    const file = new File([blob], fileName, { type: mimeType });
+    return Promise.resolve(file);
   } catch (error) {
     const errmsg = getCleanFirebaseErrMsg(error);
     console.error(error.toString());
@@ -185,40 +230,41 @@ function fbStorageUpdate(path, file) {
 }
 
 /**
+ * Copy a file in Firebase Storage
+ * @param {string} path1 - Path in the storage bucket to copy the file
+ * @param {string} path2 - Path in the storage bucket to copy the file to
+ * @returns {Promise<FbStorageTransferTask>} - URL of the copied file
+ */
+async function fbStorageCopy(path1, path2) {
+  const storageRef1 = fbStorageGetRef(path1);
+  const storageRef2 = fbStorageGetRef(path2);
+  // download the file from storageRef1 and upload it to storageRef2
+  return FbStorageTransferTask.wrap(
+    uploadBytesResumable(storageRef2, await getBytes(storageRef1))
+  );
+}
+
+/**
  * Move a file in Firebase Storage
  * @param {string} path1 - Path in the storage bucket to move the file
  * @param {string} path2 - Path in the storage bucket to move the file to
- * @param {boolean} del - Delete the original file
- * @returns {Promise<string>} - URL of the moved file
+ * @returns {Promise<FbStorageTransferTask>} - URL of the moved file
  */
-async function fbStorageMove(path1, path2, del = true) {
+async function fbStorageMove(path1, path2) {
   try {
     const storageRef1 = fbStorageGetRef(path1);
-    const storageRef2 = fbStorageGetRef(path2);
-    // download the file from storageRef1 and upload it to storageRef2
-    const snapshot = await uploadBytes(
-      storageRef2,
-      await getBytes(storageRef1)
-    );
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    // delete the file from storageRef1
-    if (del) await deleteObject(storageRef1);
-    return Promise.resolve(downloadURL);
+    const task = await fbStorageCopy(path1, path2);
+
+    // on upload complete, delete the original file
+    task.onSuccess = async () => await deleteObject(storageRef1);
+    task.monitor();
+
+    return Promise.resolve(task);
   } catch (error) {
     const errmsg = getCleanFirebaseErrMsg(error);
     console.error(error.toString());
     return Promise.reject(errmsg);
   }
-}
-
-/**
- * Copy a file in Firebase Storage
- * @param {string} path1 - Path in the storage bucket to copy the file
- * @param {string} path2 - Path in the storage bucket to copy the file to
- * @returns {Promise<string>} - URL of the copied file
- */
-async function fbStorageCopy(path1, path2) {
-  return fbStorageMove(path1, path2, false);
 }
 
 /**
@@ -242,9 +288,9 @@ export {
   FbStorageTransferTask as FbStorageUploadTask,
   loadFileFromFilePicker,
   fbStorageUpload,
-  fbStorageDownload,
+  fbStorageDownloadFromPath,
   fbStorageUpdate,
-  fbStorageMove,
   fbStorageCopy,
+  fbStorageMove,
   fbStorageDelete,
 };
