@@ -132,7 +132,7 @@ class StoragePaths {
    * @returns {string} Constructed storage path for the user's identity documents.
    */
   static IdentityDocuments = (uid, code, type, w, h) =>
-    `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${code}/${type}/${w}/${h}`;
+    `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
   /**
    * @param {string} uid - Unique identifier for the user.
    * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
