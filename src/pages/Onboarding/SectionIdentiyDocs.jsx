@@ -1,6 +1,8 @@
 import React from "react";
 import useAuth from "../../hooks/auth.js";
 import ButtonText from "../../components/ButtonText";
+import useNotification from "../../hooks/notification.js";
+import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 
 /**
  * Section where the user can upload their identity documents.
@@ -8,6 +10,9 @@ import ButtonText from "../../components/ButtonText";
  */
 export default function SectionIdentiyDocs() {
   const auth = useAuth();
+  const notify = useNotification();
+
+  const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -15,6 +20,15 @@ export default function SectionIdentiyDocs() {
    */
   function handleSubmit(e, type) {
     e.preventDefault();
+    if (type === "WORK_ID") {
+      loadFileFromFilePicker("image/*", maxSizeInBytes)
+        .then((file) => auth.updateIdentityPhotos({ workId: file }))
+        .catch((e) => notify(e, "error"));
+    } else if (type === "GOV_ID") {
+      loadFileFromFilePicker("image/*", maxSizeInBytes)
+        .then((file) => auth.updateIdentityPhotos({ govId: file }))
+        .catch((e) => notify(e, "error"));
+    }
   }
 
   return (
@@ -44,7 +58,7 @@ export default function SectionIdentiyDocs() {
             >
               <div className="missing-id">
                 <div>
-                  <h4>Upload Work ID</h4>
+                  <h4>Work ID</h4>
                   <p>Eg: Photo ID Card</p>
                 </div>
                 <ButtonText title="Upload" rounded="all" kind="secondary" />
@@ -66,7 +80,7 @@ export default function SectionIdentiyDocs() {
             >
               <div className="missing-id">
                 <div>
-                  <h4>Upload Government ID</h4>
+                  <h4>Government ID</h4>
                   <p>Eg: Aadhaar Card</p>
                 </div>
                 <ButtonText title="Upload" rounded="all" kind="secondary" />
