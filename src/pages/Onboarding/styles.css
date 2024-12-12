@@ -1,6 +1,8 @@
 .pages-Onboarding {
   background-color: var(--color-bg-secondary);
   width: 100%;
+  max-width: 100%;
+  min-width: 320px;
   min-height: 100vh;
   padding: var(--pad-0);
   display: flex;
@@ -28,8 +30,9 @@
   border-radius: var(--rounded-rad);
   margin: 0 auto;
   padding: var(--pad-8);
-  width: calc(var(--wid-dialog) - 2 * var(--pad-8));
+  width: calc(100% - 2 * var(--pad-8) - 40px);
   max-width: 400px;
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -123,19 +126,13 @@
   margin: var(--pad-0);
 }
 
-/* keep width to calc(var(--wid-dialog) - 2 * var(--pad-8))
-   * till screen width of 360 if width exceeds 400px, set width
-   * to 400px */
-@media (max-width: 360px) {
-  .pages-Onboarding .onboarding-container {
-    width: calc(var(--wid-dialog) - 2 * var(--pad-8));
-  }
-}
-
-@media (min-width: 420px) {
-  .pages-Onboarding .onboarding-container {
-    width: calc(400px - 2 * var(--pad-8));
-  }
+.pages-Onboarding .onboarding-container .update-id {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pad-2);
 }
 
 .pages-Onboarding-ProfilePhoto-DialogContent {
