@@ -355,6 +355,11 @@ async function updateIdenityPhotosVisibilityGenreic(
 
   const targetVisibilityCode = visibility == "PRIVATE" ? Date.now() : "PUBLIC";
 
+  // if old and new codes are same, no need to move, return as is
+  if (oldVisibilityCode === "" + targetVisibilityCode) {
+    return;
+  }
+
   const smallTask = fbStorageMove(
     StoragePaths.IdentityDocuments(userId, oldVisibilityCode, idType, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
     StoragePaths.IdentityDocuments(userId, targetVisibilityCode, idType, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL) // prettier-ignore
