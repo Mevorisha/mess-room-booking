@@ -507,10 +507,17 @@ export function AuthProvider({ children }) {
     if (!finalUser.uid) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
+    /*
+     * This useEffect is called twice in prod and 4 times in dev:
+     * - 1. When state is STILL_LOADING: at this stage, additional data is fetched from RtDb.
+     *      This state changes state to LOGGED_IN.
+     * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form RtDb.
+     */
+
     const unsubscribe = onDbContentChange(
       RtDbPaths.Identity(finalUser.uid),
       (data) => {
-        console.log(`${MODULE_NAME}::onDbContentChange: new data =`, data);
+        console.log(`${MODULE_NAME}::onDbContentChange: ${authState}: new data =`, data);
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
