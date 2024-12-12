@@ -353,7 +353,7 @@ async function updateIdenityPhotosVisibilityGenreic(
     );
   }
 
-  const targetVisibilityCode = visibility == "PRIVATE" ? Date.now() : "PUBLIC";
+  const targetVisibilityCode = visibility === "PRIVATE" ? Date.now() : "PUBLIC";
 
   // if old and new codes are same, no need to move, return as is
   if (oldVisibilityCode === "" + targetVisibilityCode) {
@@ -517,7 +517,10 @@ export function AuthProvider({ children }) {
     const unsubscribe = onDbContentChange(
       RtDbPaths.Identity(finalUser.uid),
       (data) => {
-        console.log(`${MODULE_NAME}::onDbContentChange: ${authState}: new data =`, data);
+        console.log(
+          `${MODULE_NAME}::onDbContentChange: ${authState}: new data =`,
+          data
+        );
 
         if (!data) {
           setFinalUser(User.loadCurrentUser());
@@ -659,8 +662,9 @@ export function AuthProvider({ children }) {
           }
         );
 
-        setFinalUser((user) =>
-          user.clone().setIdentityPhotos({ workId: uploadedWorkId })
+        setFinalUser(
+          (user) =>
+          user.clone().setIdentityPhotos({ workId: uploadedWorkId, govId: user.identityPhotos?.govId }) // prettier-ignore
         );
       }
 
@@ -704,8 +708,9 @@ export function AuthProvider({ children }) {
           }
         );
 
-        setFinalUser((user) =>
-          user.clone().setIdentityPhotos({ govId: uploadedGovId })
+        setFinalUser(
+          (user) =>
+          user.clone().setIdentityPhotos({ workId: user.identityPhotos?.workId, govId: uploadedGovId }) // prettier-ignore
         );
       }
 
