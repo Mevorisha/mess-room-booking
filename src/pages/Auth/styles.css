@@ -64,6 +64,13 @@
   box-shadow: var(--shadow);
 }
 
+@media (max-width: 360px) {
+  .pages-Auth .container {
+    padding: var(--pad-5);
+    width: calc(100% - 2 * var(--pad-5) - 20px);
+  }
+}
+
 .pages-Auth .container .form-container {
   display: flex;
   flex-direction: column;

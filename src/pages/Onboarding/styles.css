@@ -40,6 +40,13 @@
   box-shadow: var(--shadow);
 }
 
+@media (max-width: 360px) {
+  .pages-Onboarding .onboarding-container {
+    padding: var(--pad-5);
+    width: calc(100% - 2 * var(--pad-5) - 20px);
+  }
+}
+
 .pages-Onboarding .onboarding-container .photo-container {
   display: flex;
   flex-direction: column;
