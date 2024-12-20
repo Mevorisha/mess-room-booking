@@ -2,37 +2,43 @@ import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
 import { DialogBoxProvider } from "../../contexts/dialogbox.js";
-import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import PageNotFound from "../PageNotFound";
 import AuthPage from "../../pages/Auth";
 import OnboardingPage from "../../pages/Onboarding";
 import HomePage from "../../pages/Home";
 import ProfilePage from "../../pages/Profile";
 import LoadingPage from "../Loading/index.jsx";
+
+import { UserProvider } from "../../contexts/user.js";
+import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
+import { AccountProvider } from "../../contexts/account.js";
+import { ProfileProvider } from "../../contexts/profile.js";
+import { IdentityProvider } from "../../contexts/identity.js";
+
 // import NotifPage from "../../pages/Notif";
 // import AccountPage from "../../pages/Account";
 
 function AuthCheck({ children }) {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const navigate = useNavigate();
 
   useEffect(() => {
     /* routing is not loaded if still loading, so prevent all
        redirects to avoid unnecessary errors */
-    if (auth.state === AuthStateEnum.STILL_LOADING) return;
+    if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) return;
 
     /* redirect to auth page if user state is loaded
        and user is not logged in */
-    if (auth.state === AuthStateEnum.NOT_LOGGED_IN) {
+    if (compUsrCtx.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
       navigate(PageUrls.AUTH);
     }
-  }, [auth.state, navigate]);
+  }, [compUsrCtx.authCtx.state, navigate]);
 
   /* show loading page if the auth state is still loading
      and do not render routing */
-  if (auth.state === AuthStateEnum.STILL_LOADING) {
+  if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) {
     return <LoadingPage />;
   }
 
@@ -41,12 +47,26 @@ function AuthCheck({ children }) {
   return children;
 }
 
+function CompositeUsrProvider({ children }) {
+  return (
+    <UserProvider>
+      <AuthProvider>
+        <AccountProvider>
+          <ProfileProvider>
+            <IdentityProvider>{children}</IdentityProvider>
+          </ProfileProvider>
+        </AccountProvider>
+      </AuthProvider>
+    </UserProvider>
+  );
+}
+
 export default function App() {
   // prettier-ignore
   return (
     <NotificationProvider>              {/* provide the notification context */}
       <DialogBoxProvider>               {/* provide the dialog box context */}
-        <AuthProvider>                  {/* provide the auth context; used to handle user state */}
+        <CompositeUsrProvider>          {/* provides multple functions; used to handle user state */}
           <BrowserRouter>               {/* use the browser router to handle routing */}
             <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
               <Routes>
@@ -64,7 +84,7 @@ export default function App() {
               </Routes>
             </AuthCheck>
           </BrowserRouter>
-        </AuthProvider>
+        </CompositeUsrProvider>
       </DialogBoxProvider>
     </NotificationProvider>
   );

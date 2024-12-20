@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
 export default function SetMobileNumber() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
 
   const [action, setAction] = useState(
     /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ (
@@ -34,7 +34,7 @@ export default function SetMobileNumber() {
       notify("Please wait while we send the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => auth.sendPhoneVerificationCode(mobile))
+        .then(() => compUsrCtx.accountCtx.sendPhoneVerificationCode(mobile))
         .then(() => setAction("Verify & Submit"))
         .then(() => setButtonKind("primary"))
         .catch((e) => {
@@ -49,7 +49,7 @@ export default function SetMobileNumber() {
       notify("Please wait while we verify the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => auth.verifyPhoneVerificationCode(otp))
+        .then(() => compUsrCtx.accountCtx.verifyPhoneVerificationCode(otp))
         .then(() => navigate(PageUrls.HOME))
         .catch((e) => {
           setAction("Resend OTP");
@@ -71,7 +71,8 @@ export default function SetMobileNumber() {
         <div className="desc">
           <p>
             Mobile number is required for communication and allows your room{" "}
-            {auth.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
+            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            contact you.
           </p>
           {/* <h4 style={{ marginTop: "20px" }}>
               Development Phase - Testing Notes

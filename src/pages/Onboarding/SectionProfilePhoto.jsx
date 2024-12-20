@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
 import ButtonText from "../../components/ButtonText";
@@ -31,14 +31,14 @@ function DialogContent({ largeImageUrl }) {
 }
 
 export default function SetProfilePhoto() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();
   const dialog = useDialog();
   const navigate = useNavigate();
 
   // state
   const [photoURL, setPhotoURL] = useState(
-    auth.user.profilePhotos?.medium || dpGeneric
+    compUsrCtx.userCtx.user.profilePhotos?.medium || dpGeneric
   );
 
   const [buttonKind, setButtonKind] = useState(
@@ -54,7 +54,7 @@ export default function SetProfilePhoto() {
         setButtonKind("loading");
         return file;
       })
-      .then((file) => auth.updateProfilePhoto(file))
+      .then((file) => compUsrCtx.profileCtx.updateProfilePhoto(file))
       .then((url) => {
         setButtonKind("primary");
         return url;
@@ -68,10 +68,12 @@ export default function SetProfilePhoto() {
   }
 
   function handleShowLargeImage() {
-    if (!auth.user.profilePhotos?.large) return;
+    if (!compUsrCtx.userCtx.user.profilePhotos?.large) return;
 
     dialog.show(
-      <DialogContent largeImageUrl={auth.user.profilePhotos?.large} />,
+      <DialogContent
+        largeImageUrl={compUsrCtx.userCtx.user.profilePhotos?.large}
+      />,
       "large"
     );
   }
@@ -85,7 +87,8 @@ export default function SetProfilePhoto() {
         <div className="desc">
           <p>
             Photo is required for identification and allows your room{" "}
-            {auth.user.type === "TENANT" ? "owner" : "tenant"} to recognize you.
+            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            recognize you.
           </p>
         </div>
 
