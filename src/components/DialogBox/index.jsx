@@ -38,6 +38,10 @@ export default function DialogBox() {
     dialogAnimStyle.maxWidth = `${Math.min(clientWidth, 500) - 40}px`;
   }
 
+  if (size === "small") {
+    dialogAnimStyle.maxWidth = `${Math.min(clientWidth, 400) - 40}px`;
+  }
+
   return (
     <div
       className="components-DialogBox"
