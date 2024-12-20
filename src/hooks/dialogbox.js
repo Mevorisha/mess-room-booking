@@ -26,7 +26,7 @@ export default function useDialogBox() {
       setOverlayState("fadeIn");
       setDialogState("scaleIn");
     },
-    [setChildren, setOverlayState, setDialogState]
+    [setSize, setChildren, setOverlayState, setDialogState]
   );
 
   const hide = useCallback(() => {
