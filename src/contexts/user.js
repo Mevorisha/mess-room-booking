@@ -1,0 +1,269 @@
+/** USER is the base Context, used by all other contexts */
+
+import React, { createContext, useState } from "react";
+import { FirebaseAuth } from "../modules/firebase/init.js";
+import { isEmpty } from "../modules/util/validations.js";
+
+/* -------------------------------------- UTIL CLASSES -------------------------------------- */
+
+/**
+ * @class
+ */
+export class UploadedImage {
+  /**
+   * @param {string} filename
+   * @param {string} smallImageURL
+   * @param {string} mediumImageURL
+   * @param {string} largeImageURL
+   * @param {"PUBLIC" | number} visibilityCode
+   */
+  constructor(
+    filename,
+    smallImageURL,
+    mediumImageURL,
+    largeImageURL,
+    visibilityCode
+  ) {
+    this.filename = filename;
+    this.small = smallImageURL;
+    this.medium = mediumImageURL;
+    this.large = largeImageURL;
+    this.visibilityCode = visibilityCode;
+  }
+
+  /** @returns {UploadedImage} */
+  clone() {
+    return new UploadedImage(
+      this.filename,
+      this.small,
+      this.medium,
+      this.large,
+      this.visibilityCode
+    );
+  }
+
+  /** @enum {30 | 90 | 500} */
+  static Sizes = {
+    SMALL: /**  @type {30}  */ (30),
+    MEDIUM: /** @type {90}  */ (90),
+    LARGE: /**  @type {500} */ (500),
+  };
+
+  toString() {
+    return JSON.stringify({
+      filename: this.filename,
+      small: this.small,
+      medium: this.medium,
+      large: this.large,
+      visibilityCode: this.visibilityCode,
+    });
+  }
+}
+
+/**
+ * @class
+ */
+export class User {
+  /** @type {string} */
+  uid;
+
+  /** @type {string} */
+  mobile;
+
+  /** @type {string} */
+  firstName;
+
+  /** @type {string} */
+  lastName;
+
+  /** @type {UploadedImage | null} */
+  profilePhotos;
+
+  /** @type {{ workId?: UploadedImage, govId?: UploadedImage } | null} */
+  identityPhotos;
+
+  /** @type {"EMPTY" | "TENANT" | "OWNER"} */
+  type;
+
+  /**
+   * The type is set to "EMPTY" by default.
+   * Type is not included in the constructor because it is not available in Firebase Auth User object.
+   * It is to be set using the setType method after the user details are fetched from the database.
+   *
+   * The profilePhotos is set to null by default.
+   * PhotoURLs is not included in the constructor because multiple photo sizes are not available in
+   * Firebase Auth User object. It is to be set using the setPhotoURL method after the user details
+   * are fetched from the database.
+   *
+   * @param {string} uid
+   * @param {string} mobile
+   * @param {string} firstName
+   * @param {string} lastName
+   */
+  constructor(uid, mobile = "", firstName = "", lastName = "") {
+    this.uid = uid;
+    this.mobile = mobile;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.profilePhotos = null;
+    this.identityPhotos = null;
+    this.type = "EMPTY";
+  }
+
+  /**
+   * @returns {User}
+   */
+  static empty() {
+    return new User("");
+  }
+
+  /**
+   * Extracts user details from Firebase Auth User object.
+   * @param {import("firebase/auth").User} user
+   * @returns {User}
+   */
+  static fromFirebaseAuthUser(user) {
+    return new User(
+      user.uid,
+      user.phoneNumber ?? "",
+      user.displayName?.split(" ")[0] ?? "",
+      user.displayName?.split(" ")[1] ?? ""
+    );
+  }
+
+  /**
+   * Loads the current user from Firebase Auth.
+   * @returns {User}
+   */
+  static loadCurrentUser() {
+    const authUser = FirebaseAuth.currentUser;
+    if (!authUser) return User.empty();
+    return User.fromFirebaseAuthUser(authUser);
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isNotEmpty() {
+    return this.uid !== "";
+  }
+
+  /**
+   * @returns {User}
+   */
+  clone() {
+    const user = new User(this.uid, this.mobile, this.firstName, this.lastName);
+
+    if (!isEmpty(this.type))
+      user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
+
+    if (this.profilePhotos) user.setProfilePhotos(this.profilePhotos.clone());
+    if (this.identityPhotos) user.setIdentityPhotos({ ...this.identityPhotos });
+
+    return user;
+  }
+
+  /**
+   * Type does not exist on Firebase Auth User object.
+   * Therefore, it is not included in the constructor.
+   * @param {"TENANT" | "OWNER"} type
+   * @returns {this}
+   */
+  setType(type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * @param {UploadedImage} images
+   * @returns {this}
+   */
+  setProfilePhotos(images) {
+    this.profilePhotos = images;
+    return this;
+  }
+
+  /**
+   * @param {{ workId?: UploadedImage, govId?: UploadedImage }} images
+   * @returns {this}
+   */
+  setIdentityPhotos(images) {
+    if (!images.workId && !images.govId)
+      throw new Error("At least one identity photo is required");
+
+    this.identityPhotos = images;
+    return this;
+  }
+
+  /**
+   * @param {string} firstName
+   * @param {string} lastName
+   * @returns {this}
+   */
+  setProfileName(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    return this;
+  }
+
+  /**
+   * @param {string} mobile
+   * @returns {this}
+   */
+  setMobile(mobile) {
+    this.mobile = mobile;
+    return this;
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString() {
+    return JSON.stringify(
+      {
+        uid: this.uid,
+        mobile: this.mobile,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        profilePhotos: this.profilePhotos?.toString(),
+        identityPhotos: this.identityPhotos,
+        type: this.type,
+      },
+      null,
+      2
+    );
+  }
+}
+
+/* ---------------------------------- USER CONTEXT OBJECT ----------------------------------- */
+
+/**
+ * @typedef  {Object} UserContextType
+ * @property {User} user
+ * @property {React.Dispatch<React.SetStateAction<User>>} setUser
+ */
+const UserContext = createContext(
+  /** @type {UserContextType} */ ({
+    user: User.empty(),
+    setUser: () => {},
+  })
+);
+
+export default UserContext;
+
+/* ------------------------------------ USER PROVIDER COMPONENT ----------------------------------- */
+
+export function UserProvider({ children }) {
+  const [user, setUser] = useState(User.loadCurrentUser());
+
+  return (
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
+}
