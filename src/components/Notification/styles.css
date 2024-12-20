@@ -3,8 +3,10 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(var(--wid-dialog) - 2 * var(--pad-4));
   padding: var(--pad-4);
+  width: calc(100% - 2 * var(--pad-4) - 40px);
+  max-width: 430px;
+  min-width: 250px;
   border-radius: var(--rounded-rad);
   text-align: center;
   transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
@@ -16,18 +18,10 @@
   /* box-shadow: var(--shadow); */
 }
 
-/* keep width to calc(var(--wid-dialog) - 2 * var(--pad-8))
- * till screen width of 360 if width exceeds 400px, set width
- * to 400px */
 @media (max-width: 360px) {
   .components-Notification {
-    width: calc(var(--wid-dialog) - 2 * var(--pad-4));
-  }
-}
-
-@media (min-width: 420px) {
-  .components-Notification {
-    width: calc(400px - 2 * var(--pad-4));
+    padding: var(--pad-3);
+    width: calc(100% - 2 * var(--pad-3) - 20px);
   }
 }
 
