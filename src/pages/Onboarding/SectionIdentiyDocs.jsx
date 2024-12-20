@@ -1,5 +1,5 @@
 import React from "react";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import ButtonText from "../../components/ButtonText";
 import useNotification from "../../hooks/notification.js";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
@@ -9,7 +9,7 @@ import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
  * @return {React.ReactElement}
  */
 export default function SectionIdentiyDocs() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
@@ -22,11 +22,15 @@ export default function SectionIdentiyDocs() {
     e.preventDefault();
     if (type === "WORK_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) => auth.updateIdentityPhotos({ workId: file }))
+        .then((file) =>
+          compUsrCtx.identityCtx.updateIdentityPhotos({ workId: file })
+        )
         .catch((e) => notify(e, "error"));
     } else if (type === "GOV_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) => auth.updateIdentityPhotos({ govId: file }))
+        .then((file) =>
+          compUsrCtx.identityCtx.updateIdentityPhotos({ govId: file })
+        )
         .catch((e) => notify(e, "error"));
     }
   }
@@ -40,13 +44,13 @@ export default function SectionIdentiyDocs() {
     e.preventDefault();
     switch (type) {
       case "WORK_ID":
-        auth
+        compUsrCtx.identityCtx
           .updateIdentityPhotosVisibility({ workId: value })
           .then(() => notify("Made work ID " + value.toLowerCase(), "success"))
           .catch((e) => notify(e, "error"));
         break;
       case "GOV_ID":
-        auth
+        compUsrCtx.identityCtx
           .updateIdentityPhotosVisibility({ govId: value })
           .then(() => notify("Made gov ID " + value.toLowerCase(), "success"))
           .catch((e) => notify(e, "error"));
@@ -71,7 +75,7 @@ export default function SectionIdentiyDocs() {
         </div>
 
         <div className="uploadid-container">
-          {auth.user.identityPhotos?.workId ? (
+          {compUsrCtx.userCtx.user.identityPhotos?.workId ? (
             <form
               className="form-container"
               onSubmit={(e) => handleSubmit(e, "WORK_ID")}
@@ -80,7 +84,7 @@ export default function SectionIdentiyDocs() {
               <div className="update-id">
                 <img
                   alt="Work Identity Document"
-                  src={auth.user.identityPhotos.workId.medium}
+                  src={compUsrCtx.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
                 />
                 <div className="id-visibility">
@@ -90,8 +94,8 @@ export default function SectionIdentiyDocs() {
                       name="visibility"
                       value="public"
                       checked={
-                        auth.user.identityPhotos.workId.visibilityCode ===
-                        "PUBLIC"
+                        compUsrCtx.userCtx.user.identityPhotos.workId
+                          .visibilityCode === "PUBLIC"
                       }
                       onChange={(e) =>
                         handleVisibilityChange(e, "WORK_ID", "PUBLIC")
@@ -105,8 +109,8 @@ export default function SectionIdentiyDocs() {
                       name="visibility"
                       value="private"
                       checked={
-                        auth.user.identityPhotos.workId.visibilityCode !==
-                        "PUBLIC"
+                        compUsrCtx.userCtx.user.identityPhotos.workId
+                          .visibilityCode !== "PUBLIC"
                       }
                       onChange={(e) =>
                         handleVisibilityChange(e, "WORK_ID", "PRIVATE")
@@ -135,7 +139,7 @@ export default function SectionIdentiyDocs() {
         </div>
 
         <div className="uploadid-container">
-          {auth.user.identityPhotos?.govId ? (
+          {compUsrCtx.userCtx.user.identityPhotos?.govId ? (
             <form
               className="form-container"
               onSubmit={(e) => handleSubmit(e, "GOV_ID")}
@@ -144,7 +148,7 @@ export default function SectionIdentiyDocs() {
               <div className="update-id">
                 <img
                   alt="Government Identity Document"
-                  src={auth.user.identityPhotos.govId.medium}
+                  src={compUsrCtx.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"
                 />
                 <div className="id-visibility">
@@ -154,8 +158,8 @@ export default function SectionIdentiyDocs() {
                       name="visibility"
                       value="public"
                       checked={
-                        auth.user.identityPhotos.govId.visibilityCode ===
-                        "PUBLIC"
+                        compUsrCtx.userCtx.user.identityPhotos.govId
+                          .visibilityCode === "PUBLIC"
                       }
                       onChange={(e) =>
                         handleVisibilityChange(e, "GOV_ID", "PUBLIC")
@@ -169,8 +173,8 @@ export default function SectionIdentiyDocs() {
                       name="visibility"
                       value="private"
                       checked={
-                        auth.user.identityPhotos.govId.visibilityCode !==
-                        "PUBLIC"
+                        compUsrCtx.userCtx.user.identityPhotos.govId
+                          .visibilityCode !== "PUBLIC"
                       }
                       onChange={(e) =>
                         handleVisibilityChange(e, "GOV_ID", "PRIVATE")

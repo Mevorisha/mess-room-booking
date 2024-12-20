@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import LoadingPage from "../Loading/index.jsx";
 import ButtonText from "../../components/ButtonText";
 import TopBar from "../../components/TopBar";
@@ -10,7 +10,7 @@ import TopBar from "../../components/TopBar";
 import "./styles.css";
 
 /**
- * @param {{ user: import("../../contexts/auth").User }} props
+ * @param {{ user: import("../../contexts/user").User }} props
  */
 function HomeForTenant({ user }) {
   return (
@@ -38,7 +38,7 @@ function HomeForTenant({ user }) {
 }
 
 /**
- * @param {{ user: import("../../contexts/auth").User }} props
+ * @param {{ user: import("../../contexts/user").User }} props
  */
 function HomeForOwner({ user }) {
   return (
@@ -66,13 +66,13 @@ function HomeForOwner({ user }) {
 }
 
 export default function Home() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // user logged in but profile type not set
-    if (isEmpty(auth.user.type)) {
+    if (isEmpty(compUsrCtx.userCtx.user.type)) {
       searchParams.set("action", ActionParams.SWITCH_PROFILE_TYPE);
       navigate({
         pathname: PageUrls.ONBOARDING,
@@ -81,24 +81,32 @@ export default function Home() {
     }
 
     // user logged in but mobile number not set
-    else if (isEmpty(auth.user.mobile)) {
+    else if (isEmpty(compUsrCtx.userCtx.user.mobile)) {
       searchParams.set("action", ActionParams.CHANGE_MOBILE_NUMBER);
       navigate({
         pathname: PageUrls.ONBOARDING,
         search: searchParams.toString(),
       });
     }
-  }, [auth.user.type, auth.user.mobile, searchParams, navigate]);
+  }, [
+    compUsrCtx.userCtx.user.type,
+    compUsrCtx.userCtx.user.mobile,
+    searchParams,
+    navigate,
+  ]);
 
   // user logged in but not onboarded
-  if (isEmpty(auth.user.type) || isEmpty(auth.user.mobile)) {
+  if (
+    isEmpty(compUsrCtx.userCtx.user.type) ||
+    isEmpty(compUsrCtx.userCtx.user.mobile)
+  ) {
     return <LoadingPage />;
   }
 
   // home page content
-  return auth.user.type === "TENANT" ? (
-    <HomeForTenant user={auth.user} />
+  return compUsrCtx.userCtx.user.type === "TENANT" ? (
+    <HomeForTenant user={compUsrCtx.userCtx.user} />
   ) : (
-    <HomeForOwner user={auth.user} />
+    <HomeForOwner user={compUsrCtx.userCtx.user} />
   );
 }
