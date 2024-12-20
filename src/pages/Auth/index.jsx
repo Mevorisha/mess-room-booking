@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStateEnum } from "../../contexts/auth.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import LoadingPage from "../Loading/index.jsx";
 import ButtonText from "../../components/ButtonText";
 
@@ -47,16 +47,16 @@ export default function Auth() {
     /** @type {"login" | "register" | "resetPasswd"} */ ("login")
   );
 
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (auth.state === AuthStateEnum.LOGGED_IN) {
+    if (compUsrCtx.authCtx.state === AuthStateEnum.LOGGED_IN) {
       navigate(PageUrls.ROOT);
     }
-  }, [auth.state, navigate]);
+  }, [compUsrCtx.authCtx.state, navigate]);
 
-  if (auth.state === "LOGGED_IN") return <LoadingPage />;
+  if (compUsrCtx.authCtx.state === "LOGGED_IN") return <LoadingPage />;
 
   return (
     <div className="pages-Auth">

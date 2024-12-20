@@ -35,7 +35,7 @@ function DialogContent({ email, setResetButtonKind }) {
       .then(() => notify("Check your email for password reset link", "success"))
       .catch((e) => {
         dialog.hide();
-        notify(e.toString(), "error");
+        notify(e, "error");
       });
   }
 

@@ -1,6 +1,8 @@
 .pages-Onboarding {
   background-color: var(--color-bg-secondary);
   width: 100%;
+  max-width: 100%;
+  min-width: 320px;
   min-height: 100vh;
   padding: var(--pad-0);
   display: flex;
@@ -28,13 +30,21 @@
   border-radius: var(--rounded-rad);
   margin: 0 auto;
   padding: var(--pad-8);
-  width: calc(var(--wid-dialog) - 2 * var(--pad-8));
+  width: calc(100% - 2 * var(--pad-8) - 40px);
   max-width: 400px;
+  min-width: 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: var(--pad-2);
   box-shadow: var(--shadow);
+}
+
+@media (max-width: 360px) {
+  .pages-Onboarding .onboarding-container {
+    padding: var(--pad-5);
+    width: calc(100% - 2 * var(--pad-5) - 20px);
+  }
 }
 
 .pages-Onboarding .onboarding-container .photo-container {
@@ -52,6 +62,7 @@
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--color-light);
+  cursor: pointer;
 }
 
 .pages-Onboarding .onboarding-container .form-container {
@@ -102,17 +113,117 @@
   margin-bottom: var(--pad-2);
 }
 
-/* keep width to calc(var(--wid-dialog) - 2 * var(--pad-8))
-   * till screen width of 360 if width exceeds 400px, set width
-   * to 400px */
-@media (max-width: 360px) {
-  .pages-Onboarding .onboarding-container {
-    width: calc(var(--wid-dialog) - 2 * var(--pad-8));
+.pages-Onboarding .onboarding-container .uploadid-container {
+  padding: var(--pad-3);
+
+  border-radius: var(--rounded-rad);
+  border: 2px solid var(--color-light);
+}
+
+.pages-Onboarding .onboarding-container .missing-id {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pad-2);
+}
+
+.pages-Onboarding .onboarding-container .missing-id p {
+  margin: var(--pad-0);
+}
+
+.pages-Onboarding .onboarding-container .update-id {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pad-2);
+}
+
+.pages-Onboarding .onboarding-container .update-id .preview-img {
+  width: 70px;
+  padding: var(--pad-1);
+  border: 2px solid var(--color-light);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+@media (max-width: 400px) {
+  .pages-Onboarding .onboarding-container .update-id .preview-img {
+    width: 50px;
   }
 }
 
-@media (min-width: 420px) {
-  .pages-Onboarding .onboarding-container {
-    width: calc(400px - 2 * var(--pad-8));
+@media (max-width: 360px) {
+  .pages-Onboarding .onboarding-container .update-id .preview-img {
+    width: 40px;
   }
+}
+
+.pages-Onboarding .onboarding-container .update-id .id-visibility {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad-1);
+}
+
+@media (min-width: 500px) {
+  .pages-Onboarding .onboarding-container .update-id .id-visibility {
+    flex-direction: row;
+    gap: var(--pad-3);
+  }
+}
+
+.pages-Onboarding .onboarding-container .update-id .id-visibility label {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  gap: var(--pad-2);
+}
+
+.pages-Onboarding .onboarding-container .update-id .id-visibility label input {
+  margin: 0;
+  height: 15px;
+  width: 15px;
+  margin-bottom: 1px;
+}
+
+.pages-Onboarding-PhotoPreview-DialogContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.pages-Onboarding-PhotoPreview-DialogContent i {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  width: 30px;
+  height: 30px;
+
+  margin: 0;
+  padding: var(--pad-1);
+
+  border-radius: 100%;
+
+  position: absolute;
+  top: var(--pad-2);
+  right: var(--pad-2);
+
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  background-color: #0000005c;
+}
+
+.pages-Onboarding-PhotoPreview-DialogContent img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
 }

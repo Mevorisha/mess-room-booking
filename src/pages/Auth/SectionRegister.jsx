@@ -45,7 +45,7 @@ export default function RegisterSection() {
         .then(() => EmailPasswdAuth.register(email, password))
         .then(() => setButtonKind("primary"))
         .catch((e) => {
-          notify(e.toString(), "error");
+          notify(e, "error");
           setButtonKind("primary");
         });
     }, waitForEasterEggTime);

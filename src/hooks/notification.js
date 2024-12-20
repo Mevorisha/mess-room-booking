@@ -2,7 +2,7 @@ import { useCallback, useContext } from "react";
 import NotificationContext from "../contexts/notification.js";
 
 /**
- * @returns {(message: string, kind: "info" | "success" | "warning" | "error") => void}
+ * @returns {(message: string | Error, kind: "info" | "success" | "warning" | "error") => void}
  */
 export default function useNotification() {
   const {
@@ -16,7 +16,7 @@ export default function useNotification() {
   const notify = useCallback(
     /**
      *
-     * @param {string} message
+     * @param {string | Error} message
      * @param {"info" | "success" | "warning" | "error"} kind
      */
     (message, kind) => {
@@ -27,8 +27,9 @@ export default function useNotification() {
        */
       if (!message) return;
       /* set message and kind */
-      setMessage(message);
+      setMessage(message instanceof Error ? message.toString() : message);
       setKind(kind);
+      if (kind === "error") console.error(message);
       /* begin sliding in animation */
       showNotification();
       /* schedules notification to slide out after 5 seconds */

@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import { isEmpty } from "../../modules/util/validations.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
 export default function SetDisplayName() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();
   const navigate = useNavigate();
 
@@ -26,12 +26,14 @@ export default function SetDisplayName() {
     if (firstName && lastName)
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => auth.updateProfileName(firstName, lastName))
+        .then(() =>
+          compUsrCtx.profileCtx.updateProfileName(firstName, lastName)
+        )
         .then(() => setButtonKind("primary"))
         .then(() => navigate(PageUrls.HOME))
         .catch((e) => {
           setButtonKind("primary");
-          notify(e.toString(), "error");
+          notify(e, "error");
         });
     else notify("Please enter a valid name", "error");
   }
@@ -45,7 +47,8 @@ export default function SetDisplayName() {
         <div className="desc">
           <p>
             Name is required for identification and allows your room{" "}
-            {auth.user.type === "TENANT" ? "owner" : "tenant"} to address you.
+            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            address you.
           </p>
         </div>
 
@@ -56,7 +59,9 @@ export default function SetDisplayName() {
             name="firstName"
             placeholder="First Name"
             defaultValue={
-              isEmpty(auth.user.firstName) ? "" : auth.user.firstName
+              isEmpty(compUsrCtx.userCtx.user.firstName)
+                ? ""
+                : compUsrCtx.userCtx.user.firstName
             }
           />
           <input
@@ -65,7 +70,9 @@ export default function SetDisplayName() {
             name="lastName"
             placeholder="Last Name"
             defaultValue={
-              1 && isEmpty(auth.user.lastName) ? "" : auth.user.lastName
+              1 && isEmpty(compUsrCtx.userCtx.user.lastName)
+                ? ""
+                : compUsrCtx.userCtx.user.lastName
             }
           />
           <div className="submit-container">

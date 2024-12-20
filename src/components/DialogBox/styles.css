@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background-color: rgba(40, 40, 40, 0.752);
   visibility: hidden;
   z-index: var(--zindex-always-top);
@@ -19,13 +19,6 @@
   height: -moz-fit-content; /* mozilla doesn't support fit-content */
   background-color: #fff;
   border-radius: var(--rounded-rad);
-}
-
-/* if screen is >= 400px set max-width to 360px */
-@media (min-width: 400px) {
-  .components-DialogBox .dialog-box {
-    max-width: 360px;
-  }
 }
 
 .components-DialogBox .dialog-box hr {

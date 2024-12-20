@@ -40,7 +40,7 @@ export default function LoginSection({ setShowSection }) {
           .then(() => EmailPasswdAuth.login(email, password))
           .then(() => setButtonKind("primary"))
           .catch((e) => {
-            notify(e.toString(), "error");
+            notify(e, "error");
             setButtonKind("primary");
           }),
       waitForEasterEggTime
@@ -58,7 +58,12 @@ export default function LoginSection({ setShowSection }) {
         Reset password
       </span>
       <div className="submit-container">
-        <ButtonText title="Log In" rounded="all" width="50%" kind={buttonKind} />
+        <ButtonText
+          title="Log In"
+          rounded="all"
+          width="50%"
+          kind={buttonKind}
+        />
       </div>
     </form>
   );

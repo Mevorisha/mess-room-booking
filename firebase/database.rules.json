@@ -1,77 +1,196 @@
 {
   "rules": {
+    // ---------------------------------- PRODUCTION DATABASE ----------------------------------
+
     // production
-    "db_ProviderProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-    "db_TenantProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
     "db_Identity": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
         ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
 
         // Validate specific fields
-        ".validate": "(newData.child('type').val() == null || newData.child('type').val() == 'OWNER' || newData.child('type').val() == 'TENANT') && (newData.child('mobile').val() == null || newData.child('mobile').val() == auth.token.phone_number)"
+        ".validate": "(
+          newData.child('type').val() == null ||
+          newData.child('type').val() == 'OWNER' ||
+          newData.child('type').val() == 'TENANT'
+        ) && (
+          newData.child('mobile').val() == null ||
+          newData.child('mobile').val() == auth.token.phone_number
+        )",
+
+        "profilePhotos": {
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+          ".validate": "(
+            newData.child('small').val() != null &&
+            newData.child('medium').val() != null &&
+            newData.child('large').val() != null
+          )"
+        },
+
+        "identityPhotos": {
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+          
+          "workId": {
+            ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+            ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+            ".validate": "(
+              newData.child('small').val() != null &&
+              newData.child('medium').val() != null &&
+              newData.child('large').val() != null
+            )"
+          },
+
+          "govId": {
+            ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+            ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+            ".validate": "(
+              newData.child('small').val() != null &&
+              newData.child('medium').val() != null &&
+              newData.child('large').val() != null
+            )"
+          }
+        }
       }
     },
+
     "db_Logs": {
       ".read": "false",                               // No one can read
       ".write": "true"                                // Anyone can write
     },
+
     "db_Feedback": {
       ".read": "false",         											// No one can read
       ".write": "auth != null" 											  // Anyone logged in can write
     },
-    "db_Notification": {
+
+    "db_Actions": {
+      // An action is some task a sender sends to the receiver
+      // The action is executed at the front end by a handler fn
+      // Before the execution, all actions must be accepted by the receiver
+      // On reject, action will be deleted
+      // Actions have the ability to create content at the receivers end
+      // An action cannot remove content from the receiver
+
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their notifications
-        ".write": "auth != null"                      // Anyone logged in can write notifications
+        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their actions
+        ".write": "auth != null",                     // Anyone logged in can write actions
+
+        // action param significance
+        // GRANT_URL_ACCESS
+        //   - command: GRANT_URL_ACCESS
+        //   - url: <string> url to be inserted from one user to another
+        //          This is used to provide private access to data of the sender
+        //   - sender: <string> uid of the action sender
+
+        ".validate": "(
+          newData.val() != null &&
+          (
+            newData.child('command').val() == 'GRANT_URL_ACCESS' && newData.child('url').val() != null
+          )
+        )"
       }
     },
 
+    // ----------------------------------------- PREVIEW DATABASE -----------------------------------------
+
     // preview
-    "preview_db_ProviderProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
-    "preview_db_TenantProfile": {
-      ".read": "auth != null",                        // Anyone logged in can read
-      "$uid": {
-        ".write": "auth != null && auth.uid == $uid"  // User can write their own profile
-      }
-    },
     "preview_db_Identity": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
         ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
 
         // Validate specific fields
-        ".validate": "(newData.child('type').val() == null || newData.child('type').val() == 'OWNER' || newData.child('type').val() == 'TENANT') && (newData.child('mobile').val() == null || newData.child('mobile').val() == auth.token.phone_number)"
+        ".validate": "(
+          newData.child('type').val() == null ||
+          newData.child('type').val() == 'OWNER' ||
+          newData.child('type').val() == 'TENANT'
+        ) && (
+          newData.child('mobile').val() == null ||
+          newData.child('mobile').val() == auth.token.phone_number
+        )",
+
+        "profilePhotos": {
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+          ".validate": "(
+            newData.child('small').val() != null &&
+            newData.child('medium').val() != null &&
+            newData.child('large').val() != null
+          )"
+        },
+
+        "identityPhotos": {
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+          
+          "workId": {
+            ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+            ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+            ".validate": "(
+              newData.child('small').val() != null &&
+              newData.child('medium').val() != null &&
+              newData.child('large').val() != null
+            )"
+          },
+
+          "govId": {
+            ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+            ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+
+            ".validate": "(
+              newData.child('small').val() != null &&
+              newData.child('medium').val() != null &&
+              newData.child('large').val() != null
+            )"
+          }
+        }
       }
     },
+
     "preview_db_Logs": {
       ".read": "false",                               // No one can read
       ".write": "true"                                // Anyone can write
     },
+
     "preview_db_Feedback": {
       ".read": "false",         											// No one can read
       ".write": "auth != null" 											  // Anyone logged in can write
     },
-    "preview_db_Notification": {
+
+    "preview_db_Actions": {
+      // An action is some task a sender sends to the receiver
+      // The action is executed at the front end by a handler fn
+      // Before the execution, all actions must be accepted by the receiver
+      // On reject, action will be deleted
+      // Actions have the ability to create content at the receivers end
+      // An action cannot remove content from the receiver
+
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their notifications
-        ".write": "auth != null"                      // Anyone logged in can write notifications
+        ".read": "auth != null && auth.uid == $uid",  // Only the user can read their actions
+        ".write": "auth != null",                     // Anyone logged in can write actions
+
+        // action param significance
+        // GRANT_URL_ACCESS
+        //   - command: GRANT_URL_ACCESS
+        //   - url: <string> url to be inserted from one user to another
+        //          This is used to provide private access to data of the sender
+        //   - sender: <string> uid of the action sender
+
+        ".validate": "(
+          newData.val() != null &&
+          (
+            newData.child('command').val() == 'GRANT_URL_ACCESS' && newData.child('url').val() != null
+          )
+        )"
       }
     }
+
   }
 }

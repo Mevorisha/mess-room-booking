@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 
 // @ts-ignore
@@ -16,22 +16,27 @@ import "./styles.css";
  * }} props
  */
 function ActionMenu({ dropdownState, handleDropdownClick }) {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   let text = "Profile Incomplete!";
 
   if (
-    isEmpty(auth.user.photoURL) &&
-    (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+    isEmpty(compUsrCtx.userCtx.user.profilePhotos) &&
+    (isEmpty(compUsrCtx.userCtx.user.firstName) ||
+      isEmpty(compUsrCtx.userCtx.user.lastName))
   )
     text = "Profile Incomplete!";
-  else if (isEmpty(auth.user.photoURL)) text = "Add Profile Photo!";
-  else if (isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName))
+  else if (isEmpty(compUsrCtx.userCtx.user.profilePhotos))
+    text = "Add Profile Photo!";
+  else if (
+    isEmpty(compUsrCtx.userCtx.user.firstName) ||
+    isEmpty(compUsrCtx.userCtx.user.lastName)
+  )
     text = "Add Display Name!";
 
   if (
-    isEmpty(auth.user.photoURL) ||
-    isEmpty(auth.user.firstName) ||
-    isEmpty(auth.user.lastName)
+    isEmpty(compUsrCtx.userCtx.user.profilePhotos) ||
+    isEmpty(compUsrCtx.userCtx.user.firstName) ||
+    isEmpty(compUsrCtx.userCtx.user.lastName)
   )
     return (
       <span
@@ -50,9 +55,13 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
       onClick={() => handleDropdownClick(dropdownState)}
     >
       <span className="display-name">
-        {auth.user.firstName} {auth.user.lastName}
+        {compUsrCtx.userCtx.user.firstName} {compUsrCtx.userCtx.user.lastName}
       </span>
-      <img className="profile-image" src={auth.user.photoURL} alt="profile" />
+      <img
+        className="profile-image"
+        src={compUsrCtx.userCtx.user.profilePhotos?.small || ""}
+        alt="profile"
+      />
     </span>
   );
 }
@@ -77,7 +86,7 @@ function MarkOfIncompletion({ isIncomplete }) {
  * @param {{ children }} props
  */
 export default function TopBar({ children }) {
-  const auth = useAuth();
+  const auth = useUsrCompositeCtx();
   const navigate = useNavigate();
   const notify = useNotification();
 
@@ -116,12 +125,12 @@ export default function TopBar({ children }) {
         break;
       // reset password action
       case ActionParams.RESET_PASSWORD:
-        auth.requestPasswordReset().catch((e) => notify(e.toString(), "error"));
+        auth.accountCtx.requestPasswordReset().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // log out action
       case ActionParams.LOGOUT:
-        auth.logOut().catch((e) => notify(e.toString(), "error"));
+        auth.authCtx.logOut().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // invalid action
@@ -181,14 +190,16 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
           >
-            View {auth.user.type === "OWNER" ? "Owner" : "Tenant"} Profile
+            View {auth.userCtx.user.type === "OWNER" ? "Owner" : "Tenant"}{" "}
+            Profile
           </div>
           {/* Switch Profile Type */}
           <div
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
           >
-            Switch to {auth.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
+            Switch to {auth.userCtx.user.type === "OWNER" ? "Tenant" : "Owner"}{" "}
+            Profile
           </div>
           {/* Update Profile Photo */}
           <div
@@ -196,7 +207,9 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
           >
             {ActionParams.UPDATE_PROFILE_PHOTO}
-            <MarkOfIncompletion isIncomplete={isEmpty(auth.user.photoURL)} />
+            <MarkOfIncompletion
+              isIncomplete={isEmpty(auth.userCtx.user.profilePhotos)}
+            />
           </div>
           {/* Update ID Documents */}
           <div
@@ -213,7 +226,8 @@ export default function TopBar({ children }) {
             {ActionParams.CHANGE_NAME}
             <MarkOfIncompletion
               isIncomplete={
-                isEmpty(auth.user.firstName) || isEmpty(auth.user.lastName)
+                isEmpty(auth.userCtx.user.firstName) ||
+                isEmpty(auth.userCtx.user.lastName)
               }
             />
           </div>

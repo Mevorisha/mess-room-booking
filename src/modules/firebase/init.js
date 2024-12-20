@@ -69,51 +69,77 @@ if (/localhost|127\.0\.0\.1/i.test(window.location.href)) {
   connectFirestoreEmulator(FirebaseFirestore, "localhost", 9004);
 }
 
+const IS_PREVIEW =
+  !/localhost|127\.0\.0\.1/i.test(window.location.href) &&
+  window.location.hostname !== "mess-booking-app-serverless.web.app" &&
+  window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com";
+
 /**
  * Realtime Database paths
- * @enum {"/db_ProviderProfile" | "/db_TenantProfile" | "/db_Identity" | "/db_Logs" | "/db_Feedback" | "/db_Notification"}
  */
-const RtDbPaths = {
-  PROVIDER_PROFILE: /** @type {"/db_ProviderProfile"} */ (
-    "/db_ProviderProfile"
-  ),
-  TENANT_PROFILE: /** @type {"/db_TenantProfile"} */ ("/db_TenantProfile"),
-  IDENTITY: /** @type {"/db_Identity"} */ ("/db_Identity"),
-  LOGS: /** @type {"/db_Logs"} */ ("/db_Logs"),
-  FEEDBACK: /** @type {"/db_Feedback"} */ ("/db_Feedback"),
-  NOTIFICATION: /** @type {"/db_Notification"} */ ("/db_Notification"),
-};
+class RtDbPaths {
+  static IDENTITY = !IS_PREVIEW ? "/db_Identity" : "/preview_db_Identity";
+  static LOGS = !IS_PREVIEW ? "/db_Logs" : "/preview_db_Logs";
+  static FEEDBACK = !IS_PREVIEW ? "/db_Feedback" : "/preview_db_Feedback";
+
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @returns {string} Constructed database path for the user's identity.
+   */
+  static Identity = (uid) => `${RtDbPaths.IDENTITY}/${uid}`;
+  static Logs = () => RtDbPaths.LOGS;
+  static Feedback = () => RtDbPaths.FEEDBACK;
+}
 
 /**
  * Storage paths
- * @enum {"/storg_ProfilePhotos" | "/storg_MessPhotos" | "/storg_IdentityDocuments" | "/storg_FeedbackPhotos"}
  */
-const StoragePaths = {
-  PROFILE_PHOTOS: /** @type {"/storg_ProfilePhotos"} */ (
-    "/storg_ProfilePhotos"
-  ),
-  MESS_PHOTOS: /** @type {"/storg_MessPhotos"} */ ("/storg_MessPhotos"),
-  IDENTITY_DOCUMENTS: /** @type {"/storg_IdentityDocuments"} */ (
-    "/storg_IdentityDocuments"
-  ),
-  FEEDBACK_PHOTOS: /** @type {"/storg_FeedbackPhotos"} */ (
-    "/storg_FeedbackPhotos"
-  ),
-};
+class StoragePaths {
+  static PROFILE_PHOTOS = !IS_PREVIEW
+    ? "/storg_ProfilePhotos"
+    : "/preview_storg_ProfilePhotos";
+  static MESS_PHOTOS = !IS_PREVIEW
+    ? "/storg_MessPhotos"
+    : "/preview_storg_MessPhotos";
+  static IDENTITY_DOCUMENTS = !IS_PREVIEW
+    ? "/storg_IdentityDocuments"
+    : "/preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !IS_PREVIEW
+    ? "/storg_FeedbackPhotos"
+    : "/preview_storg_FeedbackPhotos";
 
-// if app is running in preview mode, change the paths to preview paths
-if (
-  !/localhost|127\.0\.0\.1/i.test(window.location.href) &&
-  window.location.hostname !== "mess-booking-app-serverless.web.app" &&
-  window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com"
-) {
-  // add a -preview prefix to each RtDbPaths and StoragePaths
-  for (const key in RtDbPaths) {
-    RtDbPaths[key] = RtDbPaths[key].replace("/db_", "/preview_db_");
-  }
-  for (const key in StoragePaths) {
-    StoragePaths[key] = StoragePaths[key].replace("/storg_", "/preview_storg_");
-  }
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @param {number | string} w - Width of the image.
+   * @param {number| string} h - Height of the image.
+   * @returns {string} Constructed storage path for the user's profile photos.
+   */
+  static ProfilePhotos = (uid, w, h) =>
+    `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
+   * @returns {string} Constructed storage path for the user's mess photos.
+   */
+  static MessPhotos = (uid, code) =>
+    `${StoragePaths.MESS_PHOTOS}/${uid}/${code}`;
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @param {string | number} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
+   * @param {"WORK_ID" | "GOV_ID"} type - Type of the image, either "WORK_ID" or "GOV_ID".
+   * @param {number | string} w - Width of the image.
+   * @param {number| string} h - Height of the image.
+   * @returns {string} Constructed storage path for the user's identity documents.
+   */
+  static IdentityDocuments = (uid, code, type, w, h) =>
+    `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
+   * @returns {string} Constructed storage path for the user's feedback photos.
+   */
+  static FeedbackPhotos = (uid, code) =>
+    `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
 }
 
 /**Path
@@ -121,16 +147,18 @@ if (
  * @param {...string} args - Path segments to join
  * @returns {import("firebase/database").DatabaseReference}
  */
-function fbRtdbGetRef() {
-  // convert arguments keyword into an array
-  const args = Array.from(arguments);
-  const path = args.join("/");
+function fbRtdbGetRef(...args) {
+  const path = Array.from(args).join("/");
   return rtdbRef(FirebaseRtDb, path);
 }
 
-function fbStorageGetRef() {
-  const args = Array.from(arguments);
-  const path = args.join("/");
+/**
+ * Get a reference to a path in Firebase Storage
+ * @param {...string} args - Path segments to join
+ * @returns {import("firebase/storage").StorageReference}
+ */
+function fbStorageGetRef(...args) {
+  const path = Array.from(args).join("/");
   return storageRef(FirebaseStorage, path);
 }
 

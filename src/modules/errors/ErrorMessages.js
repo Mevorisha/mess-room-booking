@@ -14,6 +14,7 @@ const ErrorMessages = {
   DATA_DELETE_FAILED: "Error deleting data from the database",
   UNKNOWN_ERROR: "An unknown error occurred",
   FILE_UPLOAD_FAILED: "Error uploading file",
+  FILE_DELETE_FAILED: "Error deleting file",
   FILE_DOWNLOAD_FAILED: "Error downloading file",
 };
 
@@ -38,12 +39,25 @@ export function getCleanFirebaseErrMsg(error) {
   if (error.code === "auth/account-exists-with-different-credential") {
     return "Credentials linked to an existing account. Try a different credential.";
   }
+  if (
+    error.code === "storage/unauthorized" ||
+    error.code === "storage/unauthenticated"
+  ) {
+    return "You do not have permission to perform this action.";
+  }
+  if (error.code === "storage/canceled") {
+    return "Action canceled. Please try again.";
+  }
+
+  if (error.code.endsWith("unknown")) {
+    return ErrorMessages.UNKNOWN_ERROR;
+  }
 
   let errmsg = error
     .toString()
     .replace(/FirebaseError: Firebase: (.+) \(.+\/.+\)./g, "$1");
 
-  if (!errmsg || errmsg === "Error") {
+  if (!errmsg || errmsg === "Error" || error.code.startsWith("storage/")) {
     const errcode = error.code;
     /* convert errcode from {service}/{error-code} to {Service} error: {Error code} */
     errmsg = errcode.replace(/(.+)\/(.+)/g, "$2").replace(/-/g, " ");

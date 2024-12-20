@@ -2,23 +2,48 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
+import useDialog from "../../hooks/dialogbox.js";
 import ButtonText from "../../components/ButtonText";
 
 // @ts-ignore
 import dpGeneric from "../../assets/images/dpGeneric.png";
 
+/**
+ * @param {{ largeImageUrl: string }} props
+ * @returns {React.JSX.Element}
+ */
+function DialogContent({ largeImageUrl }) {
+  const dialog = useDialog();
+
+  return (
+    <div className="pages-Onboarding-PhotoPreview-DialogContent">
+      <img src={largeImageUrl} alt="profile" />
+      <i
+        className="btn-close fa fa-close"
+        onClick={() => {
+          dialog.hide();
+        }}
+      />
+    </div>
+  );
+}
+
 export default function SetProfilePhoto() {
-  const [photoURL, setPhotoURL] = useState(dpGeneric);
+  const compUsrCtx = useUsrCompositeCtx();
+  const notify = useNotification();
+  const dialog = useDialog();
+  const navigate = useNavigate();
+
+  // state
+  const [photoURL, setPhotoURL] = useState(
+    compUsrCtx.userCtx.user.profilePhotos?.medium || dpGeneric
+  );
 
   const [buttonKind, setButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
-
-  const auth = useAuth();
-  const notify = useNotification();
-  const navigate = useNavigate();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
@@ -29,7 +54,7 @@ export default function SetProfilePhoto() {
         setButtonKind("loading");
         return file;
       })
-      .then((file) => auth.updateProfilePhoto(file))
+      .then((file) => compUsrCtx.profileCtx.updateProfilePhoto(file))
       .then((url) => {
         setButtonKind("primary");
         return url;
@@ -38,8 +63,19 @@ export default function SetProfilePhoto() {
       .then(() => navigate(PageUrls.HOME))
       .catch((e) => {
         setButtonKind("primary");
-        notify(e.toString(), "error");
+        notify(e, "error");
       });
+  }
+
+  function handleShowLargeImage() {
+    if (!compUsrCtx.userCtx.user.profilePhotos?.large) return;
+
+    dialog.show(
+      <DialogContent
+        largeImageUrl={compUsrCtx.userCtx.user.profilePhotos?.large}
+      />,
+      "large"
+    );
   }
 
   return (
@@ -51,15 +87,13 @@ export default function SetProfilePhoto() {
         <div className="desc">
           <p>
             Photo is required for identification and allows your room{" "}
-            {auth.user.type === "TENANT" ? "owner" : "tenant"} to recognize you.
+            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            recognize you.
           </p>
         </div>
 
         <div className="photo-container">
-          <img
-            src={auth.user.photoURL || photoURL || dpGeneric}
-            alt="profile"
-          />
+          <img src={photoURL} alt="profile" onClick={handleShowLargeImage} />
           <ButtonText
             rounded="all"
             title="Update Photo"

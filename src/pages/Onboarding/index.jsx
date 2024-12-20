@@ -4,12 +4,13 @@ import { AuthStateEnum } from "../../contexts/auth";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams } from "../../modules/util/pageUrls.js";
 import PageNotFound from "../PageNotFound";
-import useAuth from "../../hooks/auth.js";
+import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 
 import SetDisplayName from "./SectionDisplayName";
 import SetMobileNumber from "./SectionMobileNo";
 import SetProfilePhoto from "./SectionProfilePhoto";
-import SelectInitialType from "./SectionProfileType";
+import SetProfileType from "./SectionProfileType";
+import SetIdentityDocs from "./SectionIdentiyDocs";
 
 import "./styles.css";
 
@@ -17,26 +18,28 @@ import "./styles.css";
  * @returns {React.JSX.Element}
  */
 export default function Onboarding() {
-  const auth = useAuth();
+  const compUsrCtx = useUsrCompositeCtx();
   const [searchParams] = useSearchParams();
 
   if (searchParams.has("action"))
     switch (searchParams.get("action")) {
       case ActionParams.SWITCH_PROFILE_TYPE:
-        return <SelectInitialType />;
+        return <SetProfileType />;
       case ActionParams.CHANGE_NAME:
         return <SetDisplayName />;
       case ActionParams.CHANGE_MOBILE_NUMBER:
         return <SetMobileNumber />;
       case ActionParams.UPDATE_PROFILE_PHOTO:
         return <SetProfilePhoto />;
+      case ActionParams.UPDATE_ID_DOCS:
+        return <SetIdentityDocs />;
       default:
         return <PageNotFound />;
     }
 
-  if (auth.state === AuthStateEnum.STILL_LOADING) return <></>;
-  if (isEmpty(auth.user.type)) return <SelectInitialType />;
-  if (isEmpty(auth.user.mobile)) return <SetMobileNumber />;
+  if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) return <></>;
+  if (isEmpty(compUsrCtx.userCtx.user.type)) return <SetProfileType />;
+  if (isEmpty(compUsrCtx.userCtx.user.mobile)) return <SetMobileNumber />;
 
   return <PageNotFound />;
 }

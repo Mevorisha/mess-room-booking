@@ -4,12 +4,12 @@ import DialogBoxContext from "../contexts/dialogbox.js";
 /**
  * @returns {{
  *   isVisible: boolean;
- *   show: (children: React.ReactNode) => void;
+ *   show: (children: React.ReactNode, size?: "small" | "large") => void;
  *   hide: () => void;
  * }}
  */
 export default function useDialogBox() {
-  const { dialogState, setChildren, setOverlayState, setDialogState } =
+  const { dialogState, setChildren, setSize, setOverlayState, setDialogState } =
     useContext(DialogBoxContext);
 
   const isVisible = dialogState === "scaleIn";
@@ -18,8 +18,10 @@ export default function useDialogBox() {
     /**
      *
      * @param {React.ReactNode} children
+     * @param {"small" | "large"} size
      */
-    (children) => {
+    (children, size = "small") => {
+      setSize(size);
       setChildren(children);
       setOverlayState("fadeIn");
       setDialogState("scaleIn");
