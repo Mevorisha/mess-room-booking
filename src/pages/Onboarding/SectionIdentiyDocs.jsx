@@ -2,7 +2,28 @@ import React from "react";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import ButtonText from "../../components/ButtonText";
 import useNotification from "../../hooks/notification.js";
+import useDialog from "../../hooks/dialogbox.js";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
+
+/**
+ * @param {{ largeImageUrl: string }} props
+ * @returns {React.JSX.Element}
+ */
+function DialogContent({ largeImageUrl }) {
+  const dialog = useDialog();
+
+  return (
+    <div className="pages-Onboarding-PhotoPreview-DialogContent">
+      <img src={largeImageUrl} alt="profile" />
+      <i
+        className="btn-close fa fa-close"
+        onClick={() => {
+          dialog.hide();
+        }}
+      />
+    </div>
+  );
+}
 
 /**
  * Section where the user can upload their identity documents.
@@ -11,8 +32,34 @@ import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 export default function SectionIdentiyDocs() {
   const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();
+  const dialog = useDialog();
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+
+  /**
+   * @param {"WORK_ID" | "GOV_ID"} kind
+   */
+  function handleShowLargeImage(kind) {
+    if (kind === "WORK_ID") {
+      if (!compUsrCtx.userCtx.user.identityPhotos?.workId) return;
+
+      dialog.show(
+        <DialogContent
+          largeImageUrl={compUsrCtx.userCtx.user.identityPhotos.workId.large}
+        />,
+        "large"
+      );
+    } else if (kind === "GOV_ID") {
+      if (!compUsrCtx.userCtx.user.identityPhotos?.govId) return;
+
+      dialog.show(
+        <DialogContent
+          largeImageUrl={compUsrCtx.userCtx.user.identityPhotos.govId.large}
+        />,
+        "large"
+      );
+    }
+  }
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -86,6 +133,7 @@ export default function SectionIdentiyDocs() {
                   alt="Work Identity Document"
                   src={compUsrCtx.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
+                  onClick={() => handleShowLargeImage("WORK_ID")}
                 />
                 <div className="id-visibility">
                   <label>
@@ -150,6 +198,7 @@ export default function SectionIdentiyDocs() {
                   alt="Government Identity Document"
                   src={compUsrCtx.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"
+                  onClick={() => handleShowLargeImage("GOV_ID")}
                 />
                 <div className="id-visibility">
                   <label>

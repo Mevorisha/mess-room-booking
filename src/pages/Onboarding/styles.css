@@ -189,14 +189,14 @@
   margin-bottom: 1px;
 }
 
-.pages-Onboarding-ProfilePhoto-DialogContent {
+.pages-Onboarding-PhotoPreview-DialogContent {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.pages-Onboarding-ProfilePhoto-DialogContent i {
+.pages-Onboarding-PhotoPreview-DialogContent i {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -220,7 +220,7 @@
   background-color: #0000005c;
 }
 
-.pages-Onboarding-ProfilePhoto-DialogContent img {
+.pages-Onboarding-PhotoPreview-DialogContent img {
   width: 100%;
   height: 100%;
   border-radius: var(--rounded-rad);

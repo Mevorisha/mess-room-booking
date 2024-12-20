@@ -18,7 +18,7 @@ function DialogContent({ largeImageUrl }) {
   const dialog = useDialog();
 
   return (
-    <div className="pages-Onboarding-ProfilePhoto-DialogContent">
+    <div className="pages-Onboarding-PhotoPreview-DialogContent">
       <img src={largeImageUrl} alt="profile" />
       <i
         className="btn-close fa fa-close"
