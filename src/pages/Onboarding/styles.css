@@ -147,6 +147,7 @@
   padding: var(--pad-1);
   border: 2px solid var(--color-light);
   border-radius: 5px;
+  cursor: pointer;
 }
 
 @media (max-width: 400px) {
