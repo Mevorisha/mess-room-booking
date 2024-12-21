@@ -61,7 +61,7 @@ export async function uploadThreeSizesFromOneImage(
     image.type
   );
   const mediumTask = fbStorageUpload(mediumpath, mediumimg);
-  mediumTask.onProgress = (percent) => notifyProgress(0, percent, 0, notify);
+  mediumTask.onProgress = (percent) => notifyProgress(33.33, percent, 0, notify);
   const medium = await mediumTask.monitor().getDownloadURL();
 
   /* --------------------- LARGE PHOTO --------------------- */
@@ -71,7 +71,7 @@ export async function uploadThreeSizesFromOneImage(
     image.type
   );
   const largeTask = fbStorageUpload(largepath, largeimg);
-  largeTask.onProgress = (percent) => notifyProgress(0, 0, percent, notify);
+  largeTask.onProgress = (percent) => notifyProgress(33.33, 33.33, percent, notify);
   const large = await largeTask.monitor().getDownloadURL();
 
   return new UploadedImage(uid, small, medium, large, visibilityCode);
