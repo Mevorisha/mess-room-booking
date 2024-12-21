@@ -133,12 +133,12 @@ export async function updateIdenityPhotosVisibilityGenreic(
     return task.getDownloadURL();
   });
   const medium = await medTask.then((task) => {
-    task.onProgress = (percent) => notifyProgress(0, percent, 0, notify);
+    task.onProgress = (percent) => notifyProgress(100, percent, 0, notify);
     task.monitor();
     return task.getDownloadURL();
   });
   const large = await largeTask.then((task) => {
-    task.onProgress = (percent) => notifyProgress(0, 0, percent, notify);
+    task.onProgress = (percent) => notifyProgress(100, 100, percent, notify);
     task.monitor();
     return task.getDownloadURL();
   });
