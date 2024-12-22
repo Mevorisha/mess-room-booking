@@ -1,6 +1,9 @@
 import { fbRtdbRead, fbRtdbUpdate } from "../../modules/firebase/db.js";
 import { RtDbPaths, StoragePaths } from "../../modules/firebase/init.js";
-import { fbStorageMove, fbStorageUpload } from "../../modules/firebase/storage.js";
+import {
+  fbStorageMove,
+  fbStorageUpload,
+} from "../../modules/firebase/storage.js";
 import { resizeImage } from "../../modules/util/dataConversion.js";
 import { UploadedImage } from "../user.js";
 
@@ -18,10 +21,17 @@ import { UploadedImage } from "../user.js";
  * @param {number} mediumPercent - Progress of the medium image
  * @param {number} largePercent - Progress of the large image
  * @param {FnNotifier} notify
+ * @param {string} [msg="Uploading"]
  */
-export function notifyProgress(smallPercent, mediumPercent, largePercent, notify) {
+export function notifyProgress(
+  smallPercent,
+  mediumPercent,
+  largePercent,
+  notify,
+  msg = "Uploading"
+) {
   const combinedPercent = (smallPercent + mediumPercent + largePercent) / 3;
-  notify(`Uploading: ${combinedPercent.toFixed(2)}% completed`, "info");
+  notify(`${msg}: ${combinedPercent.toFixed(2)}% completed`, "info");
 }
 
 /**
@@ -52,7 +62,6 @@ export async function uploadThreeSizesFromOneImage(
   );
   const smallTask = fbStorageUpload(smallpath, smallimg);
   smallTask.onProgress = (percent) => notifyProgress(percent, 0, 0, notify);
-  const small = await smallTask.monitor().getDownloadURL();
 
   /* --------------------- MEDIUM PHOTO --------------------- */
   const mediumimg = await resizeImage(
@@ -62,7 +71,6 @@ export async function uploadThreeSizesFromOneImage(
   );
   const mediumTask = fbStorageUpload(mediumpath, mediumimg);
   mediumTask.onProgress = (percent) => notifyProgress(100, percent, 0, notify);
-  const medium = await mediumTask.monitor().getDownloadURL();
 
   /* --------------------- LARGE PHOTO --------------------- */
   const largeimg = await resizeImage(
@@ -72,8 +80,11 @@ export async function uploadThreeSizesFromOneImage(
   );
   const largeTask = fbStorageUpload(largepath, largeimg);
   largeTask.onProgress = (percent) => notifyProgress(100, 100, percent, notify);
-  const large = await largeTask.monitor().getDownloadURL();
 
+  // perform the upload
+  const small = await smallTask.monitor().getDownloadURL();
+  const medium = await mediumTask.monitor().getDownloadURL();
+  const large = await largeTask.monitor().getDownloadURL();
   return new UploadedImage(uid, small, medium, large, visibilityCode);
 }
 
@@ -114,34 +125,49 @@ export async function updateIdenityPhotosVisibilityGenreic(
     return null;
   }
 
-  const smallTask = fbStorageMove(
+  notifyProgress(0, 0, 0, notify, "Preparing to move");
+
+  const smallTaskPromise = fbStorageMove(
     StoragePaths.IdentityDocuments(userId, oldVisibilityCode, idType, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
     StoragePaths.IdentityDocuments(userId, targetVisibilityCode, idType, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL) // prettier-ignore
   );
-  const medTask = fbStorageMove(
+  const medTaskPromise = fbStorageMove(
     StoragePaths.IdentityDocuments(userId, oldVisibilityCode, idType, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
     StoragePaths.IdentityDocuments(userId, targetVisibilityCode, idType, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM) // prettier-ignore
   );
-  const largeTask = fbStorageMove(
+  const largeTaskPromise = fbStorageMove(
     StoragePaths.IdentityDocuments(userId, oldVisibilityCode, idType, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
     StoragePaths.IdentityDocuments(userId, targetVisibilityCode, idType, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE) // prettier-ignore
   );
 
-  const small = await smallTask.then((task) => {
-    task.onProgress = (percent) => notifyProgress(percent, 0, 0, notify);
-    task.monitor();
-    return task.getDownloadURL();
-  });
-  const medium = await medTask.then((task) => {
-    task.onProgress = (percent) => notifyProgress(100, percent, 0, notify);
-    task.monitor();
-    return task.getDownloadURL();
-  });
-  const large = await largeTask.then((task) => {
-    task.onProgress = (percent) => notifyProgress(100, 100, percent, notify);
-    task.monitor();
-    return task.getDownloadURL();
-  });
+  /**
+   * @param {import("../../modules/firebase/storage.js").FbStorageTransferTask} task
+   * @param {number} a
+   * @param {number} b
+   * @param {number} c
+   * @returns {import("../../modules/firebase/storage.js").FbStorageTransferTask}
+   */
+  function notifyProgressAndPassTransfTask(task, a, b, c) {
+    notifyProgress(a, b, c, notify, "Preparing to move");
+    return task;
+  }
+
+  const [smallTask, medTask, largeTask] = await Promise.all([
+    smallTaskPromise.then((t) => notifyProgressAndPassTransfTask(t, 100, 0, 0)),
+    medTaskPromise.then((t) => notifyProgressAndPassTransfTask(t, 100, 100, 0)),
+    largeTaskPromise.then((t) =>
+      notifyProgressAndPassTransfTask(t, 100, 100, 100)
+    ),
+  ]);
+
+  smallTask.onProgress = (percent) => notifyProgress(percent, 0, 0, notify);
+  medTask.onProgress = (percent) => notifyProgress(100, percent, 0, notify);
+  largeTask.onProgress = (percent) => notifyProgress(100, 100, percent, notify);
+
+  // perform the move
+  const small = await smallTask.monitor().getDownloadURL();
+  const medium = await medTask.monitor().getDownloadURL();
+  const large = await largeTask.monitor().getDownloadURL();
 
   // update RtDb
   await fbRtdbUpdate(RtDbPaths.Identity(userId) + "/identityPhotos", {
