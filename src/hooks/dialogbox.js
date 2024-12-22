@@ -1,6 +1,8 @@
 import { useCallback, useContext } from "react";
 import DialogBoxContext from "../contexts/dialogbox.js";
 
+const DIALOG_ANIM_DURATION = 250;
+
 /**
  * @returns {{
  *   isVisible: boolean;
@@ -32,7 +34,7 @@ export default function useDialogBox() {
   const hide = useCallback(() => {
     setOverlayState("fadeOut");
     setDialogState("scaleOut");
-    setChildren(null);
+    setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
   }, [setOverlayState, setDialogState]);
 
   return { isVisible, show, hide };
