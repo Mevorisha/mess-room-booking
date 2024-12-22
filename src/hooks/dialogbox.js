@@ -35,7 +35,7 @@ export default function useDialogBox() {
     setOverlayState("fadeOut");
     setDialogState("scaleOut");
     setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
-  }, [setOverlayState, setDialogState]);
+  }, [setChildren, setOverlayState, setDialogState]);
 
   return { isVisible, show, hide };
 }
