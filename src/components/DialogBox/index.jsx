@@ -8,6 +8,7 @@ const DIALOG_ANIM_DURATION = 250;
 export default function DialogBox() {
   const {
     children,
+    setChildren,
     overlayState,
     dialogState,
     size,
@@ -49,6 +50,7 @@ export default function DialogBox() {
       onClick={() => {
         setOverlayState("fadeOut");
         setDialogState("scaleOut");
+        setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
       }}
     >
       <div
