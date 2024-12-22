@@ -10,7 +10,24 @@ import {
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages";
 import { sizehuman } from "../util/dataConversion.js";
 
-class FbStorageTransferTask {
+/**
+ * A map of all the ongoing tasks WRT the task in storage.
+ * @type {Map<string, any>}
+ */
+const OngoingTasks = new Map();
+
+/**
+ * Create a task ID for a function and its arguments
+ * @param {"UPLOAD" | "UPDATE" | "MOVE" | "COPY"} task - Function
+ * @param  {...any} args - Arguments
+ * @returns {string} - Task ID
+ */
+function createTaskId(task, ...args) {
+  const key = task + "-" + args.join("-");
+  return key;
+}
+
+export class FbStorageTransferTask {
   /**
    * @private
    * @type {import("firebase/storage").UploadTask}
@@ -113,6 +130,13 @@ class FbStorageTransferTask {
   }
 
   /**
+   * Cancel the upload task in progress
+   */
+  cancel() {
+    this.uploadTask.cancel();
+  }
+
+  /**
    * Get the URL of a file in Firebase Storage
    * @returns {Promise<string>} - URL of the file
    */
@@ -186,10 +210,26 @@ function loadFileFromFilePicker(accept, size) {
  *       NOT be wrapped in a Promise.
  */
 function fbStorageUpload(path, file) {
+  const taskId = createTaskId("UPLOAD", path, file.name);
+
+  // check if an upload operation is already in progress
+  if (OngoingTasks.has(taskId)) {
+    throw new Error("Upload operation already in progress");
+  }
+
+  // if not, set the task as ongoing
+  OngoingTasks.set(taskId, true);
+
   const storageRef = fbStorageGetRef(path);
-  return FbStorageTransferTask.wrap(
+  const task = FbStorageTransferTask.wrap(
     uploadBytesResumable(storageRef, file, { contentType: file.type })
   );
+
+  // remove the task from ongoing tasks when it is done
+  task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
+  task.monitor();
+
+  return task;
 }
 
 /**
@@ -228,10 +268,26 @@ async function fbStorageDownloadFromPath(path) {
  *       NOT be wrapped in a Promise.
  */
 function fbStorageUpdate(path, file) {
+  const taskId = createTaskId("UPDATE", path, file.name);
+
+  // check if an update operation is already in progress
+  if (OngoingTasks.has(taskId)) {
+    throw new Error("Update operation already in progress");
+  }
+
+  // if not, set the task as ongoing
+  OngoingTasks.set(taskId, true);
+
   const storageRef = fbStorageGetRef(path);
-  return FbStorageTransferTask.wrap(
+  const task = FbStorageTransferTask.wrap(
     uploadBytesResumable(storageRef, file, { contentType: file.type })
   );
+
+  // remove the task from ongoing tasks when it is done
+  task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
+  task.monitor();
+
+  return task;
 }
 
 /**
@@ -241,12 +297,29 @@ function fbStorageUpdate(path, file) {
  * @returns {Promise<FbStorageTransferTask>} - URL of the copied file
  */
 async function fbStorageCopy(path1, path2) {
+  const taskId = createTaskId("COPY", path1, path2);
+
+  // check if a copy operation is already in progress
+  if (OngoingTasks.has(taskId)) {
+    return Promise.reject("Copy operation already in progress");
+  }
+
+  // if not, set the task as ongoing
+  OngoingTasks.set(taskId, true);
+
   const storageRef1 = fbStorageGetRef(path1);
   const storageRef2 = fbStorageGetRef(path2);
+
   // download the file from storageRef1 and upload it to storageRef2
-  return FbStorageTransferTask.wrap(
+  const task = FbStorageTransferTask.wrap(
     uploadBytesResumable(storageRef2, await getBytes(storageRef1))
   );
+
+  // remove the task from ongoing tasks when it is done
+  task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
+  task.monitor();
+
+  return Promise.resolve(task);
 }
 
 /**
@@ -256,16 +329,36 @@ async function fbStorageCopy(path1, path2) {
  * @returns {Promise<FbStorageTransferTask>} - URL of the moved file
  */
 async function fbStorageMove(path1, path2) {
-  const storageRef1 = fbStorageGetRef(path1);
-  const storageRef2 = fbStorageGetRef(path2);
-  const bytes = await getBytes(storageRef1);
-  await deleteObject(storageRef1);
+  const taskId = createTaskId("MOVE", path1, path2);
 
-  const task = FbStorageTransferTask.wrap(
-    uploadBytesResumable(storageRef2, bytes)
-  );
+  // check if a move operation is already in progress
+  if (OngoingTasks.has(taskId)) {
+    return Promise.reject("Move operation already in progress");
+  }
 
-  return Promise.resolve(task);
+  // if not, set the task as ongoing
+  OngoingTasks.set(taskId, true);
+
+  try {
+    const storageRef1 = fbStorageGetRef(path1);
+    const storageRef2 = fbStorageGetRef(path2);
+    const bytes = await getBytes(storageRef1);
+    await deleteObject(storageRef1);
+
+    const task = FbStorageTransferTask.wrap(
+      uploadBytesResumable(storageRef2, bytes)
+    );
+
+    // remove the task from ongoing tasks when it is done
+    task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
+    task.monitor();
+
+    return Promise.resolve(task);
+  } catch (error) {
+    const errmsg = getCleanFirebaseErrMsg(error);
+    console.error(error.toString());
+    return Promise.reject(errmsg);
+  }
 }
 
 /**

@@ -48,6 +48,9 @@ export function getCleanFirebaseErrMsg(error) {
   if (error.code === "storage/canceled") {
     return "Action canceled. Please try again.";
   }
+  if (error.code === "storage/object-not-found") {
+    return "Resource not found or already deleted.";
+  }
 
   if (error.code.endsWith("unknown")) {
     return ErrorMessages.UNKNOWN_ERROR;
