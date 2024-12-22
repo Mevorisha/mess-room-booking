@@ -1,30 +1,11 @@
 import React from "react";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import ButtonText from "../../components/ButtonText";
-import ImageLoader from "../../components/ImageLoader/index.jsx";
+import ImageLoader from "../../components/ImageLoader";
+import DialogImagePreview from "../../components/DialogImagePreview";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
-
-/**
- * @param {{ largeImageUrl: string }} props
- * @returns {React.JSX.Element}
- */
-function DialogContent({ largeImageUrl }) {
-  const dialog = useDialog();
-
-  return (
-    <div className="pages-Onboarding-PhotoPreview-DialogContent">
-      <ImageLoader src={largeImageUrl} alt="profile" />
-      <i
-        className="btn-close fa fa-close"
-        onClick={() => {
-          dialog.hide();
-        }}
-      />
-    </div>
-  );
-}
 
 /**
  * Section where the user can upload their identity documents.
@@ -45,7 +26,7 @@ export default function SectionIdentiyDocs() {
       if (!compUsrCtx.userCtx.user.identityPhotos?.workId) return;
 
       dialog.show(
-        <DialogContent
+        <DialogImagePreview
           largeImageUrl={compUsrCtx.userCtx.user.identityPhotos.workId.large}
         />,
         "large"
@@ -54,7 +35,7 @@ export default function SectionIdentiyDocs() {
       if (!compUsrCtx.userCtx.user.identityPhotos?.govId) return;
 
       dialog.show(
-        <DialogContent
+        <DialogImagePreview
           largeImageUrl={compUsrCtx.userCtx.user.identityPhotos.govId.large}
         />,
         "large"

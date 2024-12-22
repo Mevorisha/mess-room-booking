@@ -2,34 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
+import ButtonText from "../../components/ButtonText";
+import ImageLoader from "../../components/ImageLoader";
+import DialogImagePreview from "../../components/DialogImagePreview";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
-import ButtonText from "../../components/ButtonText";
-import ImageLoader from "../../components/ImageLoader/index.jsx";
 
 // @ts-ignore
 import dpGeneric from "../../assets/images/dpGeneric.png";
-
-/**
- * @param {{ largeImageUrl: string }} props
- * @returns {React.JSX.Element}
- */
-function DialogContent({ largeImageUrl }) {
-  const dialog = useDialog();
-
-  return (
-    <div className="pages-Onboarding-PhotoPreview-DialogContent">
-      <ImageLoader src={largeImageUrl} alt="profile" />
-      <i
-        className="btn-close fa fa-close"
-        onClick={() => {
-          dialog.hide();
-        }}
-      />
-    </div>
-  );
-}
 
 export default function SetProfilePhoto() {
   const compUsrCtx = useUsrCompositeCtx();
@@ -72,7 +53,7 @@ export default function SetProfilePhoto() {
     if (!compUsrCtx.userCtx.user.profilePhotos?.large) return;
 
     dialog.show(
-      <DialogContent
+      <DialogImagePreview
         largeImageUrl={compUsrCtx.userCtx.user.profilePhotos?.large}
       />,
       "large"
