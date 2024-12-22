@@ -425,7 +425,7 @@ export default function ImageLoader(props) {
   // fetch the image data as base64 from URL
   useEffect(() => {
     fetchImageAsBase64(props.src)
-      .then((data) => setImageData(null))
+      .then((data) => setImageData(data))
       .catch((e) => notify(e, "error"));
   }, [props.src, notify]);
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
+import ImageLoader from "../ImageLoader/index.jsx";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 
@@ -57,7 +58,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
       <span className="display-name">
         {compUsrCtx.userCtx.user.firstName} {compUsrCtx.userCtx.user.lastName}
       </span>
-      <img
+      <ImageLoader
         className="profile-image"
         src={compUsrCtx.userCtx.user.profilePhotos?.small || ""}
         alt="profile"
@@ -174,7 +175,7 @@ export default function TopBar({ children }) {
   return (
     <div className="components-TopBar">
       <div className="logo-container">
-        <img src={dpMevorisha} alt="logo" />
+        <ImageLoader src={dpMevorisha} alt="logo" />
         <h1>Mevorisha</h1>
       </div>
       <div className="section-buttons-container">{children}</div>

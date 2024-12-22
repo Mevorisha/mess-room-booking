@@ -6,6 +6,7 @@ import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
 import ButtonText from "../../components/ButtonText";
+import ImageLoader from "../../components/ImageLoader/index.jsx";
 
 // @ts-ignore
 import dpGeneric from "../../assets/images/dpGeneric.png";
@@ -19,7 +20,7 @@ function DialogContent({ largeImageUrl }) {
 
   return (
     <div className="pages-Onboarding-PhotoPreview-DialogContent">
-      <img src={largeImageUrl} alt="profile" />
+      <ImageLoader src={largeImageUrl} alt="profile" />
       <i
         className="btn-close fa fa-close"
         onClick={() => {
@@ -93,7 +94,7 @@ export default function SetProfilePhoto() {
         </div>
 
         <div className="photo-container">
-          <img src={photoURL} alt="profile" onClick={handleShowLargeImage} />
+          <ImageLoader src={photoURL} alt="profile" onClick={handleShowLargeImage} />
           <ButtonText
             rounded="all"
             title="Update Photo"

@@ -5,6 +5,7 @@ import { PageUrls } from "../../modules/util/pageUrls.js";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import LoadingPage from "../Loading/index.jsx";
 import ButtonText from "../../components/ButtonText";
+import ImageLoader from "../../components/ImageLoader/index.jsx";
 
 import LoginSection from "./SectionLogin.jsx";
 import RegisterSection from "./SectionRegister.jsx";
@@ -61,7 +62,7 @@ export default function Auth() {
   return (
     <div className="pages-Auth">
       <span>
-        <img className="logo" src={dpMevorisha} alt="logo" />
+        <ImageLoader className="logo" src={dpMevorisha} alt="logo" />
       </span>
       <span>
         <h1>Mevorisha</h1>

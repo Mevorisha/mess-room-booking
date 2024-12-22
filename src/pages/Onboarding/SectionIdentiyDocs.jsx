@@ -1,6 +1,7 @@
 import React from "react";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import ButtonText from "../../components/ButtonText";
+import ImageLoader from "../../components/ImageLoader/index.jsx";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
 import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
@@ -14,7 +15,7 @@ function DialogContent({ largeImageUrl }) {
 
   return (
     <div className="pages-Onboarding-PhotoPreview-DialogContent">
-      <img src={largeImageUrl} alt="profile" />
+      <ImageLoader src={largeImageUrl} alt="profile" />
       <i
         className="btn-close fa fa-close"
         onClick={() => {
@@ -129,7 +130,7 @@ export default function SectionIdentiyDocs() {
             >
               <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
               <div className="update-id">
-                <img
+                <ImageLoader
                   alt="Work Identity Document"
                   src={compUsrCtx.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
@@ -194,7 +195,7 @@ export default function SectionIdentiyDocs() {
             >
               <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
               <div className="update-id">
-                <img
+                <ImageLoader
                   alt="Government Identity Document"
                   src={compUsrCtx.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"

@@ -1,5 +1,6 @@
 import React from "react";
 import { GoogleAuth } from "../../modules/firebase/auth.js";
+import ImageLoader from "../../components/ImageLoader/index.jsx";
 import useNotification from "../../hooks/notification.js";
 
 export default function OAuthSection() {
@@ -11,7 +12,7 @@ export default function OAuthSection() {
         className="oauth-button"
         onClick={() => GoogleAuth.login().catch((e) => notify(e, "error"))}
       >
-        <img
+        <ImageLoader
           style={{
             height: "26px",
             paddingTop: "0.5px",
@@ -25,7 +26,7 @@ export default function OAuthSection() {
         className="oauth-button"
         onClick={() => notify("Apple Sign In is not implemented yet", "error")}
       >
-        <img
+        <ImageLoader
           style={{ height: "24px", paddingBottom: "1.5px" }}
           src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
           alt="apple"
@@ -37,7 +38,7 @@ export default function OAuthSection() {
           notify("Microsoft Sign In is not implemented yet", "error")
         }
       >
-        <img
+        <ImageLoader
           style={{ height: "24px" }}
           src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
           alt="microsoft"
