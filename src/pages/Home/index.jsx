@@ -5,7 +5,7 @@ import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import LoadingPage from "../Loading/index.jsx";
 import ButtonText from "../../components/ButtonText";
-import TopBar from "../../components/TopBar";
+import NavBars from "../../components/NavBars";
 
 import "./styles.css";
 
@@ -15,7 +15,7 @@ import "./styles.css";
 function HomeForTenant({ user }) {
   return (
     <div className="pages-Home">
-      <TopBar>
+      <NavBars>
         <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
         <ButtonText
           rounded="all"
@@ -23,7 +23,7 @@ function HomeForTenant({ user }) {
           kind="cannibalized"
           width="50%"
         />
-      </TopBar>
+      </NavBars>
       <div className="content-container">
         <div className="contents">
           <ul className="content-list">
@@ -43,7 +43,7 @@ function HomeForTenant({ user }) {
 function HomeForOwner({ user }) {
   return (
     <div className="pages-Home">
-      <TopBar>
+      <NavBars>
         <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
         <ButtonText
           rounded="all"
@@ -51,7 +51,7 @@ function HomeForOwner({ user }) {
           kind="cannibalized"
           width="50%"
         />
-      </TopBar>
+      </NavBars>
       <div className="content-container">
         <div className="contents">
           <ul className="content-list">
