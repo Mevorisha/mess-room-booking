@@ -39,6 +39,13 @@
   box-shadow: var(--shadow);
 }
 
+@media (max-width: 360px) {
+  .pages-PageNotFound .container {
+    padding: var(--pad-5);
+    width: calc(100% - 2 * var(--pad-5) - 20px);
+  }
+}
+
 .pages-PageNotFound .container h1 {
   margin: var(--pad-0);
   font-size: 1.3rem;
