@@ -1,8 +1,11 @@
 import React from "react";
 import { GoogleAuth } from "../../modules/firebase/auth.js";
-import ImageLoader from "../../components/ImageLoader/index.jsx";
+import ImageLoader from "../../components/ImageLoader";
 import useNotification from "../../hooks/notification.js";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function OAuthSection() {
   const notify = useNotification();
 

@@ -9,7 +9,7 @@ import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
 
 /**
  * Section where the user can upload their identity documents.
- * @return {React.ReactElement}
+ * @return {React.JSX.Element}
  */
 export default function SectionIdentiyDocs() {
   const compUsrCtx = useUsrCompositeCtx();

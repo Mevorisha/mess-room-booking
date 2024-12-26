@@ -1,10 +1,13 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
-import DialogBoxContext from "../../contexts/dialogbox";
+import DialogBoxContext from "../../contexts/dialogbox.js";
 
 import "./styles.css";
 
 const DIALOG_ANIM_DURATION = 250;
 
+/**
+ * @returns {React.JSX.Element | null}
+ */
 export default function DialogBox() {
   const {
     children,

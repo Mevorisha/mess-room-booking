@@ -35,6 +35,10 @@ export default IdentityContext;
 
 /* ------------------------------------ IDENTITY PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function IdentityProvider({ children }) {
   const notify = useNotification();
   const { user, setUser } = useContext(UserContext);

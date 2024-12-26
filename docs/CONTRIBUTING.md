@@ -298,7 +298,7 @@ Well, those are the basics. Here comes the fun part.
 
 #### How to use Notification Context
 ```jsx
-import useNotification from "../hooks/notification";
+import useNotification from "../hooks/notification.js";
 ...
 const notify = useNotification();
 notify("This is a notification", "success");
@@ -308,7 +308,7 @@ The status can be `success`, `error`, `warning` or `info`. The respective colors
 
 #### How to use Auth Context
 ```jsx
-import useAuth from "../contexts/auth";
+import useAuth from "../contexts/auth.js";
 ...
 const auth = useAuth();
 ```

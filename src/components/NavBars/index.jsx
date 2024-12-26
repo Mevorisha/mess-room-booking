@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import ImageLoader from "../ImageLoader/index.jsx";
+import ImageLoader from "../ImageLoader";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 
@@ -15,6 +15,7 @@ import "./styles.css";
  *   dropdownState: "init" | "showing" | "visible" | "hiding";
  *   handleDropdownClick: (dropdownState: "init" | "showing" | "visible" | "hiding") => void;
  * }} props
+ * @returns {React.JSX.Element}
  */
 function ActionMenu({ dropdownState, handleDropdownClick }) {
   const compUsrCtx = useUsrCompositeCtx();
@@ -69,6 +70,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
 
 /**
  * @param {{ isIncomplete: boolean; }} props
+ * @returns {React.JSX.Element | null}
  */
 function MarkOfIncompletion({ isIncomplete }) {
   // returns a red exclamation mark if isIncomplete true
@@ -84,9 +86,10 @@ function MarkOfIncompletion({ isIncomplete }) {
 }
 
 /**
- * @param {{ children }} props
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
  */
-export default function TopBar({ children }) {
+function TopBar({ children }) {
   const auth = useUsrCompositeCtx();
   const navigate = useNavigate();
   const notify = useNotification();
@@ -257,5 +260,26 @@ export default function TopBar({ children }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
+function BottomBar({ children }) {
+  return <></>;
+}
+
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
+export default function NavBars({ children }) {
+  return (
+    <>
+      <TopBar children={children} />
+      <BottomBar children={children} />
+    </>
   );
 }

@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function RegisterSection() {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = React.useState(
+  const [buttonKind, setButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
 

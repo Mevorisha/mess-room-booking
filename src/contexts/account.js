@@ -27,6 +27,10 @@ export default AccountContext;
 
 /* ------------------------------------ ACCOUNT PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function AccountProvider({ children }) {
   const notify = useNotification();
   const { setUser } = useContext(UserContext);

@@ -12,6 +12,9 @@ import useDialog from "../../hooks/dialogbox.js";
 // @ts-ignore
 import dpGeneric from "../../assets/images/dpGeneric.png";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function SetProfilePhoto() {
   const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();

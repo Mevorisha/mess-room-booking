@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
+/**
+ * @param {{ setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">> }} props
+ * @returns {React.JSX.Element}
+ */
 export default function LoginSection({ setShowSection }) {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = React.useState(
+  const [buttonKind, setButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
 

@@ -2,8 +2,8 @@ import React, { createContext, useState } from "react";
 import DialogBox from "../components/DialogBox";
 
 const DialogBoxContext = createContext({
-  children: /** @type {React.ReactNode | null} */ (null),
-  setChildren: /** @type {(val: React.ReactNode | null) => void} */ (() => {}),
+  children: /** @type {React.JSX.Element | null} */ (null),
+  setChildren: /** @type {(val: React.JSX.Element | null) => void} */ (() => {}),
 
   overlayState: /** @type {"fadeIn" | "fadeOut" | "gone"} */ ("gone"),
   setOverlayState: /** @type {(val: "fadeIn" | "fadeOut" | "gone") => void} */ (
@@ -20,6 +20,10 @@ const DialogBoxContext = createContext({
 
 export default DialogBoxContext;
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function DialogBoxProvider({ children }) {
   const [overlayState, setOverlayState] = useState(
     /** @type {"fadeIn" | "fadeOut" | "gone"} */ ("gone")
@@ -32,7 +36,7 @@ export function DialogBoxProvider({ children }) {
   const [size, setSize] = useState(/** @type {"small" | "large"} */ ("small"));
 
   const [children_, setChildren_] = useState(
-    /** @type {React.ReactNode | null} */ (null)
+    /** @type {React.JSX.Element | null} */ (null)
   );
 
   return (

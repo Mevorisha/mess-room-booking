@@ -411,7 +411,7 @@ async function fetchImageAsBase64(url) {
  *   src: string;
  *   alt: string;
  * }} props
- * @returns
+ * @returns {React.JSX.Element}
  */
 export default function ImageLoader(props) {
   const [imageData, setImageData] = useState(

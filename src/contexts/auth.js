@@ -47,6 +47,10 @@ export default AuthContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function AuthProvider({ children }) {
   const [authState, setAuthState] = useState(
     /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)

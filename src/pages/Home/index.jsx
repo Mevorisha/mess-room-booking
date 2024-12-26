@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
-import LoadingPage from "../Loading/index.jsx";
+import LoadingPage from "../Loading";
 import ButtonText from "../../components/ButtonText";
 import NavBars from "../../components/NavBars";
 
@@ -11,18 +11,21 @@ import "./styles.css";
 
 /**
  * @param {{ user: import("../../contexts/user").User }} props
+ * @returns {React.JSX.Element}
  */
 function HomeForTenant({ user }) {
   return (
     <div className="pages-Home">
       <NavBars>
-        <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-        <ButtonText
-          rounded="all"
-          title="Booking"
-          kind="cannibalized"
-          width="50%"
-        />
+        <>
+          <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
+          <ButtonText
+            rounded="all"
+            title="Booking"
+            kind="cannibalized"
+            width="50%"
+          />
+        </>
       </NavBars>
       <div className="content-container">
         <div className="contents">
@@ -39,18 +42,21 @@ function HomeForTenant({ user }) {
 
 /**
  * @param {{ user: import("../../contexts/user").User }} props
+ * @returns {React.JSX.Element}
  */
 function HomeForOwner({ user }) {
   return (
     <div className="pages-Home">
       <NavBars>
-        <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-        <ButtonText
-          rounded="all"
-          title="Booking"
-          kind="cannibalized"
-          width="50%"
-        />
+        <>
+          <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
+          <ButtonText
+            rounded="all"
+            title="Booking"
+            kind="cannibalized"
+            width="50%"
+          />
+        </>
       </NavBars>
       <div className="content-container">
         <div className="contents">
@@ -65,6 +71,9 @@ function HomeForOwner({ user }) {
   );
 }
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function Home() {
   const compUsrCtx = useUsrCompositeCtx();
   const navigate = useNavigate();

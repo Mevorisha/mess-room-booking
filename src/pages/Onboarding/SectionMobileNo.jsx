@@ -5,6 +5,9 @@ import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function SetMobileNumber() {
   const compUsrCtx = useUsrCompositeCtx();
 

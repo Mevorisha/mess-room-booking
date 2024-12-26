@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
 import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
 import useNotification from "../../hooks/notification.js";
@@ -16,7 +16,7 @@ function DialogContent({ email, setResetButtonKind }) {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [confirmButtonKind, setConfirmButtonKind] = React.useState(
+  const [confirmButtonKind, setConfirmButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
 
@@ -78,11 +78,14 @@ function DialogContent({ email, setResetButtonKind }) {
   );
 }
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function ResetPasswdSection() {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [resetButtonKind, setResetButtonKind] = React.useState(
+  const [resetButtonKind, setResetButtonKind] = useState(
     /** @type {"primary" | "loading"} */ ("primary")
   );
 

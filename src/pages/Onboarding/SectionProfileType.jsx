@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function SetProfileType() {
   const compUsrCtx = useUsrCompositeCtx();
   const notify = useNotification();
   const navigate = useNavigate();
 
-  const [buttonKind, setButtonKind] = React.useState({
+  const [buttonKind, setButtonKind] = useState({
     TENANT: /** @type {"primary" | "loading"} */ ("primary"),
     OWNER: /**  @type {"primary" | "loading"} */ ("primary"),
   });

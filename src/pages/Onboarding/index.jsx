@@ -1,6 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { AuthStateEnum } from "../../contexts/auth";
+import { AuthStateEnum } from "../../contexts/auth.js";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams } from "../../modules/util/pageUrls.js";
 import PageNotFound from "../PageNotFound";

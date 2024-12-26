@@ -9,7 +9,7 @@ import AuthPage from "../../pages/Auth";
 import OnboardingPage from "../../pages/Onboarding";
 import HomePage from "../../pages/Home";
 import ProfilePage from "../../pages/Profile";
-import LoadingPage from "../Loading/index.jsx";
+import LoadingPage from "../Loading";
 
 import { UserProvider } from "../../contexts/user.js";
 import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
@@ -20,6 +20,10 @@ import { IdentityProvider } from "../../contexts/identity.js";
 // import NotifPage from "../../pages/Notif";
 // import AccountPage from "../../pages/Account";
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 function AuthCheck({ children }) {
   const compUsrCtx = useUsrCompositeCtx();
   const navigate = useNavigate();
@@ -47,6 +51,10 @@ function AuthCheck({ children }) {
   return children;
 }
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 function CompositeUsrProvider({ children }) {
   return (
     <UserProvider>
@@ -61,6 +69,9 @@ function CompositeUsrProvider({ children }) {
   );
 }
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function App() {
   // prettier-ignore
   return (

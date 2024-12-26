@@ -6,7 +6,7 @@ const DIALOG_ANIM_DURATION = 250;
 /**
  * @returns {{
  *   isVisible: boolean;
- *   show: (children: React.ReactNode, size?: "small" | "large") => void;
+ *   show: (children: React.JSX.Element, size?: "small" | "large") => void;
  *   hide: () => void;
  * }}
  */
@@ -19,7 +19,7 @@ export default function useDialogBox() {
   const show = useCallback(
     /**
      *
-     * @param {React.ReactNode} children
+     * @param {React.JSX.Element} children
      * @param {"small" | "large"} size
      */
     (children, size = "small") => {

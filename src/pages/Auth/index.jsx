@@ -1,21 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthStateEnum } from "../../contexts/auth.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
 import useUsrCompositeCtx from "../../hooks/compositeUser.js";
-import LoadingPage from "../Loading/index.jsx";
+import LoadingPage from "../Loading";
 import ButtonText from "../../components/ButtonText";
-import ImageLoader from "../../components/ImageLoader/index.jsx";
+import ImageLoader from "../../components/ImageLoader";
 
-import LoginSection from "./SectionLogin.jsx";
-import RegisterSection from "./SectionRegister.jsx";
-import ResetPasswdSection from "./SectionResetPasswd.jsx";
-import OAuthSection from "./SectionOAuth.jsx";
+import LoginSection from "./SectionLogin";
+import RegisterSection from "./SectionRegister";
+import ResetPasswdSection from "./SectionResetPasswd";
+import OAuthSection from "./SectionOAuth";
 
 // @ts-ignore
 import dpMevorisha from "../../assets/images/dpMevorisha.png";
 import "./styles.css";
 
+/**
+ * @param {{
+ *   showSection: "login" | "register" | "resetPasswd",
+ *   setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">>
+ * }} props
+ * @returns {React.JSX.Element}
+ */
 function SectionButtons({ showSection, setShowSection }) {
   return (
     <div className="button-container">
@@ -43,8 +50,11 @@ function SectionButtons({ showSection, setShowSection }) {
   );
 }
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function Auth() {
-  const [showSection, setShowSection] = React.useState(
+  const [showSection, setShowSection] = useState(
     /** @type {"login" | "register" | "resetPasswd"} */ ("login")
   );
 
