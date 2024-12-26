@@ -235,19 +235,19 @@ export default function TopBar({ children }) {
               }
             />
           </div>
-          {/* Request Password Reset */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}
-          >
-            {ActionParams.RESET_PASSWORD}
-          </div>
           {/* Change Mobile Number */}
           <div
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.CHANGE_MOBILE_NUMBER)}
           >
             {ActionParams.CHANGE_MOBILE_NUMBER}
+          </div>
+          {/* Request Password Reset */}
+          <div
+            className="dropdown-item"
+            onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}
+          >
+            {ActionParams.RESET_PASSWORD}
           </div>
           {/* Log Out */}
           <div
