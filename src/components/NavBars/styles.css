@@ -31,14 +31,11 @@
   color: #333;
 }
 
-@media (max-width: 500px) {
-  .components-TopBar .logo-container h1 {
-    display: none;
-  }
-}
-
 .components-TopBar .section-buttons-container {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--pad-1);
   width: 100%;
   max-width: 300px;
 }
@@ -49,7 +46,7 @@
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .components-TopBar .section-buttons-container {
     max-width: 200px;
   }
@@ -79,17 +76,8 @@
   margin-bottom: 1.5px;
 }
 
-.components-TopBar
-  .action-buttons-container
-  span.profile-incomplete
-  span:hover {
+.components-TopBar .action-buttons-container span.profile-incomplete span:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 650px) {
-  .components-TopBar .action-buttons-container span.profile-incomplete span {
-    display: none;
-  }
 }
 
 .components-TopBar .action-buttons-container span.profile-incomplete i {
@@ -121,19 +109,7 @@
   text-decoration: underline;
 }
 
-@media (max-width: 650px) {
-  .components-TopBar
-    .action-buttons-container
-    span.profile-complete
-    .display-name {
-    display: none;
-  }
-}
-
-.components-TopBar
-  .action-buttons-container
-  span.profile-complete
-  .profile-image {
+.components-TopBar .action-buttons-container span.profile-complete .profile-image {
   width: 20px;
   height: 20px;
   object-fit: contain;
@@ -141,11 +117,13 @@
   border: 1px solid #b3b3b3;
 }
 
-@media (max-width: 650px) {
-  .components-TopBar
-    .action-buttons-container
-    span.profile-complete
-    .profile-image {
+@media (max-width: 520px) {
+  .components-TopBar .logo-container h1,
+  .components-TopBar .action-buttons-container span.profile-incomplete span,
+  .components-TopBar .action-buttons-container span.profile-complete .display-name {
+    display: none;
+  }
+  .components-TopBar .action-buttons-container span.profile-complete .profile-image {
     width: 30px;
     height: 30px;
   }
@@ -253,5 +231,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: var(--pad-1);
   }
 }
