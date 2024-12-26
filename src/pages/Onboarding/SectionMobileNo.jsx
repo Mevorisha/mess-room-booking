@@ -99,6 +99,7 @@ export default function SetMobileNumber() {
             name="mobile"
             disabled={action === "Verify & Submit"}
             placeholder="Mobile with country code"
+            defaultValue={compUsrCtx.userCtx.user.mobile ?? ""}
           />
           <input
             required
