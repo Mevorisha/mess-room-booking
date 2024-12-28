@@ -48,14 +48,16 @@ export default function Profile() {
           />
         </div>
         <table className="details-container">
-          <tr className="detail">
-            <td className="detail-label">Name: </td>
-            <td className="detail-value">{displayName}</td>
-          </tr>
-          <tr className="detail">
-            <td className="detail-label">Mobile: </td>
-            <td className="detail-value">{mobileNo}</td>
-          </tr>
+          <tbody>
+            <tr className="detail">
+              <td className="detail-label">Name: </td>
+              <td className="detail-value">{displayName}</td>
+            </tr>
+            <tr className="detail">
+              <td className="detail-label">Mobile: </td>
+              <td className="detail-value">{mobileNo}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
