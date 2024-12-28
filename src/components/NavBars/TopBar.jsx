@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import ImageLoader from "../ImageLoader";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 
 // @ts-ignore
@@ -18,27 +18,27 @@ import "./styles.css";
  * @returns {React.JSX.Element}
  */
 function ActionMenu({ dropdownState, handleDropdownClick }) {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   let text = "Profile Incomplete!";
 
   if (
-    isEmpty(compUsrCtx.userCtx.user.profilePhotos) &&
-    (isEmpty(compUsrCtx.userCtx.user.firstName) ||
-      isEmpty(compUsrCtx.userCtx.user.lastName))
+    isEmpty(compUsr.userCtx.user.profilePhotos) &&
+    (isEmpty(compUsr.userCtx.user.firstName) ||
+      isEmpty(compUsr.userCtx.user.lastName))
   )
     text = "Profile Incomplete!";
-  else if (isEmpty(compUsrCtx.userCtx.user.profilePhotos))
+  else if (isEmpty(compUsr.userCtx.user.profilePhotos))
     text = "Add Profile Photo!";
   else if (
-    isEmpty(compUsrCtx.userCtx.user.firstName) ||
-    isEmpty(compUsrCtx.userCtx.user.lastName)
+    isEmpty(compUsr.userCtx.user.firstName) ||
+    isEmpty(compUsr.userCtx.user.lastName)
   )
     text = "Add Display Name!";
 
   if (
-    isEmpty(compUsrCtx.userCtx.user.profilePhotos) ||
-    isEmpty(compUsrCtx.userCtx.user.firstName) ||
-    isEmpty(compUsrCtx.userCtx.user.lastName)
+    isEmpty(compUsr.userCtx.user.profilePhotos) ||
+    isEmpty(compUsr.userCtx.user.firstName) ||
+    isEmpty(compUsr.userCtx.user.lastName)
   )
     return (
       <span
@@ -57,11 +57,11 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
       onClick={() => handleDropdownClick(dropdownState)}
     >
       <span className="display-name">
-        {compUsrCtx.userCtx.user.firstName} {compUsrCtx.userCtx.user.lastName}
+        {compUsr.userCtx.user.firstName} {compUsr.userCtx.user.lastName}
       </span>
       <ImageLoader
         className="profile-image"
-        src={compUsrCtx.userCtx.user.profilePhotos?.small || ""}
+        src={compUsr.userCtx.user.profilePhotos?.small || ""}
         alt="profile"
       />
     </span>
@@ -90,7 +90,7 @@ function MarkOfIncompletion({ isIncomplete }) {
  * @returns {React.JSX.Element}
  */
 export default function TopBar({ children }) {
-  const auth = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const navigate = useNavigate();
   const notify = useNotification();
 
@@ -129,12 +129,14 @@ export default function TopBar({ children }) {
         break;
       // reset password action
       case ActionParams.RESET_PASSWORD:
-        auth.accountCtx.requestPasswordReset().catch((e) => notify(e, "error"));
+        compUsr.accountCtx
+          .requestPasswordReset()
+          .catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // log out action
       case ActionParams.LOGOUT:
-        auth.authCtx.logOut().catch((e) => notify(e, "error"));
+        compUsr.authCtx.logOut().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // invalid action
@@ -194,7 +196,7 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
           >
-            View {auth.userCtx.user.type === "OWNER" ? "Owner" : "Tenant"}{" "}
+            View {compUsr.userCtx.user.type === "OWNER" ? "Owner" : "Tenant"}{" "}
             Profile
           </div>
           {/* Switch Profile Type */}
@@ -202,8 +204,8 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
           >
-            Switch to {auth.userCtx.user.type === "OWNER" ? "Tenant" : "Owner"}{" "}
-            Profile
+            Switch to{" "}
+            {compUsr.userCtx.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
           </div>
           {/* Update Profile Photo */}
           <div
@@ -212,7 +214,7 @@ export default function TopBar({ children }) {
           >
             {ActionParams.UPDATE_PROFILE_PHOTO}
             <MarkOfIncompletion
-              isIncomplete={isEmpty(auth.userCtx.user.profilePhotos)}
+              isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)}
             />
           </div>
           {/* Update ID Documents */}
@@ -230,8 +232,8 @@ export default function TopBar({ children }) {
             {ActionParams.CHANGE_NAME}
             <MarkOfIncompletion
               isIncomplete={
-                isEmpty(auth.userCtx.user.firstName) ||
-                isEmpty(auth.userCtx.user.lastName)
+                isEmpty(compUsr.userCtx.user.firstName) ||
+                isEmpty(compUsr.userCtx.user.lastName)
               }
             />
           </div>
