@@ -1,7 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { PageUrls } from "../../modules/util/pageUrls.js";
-import ButtonText from "../../components/ButtonText";
+
+import { PageUrls } from "../../../modules/util/pageUrls.js";
+
+import ButtonText from "../../../components/ButtonText";
+
 import "./styles.css";
 
 /**

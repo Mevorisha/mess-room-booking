@@ -1,7 +1,10 @@
 import React from "react";
-import { GoogleAuth } from "../../modules/firebase/auth.js";
-import ImageLoader from "../../components/ImageLoader";
-import useNotification from "../../hooks/notification.js";
+
+import { GoogleAuth } from "../../../modules/firebase/auth.js";
+
+import useNotification from "../../../hooks/notification.js";
+
+import ImageLoader from "../../../components/ImageLoader";
 
 /**
  * @returns {React.JSX.Element}

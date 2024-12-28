@@ -1,16 +1,19 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { isEmpty } from "../../modules/util/validations.js";
-import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import useCompositeUser from "../../hooks/compositeUser.js";
+
+import { isEmpty } from "../../../modules/util/validations.js";
+import { ActionParams, PageUrls } from "../../../modules/util/pageUrls.js";
+
+import useCompositeUser from "../../../hooks/compositeUser.js";
+
+import ButtonText from "../../../components/ButtonText";
+import NavBars from "../../../components/NavBars";
 import LoadingPage from "../Loading";
-import ButtonText from "../../components/ButtonText";
-import NavBars from "../../components/NavBars";
 
 import "./styles.css";
 
 /**
- * @param {{ user: import("../../contexts/user").User }} props
+ * @param {{ user: import("../../../contexts/user.js").User }} props
  * @returns {React.JSX.Element}
  */
 function HomeForTenant({ user }) {
@@ -41,7 +44,7 @@ function HomeForTenant({ user }) {
 }
 
 /**
- * @param {{ user: import("../../contexts/user").User }} props
+ * @param {{ user: import("../../../contexts/user.js").User }} props
  * @returns {React.JSX.Element}
  */
 function HomeForOwner({ user }) {

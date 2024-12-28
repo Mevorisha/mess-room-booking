@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { EmailPasswdAuth } from "../../modules/firebase/auth.js";
-import { checkForEasterEgg } from "../../modules/util/easterEggs.js";
-import useNotification from "../../hooks/notification.js";
-import ButtonText from "../../components/ButtonText";
+
+import { EmailPasswdAuth } from "../../../modules/firebase/auth.js";
+import { checkForEasterEgg } from "../../../modules/util/easterEggs.js";
+
+import useNotification from "../../../hooks/notification.js";
+
+import ButtonText from "../../../components/ButtonText";
 
 /**
  * @returns {React.JSX.Element}

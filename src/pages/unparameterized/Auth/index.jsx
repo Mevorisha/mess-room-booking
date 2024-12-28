@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthStateEnum } from "../../contexts/auth.js";
-import { PageUrls } from "../../modules/util/pageUrls.js";
-import useCompositeUser from "../../hooks/compositeUser.js";
-import LoadingPage from "../Loading";
-import ButtonText from "../../components/ButtonText";
-import ImageLoader from "../../components/ImageLoader";
+
+import { AuthStateEnum } from "../../../contexts/auth.js";
+import { PageUrls } from "../../../modules/util/pageUrls.js";
+
+import useCompositeUser from "../../../hooks/compositeUser.js";
+
+import ButtonText from "../../../components/ButtonText";
+import ImageLoader from "../../../components/ImageLoader";
 
 import LoginSection from "./SectionLogin";
 import RegisterSection from "./SectionRegister";
 import ResetPasswdSection from "./SectionResetPasswd";
 import OAuthSection from "./SectionOAuth";
 
-// @ts-ignore
-import dpMevorisha from "../../assets/images/dpMevorisha.png";
+import LoadingPage from "../Loading";
+
 import "./styles.css";
+
+// @ts-ignore
+import dpMevorisha from "../../../assets/images/dpMevorisha.png";
 
 /**
  * @param {{
@@ -34,8 +39,8 @@ function SectionButtons({ showSection, setShowSection }) {
           showSection === "login"
             ? "primary"
             : showSection === "resetPasswd"
-              ? "secondary"
-              : "cannibalized"
+            ? "secondary"
+            : "cannibalized"
         }
         width="50%"
       />
