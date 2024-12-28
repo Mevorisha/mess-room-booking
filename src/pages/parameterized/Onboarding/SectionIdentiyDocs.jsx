@@ -1,11 +1,13 @@
 import React from "react";
-import useCompositeUser from "../../hooks/compositeUser.js";
-import ButtonText from "../../components/ButtonText";
-import ImageLoader from "../../components/ImageLoader";
-import DialogImagePreview from "../../components/DialogImagePreview";
-import useNotification from "../../hooks/notification.js";
-import useDialog from "../../hooks/dialogbox.js";
-import { loadFileFromFilePicker } from "../../modules/firebase/storage.js";
+
+import { loadFileFromFilePicker } from "../../../modules/firebase/storage.js";
+import useNotification from "../../../hooks/notification.js";
+import useCompositeUser from "../../../hooks/compositeUser.js";
+import useDialog from "../../../hooks/dialogbox.js";
+
+import ButtonText from "../../../components/ButtonText";
+import ImageLoader from "../../../components/ImageLoader";
+import DialogImagePreview from "../../../components/DialogImagePreview";
 
 /**
  * Section where the user can upload their identity documents.

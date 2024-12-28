@@ -1,13 +1,15 @@
 import React from "react";
-import ImageLoader from "../../components/ImageLoader";
-import DialogImagePreview from "../../components/DialogImagePreview";
-import useCompositeUser from "../../hooks/compositeUser";
-import useDialogBox from "../../hooks/dialogbox";
+
+import useCompositeUser from "../../../hooks/compositeUser";
+import useDialogBox from "../../../hooks/dialogbox";
+
+import ImageLoader from "../../../components/ImageLoader";
+import DialogImagePreview from "../../../components/DialogImagePreview";
 
 import "./styles.css";
 
 // @ts-ignore
-import dpGeneric from "../../assets/images/dpGeneric.png";
+import dpGeneric from "../../../assets/images/dpGeneric.png";
 
 /**
  * @returns {React.JSX.Element}

@@ -1,16 +1,19 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { AuthStateEnum } from "../../contexts/auth.js";
-import { isEmpty } from "../../modules/util/validations.js";
-import { ActionParams } from "../../modules/util/pageUrls.js";
-import PageNotFound from "../PageNotFound";
-import useCompositeUser from "../../hooks/compositeUser.js";
+
+import { AuthStateEnum } from "../../../contexts/auth.js";
+import { isEmpty } from "../../../modules/util/validations.js";
+import { ActionParams } from "../../../modules/util/pageUrls.js";
+
+import useCompositeUser from "../../../hooks/compositeUser.js";
 
 import SetDisplayName from "./SectionDisplayName";
 import SetMobileNumber from "./SectionMobileNo";
 import SetProfilePhoto from "./SectionProfilePhoto";
 import SetProfileType from "./SectionProfileType";
 import SetIdentityDocs from "./SectionIdentiyDocs";
+
+import PageNotFound from "../../unparameterized/PageNotFound";
 
 import "./styles.css";
 
