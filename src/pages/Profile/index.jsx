@@ -1,13 +1,34 @@
 import React from "react";
+import ImageLoader from "../../components/ImageLoader";
+import DialogImagePreview from "../../components/DialogImagePreview";
 import useCompositeUser from "../../hooks/compositeUser";
+import useDialogBox from "../../hooks/dialogbox";
 
 import "./styles.css";
+
+// @ts-ignore
+import dpGeneric from "../../assets/images/dpGeneric.png";
 
 /**
  * @returns {React.JSX.Element}
  */
 export default function Profile() {
   const compUsr = useCompositeUser();
+  const dialog = useDialogBox();
+
+  function handleShowLargeImage() {
+    if (!compUsr.userCtx.user.profilePhotos?.large) return;
+
+    dialog.show(
+      <DialogImagePreview
+        largeImageUrl={compUsr.userCtx.user.profilePhotos?.large}
+      />,
+      "large"
+    );
+  }
+
+  const displayName = `${compUsr.userCtx.user.firstName} ${compUsr.userCtx.user.lastName}`;
+  const mobileNo = compUsr.userCtx.user.mobile;
 
   return (
     <div className="pages-Profile">
@@ -16,12 +37,24 @@ export default function Profile() {
           {compUsr.userCtx.user.type === "OWNER" ? "Owner" : "Tenant"} Profile
         </h1>
         <h4>Profile details will be visible publicly.</h4>
-        <div className="desc">
-          <p>
-            Documents like work or institution identity card and aadhaar card
-            may be used by you room owner to verify your identity.
-          </p>
+
+        <div className="photo-container">
+          <ImageLoader
+            src={compUsr.userCtx.user.profilePhotos?.medium || dpGeneric}
+            alt="profile"
+            onClick={handleShowLargeImage}
+          />
         </div>
+        <table className="details-container">
+          <tr className="detail">
+            <td className="detail-label">Name: </td>
+            <td className="detail-value">{displayName}</td>
+          </tr>
+          <tr className="detail">
+            <td className="detail-label">Mobile: </td>
+            <td className="detail-value">{mobileNo}</td>
+          </tr>
+        </table>
       </div>
     </div>
   );
