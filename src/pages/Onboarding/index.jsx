@@ -4,7 +4,7 @@ import { AuthStateEnum } from "../../contexts/auth.js";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams } from "../../modules/util/pageUrls.js";
 import PageNotFound from "../PageNotFound";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 
 import SetDisplayName from "./SectionDisplayName";
 import SetMobileNumber from "./SectionMobileNo";
@@ -18,7 +18,7 @@ import "./styles.css";
  * @returns {React.JSX.Element}
  */
 export default function Onboarding() {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const [searchParams] = useSearchParams();
 
   if (searchParams.has("action"))
@@ -37,9 +37,9 @@ export default function Onboarding() {
         return <PageNotFound />;
     }
 
-  if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) return <></>;
-  if (isEmpty(compUsrCtx.userCtx.user.type)) return <SetProfileType />;
-  if (isEmpty(compUsrCtx.userCtx.user.mobile)) return <SetMobileNumber />;
+  if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) return <></>;
+  if (isEmpty(compUsr.userCtx.user.type)) return <SetProfileType />;
+  if (isEmpty(compUsr.userCtx.user.mobile)) return <SetMobileNumber />;
 
   return <PageNotFound />;
 }

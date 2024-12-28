@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import ButtonText from "../../components/ButtonText";
 
@@ -9,7 +9,7 @@ import ButtonText from "../../components/ButtonText";
  * @returns {React.JSX.Element}
  */
 export default function SetMobileNumber() {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
 
   const [action, setAction] = useState(
     /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ (
@@ -37,7 +37,7 @@ export default function SetMobileNumber() {
       notify("Please wait while we send the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => compUsrCtx.accountCtx.sendPhoneVerificationCode(mobile))
+        .then(() => compUsr.accountCtx.sendPhoneVerificationCode(mobile))
         .then(() => setAction("Verify & Submit"))
         .then(() => setButtonKind("primary"))
         .catch((e) => {
@@ -52,7 +52,7 @@ export default function SetMobileNumber() {
       notify("Please wait while we verify the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => compUsrCtx.accountCtx.verifyPhoneVerificationCode(otp))
+        .then(() => compUsr.accountCtx.verifyPhoneVerificationCode(otp))
         .then(() => navigate(PageUrls.HOME))
         .catch((e) => {
           setAction("Resend OTP");
@@ -74,7 +74,7 @@ export default function SetMobileNumber() {
         <div className="desc">
           <p>
             Mobile number is required for communication and allows your room{" "}
-            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
             contact you.
           </p>
           {/* <h4 style={{ marginTop: "20px" }}>
@@ -99,7 +99,7 @@ export default function SetMobileNumber() {
             name="mobile"
             disabled={action === "Verify & Submit"}
             placeholder="Mobile with country code"
-            defaultValue={compUsrCtx.userCtx.user.mobile ?? ""}
+            defaultValue={compUsr.userCtx.user.mobile ?? ""}
           />
           <input
             required

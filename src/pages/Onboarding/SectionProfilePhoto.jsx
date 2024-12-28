@@ -5,7 +5,7 @@ import { PageUrls } from "../../modules/util/pageUrls.js";
 import ButtonText from "../../components/ButtonText";
 import ImageLoader from "../../components/ImageLoader";
 import DialogImagePreview from "../../components/DialogImagePreview";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 import useNotification from "../../hooks/notification.js";
 import useDialog from "../../hooks/dialogbox.js";
 
@@ -16,14 +16,14 @@ import dpGeneric from "../../assets/images/dpGeneric.png";
  * @returns {React.JSX.Element}
  */
 export default function SetProfilePhoto() {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const notify = useNotification();
   const dialog = useDialog();
   const navigate = useNavigate();
 
   // state
   const [photoURL, setPhotoURL] = useState(
-    compUsrCtx.userCtx.user.profilePhotos?.medium || dpGeneric
+    compUsr.userCtx.user.profilePhotos?.medium || dpGeneric
   );
 
   const [buttonKind, setButtonKind] = useState(
@@ -39,7 +39,7 @@ export default function SetProfilePhoto() {
         setButtonKind("loading");
         return file;
       })
-      .then((file) => compUsrCtx.profileCtx.updateProfilePhoto(file))
+      .then((file) => compUsr.profileCtx.updateProfilePhoto(file))
       .then((url) => {
         setButtonKind("primary");
         return url;
@@ -53,11 +53,11 @@ export default function SetProfilePhoto() {
   }
 
   function handleShowLargeImage() {
-    if (!compUsrCtx.userCtx.user.profilePhotos?.large) return;
+    if (!compUsr.userCtx.user.profilePhotos?.large) return;
 
     dialog.show(
       <DialogImagePreview
-        largeImageUrl={compUsrCtx.userCtx.user.profilePhotos?.large}
+        largeImageUrl={compUsr.userCtx.user.profilePhotos?.large}
       />,
       "large"
     );
@@ -72,13 +72,17 @@ export default function SetProfilePhoto() {
         <div className="desc">
           <p>
             Photo is required for identification and allows your room{" "}
-            {compUsrCtx.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
+            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
             recognize you.
           </p>
         </div>
 
         <div className="photo-container">
-          <ImageLoader src={photoURL} alt="profile" onClick={handleShowLargeImage} />
+          <ImageLoader
+            src={photoURL}
+            alt="profile"
+            onClick={handleShowLargeImage}
+          />
           <ButtonText
             rounded="all"
             title="Update Photo"
