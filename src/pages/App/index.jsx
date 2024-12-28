@@ -3,7 +3,7 @@ import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 import { NotificationProvider } from "../../contexts/notification.js";
 import { DialogBoxProvider } from "../../contexts/dialogbox.js";
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 import PageNotFound from "../PageNotFound";
 import AuthPage from "../../pages/Auth";
 import OnboardingPage from "../../pages/Onboarding";
@@ -25,24 +25,24 @@ import { IdentityProvider } from "../../contexts/identity.js";
  * @returns {React.JSX.Element}
  */
 function AuthCheck({ children }) {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     /* routing is not loaded if still loading, so prevent all
        redirects to avoid unnecessary errors */
-    if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) return;
+    if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) return;
 
     /* redirect to auth page if user state is loaded
        and user is not logged in */
-    if (compUsrCtx.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
+    if (compUsr.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
       navigate(PageUrls.AUTH);
     }
-  }, [compUsrCtx.authCtx.state, navigate]);
+  }, [compUsr.authCtx.state, navigate]);
 
   /* show loading page if the auth state is still loading
      and do not render routing */
-  if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) {
+  if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) {
     return <LoadingPage />;
   }
 
