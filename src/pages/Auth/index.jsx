@@ -34,8 +34,8 @@ function SectionButtons({ showSection, setShowSection }) {
           showSection === "login"
             ? "primary"
             : showSection === "resetPasswd"
-            ? "secondary"
-            : "cannibalized"
+              ? "secondary"
+              : "cannibalized"
         }
         width="50%"
       />
