@@ -3,7 +3,9 @@ import DialogBox from "../components/DialogBox";
 
 const DialogBoxContext = createContext({
   children: /** @type {React.JSX.Element | null} */ (null),
-  setChildren: /** @type {(val: React.JSX.Element | null) => void} */ (() => {}),
+  setChildren: /** @type {(val: React.JSX.Element | null) => void} */ (
+    () => {}
+  ),
 
   overlayState: /** @type {"fadeIn" | "fadeOut" | "gone"} */ ("gone"),
   setOverlayState: /** @type {(val: "fadeIn" | "fadeOut" | "gone") => void} */ (
