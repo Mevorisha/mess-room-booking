@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useNotification from "../../hooks/notification.js";
 
 const LOADING_GIF_DATA =
@@ -411,7 +411,7 @@ async function fetchImageAsBase64(url) {
  *   src: string;
  *   alt: string;
  * }} props
- * @returns
+ * @returns {React.JSX.Element}
  */
 export default function ImageLoader(props) {
   const [imageData, setImageData] = useState(
@@ -422,12 +422,11 @@ export default function ImageLoader(props) {
 
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
-  // fetch the image data as base64 from URL
-  useEffect(() => {
+  function onImageElementLoaded() {
     fetchImageAsBase64(props.src)
       .then((data) => setImageData(data))
       .catch((e) => notify(e, "error"));
-  }, [props.src, notify]);
+  }
 
   /**
    * @type {React.CSSProperties}
@@ -443,6 +442,7 @@ export default function ImageLoader(props) {
         style={animationStyles}
         src={loadingAnimation}
         alt={props.alt}
+        onLoad={onImageElementLoaded}
       />
     );
   }

@@ -28,6 +28,10 @@ export default ProfileContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function ProfileProvider({ children }) {
   const notify = useNotification();
   const { user, setUser } = useContext(UserContext);

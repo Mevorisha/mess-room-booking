@@ -253,6 +253,10 @@ export default UserContext;
 
 /* ------------------------------------ USER PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function UserProvider({ children }) {
   const [user, setUser] = useState(User.loadCurrentUser());
 

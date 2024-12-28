@@ -27,6 +27,10 @@ export default AccountContext;
 
 /* ------------------------------------ ACCOUNT PROVIDER COMPONENT ----------------------------------- */
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function AccountProvider({ children }) {
   const notify = useNotification();
   const { setUser } = useContext(UserContext);
@@ -41,6 +45,17 @@ export function AccountProvider({ children }) {
         notify("Check your mobile for OTP", "info")
       ),
     [notify]
+  );
+
+  const unlinkPhoneNumber = useCallback(
+    /**
+     * @returns {Promise<void>}
+     */
+    async () =>
+      LinkMobileNumber.unlinkPhoneNumber()
+        .then(() => setUser((user) => user.clone().setMobile("")))
+        .then(() => notify("Mobile number unlinked successfully", "success")),
+    [notify, setUser]
   );
 
   const verifyPhoneVerificationCode = useCallback(
@@ -66,25 +81,14 @@ export function AccountProvider({ children }) {
             return Promise.reject(error);
           }
           notify("Unlinking existing mobile number", "info");
-          await LinkMobileNumber.unlinkPhoneNumber();
+          await unlinkPhoneNumber();
           notify("Verifying new mobile number", "info");
           return LinkMobileNumber.verifyOtp(otp);
         })
         .then((phno) => setUser((user) => user.clone().setMobile(phno)))
         .then(() => notify("Mobile number verified successfully", "success")),
 
-    [notify, setUser]
-  );
-
-  const unlinkPhoneNumber = useCallback(
-    /**
-     * @returns {Promise<void>}
-     */
-    async () =>
-      LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => setUser((user) => user.clone().setMobile("")))
-        .then(() => notify("Mobile number unlinked successfully", "success")),
-    [notify, setUser]
+    [notify, setUser, unlinkPhoneNumber]
   );
 
   const requestPasswordReset = useCallback(

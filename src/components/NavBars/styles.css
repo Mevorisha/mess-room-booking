@@ -1,0 +1,236 @@
+.components-TopBar {
+  position: fixed;
+  top: 0;
+  z-index: var(--zindex-always-top);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 2 * var(--pad-4));
+  padding: var(--pad-2) var(--pad-4);
+  background-color: var(--color-bg-primary);
+}
+
+.components-TopBar .logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-2);
+}
+
+.components-TopBar .logo-container img {
+  width: 30px;
+  height: 30px;
+  /* crop the image */
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid #b3b3b3;
+}
+
+.components-TopBar .logo-container h1 {
+  margin: var(--pad-0);
+  font-size: 1rem;
+  color: #333;
+}
+
+.components-TopBar .section-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--pad-1);
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .section-buttons-container {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 600px) {
+  .components-TopBar .section-buttons-container {
+    max-width: 200px;
+  }
+}
+
+.components-TopBar .action-buttons-container {
+  display: flex;
+  gap: var(--pad-4);
+  user-select: none;
+}
+
+.components-TopBar .action-buttons-container span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pad-2);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete {
+  cursor: pointer;
+  color: red;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete span {
+  margin-bottom: 1.5px;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete span:hover {
+  text-decoration: underline;
+}
+
+.components-TopBar .action-buttons-container span.profile-incomplete i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 650px) {
+  .components-TopBar .action-buttons-container span.profile-incomplete i {
+    font-size: 1.7rem;
+  }
+}
+
+.components-TopBar .action-buttons-container span.profile-complete {
+  cursor: pointer;
+  color: #333;
+}
+
+.components-TopBar
+  .action-buttons-container
+  span.profile-complete
+  .display-name {
+  margin-bottom: 1.5px;
+}
+
+.components-TopBar
+  .action-buttons-container
+  span.profile-complete
+  .display-name:hover {
+  text-decoration: underline;
+}
+
+.components-TopBar .action-buttons-container span.profile-complete .profile-image {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 1px solid #b3b3b3;
+}
+
+@media (max-width: 520px) {
+  .components-TopBar .logo-container h1,
+  .components-TopBar .action-buttons-container span.profile-incomplete span,
+  .components-TopBar .action-buttons-container span.profile-complete .display-name {
+    display: none;
+  }
+  .components-TopBar .action-buttons-container span.profile-complete .profile-image {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.components-TopBar .action-buttons-container .dropdown {
+  position: absolute;
+  top: 50px;
+  right: var(--pad-3);
+  background-color: var(--color-bg-primary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-bg-secondary);
+  box-shadow: var(--shadow);
+  padding: var(--pad-2);
+  transition: all 100ms ease-in-out;
+}
+
+@media (max-width: 361px) {
+  .components-TopBar .action-buttons-container .dropdown {
+    top: 45px;
+    right: var(--pad-0);
+    width: calc(100% - 2 * var(--pad-2));
+  }
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-init {
+  display: none;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-showing {
+  display: block;
+  opacity: 0;
+  transition: opacity 100ms ease-in-out;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-visible {
+  opacity: 1;
+  transition: opacity 100ms ease-in-out;
+}
+
+.components-TopBar .action-buttons-container .dropdown-anim-hiding {
+  opacity: 0;
+}
+
+.components-TopBar .action-buttons-container .dropdown-item {
+  display: flex;
+  gap: var(--pad-2);
+  padding: var(--pad-2);
+}
+
+.components-TopBar .action-buttons-container .dropdown-item:hover {
+  cursor: pointer;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+}
+
+.components-TopBar .action-buttons-container .dropdown-item:active {
+  cursor: pointer;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+}
+
+.components-BottomBar {
+  position: fixed;
+  bottom: 0;
+  z-index: var(--zindex-always-top);
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% - 2 * var(--pad-4));
+  padding: var(--pad-2) var(--pad-4);
+  background-color: var(--color-bg-primary);
+}
+
+.components-BottomBar .section-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--pad-1);
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (max-width: 650px) {
+  .components-BottomBar .section-buttons-container {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 500px) {
+  .components-BottomBar .section-buttons-container {
+    max-width: 200px;
+  }
+}
+
+/* media: hide TopBar.section-buttons and show BottomBar if creen is <= 420 */
+@media (max-width: 421px) {
+  .components-TopBar .section-buttons-container {
+    display: none;
+  }
+  .components-TopBar .logo-container h1 {
+    display: unset;
+  }
+  .components-BottomBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--pad-1);
+  }
+}

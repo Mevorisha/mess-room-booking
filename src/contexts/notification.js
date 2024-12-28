@@ -27,6 +27,10 @@ const NotificationContext = createContext({
 
 export default NotificationContext;
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 export function NotificationProvider({ children }) {
   const [message, setMessage] = useState("");
 

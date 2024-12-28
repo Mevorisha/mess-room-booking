@@ -1,44 +1,51 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
-import { NotificationProvider } from "../../contexts/notification.js";
-import { DialogBoxProvider } from "../../contexts/dialogbox.js";
+
 import { PageUrls } from "../../modules/util/pageUrls.js";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
-import PageNotFound from "../PageNotFound";
-import AuthPage from "../../pages/Auth";
-import OnboardingPage from "../../pages/Onboarding";
-import HomePage from "../../pages/Home";
-import ProfilePage from "../../pages/Profile";
-import LoadingPage from "../Loading/index.jsx";
 
 import { UserProvider } from "../../contexts/user.js";
 import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
 import { AccountProvider } from "../../contexts/account.js";
 import { ProfileProvider } from "../../contexts/profile.js";
 import { IdentityProvider } from "../../contexts/identity.js";
+import { NotificationProvider } from "../../contexts/notification.js";
+import { DialogBoxProvider } from "../../contexts/dialogbox.js";
+
+import useCompositeUser from "../../hooks/compositeUser.js";
+
+import PageNotFound from "../unparameterized/PageNotFound";
+import LoadingPage from "../unparameterized/Loading";
+import AuthPage from "../unparameterized/Auth";
+import HomePage from "../unparameterized/Home";
+import OnboardingPage from "../parameterized/Onboarding";
+import ProfilePage from "../parameterized/Profile";
 
 // import NotifPage from "../../pages/Notif";
 // import AccountPage from "../../pages/Account";
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 function AuthCheck({ children }) {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const navigate = useNavigate();
 
   useEffect(() => {
     /* routing is not loaded if still loading, so prevent all
        redirects to avoid unnecessary errors */
-    if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) return;
+    if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) return;
 
     /* redirect to auth page if user state is loaded
        and user is not logged in */
-    if (compUsrCtx.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
+    if (compUsr.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
       navigate(PageUrls.AUTH);
     }
-  }, [compUsrCtx.authCtx.state, navigate]);
+  }, [compUsr.authCtx.state, navigate]);
 
   /* show loading page if the auth state is still loading
      and do not render routing */
-  if (compUsrCtx.authCtx.state === AuthStateEnum.STILL_LOADING) {
+  if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) {
     return <LoadingPage />;
   }
 
@@ -47,6 +54,10 @@ function AuthCheck({ children }) {
   return children;
 }
 
+/**
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
+ */
 function CompositeUsrProvider({ children }) {
   return (
     <UserProvider>
@@ -61,6 +72,9 @@ function CompositeUsrProvider({ children }) {
   );
 }
 
+/**
+ * @returns {React.JSX.Element}
+ */
 export default function App() {
   // prettier-ignore
   return (

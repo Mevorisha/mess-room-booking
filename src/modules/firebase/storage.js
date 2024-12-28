@@ -1,4 +1,4 @@
-import { fbStorageGetRef } from "./init";
+import { fbStorageGetRef } from "./init.js";
 import {
   deleteObject,
   getBlob,
@@ -7,7 +7,7 @@ import {
   getMetadata,
   uploadBytesResumable,
 } from "firebase/storage";
-import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages";
+import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import { sizehuman } from "../util/dataConversion.js";
 
 /**

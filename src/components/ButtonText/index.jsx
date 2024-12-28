@@ -18,6 +18,7 @@ import "./styles.css";
  *                                                                              button in a container with the desired width.
  *
  * @param {ButtonTextProps} props
+ * @return {React.JSX.Element}
  */
 export default function ButtonText({
   title,

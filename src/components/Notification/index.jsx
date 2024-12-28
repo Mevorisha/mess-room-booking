@@ -2,6 +2,9 @@ import React, { useContext } from "react";
 import NotificationContext from "../../contexts/notification.js";
 import "./styles.css";
 
+/**
+ * @returns {React.JSX.Element}
+ */
 function Notification() {
   const {
     message,
