@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import useUsrCompositeCtx from "../../hooks/compositeUser.js";
+import useCompositeUser from "../../hooks/compositeUser.js";
 import LoadingPage from "../Loading";
 import ButtonText from "../../components/ButtonText";
 import NavBars from "../../components/NavBars";
@@ -75,13 +75,13 @@ function HomeForOwner({ user }) {
  * @returns {React.JSX.Element}
  */
 export default function Home() {
-  const compUsrCtx = useUsrCompositeCtx();
+  const compUsr = useCompositeUser();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // user logged in but profile type not set
-    if (isEmpty(compUsrCtx.userCtx.user.type)) {
+    if (isEmpty(compUsr.userCtx.user.type)) {
       searchParams.set("action", ActionParams.SWITCH_PROFILE_TYPE);
       navigate({
         pathname: PageUrls.ONBOARDING,
@@ -90,7 +90,7 @@ export default function Home() {
     }
 
     // user logged in but mobile number not set
-    else if (isEmpty(compUsrCtx.userCtx.user.mobile)) {
+    else if (isEmpty(compUsr.userCtx.user.mobile)) {
       searchParams.set("action", ActionParams.CHANGE_MOBILE_NUMBER);
       navigate({
         pathname: PageUrls.ONBOARDING,
@@ -98,24 +98,24 @@ export default function Home() {
       });
     }
   }, [
-    compUsrCtx.userCtx.user.type,
-    compUsrCtx.userCtx.user.mobile,
+    compUsr.userCtx.user.type,
+    compUsr.userCtx.user.mobile,
     searchParams,
     navigate,
   ]);
 
   // user logged in but not onboarded
   if (
-    isEmpty(compUsrCtx.userCtx.user.type) ||
-    isEmpty(compUsrCtx.userCtx.user.mobile)
+    isEmpty(compUsr.userCtx.user.type) ||
+    isEmpty(compUsr.userCtx.user.mobile)
   ) {
     return <LoadingPage />;
   }
 
   // home page content
-  return compUsrCtx.userCtx.user.type === "TENANT" ? (
-    <HomeForTenant user={compUsrCtx.userCtx.user} />
+  return compUsr.userCtx.user.type === "TENANT" ? (
+    <HomeForTenant user={compUsr.userCtx.user} />
   ) : (
-    <HomeForOwner user={compUsrCtx.userCtx.user} />
+    <HomeForOwner user={compUsr.userCtx.user} />
   );
 }
