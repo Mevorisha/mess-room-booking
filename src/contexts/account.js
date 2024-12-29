@@ -33,7 +33,7 @@ export default AccountContext;
  */
 export function AccountProvider({ children }) {
   const notify = useNotification();
-  const { setUser } = useContext(UserContext);
+  const { dispatchUser } = useContext(UserContext);
 
   const sendPhoneVerificationCode = useCallback(
     /**
@@ -53,9 +53,9 @@ export function AccountProvider({ children }) {
      */
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => setUser((user) => user.clone().setMobile("")))
+        .then(() => dispatchUser({ mobile: "" }))
         .then(() => notify("Mobile number unlinked successfully", "success")),
-    [notify, setUser]
+    [notify, dispatchUser]
   );
 
   const verifyPhoneVerificationCode = useCallback(
@@ -85,10 +85,10 @@ export function AccountProvider({ children }) {
           notify("Verifying new mobile number", "info");
           return LinkMobileNumber.verifyOtp(otp);
         })
-        .then((phno) => setUser((user) => user.clone().setMobile(phno)))
+        .then((phno) => dispatchUser({ mobile: phno }))
         .then(() => notify("Mobile number verified successfully", "success")),
 
-    [notify, setUser, unlinkPhoneNumber]
+    [notify, dispatchUser, unlinkPhoneNumber]
   );
 
   const requestPasswordReset = useCallback(

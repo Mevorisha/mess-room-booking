@@ -34,7 +34,7 @@ export default ProfileContext;
  */
 export function ProfileProvider({ children }) {
   const notify = useNotification();
-  const { user, setUser } = useContext(UserContext);
+  const { user, dispatchUser } = useContext(UserContext);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
@@ -45,9 +45,9 @@ export function ProfileProvider({ children }) {
      */
     async (type) =>
       fbRtdbUpdate(RtDbPaths.Identity(user.uid), { type })
-        .then(() => setUser((user) => user.clone().setType(type)))
+        .then(() => dispatchUser({ type }))
         .then(() => notify("Profile type updated successfully", "success")),
-    [user.uid, notify, setUser]
+    [user.uid, notify, dispatchUser]
   );
 
   const updateProfilePhoto = useCallback(
@@ -85,12 +85,12 @@ export function ProfileProvider({ children }) {
         large,
       });
 
-      setUser((user) => user.clone().setProfilePhotos(uploadedImages));
+      dispatchUser({ profilePhotos: uploadedImages });
       notify("Profile photo updated successfully", "success");
 
       return medium;
     },
-    [user.uid, notify, setUser]
+    [user.uid, notify, dispatchUser]
   );
 
   const updateProfileName = useCallback(
@@ -101,11 +101,9 @@ export function ProfileProvider({ children }) {
      */
     async (firstName, lastName) =>
       updateAuthProfile({ firstName, lastName })
-        .then(() =>
-          setUser((user) => user.clone().setProfileName(firstName, lastName))
-        )
+        .then(() => dispatchUser({ firstName, lastName }))
         .then(() => notify("Profile name updated successfully", "success")),
-    [notify, setUser]
+    [notify, dispatchUser]
   );
 
   return (

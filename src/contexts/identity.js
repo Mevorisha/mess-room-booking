@@ -41,7 +41,7 @@ export default IdentityContext;
  */
 export function IdentityProvider({ children }) {
   const notify = useNotification();
-  const { user, setUser } = useContext(UserContext);
+  const { user, dispatchUser } = useContext(UserContext);
 
   const updateIdentityPhotos = useCallback(
     /**
@@ -92,10 +92,7 @@ export function IdentityProvider({ children }) {
           workId: { small, medium, large, visibilityCode },
         });
 
-        setUser(
-          (user) =>
-          user.clone().setIdentityPhotos({ workId: uploadedWorkId, govId: user.identityPhotos?.govId }) // prettier-ignore
-        );
+        dispatchUser({ identityPhotos: { workId: uploadedWorkId } });
       }
 
       // upload govId
@@ -136,10 +133,7 @@ export function IdentityProvider({ children }) {
           govId: { small, medium, large, visibilityCode },
         });
 
-        setUser(
-          (user) =>
-          user.clone().setIdentityPhotos({ workId: user.identityPhotos?.workId, govId: uploadedGovId }) // prettier-ignore
-        );
+        dispatchUser({ identityPhotos: { govId: uploadedGovId } });
       }
 
       notify("Document(s) updated successfully", "success");
@@ -149,7 +143,7 @@ export function IdentityProvider({ children }) {
         govId: uploadedGovId?.medium,
       };
     },
-    [user.uid, notify, setUser]
+    [user.uid, notify, dispatchUser]
   );
 
   const updateIdentityPhotosVisibility = useCallback(
@@ -160,21 +154,15 @@ export function IdentityProvider({ children }) {
       if (workId) {
         const uploaded = await updateIdenityPhotosVisibilityGenreic(user.uid, "work", "WORK_ID", workId, notify); // prettier-ignore
         if (!uploaded) return;
-        setUser(
-          (user) =>
-          user.clone().setIdentityPhotos({ workId: uploaded, govId: user.identityPhotos?.govId }) // prettier-ignore
-        );
+        dispatchUser({ identityPhotos: { workId: uploaded } });
       }
       if (govId) {
         const uploaded = await updateIdenityPhotosVisibilityGenreic(user.uid, "gov", "GOV_ID", govId, notify); // prettier-ignore
         if (!uploaded) return;
-        setUser(
-          (user) =>
-          user.clone().setIdentityPhotos({ workId: user.identityPhotos?.workId, govId: uploaded }) // prettier-ignore
-        );
+        dispatchUser({ identityPhotos: { govId: uploaded } });
       }
     },
-    [user.uid, notify, setUser]
+    [user.uid, notify, dispatchUser]
   );
 
   return (

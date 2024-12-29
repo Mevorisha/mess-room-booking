@@ -1,6 +1,6 @@
 /** USER is the base Context, used by all other contexts */
 
-import React, { createContext, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 import { FirebaseAuth } from "../modules/firebase/init.js";
 import { isEmpty } from "../modules/util/validations.js";
 
@@ -29,6 +29,24 @@ export class UploadedImage {
     this.medium = mediumImageURL;
     this.large = largeImageURL;
     this.visibilityCode = visibilityCode;
+  }
+
+  /**
+   * @param {string} filename
+   * @param {any} data
+   * @returns {UploadedImage}
+   */
+  static from(filename, data) {
+    if (!data) {
+      throw new Error("Invalid UploadedImage data");
+    }
+    return new UploadedImage(
+      filename,
+      data.small,
+      data.medium,
+      data.large,
+      data.visibilityCode ?? "PUBLIC"
+    );
   }
 
   /** @returns {UploadedImage} */
@@ -158,7 +176,11 @@ export class User {
       user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
 
     if (this.profilePhotos) user.setProfilePhotos(this.profilePhotos.clone());
-    if (this.identityPhotos) user.setIdentityPhotos({ ...this.identityPhotos });
+    if (this.identityPhotos)
+      user.setIdentityPhotos({
+        workId: this.identityPhotos.workId?.clone(),
+        govId: this.identityPhotos.govId?.clone(),
+      });
 
     return user;
   }
@@ -191,7 +213,10 @@ export class User {
     if (!images.workId && !images.govId)
       throw new Error("At least one identity photo is required");
 
-    this.identityPhotos = images;
+    this.identityPhotos = {
+      workId: images.workId ?? this.identityPhotos?.workId,
+      govId: images.govId ?? this.identityPhotos?.govId,
+    };
     return this;
   }
 
@@ -222,12 +247,15 @@ export class User {
     return JSON.stringify(
       {
         uid: this.uid,
+        type: this.type,
         mobile: this.mobile,
         firstName: this.firstName,
         lastName: this.lastName,
         profilePhotos: this.profilePhotos?.toString(),
-        identityPhotos: this.identityPhotos,
-        type: this.type,
+        identityPhotos: {
+          workId: this.identityPhotos?.workId?.toString(),
+          govId: this.identityPhotos?.govId?.toString(),
+        },
       },
       null,
       2
@@ -238,14 +266,28 @@ export class User {
 /* ---------------------------------- USER CONTEXT OBJECT ----------------------------------- */
 
 /**
+ * @typedef {{
+ *     from?: User,
+ *     fromFirebaseAuth?: import("firebase/auth").User
+ *     type?: "TENANT" | "OWNER"
+ *     mobile?: string,
+ *     firstName?: string,
+ *     lastName?: string,
+ *     profilePhotos?: UploadedImage,
+ *     identityPhotos?: { workId?: UploadedImage, govId?: UploadedImage },
+ *   }
+ * } DispatchUserActions
+ */
+
+/**
  * @typedef  {Object} UserContextType
  * @property {User} user
- * @property {React.Dispatch<React.SetStateAction<User>>} setUser
+ * @property {(action: DispatchUserActions | "LOADCURRENT" | "RESET") => void} dispatchUser
  */
 const UserContext = createContext(
   /** @type {UserContextType} */ ({
     user: User.empty(),
-    setUser: () => {},
+    dispatchUser: () => {},
   })
 );
 
@@ -260,11 +302,52 @@ export default UserContext;
 export function UserProvider({ children }) {
   const [user, setUser] = useState(User.loadCurrentUser());
 
+  const dispatchUser = useCallback(
+    /**
+     * @param {DispatchUserActions | "LOADCURRENT" | "RESET"} action
+     */
+    (action) =>
+      setUser((oldUser) => {
+        if (!action) return oldUser;
+        else if (action === "LOADCURRENT") return User.loadCurrentUser();
+        else if (action === "RESET") return User.empty();
+        else if (action.from) return action.from;
+        else if (action.fromFirebaseAuth)
+          return User.fromFirebaseAuthUser(action.fromFirebaseAuth);
+
+        const newUser = oldUser.clone();
+
+        if (action.type) {
+          newUser.setType(action.type);
+        }
+        if (action.mobile) {
+          newUser.setMobile(action.mobile);
+        }
+        if (action.firstName && action.lastName) {
+          newUser.setProfileName(action.firstName, action.lastName);
+        }
+        if (action.profilePhotos) {
+          newUser.setProfilePhotos(action.profilePhotos);
+        }
+        if (action.identityPhotos?.workId) {
+          const identityPhotos = action.identityPhotos;
+          newUser.setIdentityPhotos({ workId: identityPhotos.workId });
+        }
+        if (action.identityPhotos?.govId) {
+          const identityPhotos = action.identityPhotos;
+          newUser.setIdentityPhotos({ govId: identityPhotos.govId });
+        }
+
+        return newUser;
+      }),
+    [setUser]
+  );
+
   return (
     <UserContext.Provider
       value={{
         user,
-        setUser,
+        dispatchUser,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useNotification from "../../hooks/notification.js";
 
 const LOADING_GIF_DATA =
@@ -427,6 +427,17 @@ export default function ImageLoader(props) {
       .then((data) => setImageData(data))
       .catch((e) => notify(e, "error"));
   }
+
+  /* The <img> which shows the loading animation needs to call onLoad to set the imageData
+   * for the actual <img> below. But this animation <img> does not get rendered unless
+   * the imageData is null.
+   * This is a problem if we change the props.src. The imageData is still valid and non-null,
+   * and onLoad is not called again. This means the imageData is not updated according to
+   * the new props.src.
+   * Hence, we reset imageData when props.src changes using a useEffect. This creates a
+   * dependency from props.src to imageData.
+   */
+  useEffect(() => setImageData(null), [props.src]);
 
   /**
    * @type {React.CSSProperties}
