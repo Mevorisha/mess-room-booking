@@ -1,8 +1,7 @@
 .pages-Onboarding {
   background-color: var(--color-bg-secondary);
   width: 100%;
-  max-width: 100%;
-  min-width: 320px;
+  min-width: fit-content;
   min-height: 100vh;
   padding: var(--pad-0);
   display: flex;
