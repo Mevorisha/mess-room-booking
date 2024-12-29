@@ -51,18 +51,19 @@ export default function SectionIdentiyDocs() {
    */
   function handleSubmit(e, type) {
     e.preventDefault();
-    notify("Intializing, please wait...", "info");
     if (type === "WORK_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) =>
-          compUsr.identityCtx.updateIdentityPhotos({ workId: file })
-        )
+        .then((file) => {
+          notify("Intializing, please wait...", "info");
+          compUsr.identityCtx.updateIdentityPhotos({ workId: file });
+        })
         .catch((e) => notify(e, "error"));
     } else if (type === "GOV_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) =>
-          compUsr.identityCtx.updateIdentityPhotos({ govId: file })
-        )
+        .then((file) => {
+          notify("Intializing, please wait...", "info");
+          compUsr.identityCtx.updateIdentityPhotos({ govId: file });
+        })
         .catch((e) => notify(e, "error"));
     }
   }
