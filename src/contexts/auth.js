@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
   const [authState, setAuthState] = useState(
     /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)
   );
-  const { user, setUser } = useContext(UserContext);
+  const { user, dispatchUser } = useContext(UserContext);
 
   const notify = useNotification();
 
@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged((user) => {
       if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
-        setUser(User.fromFirebaseAuthUser(user));
+        dispatchUser({ fromFirebaseAuth: user });
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
         setAuthState(AuthStateEnum.STILL_LOADING);
       }
@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => unsubscribe();
-  }, [notify, setUser]);
+  }, [notify, dispatchUser]);
 
   /* --------------------------------------- USE EFFECTS RTDB LISTENER ----------------------------------- */
 
@@ -113,37 +113,41 @@ export function AuthProvider({ children }) {
 
     const unsubscribe = onDbContentChange(
       RtDbPaths.Identity(user.uid),
-      (data) => {
+      (firbaseRtDbRawData) => {
         console.log(
           `${MODULE_NAME}::onDbContentChange: ${authState}: new data =`,
-          data
+          firbaseRtDbRawData
         );
 
-        if (!data) {
-          setUser(User.loadCurrentUser());
+        if (!firbaseRtDbRawData) {
+          dispatchUser("LOADCURRENT");
           setAuthState(AuthStateEnum.LOGGED_IN);
           return;
         }
 
-        setUser(() => {
-          const newUser = User.loadCurrentUser();
-          if (!isEmpty(data.type)) newUser.setType(data.type);
-          if (!isEmpty(data.profilePhotos))
-            newUser.setProfilePhotos(
-              new UploadedImage(
-                newUser.uid,
-                data.profilePhotos.small,
-                data.profilePhotos.medium,
-                data.profilePhotos.large,
-                "PUBLIC"
-              )
-            );
-          if (!isEmpty(data.identityPhotos))
-            newUser.setIdentityPhotos({
-              workId: data.identityPhotos.workId,
-              govId: data.identityPhotos.govId,
-            });
-          return newUser;
+        // prettier-ignore
+        dispatchUser({
+          // user profile type
+          type: isEmpty(firbaseRtDbRawData.type)
+            ? undefined
+            : firbaseRtDbRawData.type,
+          // profile images
+          profilePhotos: isEmpty(firbaseRtDbRawData.profilePhotos)
+            ? undefined
+            : UploadedImage.from(user.uid, firbaseRtDbRawData.profilePhotos),
+          // identity document images
+          identityPhotos: isEmpty(firbaseRtDbRawData.identityPhotos)
+            ? undefined
+            : {
+                // if workId exists, otherwise undefined
+                workId: isEmpty(firbaseRtDbRawData.identityPhotos.workId)
+                  ? undefined
+                  : UploadedImage.from(user.uid, firbaseRtDbRawData.identityPhotos.workId),
+                // if govId exists, otherwise undefined
+                govId: isEmpty(firbaseRtDbRawData.identityPhotos.govId)
+                  ? undefined
+                  : UploadedImage.from(user.uid, firbaseRtDbRawData.identityPhotos.govId),
+              },
         });
 
         setAuthState(AuthStateEnum.LOGGED_IN);
@@ -151,7 +155,7 @@ export function AuthProvider({ children }) {
     );
 
     return () => unsubscribe();
-  }, [authState, user.uid, setUser]);
+  }, [authState, user.uid, dispatchUser]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
@@ -162,8 +166,8 @@ export function AuthProvider({ children }) {
     () =>
       fbAuthLogOut()
         .then(() => notify("Logged out", "info"))
-        .then(() => setUser(User.empty())),
-    [notify, setUser]
+        .then(() => dispatchUser("RESET")),
+    [notify, dispatchUser]
   );
 
   return (
