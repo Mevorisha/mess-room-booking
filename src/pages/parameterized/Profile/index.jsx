@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { fbRtdbRead } from "../../../modules/firebase/db";
 import { RtDbPaths } from "../../../modules/firebase/init";
+import { UploadedImage } from "../../../contexts/user";
 import useNotification from "../../../hooks/notification";
 import useCompositeUser from "../../../hooks/compositeUser";
 import useDialogBox from "../../../hooks/dialogbox";
@@ -17,7 +18,6 @@ import "./styles.css";
 
 // @ts-ignore
 import dpGeneric from "../../../assets/images/dpGeneric.png";
-import { UploadedImage } from "../../../contexts/user";
 
 /**
  * @returns {React.JSX.Element}
