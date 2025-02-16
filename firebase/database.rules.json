@@ -16,10 +16,28 @@
         ) && (
           newData.child('mobile').val() == null ||
           newData.child('mobile').val() == auth.token.phone_number
+        ) && (
+          newData.child('displayName').val() == null ||
+          newData.child('displayName').val() == auth.token.name
         )",
 
+        "type": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
+        "mobile": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
+        "displayName": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
         "profilePhotos": {
-          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".read": "auth != null",                       // Any logged in user can read
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
 
           ".validate": "(
@@ -32,7 +50,7 @@
         "identityPhotos": {
           ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
-          
+
           "workId": {
             ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
             ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
@@ -83,22 +101,38 @@
         // action param significance
         // GRANT_URL_ACCESS
         //   - command: GRANT_URL_ACCESS
-        //   - url: <string> url to be inserted from one user to another
-        //          This is used to provide private access to data of the sender
+        //   - url:    <string> url to be inserted from one user to another
+        //             This is used to provide private access to data of the sender
         //   - sender: <string> uid of the action sender
+        // TEST_NOTIFY
+        //   - command: TEST_NOTIFY
+        //   - message: <string> A message sent to the receiver which causes a dialog
+        //              popup or notification
+        //   - type:    "DIALOG" or "NOTIFY"
+        //   - sender:  <string> uid of the action sender
 
-        ".validate": "(
-          newData.val() != null &&
-          (
-            newData.child('command').val() == 'GRANT_URL_ACCESS' && newData.child('url').val() != null
-          )
-        )"
+        "GRANT_URL_ACCESS": {
+          ".validate": "(
+            newData.exists() &&
+            newData.child('url').val() != null &&
+            newData.child('sender').val() != null
+          )"
+        },
+
+        "TEST_NOTIFY": {
+          ".validate": "(
+            newData.exists() &&
+            newData.child('message').val() != null &&
+            (newData.child('type').val() == 'DIALOG' || newData.child('type').val() == 'NOTIFY') &&
+            newData.child('sender').val() != null
+          )"
+        }
+
       }
     },
 
     // ----------------------------------------- PREVIEW DATABASE -----------------------------------------
 
-    // preview
     "preview_db_Identity": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
@@ -112,10 +146,28 @@
         ) && (
           newData.child('mobile').val() == null ||
           newData.child('mobile').val() == auth.token.phone_number
+        ) && (
+          newData.child('displayName').val() == null ||
+          newData.child('displayName').val() == auth.token.name
         )",
 
+        "type": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
+        "mobile": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
+        "displayName": {
+          ".read": "auth != null",                       // Any logged in user can read
+          ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
+        },
+
         "profilePhotos": {
-          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
+          ".read": "auth != null",                       // Any logged in user can read
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
 
           ".validate": "(
@@ -128,7 +180,7 @@
         "identityPhotos": {
           ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
-          
+
           "workId": {
             ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can read
             ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
@@ -179,18 +231,35 @@
         // action param significance
         // GRANT_URL_ACCESS
         //   - command: GRANT_URL_ACCESS
-        //   - url: <string> url to be inserted from one user to another
-        //          This is used to provide private access to data of the sender
+        //   - url:    <string> url to be inserted from one user to another
+        //             This is used to provide private access to data of the sender
         //   - sender: <string> uid of the action sender
+        // TEST_NOTIFY
+        //   - command: TEST_NOTIFY
+        //   - message: <string> A message sent to the receiver which causes a dialog
+        //              popup or notification
+        //   - type:    "DIALOG" or "NOTIFY"
+        //   - sender:  <string> uid of the action sender
 
-        ".validate": "(
-          newData.val() != null &&
-          (
-            newData.child('command').val() == 'GRANT_URL_ACCESS' && newData.child('url').val() != null
-          )
-        )"
+        "GRANT_URL_ACCESS": {
+          ".validate": "(
+            newData.exists() &&
+            newData.child('url').val() != null &&
+            newData.child('sender').val() != null
+          )"
+        },
+
+        "TEST_NOTIFY": {
+          ".validate": "(
+            newData.exists() &&
+            newData.child('message').val() != null &&
+            (newData.child('type').val() == 'DIALOG' || newData.child('type').val() == 'NOTIFY') &&
+            newData.child('sender').val() != null
+          )"
+        }
+
       }
-    }
+    },
 
   }
 }
