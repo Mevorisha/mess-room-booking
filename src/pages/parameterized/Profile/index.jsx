@@ -102,7 +102,10 @@ export default function Profile() {
     );
   }
 
-  const displayName = `${userProfile.firstName} ${userProfile.lastName}`;
+  const displayName =
+    !userProfile.firstName || !userProfile.lastName
+      ? "(Not Provided)"
+      : `${userProfile.firstName} ${userProfile.lastName}`;
   const mobileNo = userProfile.mobile;
 
   return (

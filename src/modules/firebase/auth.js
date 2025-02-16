@@ -1,4 +1,4 @@
-import { FirebaseAuth } from "./init.js";
+import { FirebaseAuth, RtDbPaths } from "./init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -18,6 +18,7 @@ import {
 import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
+import { fbRtdbRead, fbRtdbUpdate } from "./db.js";
 
 const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
@@ -223,6 +224,15 @@ class GoogleAuth {
         FirebaseAuth,
         GoogleAuth.googleProvider
       );
+      await fbRtdbRead(
+        RtDbPaths.Identity(result.user.uid) + "/displayName"
+      ).then((displayName) => {
+        if (!displayName) {
+          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+            displayName: result.user.displayName,
+          });
+        }
+      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -255,6 +265,15 @@ class AppleAuth {
         FirebaseAuth,
         AppleAuth.appleProvider
       );
+      await fbRtdbRead(
+        RtDbPaths.Identity(result.user.uid) + "/displayName"
+      ).then((displayName) => {
+        if (!displayName) {
+          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+            displayName: result.user.displayName,
+          });
+        }
+      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -289,6 +308,15 @@ class MicrosoftAuth {
         FirebaseAuth,
         MicrosoftAuth.microsoftProvider
       );
+      await fbRtdbRead(
+        RtDbPaths.Identity(result.user.uid) + "/displayName"
+      ).then((displayName) => {
+        if (!displayName) {
+          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+            displayName: result.user.displayName,
+          });
+        }
+      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
