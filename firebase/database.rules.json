@@ -22,7 +22,7 @@
         )",
 
         "type": {
-          ".read": "auth != null",                       // Any logged in user can read
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can write
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
         },
 
@@ -152,7 +152,7 @@
         )",
 
         "type": {
-          ".read": "auth != null",                       // Any logged in user can read
+          ".read": "auth != null && auth.uid == $uid",   // Only the user themselves can write
           ".write": "auth != null && auth.uid == $uid",  // Only the user themselves can write
         },
 
