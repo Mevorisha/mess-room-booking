@@ -52,10 +52,16 @@ export default function Profile() {
 
     Promise.all([displayName, mobileNo, profilePhotos])
       .then((values) => {
-        if (!values[0] || !values[1] || !values[2]) {
+        if (!values[1]) {
           setProfileUser(null);
           return;
         }
+        values[0] ||= "(No Name)";
+        values[2] ||= {
+          small: dpGeneric,
+          medium: dpGeneric,
+          large: dpGeneric,
+        };
         setProfileUser((oldProfile) => {
           if (!oldProfile) return null;
           const newProfile = oldProfile.clone();
