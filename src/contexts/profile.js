@@ -100,10 +100,12 @@ export function ProfileProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (firstName, lastName) =>
+      // prettier-ignore
       updateAuthProfile({ firstName, lastName })
+        .then(() => fbRtdbUpdate(RtDbPaths.Identity(user.uid), { displayName: `${firstName} ${lastName}` }))
         .then(() => dispatchUser({ firstName, lastName }))
         .then(() => notify("Profile name updated successfully", "success")),
-    [notify, dispatchUser]
+    [user.uid, notify, dispatchUser]
   );
 
   return (

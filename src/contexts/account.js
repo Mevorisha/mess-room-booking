@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext } from "react";
 import UserContext from "./user.js";
 import useNotification from "../hooks/notification.js";
+import { fbRtdbUpdate } from "../modules/firebase/db.js";
+import { RtDbPaths } from "../modules/firebase/init.js";
 import { EmailPasswdAuth, LinkMobileNumber } from "../modules/firebase/auth.js";
 import { isEmpty } from "../modules/util/validations.js";
 
@@ -33,7 +35,7 @@ export default AccountContext;
  */
 export function AccountProvider({ children }) {
   const notify = useNotification();
-  const { dispatchUser } = useContext(UserContext);
+  const { user, dispatchUser } = useContext(UserContext);
 
   const sendPhoneVerificationCode = useCallback(
     /**
@@ -85,10 +87,13 @@ export function AccountProvider({ children }) {
           notify("Verifying new mobile number", "info");
           return LinkMobileNumber.verifyOtp(otp);
         })
-        .then((phno) => dispatchUser({ mobile: phno }))
+        .then(async (phno) => {
+          await fbRtdbUpdate(RtDbPaths.Identity(user.uid), { mobile: phno });
+          dispatchUser({ mobile: phno });
+        })
         .then(() => notify("Mobile number verified successfully", "success")),
 
-    [notify, dispatchUser, unlinkPhoneNumber]
+    [user.uid, notify, dispatchUser, unlinkPhoneNumber]
   );
 
   const requestPasswordReset = useCallback(
