@@ -189,7 +189,7 @@ export default function TopBar({ children }) {
     <div className="components-TopBar">
       <div className="logo-container">
         <ImageLoader src={dpMevorisha} alt="logo" />
-        <h1>Mevorisha</h1>
+        <h1>{lang("Mevorisha", "মেভোরিশা", "मेभोरिशा")}</h1>
       </div>
       <div className="section-buttons-container">{children}</div>
       <div className="action-buttons-container">
@@ -204,22 +204,22 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
           >
-            View{" "}
-            {compUsr.userCtx.user.type === "OWNER"
-              ? lang("Owner", "মালিক", "मालिक")
-              : lang("Tenant", "ভাড়াটে", "किराएदार")}{" "}
-            {lang("Profile", "প্রোফাইল", "प्रोफ़ाइल")}
+            {
+              /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
+              ? lang("Switch to Owner Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
+              : lang("Switch to Tenant Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
+            }
           </div>
           {/* Switch Profile Type */}
           <div
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
           >
-            Switch to{" "}
-            {compUsr.userCtx.user.type === "OWNER"
-              ? lang("Owner", "মালিক", "मालिक")
-              : lang("Tenant", "ভাড়াটে", "किराएदार")}{" "}
-            {lang("Profile", "প্রোফাইল", "प्रोफ़ाइल")}
+            {
+              /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
+              ? lang("Switch to Owner Profile", "প্রোফাইল পরিবর্তন করুন", "प्रोफ़ाइल बदलें")
+              : lang("Switch to Tenant Profile", "প্রোফাইল পরিবর্তন করুন", "प्रोफ़ाइल बदलें")
+            }
           </div>
           {/* Update Profile Photo */}
           <div
