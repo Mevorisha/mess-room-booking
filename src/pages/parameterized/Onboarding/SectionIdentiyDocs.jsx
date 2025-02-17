@@ -153,7 +153,7 @@ export default function SectionIdentiyDocs() {
                     Private
                   </label>
                 </div>
-                <ButtonText title="Re-Upload" rounded="all" kind="secondary" />
+                <ButtonText title="Update" rounded="all" kind="secondary" />
               </div>
             </form>
           ) : (
@@ -218,7 +218,7 @@ export default function SectionIdentiyDocs() {
                     Private
                   </label>
                 </div>
-                <ButtonText title="Re-Upload" rounded="all" kind="secondary" />
+                <ButtonText title="Update" rounded="all" kind="secondary" />
               </div>
             </form>
           ) : (
