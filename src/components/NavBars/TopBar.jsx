@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
+import { lang } from "../../modules/util/language.js";
 import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
 import ImageLoader from "../ImageLoader";
 import useCompositeUser from "../../hooks/compositeUser.js";
@@ -19,21 +20,25 @@ import "./styles.css";
  */
 function ActionMenu({ dropdownState, handleDropdownClick }) {
   const compUsr = useCompositeUser();
-  let text = "Profile Incomplete!";
+  // prettier-ignore
+  let text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
 
   if (
     isEmpty(compUsr.userCtx.user.profilePhotos) &&
     (isEmpty(compUsr.userCtx.user.firstName) ||
       isEmpty(compUsr.userCtx.user.lastName))
   )
-    text = "Profile Incomplete!";
+    // prettier-ignore
+    text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
   else if (isEmpty(compUsr.userCtx.user.profilePhotos))
-    text = "Add Profile Photo!";
+    // prettier-ignore
+    text = lang("Add Profile Photo!", "প্রোফাইল ফটো দিন!", "प्रोफ़ाइल फोटो दें!");
   else if (
     isEmpty(compUsr.userCtx.user.firstName) ||
     isEmpty(compUsr.userCtx.user.lastName)
   )
-    text = "Add Display Name!";
+    // prettier-ignore
+    text = lang("Add Display Name!", "প্রোফাইল নাম দিন!", "प्रोफ़ाइल नाम जोड़ें!");
 
   if (
     isEmpty(compUsr.userCtx.user.profilePhotos) ||
@@ -141,7 +146,10 @@ export default function TopBar({ children }) {
         break;
       // invalid action
       default:
-        notify("Action not recognized", "error");
+        notify(
+          lang("Action not recognized", "অবৈধ ক্রিয়া!", "अवैध कार्य"),
+          "error"
+        );
         break;
     }
 
@@ -196,8 +204,11 @@ export default function TopBar({ children }) {
             className="dropdown-item"
             onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
           >
-            View {compUsr.userCtx.user.type === "OWNER" ? "Owner" : "Tenant"}{" "}
-            Profile
+            View{" "}
+            {compUsr.userCtx.user.type === "OWNER"
+              ? lang("Owner", "মালিক", "मालिक")
+              : lang("Tenant", "ভাড়াটে", "किराएदार")}{" "}
+            {lang("Profile", "প্রোফাইল", "प्रोफ़ाइल")}
           </div>
           {/* Switch Profile Type */}
           <div
@@ -205,7 +216,10 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
           >
             Switch to{" "}
-            {compUsr.userCtx.user.type === "OWNER" ? "Tenant" : "Owner"} Profile
+            {compUsr.userCtx.user.type === "OWNER"
+              ? lang("Owner", "মালিক", "मालिक")
+              : lang("Tenant", "ভাড়াটে", "किराएदार")}{" "}
+            {lang("Profile", "প্রোফাইল", "प्रोफ़ाइल")}
           </div>
           {/* Update Profile Photo */}
           <div

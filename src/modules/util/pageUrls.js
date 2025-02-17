@@ -1,3 +1,5 @@
+import { lang } from "./language";
+
 /**
  * @enum {-1 | "/" | "/auth" | "/home" | "/onboarding" | "/profile" | "/404"}
  */
@@ -21,27 +23,30 @@ export const PageUrls = {
  *   "Change Mobile Number" |
  *   "Log Out"}
  */
+// prettier-ignore
 export const ActionParams = {
   VIEW_PROFILE: /**           @type {"View Profile"}           */ (
-    "View Profile"
+    lang("View Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
   ),
   SWITCH_PROFILE_TYPE: /**    @type {"Switch Profile Type"}    */ (
-    "Switch Profile Type"
+    lang("Switch Profile Type", "প্রোফাইল টাইপ পরিবর্তন", "प्रोफ़ाइल टाइप बदलें")
   ),
   UPDATE_PROFILE_PHOTO: /**   @type {"Update Profile Photo"}   */ (
-    "Update Profile Photo"
+    lang("Update Profile Photo", "প্রোফাইল ফটো পরিবর্তন", "प्रोफ़ाइल फोटो बदलें")
   ),
   UPDATE_ID_DOCS: /**         @type {"Update ID Documents"}    */ (
-    "Update ID Documents"
+    lang("Update ID Documents", "আইডি ডকুমেন্ট পরিবর্তন", "आईडी डॉक्यूमेंट बदलें")
   ),
   CHANGE_NAME: /**            @type {"Change Display Name"}    */ (
-    "Change Display Name"
+    lang("Change Display Name", "নাম পরিবর্তন", "नाम बदलें")
   ),
   RESET_PASSWORD: /**         @type {"Request Password Reset"} */ (
-    "Request Password Reset"
+    lang("Request Password Reset", "পাসওয়ার্ড রিসেট করুন", "पासओय़ार्ड रीसेट करें")
   ),
   CHANGE_MOBILE_NUMBER: /**   @type {"Change Mobile Number"}   */ (
-    "Change Mobile Number"
+    lang("Change Mobile Number", "মোবাইল নাম্বার পরিবর্তন", "मोबाइल नंबर बदलें")
   ),
-  LOGOUT: /**                 @type {"Log Out"}                */ ("Log Out"),
+  LOGOUT: /**                 @type {"Log Out"}                 */ (
+    lang("Log Out", "লগ আউট", "लॉग आउट")
+  ),
 };
