@@ -16,9 +16,6 @@
         ) && (
           newData.child('mobile').val() == null ||
           newData.child('mobile').val() == auth.token.phone_number
-        ) && (
-          newData.child('displayName').val() == null ||
-          newData.child('displayName').val() == auth.token.name
         )",
 
         "type": {
@@ -146,9 +143,6 @@
         ) && (
           newData.child('mobile').val() == null ||
           newData.child('mobile').val() == auth.token.phone_number
-        ) && (
-          newData.child('displayName').val() == null ||
-          newData.child('displayName').val() == auth.token.name
         )",
 
         "type": {
