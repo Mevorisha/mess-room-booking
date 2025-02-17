@@ -206,8 +206,8 @@ export default function TopBar({ children }) {
           >
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
-              ? lang("Switch to Owner Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
-              : lang("Switch to Tenant Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
+              ? lang("View Owner Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
+              : lang("View Tenant Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
             }
           </div>
           {/* Switch Profile Type */}
