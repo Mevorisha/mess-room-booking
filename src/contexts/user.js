@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useState } from "react";
 import { FirebaseAuth } from "../modules/firebase/init.js";
 import { isEmpty } from "../modules/util/validations.js";
+import { lang } from "../modules/util/language.js";
 
 /* -------------------------------------- UTIL CLASSES -------------------------------------- */
 
@@ -38,7 +39,13 @@ export class UploadedImage {
    */
   static from(filename, data) {
     if (!data) {
-      throw new Error("Invalid UploadedImage data");
+      throw new Error(
+        lang(
+          "Invalid UploadedImage data",
+          "অবৈধ আপলোড করা ছবি ডেটা",
+          "अवैध अपलोड की गई छवि डेटा"
+        )
+      );
     }
     return new UploadedImage(
       filename,
@@ -211,7 +218,13 @@ export class User {
    */
   setIdentityPhotos(images) {
     if (!images.workId && !images.govId)
-      throw new Error("At least one identity photo is required");
+      throw new Error(
+        lang(
+          "At least one identity photo is required",
+          "কমপক্ষে একটি পরিচয় ছবি প্রয়োজন",
+          "कम से कम एक पहचान फोटो आवश्यक है"
+        )
+      );
 
     this.identityPhotos = {
       workId: images.workId ?? this.identityPhotos?.workId,

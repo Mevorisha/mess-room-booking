@@ -6,6 +6,7 @@ import { updateProfile as updateAuthProfile } from "../modules/firebase/auth.js"
 import { fbRtdbDelete, fbRtdbUpdate } from "../modules/firebase/db.js";
 import { fbStorageDelete } from "../modules/firebase/storage.js";
 import { uploadThreeSizesFromOneImage } from "./utils/utils.js";
+import { lang } from "../modules/util/language.js";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -46,7 +47,16 @@ export function ProfileProvider({ children }) {
     async (type) =>
       fbRtdbUpdate(RtDbPaths.Identity(user.uid), { type })
         .then(() => dispatchUser({ type }))
-        .then(() => notify("Profile type updated successfully", "success")),
+        .then(() =>
+          notify(
+            lang(
+              "Profile type updated successfully",
+              "প্রোফাইল টাইপ সফলভাবে আপডেট করা হয়েছে",
+              "प्रोफ़ाइल टाइप सफलतापूर्वक अपडेट किया गया है"
+            ),
+            "success"
+          )
+        ),
     [user.uid, notify, dispatchUser]
   );
 
@@ -86,7 +96,14 @@ export function ProfileProvider({ children }) {
       });
 
       dispatchUser({ profilePhotos: uploadedImages });
-      notify("Profile photo updated successfully", "success");
+      notify(
+        lang(
+          "Profile photo updated successfully",
+          "প্রোফাইল ছবি সফলভাবে আপডেট করা হয়েছে",
+          "प्रोफ़ाइल फोटो सफलतापूर्वक अपडेट किया गया है"
+        ),
+        "success"
+      );
 
       return medium;
     },
@@ -100,11 +117,23 @@ export function ProfileProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (firstName, lastName) =>
-      // prettier-ignore
       updateAuthProfile({ firstName, lastName })
-        .then(() => fbRtdbUpdate(RtDbPaths.Identity(user.uid), { displayName: `${firstName} ${lastName}` }))
+        .then(() =>
+          fbRtdbUpdate(RtDbPaths.Identity(user.uid), {
+            displayName: `${firstName} ${lastName}`,
+          })
+        )
         .then(() => dispatchUser({ firstName, lastName }))
-        .then(() => notify("Profile name updated successfully", "success")),
+        .then(() =>
+          notify(
+            lang(
+              "Profile name updated successfully",
+              "প্রোফাইল নাম সফলভাবে আপডেট করা হয়েছে",
+              "प्रोफ़ाइल नाम सफलतापूर्वक अपडेट किया गया है"
+            ),
+            "success"
+          )
+        ),
     [user.uid, notify, dispatchUser]
   );
 
