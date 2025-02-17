@@ -5,6 +5,7 @@ import { fbRtdbUpdate } from "../modules/firebase/db.js";
 import { RtDbPaths } from "../modules/firebase/init.js";
 import { EmailPasswdAuth, LinkMobileNumber } from "../modules/firebase/auth.js";
 import { isEmpty } from "../modules/util/validations.js";
+import { lang } from "../modules/util/language.js";
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
@@ -44,7 +45,14 @@ export function AccountProvider({ children }) {
      */
     async (number) =>
       LinkMobileNumber.sendOtp(number).then(() =>
-        notify("Check your mobile for OTP", "info")
+        notify(
+          lang(
+            "Check your mobile for OTP",
+            "ও-টি-পি এর জন্য আপনার মোবাইল দেখুন",
+            "ओ-टी-पी के लिए आपका मोबाइल देखें"
+          ),
+          "info"
+        )
       ),
     [notify]
   );
@@ -56,7 +64,16 @@ export function AccountProvider({ children }) {
     async () =>
       LinkMobileNumber.unlinkPhoneNumber()
         .then(() => dispatchUser({ mobile: "" }))
-        .then(() => notify("Mobile number unlinked successfully", "success")),
+        .then(() =>
+          notify(
+            lang(
+              "Mobile number unlinked successfully",
+              "মোবাইল নম্বর সফলভাবে আনলিঙ্ক করা হয়েছে",
+              "मोबाइल नंबर सफलतापूर्वक अनलिंक किया गया"
+            ),
+            "success"
+          )
+        ),
     [notify, dispatchUser]
   );
 
@@ -69,7 +86,13 @@ export function AccountProvider({ children }) {
       LinkMobileNumber.verifyOtp(otp)
         .then((phno) =>
           isEmpty(phno)
-            ? Promise.reject("Mobile number verification failed")
+            ? Promise.reject(
+                lang(
+                  "Mobile number verification failed",
+                  "মোবাইল নম্বর ভেরিফিকেশন ফেইল",
+                  "मोबाइल नंबर भेरिफिकेशन फेल"
+                )
+              )
             : Promise.resolve(phno)
         )
         .catch(async (error) => {
@@ -82,16 +105,39 @@ export function AccountProvider({ children }) {
           ) {
             return Promise.reject(error);
           }
-          notify("Unlinking existing mobile number", "info");
+          notify(
+            lang(
+              "Unlinking existing mobile number",
+              "মোবাইল নম্বর আনলিঙ্ক করা হচ্ছে",
+              "मोबाइल नंबर अनलिंक किया जा रहा है"
+            ),
+            "info"
+          );
           await unlinkPhoneNumber();
-          notify("Verifying new mobile number", "info");
+          notify(
+            lang(
+              "Verifying new mobile number",
+              "নতুন মোবাইল নম্বর ভেরিফাই করা হচ্ছে",
+              "नए मोबाइल नंबर वेरिफाई किया जा रहा है"
+            ),
+            "info"
+          );
           return LinkMobileNumber.verifyOtp(otp);
         })
         .then(async (phno) => {
           await fbRtdbUpdate(RtDbPaths.Identity(user.uid), { mobile: phno });
           dispatchUser({ mobile: phno });
         })
-        .then(() => notify("Mobile number verified successfully", "success")),
+        .then(() =>
+          notify(
+            lang(
+              "Mobile number verified successfully",
+              "মোবাইল নম্বর সফলভাবে ভেরিফাই করা হয়েছে",
+              "मोबाइल नंबर सफलतापूर्वक वेरिफाई किया गया है"
+            ),
+            "success"
+          )
+        ),
 
     [user.uid, notify, dispatchUser, unlinkPhoneNumber]
   );
@@ -102,7 +148,14 @@ export function AccountProvider({ children }) {
      */
     async () =>
       EmailPasswdAuth.requestPasswordReset().then(() =>
-        notify("Check your email for password reset link", "info")
+        notify(
+          lang(
+            "Check your email for password reset link",
+            "পাসওয়ার্ড রিসেট লিঙ্কের জন্য আপনার ইমেল চেক করুন",
+            "पासवर्ड रीसेट लिंक के लिए अपना ईमेल चेक करें"
+          ),
+          "info"
+        )
       ),
     [notify]
   );

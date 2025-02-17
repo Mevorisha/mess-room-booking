@@ -12,6 +12,7 @@ import {
   updateIdenityPhotosVisibilityGenreic,
   uploadThreeSizesFromOneImage,
 } from "./utils/utils.js";
+import { lang } from "../modules/util/language.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -136,7 +137,14 @@ export function IdentityProvider({ children }) {
         dispatchUser({ identityPhotos: { govId: uploadedGovId } });
       }
 
-      notify("Document(s) updated successfully", "success");
+      notify(
+        lang(
+          "Document(s) updated successfully",
+          "ডকুমেন্ট(গুলি) সফলভাবে আপডেট করা হয়েছে",
+          "डॉक्युमेंट को सफलतापूर्वक अपडेट किया गया है"
+        ),
+        "success"
+      );
 
       return {
         workId: uploadedWorkId?.medium,

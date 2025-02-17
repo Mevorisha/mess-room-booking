@@ -6,6 +6,7 @@ import {
 } from "../../modules/firebase/storage.js";
 import { resizeImage } from "../../modules/util/dataConversion.js";
 import { UploadedImage } from "../user.js";
+import { lang } from "../../modules/util/language.js";
 
 /* -------------------------------------- TYPEDEFS ----------------------------------- */
 
@@ -28,10 +29,11 @@ export function notifyProgress(
   mediumPercent,
   largePercent,
   notify,
-  msg = "Uploading"
+  msg = lang("Uploading", "আপলোড হচ্ছে", "अपलोड हो रहा है")
 ) {
   const combinedPercent = (smallPercent + mediumPercent + largePercent) / 3;
-  notify(`${msg}: ${combinedPercent.toFixed(2)}% completed`, "info");
+  // prettier-ignore
+  notify(`${msg}: ${combinedPercent.toFixed(2)}% ${lang("complete", "সম্পূর্ণ", "सम्पूर्ण")}`, "info");
 }
 
 /**
@@ -114,7 +116,11 @@ export async function updateIdenityPhotosVisibilityGenreic(
 
   if (!oldVisibilityCode) {
     return Promise.reject(
-      `Cannot change visibility: ${idKey} identity not found`
+      lang(
+        `Cannot change visibility: ${idKey} identity not found`,
+        `দৃশ্যমানতা পরিবর্তন করা যাবে না: ${idKey} পরিচয় পাওয়া যায়নি`,
+        `दृश्यता बदल नहीं सकता: ${idKey} पहचान नहीं मिली`
+      )
     );
   }
 
@@ -125,7 +131,8 @@ export async function updateIdenityPhotosVisibilityGenreic(
     return null;
   }
 
-  notifyProgress(0, 0, 0, notify, "Preparing to move");
+  // prettier-ignore
+  notifyProgress(0, 0, 0, notify, lang("Preparing to move", "স্থানান্তরের জন্য প্রস্তুতি নেওয়া হচ্ছে", "स्थानांतरित करने के लिए तैयारी हो रही है"));
 
   const smallTaskPromise = fbStorageMove(
     StoragePaths.IdentityDocuments(userId, oldVisibilityCode, idType, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
@@ -148,7 +155,8 @@ export async function updateIdenityPhotosVisibilityGenreic(
    * @returns {import("../../modules/firebase/storage.js").FbStorageTransferTask}
    */
   function notifyProgressAndPassTransfTask(task, a, b, c) {
-    notifyProgress(a, b, c, notify, "Preparing to move");
+    // prettier-ignore
+    notifyProgress(a, b, c, notify, lang("Preparing to move", "স্থানান্তরের জন্য প্রস্তুতি নেওয়া হচ্ছে", "स्थानांतरित करने के लिए तैयारी हो रही है"));
     return task;
   }
 
