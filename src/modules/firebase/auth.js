@@ -228,7 +228,7 @@ class GoogleAuth {
         RtDbPaths.Identity(result.user.uid) + "/displayName"
       ).then((displayName) => {
         if (!displayName) {
-          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
           });
         }
@@ -269,7 +269,7 @@ class AppleAuth {
         RtDbPaths.Identity(result.user.uid) + "/displayName"
       ).then((displayName) => {
         if (!displayName) {
-          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
           });
         }
@@ -312,7 +312,7 @@ class MicrosoftAuth {
         RtDbPaths.Identity(result.user.uid) + "/displayName"
       ).then((displayName) => {
         if (!displayName) {
-          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
           });
         }
@@ -364,7 +364,7 @@ class EmailPasswdAuth {
         RtDbPaths.Identity(result.user.uid) + "/displayName"
       ).then((displayName) => {
         if (!displayName) {
-          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
           });
         }
