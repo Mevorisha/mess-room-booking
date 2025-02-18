@@ -369,6 +369,14 @@ const LOADING_GIF_DATA =
  * @returns {Promise<string>} - Base64 image data
  */
 async function fetchImageAsBase64(url) {
+  const cache = await caches.open("custom-ImageLoader-cache-v1");
+  const cachedRes = await cache.match(url);
+  if (cachedRes) {
+    const result = await cachedRes.text();
+    console.warn("ImageLoader: found", url, ": size:", result.length);
+    return result;
+  }
+
   // Fetch the image from the URL
   const response = await fetch(url);
 
@@ -391,30 +399,56 @@ async function fetchImageAsBase64(url) {
   // Convert the Blob to Base64
   const reader = new FileReader();
 
+  /**
+   * @param {(value: string | PromiseLike<string>) => void} resolve
+   * @param {(reason?: any) => void} reject
+   */
+  function onloadend(resolve, reject) {
+    /**
+     * @type {string | null};
+     */
+    let error = null;
+
+    /**
+     * @type {string | null}
+     */
+    let result = null;
+
+    const readerData = reader.result;
+    if (!readerData) {
+      error = lang(
+        "Error converting image to base64",
+        "ছবি বেস৬৪-এ রূপান্তর করার সময় সমস্যা হয়েছে",
+        "छवि को बेस६४ में परिवर्तित करने में समस्या हुई है"
+      );
+    }
+
+    // if readerData is string
+    else if (typeof readerData === "string") {
+      const base64string = readerData.split(",")[1];
+      result = `data:image/${imageType};base64,${base64string}`;
+    }
+
+    // if readerData is binary
+    else if (readerData instanceof ArrayBuffer) {
+      // prettier-ignore
+      const base64string = new Uint8Array(readerData)
+        .reduce((data, byte) => data + String.fromCharCode(byte), "");
+      result = `data:image/${imageType};base64,${base64string}`;
+    }
+
+    console.warn("ImageLoader:", error, result?.length);
+
+    if (error) reject(new Error(error));
+    else if (result)
+      cache
+        .put(url, new Response(result, { status: 200 }))
+        .then(() => resolve(result))
+        .catch((e) => reject(e));
+  }
+
   return new Promise((resolve, reject) => {
-    reader.onloadend = () => {
-      const base64data = reader.result;
-      if (!base64data) {
-        reject(
-          new Error(
-            lang(
-              "Error converting image to base64",
-              "ছবি বেস৬৪-এ রূপান্তর করার সময় সমস্যা হয়েছে",
-              "छवि को बेस६४ में परिवर्तित करने में समस्या हुई है"
-            )
-          )
-        );
-      } else if (typeof base64data === "string") {
-        resolve(`data:image/${imageType};base64,${base64data.split(",")[1]}`);
-      } else if (base64data instanceof ArrayBuffer) {
-        resolve(
-          `data:image/${imageType};base64,${new Uint8Array(base64data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )}`
-        );
-      }
-    };
+    reader.onloadend = () => onloadend(resolve, reject);
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
