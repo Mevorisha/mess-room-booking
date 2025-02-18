@@ -17,8 +17,8 @@ export default function SetProfileType() {
   const navigate = useNavigate();
 
   const [buttonKind, setButtonKind] = useState({
-    TENANT: /** @type {"primary" | "loading"} */ ("primary"),
-    OWNER: /**  @type {"primary" | "loading"} */ ("primary"),
+    TENANT: /** @type {"secondary" | "loading"} */ ("secondary"),
+    OWNER: /**  @type {"secondary" | "loading"} */ ("secondary"),
   });
 
   /**
@@ -30,7 +30,7 @@ export default function SetProfileType() {
         setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" }))
       )
       .then(() => compUsr.profileCtx.updateProfileType(type))
-      .then(() => setButtonKind({ TENANT: "primary", OWNER: "primary" }))
+      .then(() => setButtonKind({ TENANT: "secondary", OWNER: "secondary" }))
       .then(() => navigate(PageUrls.HOME))
       .catch((e) => notify(e, "error"));
   }

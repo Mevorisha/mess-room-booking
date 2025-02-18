@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "../../hooks/notification.js";
+import { lang } from "../../modules/util/language.js";
 
 const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -372,7 +373,13 @@ async function fetchImageAsBase64(url) {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(
+      lang(
+        `HTTP error! status: ${response.status}`,
+        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
+        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
+      )
+    );
   }
 
   // Convert the image to a Blob
@@ -388,7 +395,15 @@ async function fetchImageAsBase64(url) {
     reader.onloadend = () => {
       const base64data = reader.result;
       if (!base64data) {
-        reject(new Error("Error converting image to base64"));
+        reject(
+          new Error(
+            lang(
+              "Error converting image to base64",
+              "ছবি বেস৬৪-এ রূপান্তর করার সময় সমস্যা হয়েছে",
+              "छवि को बेस६४ में परिवर्तित करने में समस्या हुई है"
+            )
+          )
+        );
       } else if (typeof base64data === "string") {
         resolve(`data:image/${imageType};base64,${base64data.split(",")[1]}`);
       } else if (base64data instanceof ArrayBuffer) {

@@ -14,6 +14,7 @@ import {
 } from "../modules/firebase/auth.js";
 import { onDbContentChange } from "../modules/firebase/db.js";
 import { isEmpty } from "../modules/util/validations.js";
+import { lang } from "../modules/util/language.js";
 
 const MODULE_NAME = "contexts/auth.js";
 
@@ -90,7 +91,15 @@ export function AuthProvider({ children }) {
         user ? User.fromFirebaseAuthUser(user) : null
       );
 
-      if (null == user) notify("You are not logged in", "warning");
+      if (null == user)
+        notify(
+          lang(
+            "You are not logged in",
+            "আপনি লগইন করেননি",
+            "आप लॉगिन नहीं किए हैं"
+          ),
+          "warning"
+        );
     });
 
     return () => unsubscribe();
@@ -165,7 +174,12 @@ export function AuthProvider({ children }) {
      */
     () =>
       fbAuthLogOut()
-        .then(() => notify("Logged out", "info"))
+        .then(() =>
+          notify(
+            lang("Logged out", "লগ আউট করা হয়েছে", "लॉगआउट किया गया है"),
+            "info"
+          )
+        )
         .then(() => dispatchUser("RESET")),
     [notify, dispatchUser]
   );

@@ -1,3 +1,5 @@
+import { lang } from "./language.js";
+
 /**
  * Converts bytes to human readable format
  * @param {number} bytes
@@ -78,7 +80,15 @@ export function resizeImage(
       const ctx = canvas.getContext("2d");
 
       if (!ctx) {
-        reject(new Error("Canvas creation failed"));
+        reject(
+          new Error(
+            lang(
+              "Canvas creation failed",
+              "ক্যানভাস তৈরি করা ব্যর্থ হয়েছে",
+              "कैनवास निर्माण विफल हो गया"
+            )
+          )
+        );
         return;
       }
 
@@ -90,7 +100,16 @@ export function resizeImage(
         (resizedBlob) => {
           if (resizedBlob)
             resolve(new File([resizedBlob], filename, { type: mimeType }));
-          else reject(new Error("Canvas conversion failed"));
+          else
+            reject(
+              new Error(
+                lang(
+                  "Canvas conversion failed",
+                  "ক্যানভাস কনভার্সন ব্যর্থ হয়েছে",
+                  "कैनवास रूपांतरण विफल हो गया"
+                )
+              )
+            );
         },
         mimeType,
         quality

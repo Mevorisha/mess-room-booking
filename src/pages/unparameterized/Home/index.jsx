@@ -100,6 +100,15 @@ export default function Home() {
         search: searchParams.toString(),
       });
     }
+
+    // user logged in but no language set
+    else if (isEmpty(window.localStorage.getItem("lang"))) {
+      searchParams.set("action", ActionParams.CHANGE_LANGUAGE);
+      navigate({
+        pathname: PageUrls.ONBOARDING,
+        search: searchParams.toString(),
+      });
+    }
   }, [
     compUsr.userCtx.user.type,
     compUsr.userCtx.user.mobile,
@@ -110,7 +119,8 @@ export default function Home() {
   // user logged in but not onboarded
   if (
     isEmpty(compUsr.userCtx.user.type) ||
-    isEmpty(compUsr.userCtx.user.mobile)
+    isEmpty(compUsr.userCtx.user.mobile) ||
+    isEmpty(window.localStorage.getItem("lang"))
   ) {
     return <LoadingPage />;
   }
