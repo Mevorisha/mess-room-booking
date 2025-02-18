@@ -360,6 +360,15 @@ class EmailPasswdAuth {
         email,
         password
       );
+      await fbRtdbRead(
+        RtDbPaths.Identity(result.user.uid) + "/displayName"
+      ).then((displayName) => {
+        if (!displayName) {
+          fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
+            displayName: result.user.displayName,
+          });
+        }
+      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
