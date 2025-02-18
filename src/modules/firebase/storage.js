@@ -9,6 +9,7 @@ import {
 } from "firebase/storage";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import { sizehuman } from "../util/dataConversion.js";
+import { lang } from "../util/language.js";
 
 /**
  * A map of all the ongoing tasks WRT the task in storage.
@@ -185,10 +186,22 @@ function loadFileFromFilePicker(accept, size) {
         if (file.size <= size) {
           resolve(file);
         } else {
-          reject(`File exceeds size limit of ${sizehuman(size)}`);
+          reject(
+            lang(
+              `File exceeds size limit of ${sizehuman(size)}`,
+              `ফাইলের আকার সীমা ${sizehuman(size)} এর চেয়ে বেশি।`,
+              `फ़ाइल का आकार सीमा ${sizehuman(size)} से अधिक है।`
+            )
+          );
         }
       } else {
-        reject("No file selected");
+        reject(
+          lang(
+            "No file selected",
+            "কোনও ফাইল নির্বাচন করা হয়নি",
+            "कोई फ़ाइल चयनित नहीं किया गया है"
+          )
+        );
       }
     });
   });
@@ -214,7 +227,13 @@ function fbStorageUpload(path, file) {
 
   // check if an upload operation is already in progress
   if (OngoingTasks.has(taskId)) {
-    throw new Error("Upload operation already in progress");
+    throw new Error(
+      lang(
+        "Upload operation already in progress",
+        "আপলোড অপারেশন আগে থেকেই চলছে",
+        "अपलोड ऑपरेशन पहले से ही चल रहा है"
+      )
+    );
   }
 
   // if not, set the task as ongoing
@@ -272,7 +291,13 @@ function fbStorageUpdate(path, file) {
 
   // check if an update operation is already in progress
   if (OngoingTasks.has(taskId)) {
-    throw new Error("Update operation already in progress");
+    throw new Error(
+      lang(
+        "Update operation already in progress",
+        "আপডেট অপারেশন আগেই থেকে চলছে",
+        "अपडेट ऑपरेशन पहले से ही चल रहा है"
+      )
+    );
   }
 
   // if not, set the task as ongoing
@@ -301,7 +326,13 @@ async function fbStorageCopy(path1, path2) {
 
   // check if a copy operation is already in progress
   if (OngoingTasks.has(taskId)) {
-    return Promise.reject("Copy operation already in progress");
+    return Promise.reject(
+      lang(
+        "Copy operation already in progress",
+        "কপি অপারেশন আগেই থেকে চলছে",
+        "कॉपी ऑपरेशन पहले से ही चल रहा है"
+      )
+    );
   }
 
   // if not, set the task as ongoing
@@ -333,7 +364,13 @@ async function fbStorageMove(path1, path2) {
 
   // check if a move operation is already in progress
   if (OngoingTasks.has(taskId)) {
-    return Promise.reject("Move operation already in progress");
+    return Promise.reject(
+      lang(
+        "Move operation already in progress",
+        "মুভ অপারেশন আগেই থেকে চলছে",
+        "मूभ ऑपरेशन पहले से ही चल रहा है"
+      )
+    );
   }
 
   // if not, set the task as ongoing

@@ -423,7 +423,13 @@ class EmailPasswdAuth {
    */
   static async requestPasswordReset(email = "") {
     if (!email && !FirebaseAuth.currentUser?.email) {
-      return Promise.reject("No email provided.");
+      return Promise.reject(
+        lang(
+          "No email provided.",
+          "কোনও ইমেল প্রদান করা হয়নি।",
+          "कोई ईमेल प्रदान नहीं किया गया।"
+        )
+      );
     }
 
     if (!email && FirebaseAuth.currentUser?.email) {
