@@ -206,8 +206,8 @@ export default function TopBar({ children }) {
           >
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
-              ? lang("View Owner Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
-              : lang("View Tenant Profile", "প্রোফাইল দেখুন", "प्रोफ़ाइल देखें")
+              ? lang("View Owner Profile", "মালিকের প্রোফাইল দেখুন", "मालिक प्रोफ़ाइल देखें")
+              : lang("View Tenant Profile", "ভাড়াটের প্রোফাইল দেখুন", "किरायेदार प्रोफ़ाइल देखें")
             }
           </div>
           {/* Switch Profile Type */}
@@ -217,8 +217,8 @@ export default function TopBar({ children }) {
           >
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
-              ? lang("Switch to Owner Profile", "প্রোফাইল পরিবর্তন করুন", "प्रोफ़ाइल बदलें")
-              : lang("Switch to Tenant Profile", "প্রোফাইল পরিবর্তন করুন", "प्रोफ़ाइल बदलें")
+              ? lang("Switch to Tenant Profile", "ভাড়াটের প্রোফাইলে স্যুইচ করুন", "किरायेदार पर स्विच करें")
+              : lang("Switch to Owner Profile", "মালিকের প্রোফাইলে স্যুইচ করুন", "मालिक पर स्विच करें")
             }
           </div>
           {/* Update Profile Photo */}

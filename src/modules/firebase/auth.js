@@ -19,6 +19,7 @@ import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
 import { fbRtdbRead, fbRtdbUpdate } from "./db.js";
+import { lang } from "../util/language.js";
 
 const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
@@ -56,13 +57,25 @@ async function updateProfile({ firstName, lastName, photoURL }) {
   if (firstName && lastName) {
     updatePayload.displayName = `${firstName} ${lastName}`;
   } else if (firstName || lastName) {
-    return Promise.reject("Both first name and last name are required.");
+    return Promise.reject(
+      lang(
+        "Both first name and last name are required.",
+        "প্রথম নাম এবং শেষ নাম উভয় প্রয়োজন।",
+        "पहला नाम और अंतिम नाम दोनों आवश्यक हैं।"
+      )
+    );
   }
   if (photoURL) {
     updatePayload.photoURL = photoURL;
   }
   if (!FirebaseAuth.currentUser) {
-    return Promise.reject("No user logged in.");
+    return Promise.reject(
+      lang(
+        "No user logged in.",
+        "কোনও ব্যবহারকারী লগ ইন করেননি।",
+        "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
+      )
+    );
   }
   try {
     await fbAuthUpdateProfile(FirebaseAuth.currentUser, updatePayload);
@@ -80,7 +93,13 @@ async function updateProfile({ firstName, lastName, photoURL }) {
 async function logOut() {
   try {
     await signOut(FirebaseAuth);
-    return Promise.resolve("Successfully logged out.");
+    return Promise.resolve(
+      lang(
+        "Successfully logged out.",
+        "সফলভাবে লগ আউট করা হয়েছে।",
+        "सफलतापूर्वक लॉगआउट किया गया है।"
+      )
+    );
   } catch (error) {
     const errmsg = getCleanFirebaseErrMsg(error);
     logError("auth_microsoft_logout", errmsg, error.code);
@@ -149,7 +168,13 @@ class LinkMobileNumber {
      */
     const confirmationResult = window[AuthConstants.CONFIRMATION_RESULT];
     if (!confirmationResult) {
-      return Promise.reject("No OTP sent. Please request a new OTP.");
+      return Promise.reject(
+        lang(
+          "No OTP sent. Please request a new OTP.",
+          "কোনও ও-টি-পি পাঠানো হয়নি। অনুগ্রহ করে একটি নতুন ও-টি-পি অনুরোধ করুন।",
+          "कोई ओ-टी-पी नहीं भेजा गया। कृपया एक नया ओ-टी-पी अनुरोध करें।"
+        )
+      );
     }
 
     try {
@@ -160,7 +185,13 @@ class LinkMobileNumber {
       );
 
       if (!FirebaseAuth.currentUser) {
-        return Promise.reject("No user logged in.");
+        return Promise.reject(
+          lang(
+            "No user logged in.",
+            "কোনও ব্যবহারকারী লগ ইন করেননি।",
+            "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
+          )
+        );
       }
 
       // also updates the user's phone number so updatePhoneNumber is not required
@@ -175,8 +206,11 @@ class LinkMobileNumber {
     } catch (error) {
       let errmsg = getCleanFirebaseErrMsg(error);
       if (error?.code === "auth/account-exists-with-different-credential") {
-        errmsg =
-          "Phone number linked to an existing account. Use a different number.";
+        errmsg = lang(
+          "Phone number linked to an existing account. Use a different number.",
+          "ফোন নম্বরটি যুক্ত অ্যাকাউন্ট বিদ্যমান। একটি ভিন্ন নম্বর ব্যবহার করুন।",
+          "फोन नंबर एक मौजूदा अकाउंट से जुड़ा हुआ है। एक अलग नंबर का उपयोग करें।"
+        );
       }
       logError("auth_verify_otp", errmsg, error.code);
       return Promise.reject(errmsg);
@@ -186,7 +220,13 @@ class LinkMobileNumber {
   static async unlinkPhoneNumber() {
     try {
       if (!FirebaseAuth.currentUser) {
-        return Promise.reject("No user logged in.");
+        return Promise.reject(
+          lang(
+            "No user logged in.",
+            "কোনও ব্যবহারকারী লগ ইন করেননি।",
+            "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
+          )
+        );
       }
 
       await unlink(FirebaseAuth.currentUser, "phone");
