@@ -21,6 +21,7 @@ export const PageUrls = {
  *   "Change Display Name" |
  *   "Request Password Reset" |
  *   "Change Mobile Number" |
+ *   "Change Language" |
  *   "Log Out"}
  */
 // prettier-ignore
@@ -45,6 +46,9 @@ export const ActionParams = {
   ),
   CHANGE_MOBILE_NUMBER: /**   @type {"Change Mobile Number"}   */ (
     lang("Change Mobile Number", "মোবাইল নাম্বার পরিবর্তন করুন", "मोबाइल नंबर बदलें")
+  ),
+  CHANGE_LANGUAGE: /**        @type {"Change Language"}        */ (
+    lang("Change Language", "ভাষা পরিবর্তন করুন", "भाषा बदलें")
   ),
   LOGOUT: /**                 @type {"Log Out"}                 */ (
     lang("Log Out", "লগ আউট", "लॉग आउट")

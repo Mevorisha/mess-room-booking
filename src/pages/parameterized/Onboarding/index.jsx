@@ -7,6 +7,7 @@ import { ActionParams } from "../../../modules/util/pageUrls.js";
 
 import useCompositeUser from "../../../hooks/compositeUser.js";
 
+import SetLanguage from "./SectionLanguage";
 import SetDisplayName from "./SectionDisplayName";
 import SetMobileNumber from "./SectionMobileNo";
 import SetProfilePhoto from "./SectionProfilePhoto";
@@ -36,6 +37,8 @@ export default function Onboarding() {
         return <SetProfilePhoto />;
       case ActionParams.UPDATE_ID_DOCS:
         return <SetIdentityDocs />;
+      case ActionParams.CHANGE_LANGUAGE:
+        return <SetLanguage />;
       default:
         return <PageNotFound />;
     }
@@ -43,6 +46,7 @@ export default function Onboarding() {
   if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) return <></>;
   if (isEmpty(compUsr.userCtx.user.type)) return <SetProfileType />;
   if (isEmpty(compUsr.userCtx.user.mobile)) return <SetMobileNumber />;
+  if (isEmpty(window.localStorage.getItem("lang"))) return <SetLanguage />;
 
   return <PageNotFound />;
 }

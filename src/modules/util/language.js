@@ -6,6 +6,7 @@
  */
 export function lang(englishTxt, banglaTxt, hindiTxt) {
   const lang = window.localStorage.getItem("lang");
+  if (!lang) return englishTxt;
   if (lang === "ENGLISH") return englishTxt;
   if (lang === "BANGLA") return banglaTxt;
   if (lang === "HINDI") return hindiTxt;

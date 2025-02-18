@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "../../modules/util/validations.js";
 import { lang } from "../../modules/util/language.js";
@@ -124,6 +124,7 @@ export default function TopBar({ children }) {
       // onboarding actions
       case ActionParams.CHANGE_NAME:
       case ActionParams.CHANGE_MOBILE_NUMBER:
+      case ActionParams.CHANGE_LANGUAGE:
       case ActionParams.SWITCH_PROFILE_TYPE:
       case ActionParams.UPDATE_PROFILE_PHOTO:
       case ActionParams.UPDATE_ID_DOCS:
@@ -264,6 +265,13 @@ export default function TopBar({ children }) {
             onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}
           >
             {ActionParams.RESET_PASSWORD}
+          </div>
+          {/* Change Language */}
+          <div
+            className="dropdown-item"
+            onClick={() => handleItemClick(ActionParams.CHANGE_LANGUAGE)}
+          >
+            {ActionParams.CHANGE_LANGUAGE}
           </div>
           {/* Log Out */}
           <div

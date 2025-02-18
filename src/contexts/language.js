@@ -22,7 +22,6 @@ export function LanguageProvider({ children }) {
     /** @type {() => "ENGLISH" | "BANGLA" | "HINDI"} */ (
       () => {
         const newLangSt = window.localStorage.getItem("lang") || "ENGLISH";
-        window.localStorage.setItem("lang", newLangSt);
         return newLangSt;
       }
     )
@@ -36,7 +35,7 @@ export function LanguageProvider({ children }) {
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         // ensure all modules are reloaded with the new language value
-        if (oldVal !== newVal) window.location.reload();
+        if (oldVal !== newVal) window.location.href = "/";
         return newVal;
       }),
     [_setLang]
