@@ -373,7 +373,7 @@ async function fetchImageAsBase64(url) {
   const cachedRes = await cache.match(url);
   if (cachedRes) {
     const result = await cachedRes.text();
-    console.warn("ImageLoader: found", url, ": size:", result.length);
+    // console.warn("ImageLoader: found", url, ": size:", result.length);
     return result;
   }
 
@@ -437,7 +437,7 @@ async function fetchImageAsBase64(url) {
       result = `data:image/${imageType};base64,${base64string}`;
     }
 
-    console.warn("ImageLoader:", error, result?.length);
+    // console.warn("ImageLoader:", error, result?.length);
 
     if (error) reject(new Error(error));
     else if (result)
