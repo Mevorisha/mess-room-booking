@@ -142,7 +142,12 @@ export default function TopBar({ children }) {
         break;
       // log out action
       case ActionParams.LOGOUT:
-        compUsr.authCtx.logOut().catch((e) => notify(e, "error"));
+        // prettier-ignore
+        compUsr.authCtx
+          .logOut()
+          .then(() => caches.delete("custom-ImageLoader-cache-v1"))
+          .then((status) => status && notify(lang("Image cache cleared", "ইমেজ ক্যাশ সাফ করা হয়েছে", "इमेज कैश साफ किया गया है"), "warning"))
+          .catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // invalid action
