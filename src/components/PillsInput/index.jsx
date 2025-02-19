@@ -13,17 +13,31 @@ function CrossButton({ onClick }) {
 
 export function PillInputTest() {
   const [pillsSet, setPillsSet] = useState(new Set());
-  return <PillInput pillsSet={pillsSet} setPillsSet={setPillsSet} />;
+  return (
+    <PillInput
+      type="text"
+      placeholder="Enter demo values"
+      pillsSet={pillsSet}
+      setPillsSet={setPillsSet}
+    />
+  );
 }
 
 /**
  * @param {{
+ *   type?: React.HTMLInputTypeAttribute
+ *   placeholder?: string
  *   pillsSet: Set<string>,
  *   setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>
  * }} props
  * @returns {React.JSX.Element}
  */
-export default function PillInput({ pillsSet, setPillsSet }) {
+export default function PillInput({
+  type,
+  placeholder,
+  pillsSet,
+  setPillsSet,
+}) {
   const [inputValue, setInputValue] = useState("");
 
   /**
@@ -97,8 +111,8 @@ export default function PillInput({ pillsSet, setPillsSet }) {
           autoCorrect="off"
           spellCheck="false"
           tabIndex={0}
-          type="text"
-          placeholder="Enter value"
+          type={type}
+          placeholder={placeholder}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => handleKeyDown(e)}
