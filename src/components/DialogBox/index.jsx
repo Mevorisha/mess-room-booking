@@ -19,12 +19,19 @@ export default function DialogBox() {
     setDialogState,
   } = useContext(DialogBoxContext);
 
-  const [clientWidth, setClientWidth] = useState(document.body.clientWidth);
+  const [clientDims, setClientDims] = useState({
+    w: document.body.clientWidth,
+    h: document.body.clientHeight,
+  });
 
   useLayoutEffect(() => {
-    const updateClientWidth = () => setClientWidth(document.body.clientWidth);
-    window.addEventListener("resize", updateClientWidth);
-    return () => window.removeEventListener("resize", updateClientWidth);
+    const updateClientDims = () =>
+      setClientDims({
+        w: document.body.clientWidth,
+        h: document.body.clientHeight,
+      });
+    window.addEventListener("resize", updateClientDims);
+    return () => window.removeEventListener("resize", updateClientDims);
   }, []);
 
   if (overlayState === "gone") return null;
@@ -39,11 +46,15 @@ export default function DialogBox() {
   };
 
   if (size === "large") {
-    dialogAnimStyle.maxWidth = `${Math.min(clientWidth, 500) - 40}px`;
+    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 500) - 40}px`;
   }
 
   if (size === "small") {
-    dialogAnimStyle.maxWidth = `${Math.min(clientWidth, 400) - 40}px`;
+    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 400) - 40}px`;
+  }
+
+  if (size === "fullwidth") {
+    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 0}px`;
   }
 
   return (

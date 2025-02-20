@@ -12,8 +12,8 @@ const DialogBoxContext = createContext({
     () => {}
   ),
 
-  size: /** @type {"small" | "large"} */ ("small"),
-  setSize: /** @type {(val: "small" | "large") => void} */ (() => {}),
+  size: /** @type {"small" | "large" | "fullwidth"} */ ("small"),
+  setSize: /** @type {(val: "small" | "large" | "fullwidth") => void} */ (() => {}),
 
   dialogState: /** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone"),
   setDialogState:
@@ -35,7 +35,7 @@ export function DialogBoxProvider({ children }) {
     /** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone")
   );
 
-  const [size, setSize] = useState(/** @type {"small" | "large"} */ ("small"));
+  const [size, setSize] = useState(/** @type {"small" | "large" | "fullwidth"} */ ("small"));
 
   const [children_, setChildren_] = useState(
     /** @type {React.JSX.Element | null} */ (null)
