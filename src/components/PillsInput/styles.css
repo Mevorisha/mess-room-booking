@@ -1,8 +1,8 @@
 .components-PillsSelect {
-  width: calc(100% - 2 * var(--pad-0));
+  width: 100%;
   padding: var(--pad-0);
   border-radius: calc(var(--rounded-rad) + 2px);
-  border: 1px solid var(--color-bg-secondary);
+  border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
 }
@@ -13,7 +13,7 @@
   align-items: center;
 }
 
-.components-PillsSelect .clearbtn-container i {
+.components-PillsSelect .clearbtn-container .btn-clear {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,8 +29,16 @@
   color: #696767;
 }
 
-.components-PillsSelect .clearbtn-container i:hover {
+.components-PillsSelect .clearbtn-container .btn-clear:hover {
   background-color: #bababa5c;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear.disabled {
+  cursor: not-allowed;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear.disabled:hover {
+  background-color: unset;
 }
 
 .components-PillsSelect .pills-container {
@@ -46,10 +54,11 @@
   height: fit-content;
   display: flex;
   flex-direction: row;
-  background-color: var(--color-bg-secondary);
+  background-color: #eee;
   justify-content: center;
   align-items: center;
   border-radius: var(--rounded-rad);
+  border: 1.5px solid #bbb;
   padding-left: var(--pad-2);
 }
 
@@ -70,7 +79,7 @@
 }
 
 .components-PillsSelect .pills-container .pill i {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
 }
 
 .components-PillsSelect .editing-container {
@@ -86,6 +95,10 @@
   background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
   border: 1px solid var(--color-light);
+}
+
+.components-PillsSelect .editing-container input:disabled {
+  cursor: not-allowed;
 }
 
 .components-PillsSelect .editing-container .clearbtn-container {

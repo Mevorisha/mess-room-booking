@@ -3,20 +3,31 @@ import "./styles.css";
 
 /**
  * @param {{
+ *   disabled: boolean
  *   onClick: React.MouseEventHandler<HTMLElement>
  * }} props
  * @returns {React.JSX.Element}
  */
-function CrossButton({ onClick }) {
-  return <i onClick={(e) => onClick(e)} className="btn-close fa fa-close" />;
+function CrossButton({ disabled, onClick }) {
+  if (disabled) {
+    return <i className="btn-clear disabled fa fa-close" />;
+  }
+  return <i onClick={(e) => onClick(e)} className="btn-clear fa fa-close" />;
 }
 
-export function PillInputTest() {
+/**
+ * @param {{
+ *   disabled?: boolean
+ * }} props
+ * @returns {React.JSX.Element}
+ */
+export function PillInputTest({ disabled }) {
   const [pillsSet, setPillsSet] = useState(new Set());
   return (
     <PillInput
       type="text"
       placeholder="Enter demo values"
+      disabled={disabled}
       pillsSet={pillsSet}
       setPillsSet={setPillsSet}
     />
@@ -25,8 +36,9 @@ export function PillInputTest() {
 
 /**
  * @param {{
- *   type?: React.HTMLInputTypeAttribute
- *   placeholder?: string
+ *   type?: React.HTMLInputTypeAttribute,
+ *   placeholder?: string,
+ *   disabled?: boolean,
  *   pillsSet: Set<string>,
  *   setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>
  * }} props
@@ -35,6 +47,7 @@ export function PillInputTest() {
 export default function PillInput({
   type,
   placeholder,
+  disabled,
   pillsSet,
   setPillsSet,
 }) {
@@ -98,7 +111,10 @@ export default function PillInput({
             </div>
 
             <div className="clearpill-container clearbtn-container">
-              <CrossButton onClick={() => handleItemRemove(item)} />
+              <CrossButton
+                disabled={!!disabled}
+                onClick={() => handleItemRemove(item)}
+              />
             </div>
           </div>
         ))}
@@ -112,7 +128,8 @@ export default function PillInput({
           spellCheck="false"
           tabIndex={0}
           type={type}
-          placeholder={placeholder}
+          disabled={disabled}
+          placeholder={!disabled ? placeholder : "View only"}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => handleKeyDown(e)}
@@ -120,7 +137,7 @@ export default function PillInput({
         />
 
         <div className="clearall-container clearbtn-container">
-          <CrossButton onClick={handleClearAll} />
+          <CrossButton disabled={!!disabled} onClick={handleClearAll} />
         </div>
       </div>
     </div>
