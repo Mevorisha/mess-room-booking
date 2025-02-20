@@ -28,8 +28,9 @@ export default function DialogBox() {
     const updateClientDims = () =>
       setClientDims({
         w: document.body.clientWidth,
-        h: document.body.clientHeight,
+        h: document.body.clientHeight,  // no change in height on resize - redundant
       });
+
     window.addEventListener("resize", updateClientDims);
     return () => window.removeEventListener("resize", updateClientDims);
   }, []);
@@ -45,16 +46,19 @@ export default function DialogBox() {
     animation: `${dialogState} ${DIALOG_ANIM_DURATION}ms forwards`,
   };
 
+  if (size === "fullwidth") {
+    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 10}px`;
+    dialogAnimStyle.maxHeight = "calc(100vh - 40px)";
+    dialogAnimStyle.overflowX = "hidden";
+    dialogAnimStyle.overflowY = "scroll";
+  }
+
   if (size === "large") {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 500) - 40}px`;
   }
 
   if (size === "small") {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 400) - 40}px`;
-  }
-
-  if (size === "fullwidth") {
-    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 0}px`;
   }
 
   return (
