@@ -1,6 +1,6 @@
 export const CachePaths = {
   IMAGE_LOADER: "custom-ImageLoader-cache-v1",
-  SECTION_ROOM_FROM: "custom-SectionRoomForm-cache-v1",
+  SECTION_ROOM_FORM: "custom-SectionRoomForm-cache-v1",
 };
 
 /**

@@ -18,7 +18,7 @@ import { lang } from "../../../../modules/util/language.js";
 
 import "./styles.css";
 
-const SECTION_ROOM_FROM_CACHE_PATH = CachePaths.SECTION_ROOM_FROM;
+const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
  * @typedef {import("../../../../modules/util/dataConversion.js").Base64FileData} Base64FileData
@@ -101,7 +101,7 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
       return;
 
     caches
-      .open(SECTION_ROOM_FROM_CACHE_PATH)
+      .open(SECTION_ROOM_FORM_CACHE_PATH)
       .then((cache) => cache.match(cacheUrl))
       .then((response) => response?.json())
       .then((/** @type {CachableDraftFormData} */ data) => {
@@ -152,10 +152,10 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
 
     // save form data draft in cache
     if (submitAction === "save-draft") {
-      const cache = await caches.open(SECTION_ROOM_FROM_CACHE_PATH);
-      const newUrl = await createNewCacheUrl(SECTION_ROOM_FROM_CACHE_PATH);
+      const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
+      const newUrl = await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH);
       await cache.put(newUrl, new Response(jsonString, { status: 200 }));
-      await putLastCacheUrl(SECTION_ROOM_FROM_CACHE_PATH, newUrl);
+      await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, newUrl);
     }
 
     if (submitAction === "submit") {
