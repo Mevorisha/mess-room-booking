@@ -188,3 +188,16 @@ export function fileToBase64FileData(file) {
     reader.onerror = (error) => reject(error);
   });
 }
+
+/**
+ * @param {Base64FileData} fileData
+ * @returns {File}
+ */
+export function base64FileDataToFile(fileData) {
+  const byteStr = atob(fileData.base64);
+  const u8arr = new Uint8Array(byteStr.length);
+  for (let i = 0; i < byteStr.length; i++) {
+    fileData[i] = byteStr.charCodeAt(i);
+  }
+  return new File([u8arr], fileData.name, { type: fileData.type });
+}

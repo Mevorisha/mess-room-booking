@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useDialog from "../../../../hooks/dialogbox.js";
 
-import { fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
+import { base64FileDataToFile, fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
 import {
   CachePaths,
   createNewCacheUrl,
@@ -33,9 +33,10 @@ const SECTION_ROOM_FROM_CACHE_PATH = CachePaths.SECTION_ROOM_FROM;
  */
 
 /**
+ * @param {{ idKey?: string }} props
  * @returns {JSX.Element}
  */
-export default function SectionRoomForm() {
+export default function SectionRoomForm({ idKey: cacheUrl }) {
   const notify = useNotification();
 
   const [draftButtonKind, setDraftButtonKind] = useState(
@@ -62,6 +63,16 @@ export default function SectionRoomForm() {
     /** @type {Set<string>} */ (new Set())
   );
 
+  const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
+    useRef()
+  );
+  const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
+    useRef()
+  );
+  const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
+    useRef()
+  );
+
   const [majorTagsSet, setMajorTagsSet] = useState(
     /** @type {Set<string>} */ (new Set())
   );
@@ -79,6 +90,28 @@ export default function SectionRoomForm() {
   );
 
   const dialog = useDialog();
+
+  /* useEffect to load cache data */
+  useEffect(() => {
+    if (!cacheUrl) return;
+    if (!addressInput.current || !cityInput.current || !stateInput.current)
+      return;
+    caches
+      .open(SECTION_ROOM_FROM_CACHE_PATH)
+      .then((cache) => cache.match(cacheUrl))
+      .then((response) => response?.json())
+      .then((/** @type {CachableDraftFormData} */ data) => {
+        if (!data) return;
+        setLandmarksSet(new Set(data.landmarks));
+        if (addressInput.current) addressInput.current.value = data.address;
+        if (cityInput.current) cityInput.current.value = data.city;
+        if (stateInput.current) stateInput.current.value = data.state;
+        setMajorTagsSet(new Set(data.majorTags));
+        setMinorTagsSet(new Set(data.minorTags));
+        setFilesSet(new Set(data.files.map((fileData) => base64FileDataToFile(fileData))));
+      })
+      .catch((e) => notify(e, "error"));
+  }, [cacheUrl, addressInput.current, cityInput.current, stateInput.current]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -161,10 +194,28 @@ export default function SectionRoomForm() {
             pillsSet={landmarksSet}
             setPillsSet={setLandmarksSet}
           />
-          <input required type="text" placeholder="Address" name="address" />
+          <input
+            required
+            ref={addressInput}
+            type="text"
+            placeholder="Address"
+            name="address"
+          />
           <div className="city-state-container">
-            <input required type="text" placeholder="City" name="city" />
-            <input required type="text" placeholder="State" name="state" />
+            <input
+              required
+              ref={cityInput}
+              type="text"
+              placeholder="City"
+              name="city"
+            />
+            <input
+              required
+              ref={stateInput}
+              type="text"
+              placeholder="State"
+              name="state"
+            />
           </div>
           <PillsInput
             placeholder="Set major tags"
