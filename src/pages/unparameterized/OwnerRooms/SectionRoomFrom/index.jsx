@@ -36,11 +36,13 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  */
 
 /**
- * @param {{ idKey?: string, viewOnly: boolean }} props
+ * @param {{ viewDraftCacheUrl?: string, viewOnly: boolean }} props
  * @returns {JSX.Element}
  */
-export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
+export default function SectionRoomForm({ viewDraftCacheUrl, viewOnly }) {
   const notify = useNotification();
+
+  const [internalCacheUrl, setInternalCacheUrl] = useState(viewDraftCacheUrl ?? "");
 
   const [draftButtonKind, setDraftButtonKind] = useState(
     /** @type {"secondary" | "loading"} */ ("secondary")
@@ -96,13 +98,13 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
 
   /* useEffect to load cache data */
   useEffect(() => {
-    if (!cacheUrl) return;
+    if (!viewDraftCacheUrl) return;
     if (!addressInput.current || !cityInput.current || !stateInput.current)
       return;
 
     caches
       .open(SECTION_ROOM_FORM_CACHE_PATH)
-      .then((cache) => cache.match(cacheUrl))
+      .then((cache) => cache.match(internalCacheUrl))
       .then((response) => response?.json())
       .then((/** @type {CachableDraftFormData} */ data) => {
         if (!data) return;
@@ -117,7 +119,7 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
         );
       })
       .catch((e) => notify(e, "error"));
-  }, [cacheUrl, addressInput.current, cityInput.current, stateInput.current]);
+  }, [viewDraftCacheUrl, addressInput.current, cityInput.current, stateInput.current]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -156,9 +158,14 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
       const newUrl = await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH);
       await cache.put(newUrl, new Response(jsonString, { status: 200 }));
       await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, newUrl);
+      setInternalCacheUrl(newUrl);
     }
 
     if (submitAction === "submit") {
+      Promise.resolve() // <-- submission db call placeholder
+        .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
+        .then((cache) => cache.delete(internalCacheUrl))
+        .catch((e) => notify(e, "error"));
     }
   }
 
