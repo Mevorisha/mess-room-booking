@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "../../../../hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
+import {
+  base64FileDataToFile,
+  fileToBase64FileData,
+} from "../../../../modules/util/dataConversion.js";
 import {
   CachePaths,
   createNewCacheUrl,
@@ -33,10 +36,10 @@ const SECTION_ROOM_FROM_CACHE_PATH = CachePaths.SECTION_ROOM_FROM;
  */
 
 /**
- * @param {{ idKey?: string }} props
+ * @param {{ idKey?: string, viewOnly: boolean }} props
  * @returns {JSX.Element}
  */
-export default function SectionRoomForm({ idKey: cacheUrl }) {
+export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
   const notify = useNotification();
 
   const [draftButtonKind, setDraftButtonKind] = useState(
@@ -108,7 +111,9 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
         if (stateInput.current) stateInput.current.value = data.state;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
-        setFilesSet(new Set(data.files.map((fileData) => base64FileDataToFile(fileData))));
+        setFilesSet(
+          new Set(data.files.map((fileData) => base64FileDataToFile(fileData)))
+        );
       })
       .catch((e) => notify(e, "error"));
   }, [cacheUrl, addressInput.current, cityInput.current, stateInput.current]);
@@ -163,6 +168,18 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronous or else the form will submit before the cache is updated
 
+    if (viewOnly) {
+      notify(
+        lang(
+          "This form is view only",
+          "এই ফর্মটি শুধুমাত্র দেখার জন্য",
+          "यह फॉर्म केवल देखने के लिए है"
+        ),
+        "error"
+      );
+      return;
+    }
+
     setActiveButtonKind("loading");
     handleSubmitAsync(e)
       .then(() =>
@@ -190,12 +207,14 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
       <div className="editable-container">
         <div className="textedit-container">
           <PillsInput
+            disabled={viewOnly}
             placeholder="Set landmarks"
             pillsSet={landmarksSet}
             setPillsSet={setLandmarksSet}
           />
           <input
             required
+            disabled={viewOnly}
             ref={addressInput}
             type="text"
             placeholder="Address"
@@ -204,6 +223,7 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
           <div className="city-state-container">
             <input
               required
+              disabled={viewOnly}
               ref={cityInput}
               type="text"
               placeholder="City"
@@ -211,6 +231,7 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
             />
             <input
               required
+              disabled={viewOnly}
               ref={stateInput}
               type="text"
               placeholder="State"
@@ -218,11 +239,13 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
             />
           </div>
           <PillsInput
+            disabled={viewOnly}
             placeholder="Set major tags"
             pillsSet={majorTagsSet}
             setPillsSet={setMajorTagsSet}
           />
           <PillsInput
+            disabled={viewOnly}
             placeholder="Set minor tags"
             pillsSet={minorTagsSet}
             setPillsSet={setMinorTagsSet}
@@ -236,6 +259,7 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
 
       <div className="submit-container">
         <ButtonText
+          disabled={viewOnly}
           name="save-draft"
           title="Save Draft"
           rounded="all"
@@ -244,6 +268,7 @@ export default function SectionRoomForm({ idKey: cacheUrl }) {
           onClick={() => setSubmitAction("save-draft")}
         />
         <ButtonText
+          disabled={viewOnly}
           name="submit"
           title="Submit"
           rounded="all"

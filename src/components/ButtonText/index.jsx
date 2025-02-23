@@ -11,6 +11,7 @@ import "./styles.css";
  *                                                                              function to stop the spinning animation.
  * @property {React.RefObject<HTMLFormElement>} [linkToForm]                  - A ref using `useRef` to the form to be submitted when the button is clicked.
  *                                                                              If provided, the button will submit the form when clicked with validations.
+ * @property {boolean} [disabled]                                             - Whether the button is disabled or not.
  * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - The placement of rounded corners on the button.
  * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind]    - The kind of button. Primary has background and border, secondary has
  *                                                                              light background and light border, cannibalized has no background and no border.
@@ -26,6 +27,7 @@ export default function ButtonText({
   name,
   onClick,
   linkToForm,
+  disabled,
   rounded = "none",
   kind = "primary",
   width = "default",
@@ -90,6 +92,7 @@ export default function ButtonText({
     >
       <input
         name={name}
+        disabled={disabled}
         style={{ borderRadius: borderRadiusStyle[rounded] }}
         type="submit"
         value={title}
