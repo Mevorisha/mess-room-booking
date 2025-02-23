@@ -136,7 +136,7 @@ export default function SectionRoomForm() {
       .then(() =>
         notify(
           lang(
-            "Form draft saved locally",
+            "Form draft saved to this computer",
             "ফর্মের ড্রাফ্ট এই কম্পিউটারে সেভ করা হলো",
             "फॉर्म ड्राफ्ट इस कंप्यूटर में सेव किया गया है"
           ),
