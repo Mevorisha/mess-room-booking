@@ -36,10 +36,19 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  */
 
 /**
- * @param {{ viewDraftCacheUrl?: string, viewOnly: boolean }} props
+ * Docs:
+ * - If `viewDraftCacheUrl` is provided, the form will load the draft data from the cache.
+ * - If `editExistingRoomId` is provided, the form expects the data of the room to be edited to be already loaded in the cache.
+ *   This implies that if `editExistingRoomId` is provided, `viewDraftCacheUrl` SHOULD ALSO be provided.
+ * - If `editExistingRoomId` is provided, the form on submit will delete all entries of the room from the database and storage.
+ *   Only then will it create a new database entry and upload the files to storage with id as `editExistingRoomId` (new id is not generated).
+ * - If `editExistingRoomId` is not provided, the form on submit will generate a new id same as current unix timestamp.
+ * - When a form is submitted, the cache data will be deleted.
+ * - If `viewOnly` is true, the form can neither be submitted nor saved to cache as draft.
+ * @param {{ viewDraftCacheUrl?: string, editExistingRoomId?: string, viewOnly: boolean }} props
  * @returns {JSX.Element}
  */
-export default function SectionRoomForm({ viewDraftCacheUrl, viewOnly }) {
+export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId, viewOnly }) {
   const notify = useNotification();
 
   const [internalCacheUrl, setInternalCacheUrl] = useState(
