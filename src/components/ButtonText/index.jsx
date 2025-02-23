@@ -4,6 +4,7 @@ import "./styles.css";
 /**
  * @typedef {Object} ButtonTextProps
  * @property {string} title                                                   - The text to be displayed on the button.
+ * @property {string} [name]                                                  - The name of the button. This is useful when the button is part of a form.
  * @property {(
  *   event: React.MouseEvent<HTMLDivElement, MouseEvent>
  * ) => void} [onClick]                                                       - The function to be called when the button is clicked. Second argument is a
@@ -22,6 +23,7 @@ import "./styles.css";
  */
 export default function ButtonText({
   title,
+  name,
   onClick,
   linkToForm,
   rounded = "none",
@@ -87,6 +89,7 @@ export default function ButtonText({
       }}
     >
       <input
+        name={name}
         style={{ borderRadius: borderRadiusStyle[rounded] }}
         type="submit"
         value={title}
