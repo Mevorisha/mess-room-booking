@@ -99,6 +99,7 @@ export default function SectionRoomForm({ idKey: cacheUrl, viewOnly }) {
     if (!cacheUrl) return;
     if (!addressInput.current || !cityInput.current || !stateInput.current)
       return;
+
     caches
       .open(SECTION_ROOM_FROM_CACHE_PATH)
       .then((cache) => cache.match(cacheUrl))
