@@ -13,6 +13,8 @@ import PillsInput from "../../../../components/PillsInput/index.jsx";
 import ButtonText from "../../../../components/ButtonText/index.jsx";
 import { lang } from "../../../../modules/util/language.js";
 
+import "./styles.css";
+
 const SECTION_ROOM_FROM_CACHE_PATH = CachePaths.SECTION_ROOM_FROM;
 
 /**
@@ -113,10 +115,7 @@ export default function SectionRoomForm() {
     if (submitAction === "save-draft") {
       const cache = await caches.open(SECTION_ROOM_FROM_CACHE_PATH);
       const newUrl = await createNewCacheUrl(SECTION_ROOM_FROM_CACHE_PATH);
-      await cache.put(
-        newUrl,
-        new Response(jsonString, { status: 200 })
-      );
+      await cache.put(newUrl, new Response(jsonString, { status: 200 }));
       await putLastCacheUrl(SECTION_ROOM_FROM_CACHE_PATH, newUrl);
     }
 
