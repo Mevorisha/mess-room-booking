@@ -42,7 +42,9 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 export default function SectionRoomForm({ viewDraftCacheUrl, viewOnly }) {
   const notify = useNotification();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState(viewDraftCacheUrl ?? "");
+  const [internalCacheUrl, setInternalCacheUrl] = useState(
+    viewDraftCacheUrl ?? ""
+  );
 
   const [draftButtonKind, setDraftButtonKind] = useState(
     /** @type {"secondary" | "loading"} */ ("secondary")
@@ -119,7 +121,12 @@ export default function SectionRoomForm({ viewDraftCacheUrl, viewOnly }) {
         );
       })
       .catch((e) => notify(e, "error"));
-  }, [viewDraftCacheUrl, addressInput.current, cityInput.current, stateInput.current]);
+  }, [
+    viewDraftCacheUrl,
+    addressInput.current,
+    cityInput.current,
+    stateInput.current,
+  ]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
