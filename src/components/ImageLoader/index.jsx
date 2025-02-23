@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import useNotification from "../../hooks/notification.js";
 import { lang } from "../../modules/util/language.js";
 import { fileToBase64FileData } from "../../modules/util/dataConversion.js";
+import { CachePaths } from "../../modules/util/caching.js";
+
+const IMAGE_LOADER_CACHE_PATH = CachePaths.IMAGE_LOADER;
 
 const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -370,7 +373,7 @@ const LOADING_GIF_DATA =
  * @returns {Promise<string>} - Base64 image data
  */
 async function fetchImageAsBase64(url) {
-  const cache = await caches.open("custom-ImageLoader-cache-v1");
+  const cache = await caches.open(IMAGE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
   if (cachedRes) {
     const result = await cachedRes.text();
