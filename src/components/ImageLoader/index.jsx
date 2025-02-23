@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "../../hooks/notification.js";
 import { lang } from "../../modules/util/language.js";
+import { fileToBase64FileData } from "../../modules/util/dataConversion.js";
 
 const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -392,66 +393,18 @@ async function fetchImageAsBase64(url) {
 
   // Convert the image to a Blob
   const blob = await response.blob();
-
   // Determine the image type (e.g., jpeg, png)
   const imageType = blob.type.split("/")[1];
+  // convert blob to a file
+  const file = new File([blob], "unknown.bin", { type: blob.type });
+  // get the base64 string of the file
+  const { base64: base64string } = await fileToBase64FileData(file);
+  // create the img src
+  const result = `data:image/${imageType};base64,${base64string}`;
+  // cache the result
+  await cache.put(url, new Response(result, { status: 200 }));
 
-  // Convert the Blob to Base64
-  const reader = new FileReader();
-
-  /**
-   * @param {(value: string | PromiseLike<string>) => void} resolve
-   * @param {(reason?: any) => void} reject
-   */
-  function onloadend(resolve, reject) {
-    /**
-     * @type {string | null};
-     */
-    let error = null;
-
-    /**
-     * @type {string | null}
-     */
-    let result = null;
-
-    const readerData = reader.result;
-    if (!readerData) {
-      error = lang(
-        "Error converting image to base64",
-        "ছবি বেস৬৪-এ রূপান্তর করার সময় সমস্যা হয়েছে",
-        "छवि को बेस६४ में परिवर्तित करने में समस्या हुई है"
-      );
-    }
-
-    // if readerData is string
-    else if (typeof readerData === "string") {
-      const base64string = readerData.split(",")[1];
-      result = `data:image/${imageType};base64,${base64string}`;
-    }
-
-    // if readerData is binary
-    else if (readerData instanceof ArrayBuffer) {
-      // prettier-ignore
-      const base64string = new Uint8Array(readerData)
-        .reduce((data, byte) => data + String.fromCharCode(byte), "");
-      result = `data:image/${imageType};base64,${base64string}`;
-    }
-
-    // console.warn("ImageLoader:", error, result?.length);
-
-    if (error) reject(new Error(error));
-    else if (result)
-      cache
-        .put(url, new Response(result, { status: 200 }))
-        .then(() => resolve(result))
-        .catch((e) => reject(e));
-  }
-
-  return new Promise((resolve, reject) => {
-    reader.onloadend = () => onloadend(resolve, reject);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+  return result;
 }
 
 /**

@@ -126,3 +126,65 @@ export function resizeImage(
     img.src = url;
   });
 }
+
+/**
+ * @typedef {Object} Base64FileData
+ * @property {string} type
+ * @property {string} name
+ * @property {string} base64
+ */
+
+/**
+ * @param {File} file
+ * @returns {Promise<Base64FileData>}
+ */
+export function fileToBase64FileData(file) {
+  /**
+   * @param {ProgressEvent<FileReader>} e
+   * @param {FileReader} reader
+   * @param {string} fileType
+   * @param {string} fileName
+   * @param {(value: Base64FileData | PromiseLike<Base64FileData>) => void} resolve
+   * @param {(reason?: any) => void} reject
+   */
+  function onloaded(e, reader, fileType, fileName, resolve, reject) {
+    const readerData = reader.result;
+    if (!readerData) {
+      reject(
+        new Error(
+          lang("File data is null", "ফাইলের ডেটা নাল", "फ़ाइल डेटा नल है")
+        )
+      );
+      return;
+    }
+
+    if (typeof readerData === "string") {
+      const base64string = readerData.split(",")[1];
+      resolve({
+        type: fileType,
+        name: fileName,
+        base64: base64string,
+      });
+      return;
+    }
+
+    const base64string = new Uint8Array(readerData).reduce(
+      (data, byte) => data + String.fromCharCode(byte),
+      ""
+    );
+
+    resolve({
+      type: fileType,
+      name: fileName,
+      base64: btoa(base64string),
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) =>
+      onloaded(e, reader, file.type, file.name, resolve, reject);
+    reader.onerror = (error) => reject(error);
+  });
+}
