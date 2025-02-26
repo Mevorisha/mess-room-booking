@@ -81,6 +81,7 @@ class RtDbPaths {
   static IDENTITY = !IS_PREVIEW ? "/db_Identity" : "/preview_db_Identity";
   static LOGS = !IS_PREVIEW ? "/db_Logs" : "/preview_db_Logs";
   static FEEDBACK = !IS_PREVIEW ? "/db_Feedback" : "/preview_db_Feedback";
+  static ROOMS = !IS_PREVIEW ? "/db_Rooms" : "/preview_db_Rooms";
 
   /**
    * @param {string} uid - Unique identifier for the user.
@@ -89,6 +90,11 @@ class RtDbPaths {
   static Identity = (uid) => `${RtDbPaths.IDENTITY}/${uid}`;
   static Logs = () => RtDbPaths.LOGS;
   static Feedback = () => RtDbPaths.FEEDBACK;
+  /**
+   * @param {string} uid - Unique identifier for the user.
+   * @returns {string} Constructed database path for the user's rooms.
+   */
+  static Rooms = (uid) => `${RtDbPaths.ROOMS}/${uid}`;
 }
 
 /**
@@ -98,9 +104,9 @@ class StoragePaths {
   static PROFILE_PHOTOS = !IS_PREVIEW
     ? "/storg_ProfilePhotos"
     : "/preview_storg_ProfilePhotos";
-  static MESS_PHOTOS = !IS_PREVIEW
-    ? "/storg_MessPhotos"
-    : "/preview_storg_MessPhotos";
+  static ROOM_PHOTOS = !IS_PREVIEW
+    ? "/storg_RoomPhotos"
+    : "/preview_storg_RoomPhotos";
   static IDENTITY_DOCUMENTS = !IS_PREVIEW
     ? "/storg_IdentityDocuments"
     : "/preview_storg_IdentityDocuments";
@@ -121,8 +127,8 @@ class StoragePaths {
    * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
    * @returns {string} Constructed storage path for the user's mess photos.
    */
-  static MessPhotos = (uid, code) =>
-    `${StoragePaths.MESS_PHOTOS}/${uid}/${code}`;
+  static RoomPhotos = (uid, code) =>
+    `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
   /**
    * @param {string} uid - Unique identifier for the user.
    * @param {string | number} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
