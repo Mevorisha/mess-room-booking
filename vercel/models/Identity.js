@@ -60,6 +60,10 @@ class Identity {
    */
   static async update(uid, updateData) {
     const ref = FirestorePaths.Identity(uid);
+    const docSnapshot = await ref.get();
+    if (!docSnapshot || !docSnapshot.exists) {
+      throw new Error("User not found");
+    }
     await ref.set(updateData, { merge: true });
   }
 
