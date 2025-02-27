@@ -17,16 +17,17 @@
 ### Identity
 Used by profile and identity documents
 ```
-firstName: string
-lastName: string
-mobile: string
-language: "ENGLISH" | "BANGLA" | "HINDI"
-profilePhotos: {
+firstName?: string
+lastName?: string
+mobile?: string
+email: string
+language?: "ENGLISH" | "BANGLA" | "HINDI"
+profilePhotos?: {
   small: string
   medium: string
   large: string
 }
-type: string
+type: "OWNER" | "TENANT"
 ttl?: timestamp
 ```
 
