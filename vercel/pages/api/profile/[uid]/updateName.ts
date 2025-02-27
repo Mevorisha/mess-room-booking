@@ -6,7 +6,7 @@ import Identity from "../../../../models/Identity.js";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    return res.status(405).json({ message: "Method Not Allowed", code: 405 });
+    return respond(res, { status: 405, error: "Method Not Allowed" });
   }
   // Require authentication middleware
   if (!(await authenticate(req, res))) return;

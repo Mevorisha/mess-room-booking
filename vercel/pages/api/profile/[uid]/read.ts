@@ -5,7 +5,7 @@ import { respond } from "../../../../lib/utils/respond.js";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Allow only GET requests
   if (req.method !== "GET") {
-    return res.status(405).json({ message: "Method Not Allowed", code: 405 });
+    return respond(res, { status: 405, error: "Method Not Allowed" });
   }
   // Extract UID from the query
   const uid = req.query["uid"] as string;
