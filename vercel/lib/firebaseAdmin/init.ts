@@ -69,10 +69,10 @@ class StoragePaths {
 
   static IdentityDocuments = (
     uid: string,
-    code: string | number,
     type: "WORK_ID" | "GOV_ID",
     w: number | string,
-    h: number | string
+    h: number | string,
+    code: string | number = 0
   ): string =>
     `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
 
