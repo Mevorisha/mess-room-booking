@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import Identity, { SchemaFields } from "../../../../../models/Identity.js";
 import { respond } from "../../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../../middlewares/auth.js";
+import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
 
 /**
  * ```
@@ -9,7 +10,7 @@ import { authenticate } from "../../../../../middlewares/auth.js";
  * response = 301 to "Content-Type: image/(jpeg|png)"
  * ```
  */
-export default async function GET(req: VercelRequest, res: VercelResponse) {
+export default withmiddleware(async function GET(req: VercelRequest, res: VercelResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
@@ -40,4 +41,4 @@ export default async function GET(req: VercelRequest, res: VercelResponse) {
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }
-}
+});

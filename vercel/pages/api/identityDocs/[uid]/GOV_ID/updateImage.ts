@@ -7,6 +7,7 @@ import { resizeImage } from "../../../../../lib/utils/dataConversion.js";
 import Identity from "../../../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { respond } from "../../../../../lib/utils/respond.js";
+import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
 
 export const config = {
   api: {
@@ -21,7 +22,7 @@ export const config = {
  * response = { message: string }
  * ```
  */
-export default async function PATCH(req: VercelRequest, res: VercelResponse) {
+export default withmiddleware(async function PATCH(req: VercelRequest, res: VercelResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
@@ -81,4 +82,4 @@ export default async function PATCH(req: VercelRequest, res: VercelResponse) {
       return respond(res, { status: e.status ?? 500, error: e.message });
     }
   });
-}
+});

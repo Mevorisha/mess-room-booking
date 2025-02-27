@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { respond } from "../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../middlewares/auth.js";
 import Identity from "../../../../models/Identity.js";
+import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
 
 /**
  * ```
@@ -12,7 +13,7 @@ import Identity from "../../../../models/Identity.js";
  * response = { message: string }
  * ```
  */
-export default async function PATCH(req: VercelRequest, res: VercelResponse) {
+export default withmiddleware(async function PATCH(req: VercelRequest, res: VercelResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
@@ -38,4 +39,4 @@ export default async function PATCH(req: VercelRequest, res: VercelResponse) {
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }
-}
+});
