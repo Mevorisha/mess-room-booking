@@ -5,22 +5,20 @@ import { respond } from "../lib/utils/respond.js";
 /**
  * Middleware to authenticate Firebase token and get UID.
  */
-export async function authenticate(
-  req: VercelRequest,
-  res: VercelResponse,
-  next: (req: VercelRequest, res: VercelResponse) => void
-) {
+export async function authenticate(req: VercelRequest, res: VercelResponse): Promise<boolean> {
   try {
     const token = req.headers["x-firebase-token"] as string;
     if (!token) {
-      return respond(res, { status: 401, error: "Missing 'x-firebase-token' header" });
+      respond(res, { status: 401, error: "Missing 'x-firebase-token' header" });
+      return false;
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);
     req.query["uid"] = decodedToken.uid;
-  } catch (error) {
-    return respond(res, { status: 403, error: "Unauthorized" });
+  } catch (e) {
+    respond(res, { status: 500, error: "Auth middleware failure" });
+    return false;
   }
 
-  next(req, res);
+  return true;
 }

@@ -2,9 +2,9 @@ import firestore, { getFirestore } from "firebase-admin/firestore";
 import { FirestorePaths } from "../lib/firebaseAdmin/init.js";
 import { ApiError } from "../lib/utils/ApiError.js";
 
-type AcceptanceStatus = "ACCEPTED" | "REJECTED";
+export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
 
-interface BookingData {
+export interface BookingData {
   tenantId: string;
   roomId: string;
   occupantCount: number;
@@ -16,7 +16,7 @@ interface BookingData {
   ttl?: FirebaseFirestore.Timestamp;
 }
 
-enum SchemaFields {
+export enum SchemaFields {
   TENANT_ID = "tenantId",
   ROOM_ID = "roomId",
   OCCUPANT_COUNT = "occupantCount",
@@ -28,14 +28,14 @@ enum SchemaFields {
   TTL = "ttl",
 }
 
-enum OneTimeSetFields {
+export enum OneTimeSetFields {
   ACCEPTANCE = "acceptance",
   ACCEPTED_ON = "acceptedOn",
   CANCELLED_ON = "cancelledOn",
   CLEARED_ON = "clearedOn",
 }
 
-enum PsudoFields {
+export enum PsudoFields {
   IS_ACCEPTED = "isAccepted",
   IS_CLEARED = "isCleared",
   IS_CANCELLED = "isCancelled",

@@ -1,3 +1,4 @@
+import { respond } from "../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../middlewares/auth.js";
 import Identity from "../../../../models/Identity.js";
 
@@ -8,17 +9,13 @@ export default async function handler(req, res) {
   }
 
   // Require authentication middleware
-  await new Promise((resolve, reject) =>
-    authenticate(req, res, (err) => (err ? reject(err) : resolve(true)))
-  );
+  await new Promise((resolve, reject) => authenticate(req, res, (err) => (err ? reject(err) : resolve(true))));
 
   const { uid } = req.query;
   const { firstName, lastName } = req.body;
 
   if (!uid) {
-    return res
-      .status(400)
-      .json({ message: "Missing field 'uid: string'", status: 400 });
+    return res.status(400).json({ message: "Missing field 'uid: string'", status: 400 });
   }
 
   if (!firstName) {
@@ -37,10 +34,8 @@ export default async function handler(req, res) {
 
   try {
     await Identity.update(uid, { firstName, lastName });
-    return res
-      .status(200)
-      .json({ message: "Language field updated", status: 200 });
+    return res.status(200).json({ message: "Language field updated", status: 200 });
   } catch (e) {
-    res.status(400).json({ message: e.message, status: 400 });
+    return respond(res, { status: e.status ?? 500, error: e.message });
   }
 }

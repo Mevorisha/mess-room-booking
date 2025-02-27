@@ -3,11 +3,11 @@ import { FirestorePaths } from "../lib/firebaseAdmin/init.js";
 import { imagePathToUrl } from "./utils.js";
 import { ApiError } from "../lib/utils/ApiError.js";
 
-type AcceptGender = "MALE" | "FEMALE" | "OTHER";
+export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
-type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
+export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 
-interface RoomData {
+export interface RoomData {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -24,7 +24,7 @@ interface RoomData {
   ttl?: FirebaseFirestore.Timestamp;
 }
 
-enum SchemaFields {
+export enum SchemaFields {
   OWNER_ID = "ownerId",
   ACCEPT_GENDER = "acceptGender",
   ACCEPT_OCCUPATION = "acceptOccupation",

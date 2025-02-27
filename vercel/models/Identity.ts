@@ -2,15 +2,15 @@ import { FirestorePaths } from "../lib/firebaseAdmin/init.js";
 import { ApiError } from "../lib/utils/ApiError.js";
 import { imagePathToUrl } from "./utils.js";
 
-interface ProfilePhotos {
+export interface ProfilePhotos {
   small: string;
   medium: string;
   large: string;
 }
 
-type Language = "ENGLISH" | "BANGLA" | "HINDI";
+export type Language = "ENGLISH" | "BANGLA" | "HINDI";
 
-type IdentityType = "OWNER" | "TENANT";
+export type IdentityType = "OWNER" | "TENANT";
 
 interface IdentityData {
   firstName?: string;
