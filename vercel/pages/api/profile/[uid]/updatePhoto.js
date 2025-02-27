@@ -2,11 +2,9 @@ import fs from "fs";
 import formidable from "formidable";
 import { getStorage } from "firebase-admin/storage";
 import { authenticate } from "../../../../middlewares/auth.js";
-import {
-  FirestorePaths,
-  StoragePaths,
-} from "../../../../lib/firebaseAdmin/init.js";
+import { StoragePaths } from "../../../../lib/firebaseAdmin/init.js";
 import { resizeImage } from "../../../../lib/utils/dataConversion.js";
+import Identity from "../../../../models/Identity.js";
 
 export const config = {
   api: {
@@ -24,6 +22,8 @@ export default async function handler(req, res) {
   await new Promise((resolve, reject) =>
     authenticate(req, res, (err) => (err ? reject(err) : resolve(true)))
   );
+
+  const { uid } = req.query;
 
   // Parse form data
   const form = formidable({ multiples: false });
@@ -66,16 +66,13 @@ export default async function handler(req, res) {
       await Promise.all(uploadPromises);
 
       // Update Firestore with image paths
-      await FirestorePaths.Identity(req.uid).set(
-        {
-          profilePhotos: {
-            small: imagePaths.image30px,
-            medium: imagePaths.image90px,
-            large: imagePaths.image500px,
-          },
+      await Identity.update(uid, {
+        profilePhotos: {
+          small: imagePaths.image30px,
+          medium: imagePaths.image90px,
+          large: imagePaths.image500px,
         },
-        { merge: true }
-      );
+      });
 
       res.status(200).json({ message: "Upload successful", code: 200 });
     } catch (error) {

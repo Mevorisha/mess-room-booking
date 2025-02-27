@@ -1,5 +1,6 @@
 import { getStorage } from "firebase-admin/storage";
 import { FirestorePaths } from "../../../../lib/firebaseAdmin/init.js";
+import Identity from "../../../../models/Identity.js";
 
 export default async function handler(req, res) {
   // Only allow GET method
@@ -14,33 +15,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Retrieve image paths from Firestore
-    const userDoc = await FirestorePaths.Identity(uid).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: "User not found", code: 404 });
-    }
+    const profile = await Identity.get(uid, ["profilePhotos"]);
 
-    const userData = userDoc.data();
-    if (!userData) {
-      return res
-        .status(404)
-        .json({ message: "User data not found", code: 404 });
+    if (!profile?.profilePhotos?.large) {
+      res.status(404).json({ message: "Image not found", status: 404 });
     }
-
-    if (!userData.profilePhotos || !userData.profilePhotos.large) {
-      return res.status(404).json({ message: "Image not found", code: 404 });
-    }
-
-    // Get image URL from Firebase Storage
-    const bucket = getStorage().bucket();
-    const file = bucket.file(userData.profilePhotos.large);
-    const [url] = await file.getSignedUrl({
-      action: "read",
-      expires: Date.now() + /* 1 month */ 30 * 24 * 60 * 60 * 1000,
-    });
 
     // Redirect to the image URL
-    res.redirect(url);
+    res.redirect(profile?.profilePhotos?.large);
   } catch (error) {
     console.error("Error fetching image:", error);
     res.status(500).json({ message: "Failed to fetch image", code: 500 });
