@@ -87,6 +87,10 @@
 `GET /api/profile/{uid}/read`
 - Retrieves the profile details for a given user ID.
 
+### Read Image
+`GET /api/profile/{uid}/readImage`
+- Retrieves the profile photo of the user as `image/*`.
+
 ### Update Profile Language
 `PATCH /api/profile/{uid}/updateLanguage`
 - Sets or updates the language of the user profile. This is used to return error messages in the user's preferred language.
