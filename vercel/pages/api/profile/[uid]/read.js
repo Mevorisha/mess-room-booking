@@ -1,6 +1,4 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
-import { FirestorePaths } from "../../../../lib/firebaseAdmin/init.js";
+import Identity from "../../../../models/Identity.js";
 
 export default async function handler(req, res) {
   // Allow only GET requests
@@ -11,47 +9,22 @@ export default async function handler(req, res) {
   // Extract UID from the query
   const { uid } = req.query;
   if (!uid) {
-    return res.status(400).json({ message: "Missing UID", code: 400 });
+    return res.status(400).json({ message: "Missing field 'uid: string'", code: 400 });
   }
 
   try {
-    const db = getFirestore();
-    const userDoc = await FirestorePaths.Identity(uid).get();
+    const result = await Identity.get(uid, [
+      "displayName",
+      "mobile",
+      "profilePhotos",
+      "type",
+    ]);
 
-    // Check if user exists
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: "User not found", code: 404 });
+    if (!result) {
+      res.status(404).json({ message: "User not found", status: 404 });
     }
 
-    const userData = userDoc.data();
-    if (!userData) {
-      return res
-        .status(404)
-        .json({ message: "User data not found", code: 404 });
-    }
-
-    const { mobile, profilePhotos: profilePhotoPaths } = userData;
-    let { firstName, lastName, displayName } = userData;
-    if (!displayName) {
-      displayName = [firstName, lastName].filter(Boolean).join(" ");
-    }
-
-    // Convert profile photo path to a signed URL
-    const profilePhotoUrls = {};
-    const bucket = getStorage().bucket();
-    for (const size of Object.keys(profilePhotoPaths)) {
-      const file = bucket.file(profilePhotoPaths[size]);
-      profilePhotoUrls[size] = await file.getSignedUrl({
-        action: "read",
-        expires: Date.now() + /* 1 month */ 30 * 24 * 60 * 60 * 1000,
-      });
-    }
-
-    res.status(200).json({
-      displayName: displayName || null,
-      mobile: mobile || null,
-      profilePhotos: profilePhotoUrls,
-    });
+    return res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user profile", code: 500 });
   }

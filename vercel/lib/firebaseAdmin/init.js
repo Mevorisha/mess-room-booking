@@ -25,6 +25,7 @@ class FirestorePaths {
   static LOGS = !IS_PREVIEW ? "/fstr_Logs" : "/preview_fstr_Logs";
   static FEEDBACK = !IS_PREVIEW ? "/fstr_Feedback" : "/preview_fstr_Feedback";
   static ROOMS = !IS_PREVIEW ? "/fstr_Rooms" : "/preview_fstr_Rooms";
+  static BOOKINGS = !IS_PREVIEW ? "/fstr_Bookings" : "/preview_fstr_Bookings";
 
   /**
    * @param {string} uid - Unique identifier for the user.
@@ -37,10 +38,16 @@ class FirestorePaths {
   static Feedback = () => getFirestore().collection(FirestorePaths.FEEDBACK);
 
   /**
-   * @param {string} uid - Unique identifier for the user.
+   * @param {string} roomId - Unique identifier for the room.
    */
-  static Rooms = (uid) =>
-    getFirestore().collection(FirestorePaths.ROOMS).doc(uid);
+  static Rooms = (roomId) =>
+    getFirestore().collection(FirestorePaths.ROOMS).doc(roomId);
+
+  /**
+   * @param {string} bookingId - Unique identifier for the booking.
+   */
+  static Bookings = (bookingId) =>
+    getFirestore().collection(FirestorePaths.BOOKINGS).doc(bookingId);
 }
 
 /**
