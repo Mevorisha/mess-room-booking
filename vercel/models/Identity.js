@@ -67,12 +67,14 @@ class Identity {
    * Get specific fields from an identity document
    * @param {string} uid
    * @param {string[]} [fields] - Optional fields to retrieve. If empty, return all fields.
-   * @returns {Promise<Partial<IdentityData> | null>}
+   * @returns {Promise<Partial<IdentityData & { displayName: string }> | null>}
    */
   static async get(uid, fields = []) {
+    const schemaWithPseudoFields = [...SchemaFields, "displayName"];
+
     // Validate requested fields
     for (const field of fields) {
-      if (!SchemaFields.includes(field)) {
+      if (!schemaWithPseudoFields.includes(field)) {
         throw new Error(`Invalid field: ${field}`);
       }
     }
@@ -88,6 +90,10 @@ class Identity {
     if (!data) {
       return null;
     }
+
+    data.displayName = [data.firstName, data.lastName]
+      .filter(Boolean)
+      .join(" ");
 
     // If no fields are provided, return the entire document
     if (fields.length === 0) {
