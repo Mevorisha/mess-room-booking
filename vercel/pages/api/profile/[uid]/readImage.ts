@@ -2,7 +2,13 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import Identity, { SchemaFields } from "../../../../models/Identity.js";
 import { respond } from "../../../../lib/utils/respond.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+/**
+ * ```
+ * request = "GET /api/profile/[uid]/readImage"
+ * response = 301 to "Content-Type: image/(jpeg|png)"
+ * ```
+ */
+export default async function GET(req: VercelRequest, res: VercelResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
     return respond(res, { status: 405, error: "Method Not Allowed" });

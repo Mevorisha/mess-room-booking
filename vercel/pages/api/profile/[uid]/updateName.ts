@@ -3,7 +3,16 @@ import { respond } from "../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../middlewares/auth.js";
 import Identity from "../../../../models/Identity.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+/**
+ * ```
+ * request = "PATCH /api/profile/[uid]/updateName" {
+ *   firstName: string
+ *   lastName: string
+ * }
+ * response = { message: string }
+ * ```
+ */
+export default async function PATCH(req: VercelRequest, res: VercelResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });

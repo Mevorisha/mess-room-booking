@@ -14,7 +14,14 @@ export const config = {
   },
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+/**
+ * ```
+ * request = "PATCH /api/profile/[uid]/updatePhoto"
+ *           "Content-Type: image/(jpeg|png)"
+ * response = { message: string }
+ * ```
+ */
+export default async function PATCH(req: VercelRequest, res: VercelResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });

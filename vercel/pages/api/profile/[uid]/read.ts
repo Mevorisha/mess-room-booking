@@ -2,7 +2,26 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import Identity, { PsudoFields, SchemaFields } from "../../../../models/Identity.js";
 import { respond } from "../../../../lib/utils/respond.js";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+/**
+ * ```
+ * import { IdentityType, Language } from "../../../../models/Identity.js";
+ *
+ * request = "GET /api/profile/[uid]/read"
+ *
+ * response = {
+ *   type: IdentityType
+ *   displayName?: string
+ *   mobile?: string
+ *   language?: Language
+ *   profilePhotos?: {
+ *     small: string (direct url)
+ *     medium: string (direct url)
+ *     large: string (direct url)
+ *   }
+ * }
+ * ```
+ */
+export default async function GET(req: VercelRequest, res: VercelResponse) {
   // Allow only GET requests
   if (req.method !== "GET") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
@@ -18,6 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       SchemaFields.MOBILE,
       SchemaFields.PROFILE_PHOTOS,
       SchemaFields.TYPE,
+      SchemaFields.LANGUAGE,
     ]);
     if (!result) {
       return respond(res, { status: 404, error: "User not found" });
