@@ -28,6 +28,19 @@ profilePhotos?: {
   medium: string
   large: string
 }
+identityPhotos?: {
+  workid?: {
+    isPrivate: boolean
+    small: string
+    medium: string
+    large: string
+  }
+  govid?: {
+    isPrivate: boolean
+    small: string
+    medium: string
+    large: string
+}
 ttl?: timestamp
 ```
 

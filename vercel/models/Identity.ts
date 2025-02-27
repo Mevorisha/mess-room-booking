@@ -8,6 +8,21 @@ export interface ProfilePhotos {
   large: string;
 }
 
+export interface IdentityPhotos {
+  workid?: {
+    isPrivate: boolean;
+    small: string;
+    medium: string;
+    large: string;
+  };
+  govid?: {
+    isPrivate: boolean;
+    small: string;
+    medium: string;
+    large: string;
+  };
+}
+
 export type Language = "ENGLISH" | "BANGLA" | "HINDI";
 
 export type IdentityType = "OWNER" | "TENANT";
@@ -19,6 +34,7 @@ interface IdentityData {
   email: string;
   language?: Language;
   profilePhotos?: ProfilePhotos;
+  identityPhotos?: IdentityPhotos;
   type: IdentityType;
   ttl?: FirebaseFirestore.Timestamp;
 }
@@ -30,6 +46,7 @@ export enum SchemaFields {
   EMAIL = "email",
   LANGUAGE = "language",
   PROFILE_PHOTOS = "profilePhotos",
+  IDENTITY_PHOTOS = "identityPhotos",
   TYPE = "type",
   TTL = "ttl",
 }
@@ -92,6 +109,10 @@ class Identity {
         if (data.profilePhotos) {
           await imagePathToUrl(data, "profilePhotos");
         }
+        if (data.identityPhotos) {
+          await imagePathToUrl(data.identityPhotos, "workid");
+          await imagePathToUrl(data.identityPhotos, "govid");
+        }
         return data;
       }
       // Return only requested fields
@@ -102,6 +123,10 @@ class Identity {
       // convert image paths in profile photos to URLs
       if (result.profilePhotos) {
         await imagePathToUrl(result, "profilePhotos");
+      }
+      if (result.identityPhotos) {
+        await imagePathToUrl(data.identityPhotos, "workid");
+        await imagePathToUrl(data.identityPhotos, "govid");
       }
       return result;
     } catch (e) {
