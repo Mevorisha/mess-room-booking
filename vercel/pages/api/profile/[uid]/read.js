@@ -30,18 +30,18 @@ export default async function handler(req, res) {
         .json({ message: "User data not found", code: 404 });
     }
 
-    const { mobile, image } = userData;
+    const { mobile, profilePhotos: profilePhotoPaths } = userData;
     let { firstName, lastName, displayName } = userData;
     if (!displayName) {
       displayName = [firstName, lastName].filter(Boolean).join(" ");
     }
 
     // Convert profile photo path to a signed URL
-    let profilePhoto = null;
-    if (image?.large) {
-      const bucket = getStorage().bucket();
-      const file = bucket.file(image.large);
-      [profilePhoto] = await file.getSignedUrl({
+    const profilePhotoUrls = {};
+    const bucket = getStorage().bucket();
+    for (const size of Object.keys(profilePhotoPaths)) {
+      const file = bucket.file(profilePhotoPaths[size]);
+      profilePhotoUrls[size] = await file.getSignedUrl({
         action: "read",
         expires: Date.now() + /* 1 month */ 30 * 24 * 60 * 60 * 1000,
       });
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       displayName: displayName || null,
       mobile: mobile || null,
-      profilePhoto,
+      profilePhotos: profilePhotoUrls,
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching user profile", code: 500 });

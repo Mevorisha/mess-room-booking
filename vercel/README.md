@@ -9,6 +9,56 @@
 - `FIREBASE_SERVICE_ACCOUNT_KEY`: Firebase service account key in JSON format.
 - `NEXT_PUBLIC_FIREBASE_DATABASE_URL`: URL of the Firebase Realtime Database.
 - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Firebase Storage bucket name.
+  
+---
+
+## Schema
+
+### Identity
+Used by profile and identity documents
+```
+firstName: string
+lastName: string
+mobile: string
+language: "ENGLISH" | "BANGLA" | "HINDI"
+profilePhotos: {
+  small: string
+  medium: string
+  large: string
+}
+type: string
+ttl?: timestamp
+```
+
+### Booking
+```
+tenantId: string
+roomId: /rooms/{roomId}
+occupantCount: number
+requestedOn: timestamp
+acceptance?: "ACCEPTED" | "REJECTED"
+acceptedOn?: timestamp
+cancelledOn? timestamp
+clearedOn?: timestamp
+ttl?: timestamp
+```
+
+### Room
+```
+ownerId: string
+acceptGender: "MALE" | "FEMALE" | "OTHER"
+acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
+landmarkTags: Set<string>
+address: string
+city: string
+state: string
+majorTags: Set<string>
+minorTags: Set<string>
+images: Array<string>
+capacity: number
+pricePerOccupant: number
+ttl?: timestamp
+```
 
 ---
 

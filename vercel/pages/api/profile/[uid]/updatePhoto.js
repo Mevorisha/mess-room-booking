@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       // Update Firestore with image paths
       await FirestorePaths.Identity(req.uid).set(
         {
-          image: {
+          profilePhotos: {
             small: imagePaths.image30px,
             medium: imagePaths.image90px,
             large: imagePaths.image500px,

@@ -27,13 +27,13 @@ export default async function handler(req, res) {
         .json({ message: "User data not found", code: 404 });
     }
 
-    if (!userData.image || !userData.image.large) {
+    if (!userData.profilePhotos || !userData.profilePhotos.large) {
       return res.status(404).json({ message: "Image not found", code: 404 });
     }
 
     // Get image URL from Firebase Storage
     const bucket = getStorage().bucket();
-    const file = bucket.file(userData.image.large);
+    const file = bucket.file(userData.profilePhotos.large);
     const [url] = await file.getSignedUrl({
       action: "read",
       expires: Date.now() + /* 1 month */ 30 * 24 * 60 * 60 * 1000,
