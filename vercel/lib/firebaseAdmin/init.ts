@@ -27,26 +27,17 @@ class FirestorePaths {
   static ROOMS = !IS_PREVIEW ? "/fstr_Rooms" : "/preview_fstr_Rooms";
   static BOOKINGS = !IS_PREVIEW ? "/fstr_Bookings" : "/preview_fstr_Bookings";
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   */
-  static Identity = (uid) =>
+  static Identity = (uid: string) =>
     getFirestore().collection(FirestorePaths.IDENTITY).doc(uid);
 
   static Logs = () => getFirestore().collection(FirestorePaths.LOGS);
 
   static Feedback = () => getFirestore().collection(FirestorePaths.FEEDBACK);
 
-  /**
-   * @param {string} roomId - Unique identifier for the room.
-   */
-  static Rooms = (roomId) =>
+  static Rooms = (roomId: string) =>
     getFirestore().collection(FirestorePaths.ROOMS).doc(roomId);
 
-  /**
-   * @param {string} bookingId - Unique identifier for the booking.
-   */
-  static Bookings = (bookingId) =>
+  static Bookings = (bookingId: string) =>
     getFirestore().collection(FirestorePaths.BOOKINGS).doc(bookingId);
 }
 
@@ -67,40 +58,25 @@ class StoragePaths {
     ? "/storg_FeedbackPhotos"
     : "/preview_storg_FeedbackPhotos";
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {number | string} w - Width of the image.
-   * @param {number| string} h - Height of the image.
-   * @returns {string} Constructed storage path for the user's profile photos.
-   */
-  static ProfilePhotos = (uid, w, h) =>
-    `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
+  static ProfilePhotos = (
+    uid: string,
+    w: number | string,
+    h: number | string
+  ): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @returns {string} Constructed storage path for the user's mess photos.
-   */
-  static RoomPhotos = (uid, code) =>
+  static RoomPhotos = (uid: string, code: string): string =>
     `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string | number} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @param {"WORK_ID" | "GOV_ID"} type - Type of the image, either "WORK_ID" or "GOV_ID".
-   * @param {number | string} w - Width of the image.
-   * @param {number| string} h - Height of the image.
-   * @returns {string} Constructed storage path for the user's identity documents.
-   */
-  static IdentityDocuments = (uid, code, type, w, h) =>
+  static IdentityDocuments = (
+    uid: string,
+    code: string | number,
+    type: "WORK_ID" | "GOV_ID",
+    w: number | string,
+    h: number | string
+  ): string =>
     `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @returns {string} Constructed storage path for the user's feedback photos.
-   */
-  static FeedbackPhotos = (uid, code) =>
+  static FeedbackPhotos = (uid: string, code: string): string =>
     `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
 }
 

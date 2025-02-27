@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@vercel/node": "^5.1.9",
     "firebase-admin": "^13.1.0",
     "formidable": "^3.5.2",
     "sharp": "^0.33.5"
