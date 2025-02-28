@@ -1,4 +1,4 @@
-# API Documentation
+# Mess Booking App - API Documentation
 
 ## General Notes
 - **Error Handling**: All error responses have an HTTP status code and a JSON body `{ message: string }`, which should be displayed directly to the user.
