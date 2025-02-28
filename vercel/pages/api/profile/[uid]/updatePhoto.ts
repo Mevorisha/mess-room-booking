@@ -4,7 +4,7 @@ import { getStorage } from "firebase-admin/storage";
 import { authenticate } from "../../../../middlewares/auth.js";
 import { StoragePaths } from "../../../../lib/firebaseAdmin/init.js";
 import { resizeImage } from "../../../../lib/utils/dataConversion.js";
-import Identity from "../../../../models/Identity.js";
+import Identity, { SchemaFields } from "../../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { respond } from "../../../../lib/utils/respond.js";
 import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
@@ -73,8 +73,13 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
           large: imagePaths.large,
         },
       });
-
-      return respond(res, { status: 200, message: "Upload successful" });
+      // Get URLs from Identity
+      const profile = await Identity.get(uid, [SchemaFields.PROFILE_PHOTOS]);
+      // All sizes defined
+      if (profile?.profilePhotos?.small && profile?.profilePhotos?.medium && profile?.profilePhotos?.large) {
+        return respond(res, { status: 200, json: profile?.profilePhotos });
+      }
+      return respond(res, { status: 500, error: "Couldn't get profile photo URLs" });
     } catch (e) {
       return respond(res, { status: e.status ?? 500, error: e.message });
     }

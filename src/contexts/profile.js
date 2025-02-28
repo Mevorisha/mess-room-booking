@@ -1,12 +1,8 @@
 import React, { createContext, useCallback, useContext } from "react";
 import UserContext, { UploadedImage } from "./user.js";
 import useNotification from "../hooks/notification.js";
-import { RtDbPaths, StoragePaths } from "../modules/firebase/init.js";
-import { updateProfile as updateAuthProfile } from "../modules/firebase/auth.js";
-import { fbRtdbDelete, fbRtdbUpdate } from "../modules/firebase/db.js";
-import { fbStorageDelete } from "../modules/firebase/storage.js";
-import { uploadThreeSizesFromOneImage } from "./utils/utils.js";
 import { lang } from "../modules/util/language.js";
+import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -45,7 +41,7 @@ export function ProfileProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (type) =>
-      fbRtdbUpdate(RtDbPaths.Identity(user.uid), { type })
+      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), { type })
         .then(() => dispatchUser({ type }))
         .then(() =>
           notify(
@@ -56,7 +52,8 @@ export function ProfileProvider({ children }) {
             ),
             "success"
           )
-        ),
+        )
+        .catch((e) => notify(e, "error")),
     [user.uid, notify, dispatchUser]
   );
 
@@ -66,36 +63,9 @@ export function ProfileProvider({ children }) {
      * @returns {Promise<string>}
      */
     async (image) => {
-      // delete exisiting photos before uploading
-      await fbStorageDelete(StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
-      await fbStorageDelete(StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
-      await fbStorageDelete(StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
-      await fbRtdbDelete(RtDbPaths.Identity(user.uid) + "/profilePhotos");
-
-      const uploadedImages = await uploadThreeSizesFromOneImage(
-        user.uid,
-        "PUBLIC",
-
-        // three paths for upload
-        StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
-        StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
-        StoragePaths.ProfilePhotos(user.uid, UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
-
-        image, // the file itself
-        notify // notify callback
-      );
-
-      const { small, medium, large } = uploadedImages;
-
       // update auth profile
-      await updateAuthProfile({ photoURL: medium });
-      await fbRtdbUpdate(RtDbPaths.Identity(user.uid) + "/profilePhotos", {
-        small,
-        medium,
-        large,
-      });
-
-      dispatchUser({ profilePhotos: uploadedImages });
+      const { small, medium, large } = await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
+      dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, "PUBLIC") });
       notify(
         lang(
           "Profile photo updated successfully",
@@ -117,12 +87,7 @@ export function ProfileProvider({ children }) {
      * @returns {Promise<void>}
      */
     async (firstName, lastName) =>
-      updateAuthProfile({ firstName, lastName })
-        .then(() =>
-          fbRtdbUpdate(RtDbPaths.Identity(user.uid), {
-            displayName: `${firstName} ${lastName}`,
-          })
-        )
+      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateName(user.uid), { firstName, lastName })
         .then(() => dispatchUser({ firstName, lastName }))
         .then(() =>
           notify(
@@ -133,7 +98,8 @@ export function ProfileProvider({ children }) {
             ),
             "success"
           )
-        ),
+        )
+        .catch((e) => notify(e, "error")),
     [user.uid, notify, dispatchUser]
   );
 
