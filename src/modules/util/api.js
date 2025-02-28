@@ -154,7 +154,7 @@ async function errorHandlerWrapperOnCallApi(callback) {
  */
 export async function apiGetOrDelete(method, path) {
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
-    fetch(`${API_ORIGIN}/${path}`, {
+    fetch(path, {
       method,
       headers: {
         "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
@@ -180,7 +180,7 @@ export async function apiGetOrDelete(method, path) {
  */
 export async function apiPostOrPatchJson(method, path, json) {
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
-    fetch(`${API_ORIGIN}/${path}`, {
+    fetch(path, {
       method,
       headers: {
         "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
@@ -204,7 +204,7 @@ export async function apiPostOrPatchFile(method, path, file) {
   formData.append(file.name, file);
 
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
-    fetch(`${API_ORIGIN}/${path}`, {
+    fetch(path, {
       method,
       headers: {
         "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
