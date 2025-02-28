@@ -1,6 +1,13 @@
 import { getStorage } from "firebase-admin/storage";
 import { ApiError } from "../lib/utils/ApiError";
 
+interface UrlCacheData {
+  url: string;
+  expires: number;
+}
+
+const UrlCache = new Map<string, UrlCacheData>();
+
 export async function imagePathToUrl(data: object, param: string) {
   try {
     if (data[param]) {
@@ -8,20 +15,34 @@ export async function imagePathToUrl(data: object, param: string) {
       const imgUrls = {};
       const bucket = getStorage().bucket();
       for (const size of Object.keys(imgPaths)) {
-        // if isPrivate field is found and set
-        // if (size === "isPrivate" && imgPaths["isPrivate"] === true) {
-        //   data[param] = null;
-        //   return;
-        // } <--- This is to be implemented at API rather than mode
+        const path = imgPaths[size];
+        const accessDelay = /* 2 min */ 2 * 60 * 1000;
+
+        // If a is private field is found, do
+        // not allow access to pubic URL.
+        // ^
+        // |
+        // *----- This is to be implemented at API rather than mode
         //        and hence is commented out. This is to ensure the
         //        auth user can access the private image but another
         //        user cannot.
-        // Otherwise set all image sizes
-        const file = bucket.file(imgPaths[size]);
-        imgUrls[size] = await file.getSignedUrl({
-          action: "read",
-          expires: Date.now() + /* 5 min */ 5 * 60 * 1000,
-        });
+
+        if (UrlCache.has(path) && UrlCache.get(path)) {
+          const { url, expires } = UrlCache.get(path) as UrlCacheData;
+          // The delay offset implies a time when the link will be accessed by the user
+          // This takes care of any delays
+          if (Date.now() < expires - accessDelay) {
+            imgUrls[size] = url;
+            continue;
+          }
+        }
+
+        const file = bucket.file(path);
+        const expires = Date.now() + /* 15 min */ 15 * 60 * 1000;
+        const [signedUrl] = await file.getSignedUrl({ action: "read", expires });
+
+        UrlCache.set(path, { url: signedUrl, expires });
+        imgUrls[size] = signedUrl;
       }
       data[param] = imgUrls;
     }
