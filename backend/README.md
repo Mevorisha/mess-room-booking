@@ -161,9 +161,13 @@ ttl?: timestamp
 `PATCH /api/profile/{uid}/updateLanguage`
 - Sets or updates the language of the user profile. This is used to return error messages in the user's preferred language.
 
+### Update Profile Mobile
+`PATCH /api/profile/{uid}/updateMobile`
+- Sets or updates the mobile number of the user.
+
 ### Update Profile Name
 `PATCH /api/profile/{uid}/updateName`
-- Sets or updates the name of the user profile.
+- Sets or updates the name of the user in profile.
 
 ### Update Profile Photo
 `PATCH /api/profile/{uid}/updatePhoto`
