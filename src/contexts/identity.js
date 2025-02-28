@@ -1,17 +1,10 @@
 import React, { createContext, useCallback, useContext } from "react";
 import { RtDbPaths, StoragePaths } from "../modules/firebase/init.js";
-import {
-  fbRtdbDelete,
-  fbRtdbRead,
-  fbRtdbUpdate,
-} from "../modules/firebase/db.js";
+import { fbRtdbDelete, fbRtdbRead, fbRtdbUpdate } from "../modules/firebase/db.js";
 import { fbStorageDelete } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
 import UserContext, { UploadedImage } from "./user.js";
-import {
-  updateIdenityPhotosVisibilityGenreic,
-  uploadThreeSizesFromOneImage,
-} from "./utils/utils.js";
+import { updateIdenityPhotosVisibilityGenreic, uploadThreeSizesFromOneImage } from "./utils/utils.js";
 import { lang } from "../modules/util/language.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
@@ -60,12 +53,7 @@ export function IdentityProvider({ children }) {
         const visibilityCode = Date.now();
         const oldVisibilityCode =
           /** @type {string} */
-          (
-            await fbRtdbRead(
-              RtDbPaths.Identity(user.uid) +
-                "/identityPhotos/workId/visibilityCode"
-            )
-          ) || undefined;
+          (await fbRtdbRead(RtDbPaths.Identity(user.uid) + "/identityPhotos/workId/visibilityCode")) || undefined;
 
         // delete existing WORK_ID before uploading
         if (oldVisibilityCode) {
@@ -101,12 +89,7 @@ export function IdentityProvider({ children }) {
         const visibilityCode = Date.now();
         const oldVisibilityCode =
           /** @type {string} */
-          (
-            await fbRtdbRead(
-              RtDbPaths.Identity(user.uid) +
-                "/identityPhotos/govId/visibilityCode"
-            )
-          ) || undefined;
+          (await fbRtdbRead(RtDbPaths.Identity(user.uid) + "/identityPhotos/govId/visibilityCode")) || undefined;
 
         // delete existing WORK_ID before uploading
         if (oldVisibilityCode) {

@@ -11,14 +11,7 @@
  */
 export function checkForEasterEgg(str) {
   // Define the list of mild, humorous cuss words
-  const mildCussWords = [
-    "gadha",
-    "ullu ka pattha",
-    "idiot",
-    "moron",
-    "jackass",
-    "asshole",
-  ];
+  const mildCussWords = ["gadha", "ullu ka pattha", "idiot", "moron", "jackass", "asshole"];
 
   // Check for mild cuss words (case insensitive)
   for (let word of mildCussWords) {

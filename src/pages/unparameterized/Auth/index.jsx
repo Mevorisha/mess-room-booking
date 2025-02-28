@@ -35,13 +35,7 @@ function SectionButtons({ showSection, setShowSection }) {
         title="Login"
         onClick={() => setShowSection("login")}
         rounded="all"
-        kind={
-          showSection === "login"
-            ? "primary"
-            : showSection === "resetPasswd"
-            ? "secondary"
-            : "cannibalized"
-        }
+        kind={showSection === "login" ? "primary" : showSection === "resetPasswd" ? "secondary" : "cannibalized"}
         width="50%"
       />
       <ButtonText
@@ -59,9 +53,7 @@ function SectionButtons({ showSection, setShowSection }) {
  * @returns {React.JSX.Element}
  */
 export default function Auth() {
-  const [showSection, setShowSection] = useState(
-    /** @type {"login" | "register" | "resetPasswd"} */ ("login")
-  );
+  const [showSection, setShowSection] = useState(/** @type {"login" | "register" | "resetPasswd"} */ ("login"));
 
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
@@ -86,10 +78,7 @@ export default function Auth() {
         <h2>Mess Booking App</h2>
       </span>
       <div className="container">
-        <SectionButtons
-          showSection={showSection}
-          setShowSection={setShowSection}
-        />
+        <SectionButtons showSection={showSection} setShowSection={setShowSection} />
         {
           /* login form */
           showSection === "login" ? (

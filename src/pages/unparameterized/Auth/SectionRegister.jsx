@@ -12,9 +12,7 @@ import ButtonText from "../../../components/ButtonText";
  */
 export default function RegisterSection() {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -63,12 +61,7 @@ export default function RegisterSection() {
       <input required type="password" placeholder="Password" />
       <input required type="password" placeholder="Confirm Password" />
       <div className="submit-container">
-        <ButtonText
-          title="Register"
-          rounded="all"
-          width="50%"
-          kind={buttonKind}
-        />
+        <ButtonText title="Register" rounded="all" width="50%" kind={buttonKind} />
       </div>
     </form>
   );

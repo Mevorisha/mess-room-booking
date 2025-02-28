@@ -6,9 +6,7 @@ import "./globals/index.css";
 import "./globals/colors.css";
 import "./globals/look.css";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") || document.createElement("div")
-);
+const root = ReactDOM.createRoot(document.getElementById("root") || document.createElement("div"));
 root.render(
   <React.StrictMode>
     <App />

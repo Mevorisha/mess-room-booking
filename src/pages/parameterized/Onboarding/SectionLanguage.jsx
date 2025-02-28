@@ -27,9 +27,7 @@ export default function SetProfileType() {
    */
   function handleSubmit(type) {
     Promise.resolve()
-      .then(() =>
-        setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" }))
-      )
+      .then(() => setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" })))
       .then(() => langCtx.setLang(type))
       .then(() =>
         setButtonKind({
@@ -57,24 +55,9 @@ export default function SetProfileType() {
           </p>
         </div>
 
-        <ButtonText
-          rounded="all"
-          title="English"
-          kind={buttonKind.ENGLISH}
-          onClick={() => handleSubmit("ENGLISH")}
-        />
-        <ButtonText
-          rounded="all"
-          title="বাংলা"
-          kind={buttonKind.BANGLA}
-          onClick={() => handleSubmit("BANGLA")}
-        />
-        <ButtonText
-          rounded="all"
-          title="हिंदी"
-          kind={buttonKind.HINDI}
-          onClick={() => handleSubmit("HINDI")}
-        />
+        <ButtonText rounded="all" title="English" kind={buttonKind.ENGLISH} onClick={() => handleSubmit("ENGLISH")} />
+        <ButtonText rounded="all" title="বাংলা" kind={buttonKind.BANGLA} onClick={() => handleSubmit("BANGLA")} />
+        <ButtonText rounded="all" title="हिंदी" kind={buttonKind.HINDI} onClick={() => handleSubmit("HINDI")} />
       </div>
     </div>
   );

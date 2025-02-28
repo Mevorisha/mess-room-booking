@@ -25,13 +25,9 @@ export default function SetProfilePhoto() {
   const navigate = useNavigate();
 
   // state
-  const [photoURL, setPhotoURL] = useState(
-    compUsr.userCtx.user.profilePhotos?.medium || dpGeneric
-  );
+  const [photoURL, setPhotoURL] = useState(compUsr.userCtx.user.profilePhotos?.medium || dpGeneric);
 
-  const [buttonKind, setButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
@@ -58,12 +54,7 @@ export default function SetProfilePhoto() {
   function handleShowLargeImage() {
     if (!compUsr.userCtx.user.profilePhotos?.large) return;
 
-    dialog.show(
-      <DialogImagePreview
-        largeImageUrl={compUsr.userCtx.user.profilePhotos?.large}
-      />,
-      "large"
-    );
+    dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.profilePhotos?.large} />, "large");
   }
 
   return (
@@ -75,24 +66,13 @@ export default function SetProfilePhoto() {
         <div className="desc">
           <p>
             Photo is required for identification and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
-            recognize you.
+            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to recognize you.
           </p>
         </div>
 
         <div className="photo-container">
-          <ImageLoader
-            src={photoURL}
-            alt="profile"
-            onClick={handleShowLargeImage}
-          />
-          <ButtonText
-            rounded="all"
-            title="Update Photo"
-            kind={buttonKind}
-            width="50%"
-            onClick={handleUpdatePhoto}
-          />
+          <ImageLoader src={photoURL} alt="profile" onClick={handleShowLargeImage} />
+          <ButtonText rounded="all" title="Update Photo" kind={buttonKind} width="50%" onClick={handleUpdatePhoto} />
         </div>
       </div>
     </div>

@@ -2,16 +2,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth /* connectAuthEmulator */ } from "firebase/auth";
-import {
-  getDatabase,
-  ref as rtdbRef,
-  connectDatabaseEmulator,
-} from "firebase/database";
-import {
-  getStorage,
-  ref as storageRef,
-  connectStorageEmulator,
-} from "firebase/storage";
+import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/database";
+import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
@@ -19,8 +11,7 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 const firebaseConfig = {
   apiKey: "AIzaSyDMw-9Ha6Uu_LwHtgJsk198fOQCqe-FKbc",
   authDomain: "mess-booking-app-serverless.firebaseapp.com",
-  databaseURL:
-    "https://mess-booking-app-serverless-default-rtdb.asia-southeast1.firebasedatabase.app",
+  databaseURL: "https://mess-booking-app-serverless-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mess-booking-app-serverless",
   storageBucket: "mess-booking-app-serverless.appspot.com",
   messagingSenderId: "239013390662",
@@ -38,8 +29,7 @@ if (!FirebaseApp) {
 }
 
 /* eslint-disable-next-line no-restricted-globals */
-self["FIREBASE_APPCHECK_DEBUG_TOKEN"] =
-  process.env.FIREBASE_APPCHECK_DEBUG_TOKEN ?? undefined;
+self["FIREBASE_APPCHECK_DEBUG_TOKEN"] = process.env.FIREBASE_APPCHECK_DEBUG_TOKEN ?? undefined;
 
 const FirebaseAppCheck = initializeAppCheck(FirebaseApp, {
   provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),
@@ -101,18 +91,10 @@ class RtDbPaths {
  * Storage paths
  */
 class StoragePaths {
-  static PROFILE_PHOTOS = !IS_PREVIEW
-    ? "/storg_ProfilePhotos"
-    : "/preview_storg_ProfilePhotos";
-  static ROOM_PHOTOS = !IS_PREVIEW
-    ? "/storg_RoomPhotos"
-    : "/preview_storg_RoomPhotos";
-  static IDENTITY_DOCUMENTS = !IS_PREVIEW
-    ? "/storg_IdentityDocuments"
-    : "/preview_storg_IdentityDocuments";
-  static FEEDBACK_PHOTOS = !IS_PREVIEW
-    ? "/storg_FeedbackPhotos"
-    : "/preview_storg_FeedbackPhotos";
+  static PROFILE_PHOTOS = !IS_PREVIEW ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
+  static ROOM_PHOTOS = !IS_PREVIEW ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
+  static IDENTITY_DOCUMENTS = !IS_PREVIEW ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !IS_PREVIEW ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
 
   /**
    * @param {string} uid - Unique identifier for the user.
@@ -120,15 +102,13 @@ class StoragePaths {
    * @param {number| string} h - Height of the image.
    * @returns {string} Constructed storage path for the user's profile photos.
    */
-  static ProfilePhotos = (uid, w, h) =>
-    `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
+  static ProfilePhotos = (uid, w, h) => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
   /**
    * @param {string} uid - Unique identifier for the user.
    * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
    * @returns {string} Constructed storage path for the user's mess photos.
    */
-  static RoomPhotos = (uid, code) =>
-    `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
+  static RoomPhotos = (uid, code) => `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
   /**
    * @param {string} uid - Unique identifier for the user.
    * @param {string | number} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
@@ -144,8 +124,7 @@ class StoragePaths {
    * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
    * @returns {string} Constructed storage path for the user's feedback photos.
    */
-  static FeedbackPhotos = (uid, code) =>
-    `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
+  static FeedbackPhotos = (uid, code) => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
 }
 
 /**Path

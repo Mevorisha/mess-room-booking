@@ -46,11 +46,7 @@ export function AccountProvider({ children }) {
     async (number) =>
       LinkMobileNumber.sendOtp(number).then(() =>
         notify(
-          lang(
-            "Check your mobile for OTP",
-            "ও-টি-পি এর জন্য আপনার মোবাইল দেখুন",
-            "ओ-टी-पी के लिए आपका मोबाइल देखें"
-          ),
+          lang("Check your mobile for OTP", "ও-টি-পি এর জন্য আপনার মোবাইল দেখুন", "ओ-टी-पी के लिए आपका मोबाइल देखें"),
           "info"
         )
       ),
@@ -87,11 +83,7 @@ export function AccountProvider({ children }) {
         .then((phno) =>
           isEmpty(phno)
             ? Promise.reject(
-                lang(
-                  "Mobile number verification failed",
-                  "মোবাইল নম্বর ভেরিফিকেশন ফেইল",
-                  "मोबाइल नंबर भेरिफिकेशन फेल"
-                )
+                lang("Mobile number verification failed", "মোবাইল নম্বর ভেরিফিকেশন ফেইল", "मोबाइल नंबर भेरिफिकेशन फेल")
               )
             : Promise.resolve(phno)
         )

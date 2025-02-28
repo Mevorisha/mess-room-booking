@@ -44,13 +44,7 @@ export function PillInputTest({ disabled }) {
  * }} props
  * @returns {React.JSX.Element}
  */
-export default function PillInput({
-  type,
-  placeholder,
-  disabled,
-  pillsSet,
-  setPillsSet,
-}) {
+export default function PillInput({ type, placeholder, disabled, pillsSet, setPillsSet }) {
   const [inputValue, setInputValue] = useState("");
 
   /**
@@ -98,8 +92,7 @@ export default function PillInput({
     e.target.scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
   }
 
-  const additionalPillContainerStyle =
-    pillsSet.size <= 0 ? { padding: "0" } : {};
+  const additionalPillContainerStyle = pillsSet.size <= 0 ? { padding: "0" } : {};
 
   return (
     <div className="components-PillsSelect">
@@ -111,10 +104,7 @@ export default function PillInput({
             </div>
 
             <div className="clearpill-container clearbtn-container">
-              <CrossButton
-                disabled={!!disabled}
-                onClick={() => handleItemRemove(item)}
-              />
+              <CrossButton disabled={!!disabled} onClick={() => handleItemRemove(item)} />
             </div>
           </div>
         ))}

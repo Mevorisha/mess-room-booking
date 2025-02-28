@@ -26,9 +26,7 @@ export default function SetProfileType() {
    */
   function handleSubmit(type) {
     Promise.resolve()
-      .then(() =>
-        setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" }))
-      )
+      .then(() => setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" })))
       .then(() => compUsr.profileCtx.updateProfileType(type))
       .then(() => setButtonKind({ TENANT: "secondary", OWNER: "secondary" }))
       .then(() => navigate(PageUrls.HOME))
@@ -46,18 +44,8 @@ export default function SetProfileType() {
           <p> If you are the owner giving a room for rent select Owner.</p>
         </div>
 
-        <ButtonText
-          rounded="all"
-          title="Tenant"
-          kind={buttonKind.TENANT}
-          onClick={() => handleSubmit("TENANT")}
-        />
-        <ButtonText
-          rounded="all"
-          title="Owner"
-          kind={buttonKind.OWNER}
-          onClick={() => handleSubmit("OWNER")}
-        />
+        <ButtonText rounded="all" title="Tenant" kind={buttonKind.TENANT} onClick={() => handleSubmit("TENANT")} />
+        <ButtonText rounded="all" title="Owner" kind={buttonKind.OWNER} onClick={() => handleSubmit("OWNER")} />
       </div>
     </div>
   );

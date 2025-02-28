@@ -1,8 +1,6 @@
 import { fbRtdbGetRef, RtDbPaths } from "./init.js";
 import { set } from "firebase/database";
-import ErrorMessages, {
-  getCleanFirebaseErrMsg,
-} from "../errors/ErrorMessages.js";
+import ErrorMessages, { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 
 /**
  * @param {string} operation

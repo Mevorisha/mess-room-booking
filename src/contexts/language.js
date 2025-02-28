@@ -1,12 +1,8 @@
 import React, { useState, createContext, useCallback } from "react";
 
 const LangContext = createContext({
-  lang: /** @type {"ENGLISH" | "BANGLA" | "HINDI"} */ (
-    window.localStorage.getItem("lang") || "ENGLISH"
-  ),
-  setLang: /** @type {(val: "ENGLISH" | "BANGLA" | "HINDI") => void} */ (
-    () => {}
-  ),
+  lang: /** @type {"ENGLISH" | "BANGLA" | "HINDI"} */ (window.localStorage.getItem("lang") || "ENGLISH"),
+  setLang: /** @type {(val: "ENGLISH" | "BANGLA" | "HINDI") => void} */ (() => {}),
 });
 
 export default LangContext;

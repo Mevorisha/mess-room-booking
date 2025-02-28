@@ -1,12 +1,5 @@
 import { fbStorageGetRef } from "./init.js";
-import {
-  deleteObject,
-  getBlob,
-  getBytes,
-  getDownloadURL,
-  getMetadata,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { deleteObject, getBlob, getBytes, getDownloadURL, getMetadata, uploadBytesResumable } from "firebase/storage";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import { sizehuman } from "../util/dataConversion.js";
 import { lang } from "../util/language.js";
@@ -101,8 +94,7 @@ export class FbStorageTransferTask {
     this.uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         this.onProgress && this.onProgress(progress);
         switch (snapshot.state) {
           case "running":
@@ -163,9 +155,7 @@ export class FbStorageTransferTask {
  */
 function loadFileFromFilePicker(accept, size) {
   const fileInput =
-    /** @type {HTMLInputElement} */ (
-      document.getElementById("default-file-input")
-    ) ??
+    /** @type {HTMLInputElement} */ (document.getElementById("default-file-input")) ??
     /* if the input element is not found, create a new one */
     (function () {
       const newFileInput = document.createElement("input");
@@ -195,13 +185,7 @@ function loadFileFromFilePicker(accept, size) {
           );
         }
       } else {
-        reject(
-          lang(
-            "No file selected",
-            "কোনও ফাইল নির্বাচন করা হয়নি",
-            "कोई फ़ाइल चयनित नहीं किया गया है"
-          )
-        );
+        reject(lang("No file selected", "কোনও ফাইল নির্বাচন করা হয়নি", "कोई फ़ाइल चयनित नहीं किया गया है"));
       }
     });
   });
@@ -228,11 +212,7 @@ function fbStorageUpload(path, file) {
   // check if an upload operation is already in progress
   if (OngoingTasks.has(taskId)) {
     throw new Error(
-      lang(
-        "Upload operation already in progress",
-        "আপলোড অপারেশন আগে থেকেই চলছে",
-        "अपलोड ऑपरेशन पहले से ही चल रहा है"
-      )
+      lang("Upload operation already in progress", "আপলোড অপারেশন আগে থেকেই চলছে", "अपलोड ऑपरेशन पहले से ही चल रहा है")
     );
   }
 
@@ -240,9 +220,7 @@ function fbStorageUpload(path, file) {
   OngoingTasks.set(taskId, true);
 
   const storageRef = fbStorageGetRef(path);
-  const task = FbStorageTransferTask.wrap(
-    uploadBytesResumable(storageRef, file, { contentType: file.type })
-  );
+  const task = FbStorageTransferTask.wrap(uploadBytesResumable(storageRef, file, { contentType: file.type }));
 
   // remove the task from ongoing tasks when it is done
   task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
@@ -292,11 +270,7 @@ function fbStorageUpdate(path, file) {
   // check if an update operation is already in progress
   if (OngoingTasks.has(taskId)) {
     throw new Error(
-      lang(
-        "Update operation already in progress",
-        "আপডেট অপারেশন আগেই থেকে চলছে",
-        "अपडेट ऑपरेशन पहले से ही चल रहा है"
-      )
+      lang("Update operation already in progress", "আপডেট অপারেশন আগেই থেকে চলছে", "अपडेट ऑपरेशन पहले से ही चल रहा है")
     );
   }
 
@@ -304,9 +278,7 @@ function fbStorageUpdate(path, file) {
   OngoingTasks.set(taskId, true);
 
   const storageRef = fbStorageGetRef(path);
-  const task = FbStorageTransferTask.wrap(
-    uploadBytesResumable(storageRef, file, { contentType: file.type })
-  );
+  const task = FbStorageTransferTask.wrap(uploadBytesResumable(storageRef, file, { contentType: file.type }));
 
   // remove the task from ongoing tasks when it is done
   task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
@@ -327,11 +299,7 @@ async function fbStorageCopy(path1, path2) {
   // check if a copy operation is already in progress
   if (OngoingTasks.has(taskId)) {
     return Promise.reject(
-      lang(
-        "Copy operation already in progress",
-        "কপি অপারেশন আগেই থেকে চলছে",
-        "कॉपी ऑपरेशन पहले से ही चल रहा है"
-      )
+      lang("Copy operation already in progress", "কপি অপারেশন আগেই থেকে চলছে", "कॉपी ऑपरेशन पहले से ही चल रहा है")
     );
   }
 
@@ -342,9 +310,7 @@ async function fbStorageCopy(path1, path2) {
   const storageRef2 = fbStorageGetRef(path2);
 
   // download the file from storageRef1 and upload it to storageRef2
-  const task = FbStorageTransferTask.wrap(
-    uploadBytesResumable(storageRef2, await getBytes(storageRef1))
-  );
+  const task = FbStorageTransferTask.wrap(uploadBytesResumable(storageRef2, await getBytes(storageRef1)));
 
   // remove the task from ongoing tasks when it is done
   task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);
@@ -365,11 +331,7 @@ async function fbStorageMove(path1, path2) {
   // check if a move operation is already in progress
   if (OngoingTasks.has(taskId)) {
     return Promise.reject(
-      lang(
-        "Move operation already in progress",
-        "মুভ অপারেশন আগেই থেকে চলছে",
-        "मूभ ऑपरेशन पहले से ही चल रहा है"
-      )
+      lang("Move operation already in progress", "মুভ অপারেশন আগেই থেকে চলছে", "मूभ ऑपरेशन पहले से ही चल रहा है")
     );
   }
 
@@ -382,9 +344,7 @@ async function fbStorageMove(path1, path2) {
     const bytes = await getBytes(storageRef1);
     await deleteObject(storageRef1);
 
-    const task = FbStorageTransferTask.wrap(
-      uploadBytesResumable(storageRef2, bytes)
-    );
+    const task = FbStorageTransferTask.wrap(uploadBytesResumable(storageRef2, bytes));
 
     // remove the task from ongoing tasks when it is done
     task.onSuccess = task.onCancelled = () => OngoingTasks.delete(taskId);

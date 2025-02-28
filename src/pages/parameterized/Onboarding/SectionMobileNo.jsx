@@ -14,15 +14,9 @@ import ButtonText from "../../../components/ButtonText";
 export default function SetMobileNumber() {
   const compUsr = useCompositeUser();
 
-  const [action, setAction] = useState(
-    /** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ (
-      "Request OTP"
-    )
-  );
+  const [action, setAction] = useState(/** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ ("Request OTP"));
 
-  const [buttonKind, setButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   const notify = useNotification();
   const navigate = useNavigate();
@@ -77,8 +71,7 @@ export default function SetMobileNumber() {
         <div className="desc">
           <p>
             Mobile number is required for communication and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
-            contact you.
+            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
           </p>
           {/* <h4 style={{ marginTop: "20px" }}>
               Development Phase - Testing Notes
@@ -109,19 +102,10 @@ export default function SetMobileNumber() {
             type="text"
             name="otp"
             disabled={action !== "Verify & Submit"}
-            placeholder={
-              action === "Verify & Submit"
-                ? "Enter OTP"
-                : "Request an OTP first"
-            }
+            placeholder={action === "Verify & Submit" ? "Enter OTP" : "Request an OTP first"}
           />
           <div className="submit-container">
-            <ButtonText
-              width="40%"
-              rounded="all"
-              title={action}
-              kind={buttonKind}
-            />
+            <ButtonText width="40%" rounded="all" title={action} kind={buttonKind} />
           </div>
         </form>
       </div>

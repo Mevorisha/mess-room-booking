@@ -5,13 +5,8 @@ import NotificationContext from "../contexts/notification.js";
  * @returns {(message: string | Error, kind: "info" | "success" | "warning" | "error") => void}
  */
 export default function useNotification() {
-  const {
-    setMessage,
-    setKind,
-    showNotification,
-    hideNotification,
-    setNotifDisplayTimeout,
-  } = useContext(NotificationContext);
+  const { setMessage, setKind, showNotification, hideNotification, setNotifDisplayTimeout } =
+    useContext(NotificationContext);
 
   const notify = useCallback(
     /**
@@ -37,13 +32,7 @@ export default function useNotification() {
       /* set timeout state so it can be cleared if notification is manually closed */
       setNotifDisplayTimeout(timeout);
     },
-    [
-      setMessage,
-      setKind,
-      showNotification,
-      hideNotification,
-      setNotifDisplayTimeout,
-    ]
+    [setMessage, setKind, showNotification, hideNotification, setNotifDisplayTimeout]
   );
 
   return notify;

@@ -14,10 +14,7 @@ export default function OAuthSection() {
 
   return (
     <div className="oauth-container">
-      <div
-        className="oauth-button"
-        onClick={() => GoogleAuth.login().catch((e) => notify(e, "error"))}
-      >
+      <div className="oauth-button" onClick={() => GoogleAuth.login().catch((e) => notify(e, "error"))}>
         <ImageLoader
           style={{
             height: "26px",
@@ -28,22 +25,14 @@ export default function OAuthSection() {
           alt="google"
         />
       </div>
-      <div
-        className="oauth-button"
-        onClick={() => notify("Apple Sign In is not implemented yet", "error")}
-      >
+      <div className="oauth-button" onClick={() => notify("Apple Sign In is not implemented yet", "error")}>
         <ImageLoader
           style={{ height: "24px", paddingBottom: "1.5px" }}
           src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
           alt="apple"
         />
       </div>
-      <div
-        className="oauth-button"
-        onClick={() =>
-          notify("Microsoft Sign In is not implemented yet", "error")
-        }
-      >
+      <div className="oauth-button" onClick={() => notify("Microsoft Sign In is not implemented yet", "error")}>
         <ImageLoader
           style={{ height: "24px" }}
           src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"

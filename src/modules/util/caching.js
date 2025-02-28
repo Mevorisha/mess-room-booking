@@ -22,10 +22,7 @@ export async function createNewCacheUrl(cacheName) {
 export async function putLastCacheUrl(cacheName, newUrl) {
   const lastId = newUrl.split("-")[1];
   const cache = await caches.open(cacheName);
-  await cache.put(
-    "last-id",
-    new Response(JSON.stringify(lastId), { status: 200 })
-  );
+  await cache.put("last-id", new Response(JSON.stringify(lastId), { status: 200 }));
 }
 
 /**

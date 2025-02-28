@@ -1,15 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "../../../../hooks/dialogbox.js";
 
-import {
-  base64FileDataToFile,
-  fileToBase64FileData,
-} from "../../../../modules/util/dataConversion.js";
-import {
-  CachePaths,
-  createNewCacheUrl,
-  putLastCacheUrl,
-} from "../../../../modules/util/caching.js";
+import { base64FileDataToFile, fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
+import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "../../../../modules/util/caching.js";
 import useNotification from "../../../../hooks/notification.js";
 
 import PillsInput from "../../../../components/PillsInput/index.jsx";
@@ -51,17 +44,11 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId, viewOnly }) {
   const notify = useNotification();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState(
-    viewDraftCacheUrl ?? ""
-  );
+  const [internalCacheUrl, setInternalCacheUrl] = useState(viewDraftCacheUrl ?? "");
 
-  const [draftButtonKind, setDraftButtonKind] = useState(
-    /** @type {"secondary" | "loading"} */ ("secondary")
-  );
+  const [draftButtonKind, setDraftButtonKind] = useState(/** @type {"secondary" | "loading"} */ ("secondary"));
 
-  const [submitButtonKind, setSubmitButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   /**
    * @param {"not-loading" | "loading"} kind
@@ -75,43 +62,26 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
     }
   }
 
-  const [landmarksSet, setLandmarksSet] = useState(
-    /** @type {Set<string>} */ (new Set())
-  );
+  const [landmarksSet, setLandmarksSet] = useState(/** @type {Set<string>} */ (new Set()));
 
-  const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
-    useRef()
-  );
-  const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
-    useRef()
-  );
-  const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (
-    useRef()
-  );
+  const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
 
-  const [majorTagsSet, setMajorTagsSet] = useState(
-    /** @type {Set<string>} */ (new Set())
-  );
+  const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
 
-  const [minorTagsSet, setMinorTagsSet] = useState(
-    /** @type {Set<string>} */ (new Set())
-  );
+  const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
 
-  const [filesSet, setFilesSet] = useState(
-    /** @type {Set<File>} */ (new Set())
-  );
+  const [filesSet, setFilesSet] = useState(/** @type {Set<File>} */ (new Set()));
 
-  const [submitAction, setSubmitAction] = useState(
-    /** @type {"save-draft" | "submit"} */ ("save-draft")
-  );
+  const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
   const dialog = useDialog();
 
   /* useEffect to load cache data */
   useEffect(() => {
     if (!viewDraftCacheUrl) return;
-    if (!addressInput.current || !cityInput.current || !stateInput.current)
-      return;
+    if (!addressInput.current || !cityInput.current || !stateInput.current) return;
 
     caches
       .open(SECTION_ROOM_FORM_CACHE_PATH)
@@ -125,17 +95,10 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
         if (stateInput.current) stateInput.current.value = data.state;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
-        setFilesSet(
-          new Set(data.files.map((fileData) => base64FileDataToFile(fileData)))
-        );
+        setFilesSet(new Set(data.files.map((fileData) => base64FileDataToFile(fileData))));
       })
       .catch((e) => notify(e, "error"));
-  }, [
-    viewDraftCacheUrl,
-    addressInput.current,
-    cityInput.current,
-    stateInput.current,
-  ]);
+  }, [viewDraftCacheUrl, addressInput.current, cityInput.current, stateInput.current]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -194,11 +157,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
 
     if (viewOnly) {
       notify(
-        lang(
-          "This form is view only",
-          "এই ফর্মটি শুধুমাত্র দেখার জন্য",
-          "यह फॉर्म केवल देखने के लिए है"
-        ),
+        lang("This form is view only", "এই ফর্মটি শুধুমাত্র দেখার জন্য", "यह फॉर्म केवल देखने के लिए है"),
         "error"
       );
       return;
@@ -224,10 +183,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
   }
 
   return (
-    <form
-      className="pages-OwnerRooms-SectionRoomForm form-container"
-      onSubmit={(e) => handleSubmitSync(e)}
-    >
+    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
       <div className="editable-container">
         <div className="textedit-container">
           <PillsInput
@@ -236,31 +192,10 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
             pillsSet={landmarksSet}
             setPillsSet={setLandmarksSet}
           />
-          <input
-            required
-            disabled={viewOnly}
-            ref={addressInput}
-            type="text"
-            placeholder="Address"
-            name="address"
-          />
+          <input required disabled={viewOnly} ref={addressInput} type="text" placeholder="Address" name="address" />
           <div className="city-state-container">
-            <input
-              required
-              disabled={viewOnly}
-              ref={cityInput}
-              type="text"
-              placeholder="City"
-              name="city"
-            />
-            <input
-              required
-              disabled={viewOnly}
-              ref={stateInput}
-              type="text"
-              placeholder="State"
-              name="state"
-            />
+            <input required disabled={viewOnly} ref={cityInput} type="text" placeholder="City" name="city" />
+            <input required disabled={viewOnly} ref={stateInput} type="text" placeholder="State" name="state" />
           </div>
           <PillsInput
             disabled={viewOnly}
@@ -276,9 +211,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
           />
         </div>
 
-        <div className="filedit-container">
-          {/* TODO: Add multi-file input */}
-        </div>
+        <div className="filedit-container">{/* TODO: Add multi-file input */}</div>
       </div>
 
       <div className="submit-container">

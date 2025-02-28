@@ -25,18 +25,14 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
 
   if (
     isEmpty(compUsr.userCtx.user.profilePhotos) &&
-    (isEmpty(compUsr.userCtx.user.firstName) ||
-      isEmpty(compUsr.userCtx.user.lastName))
+    (isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName))
   )
     // prettier-ignore
     text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
   else if (isEmpty(compUsr.userCtx.user.profilePhotos))
     // prettier-ignore
     text = lang("Add Profile Photo!", "প্রোফাইল ফটো দিন!", "प्रोफ़ाइल फोटो दें!");
-  else if (
-    isEmpty(compUsr.userCtx.user.firstName) ||
-    isEmpty(compUsr.userCtx.user.lastName)
-  )
+  else if (isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName))
     // prettier-ignore
     text = lang("Add Display Name!", "প্রোফাইল নাম দিন!", "प्रोफ़ाइल नाम जोड़ें!");
 
@@ -46,10 +42,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
     isEmpty(compUsr.userCtx.user.lastName)
   )
     return (
-      <span
-        className="profile-incomplete"
-        onClick={() => handleDropdownClick(dropdownState)}
-      >
+      <span className="profile-incomplete" onClick={() => handleDropdownClick(dropdownState)}>
         <span>{text}</span>
         {/* <i className="fa fa-exclamation-triangle"></i> */}
         <i className="fa fa-exclamation-circle"></i>
@@ -57,18 +50,11 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
     );
 
   return (
-    <span
-      className="profile-complete"
-      onClick={() => handleDropdownClick(dropdownState)}
-    >
+    <span className="profile-complete" onClick={() => handleDropdownClick(dropdownState)}>
       <span className="display-name">
         {compUsr.userCtx.user.firstName} {compUsr.userCtx.user.lastName}
       </span>
-      <ImageLoader
-        className="profile-image"
-        src={compUsr.userCtx.user.profilePhotos?.small || ""}
-        alt="profile"
-      />
+      <ImageLoader className="profile-image" src={compUsr.userCtx.user.profilePhotos?.small || ""} alt="profile" />
     </span>
   );
 }
@@ -82,10 +68,7 @@ function MarkOfIncompletion({ isIncomplete }) {
   if (!isIncomplete) return null;
   return (
     <span className="profile-incomplete">
-      <i
-        style={{ marginTop: "1px", fontSize: "1.1rem" }}
-        className="fa fa-exclamation-circle"
-      ></i>
+      <i style={{ marginTop: "1px", fontSize: "1.1rem" }} className="fa fa-exclamation-circle"></i>
     </span>
   );
 }
@@ -99,9 +82,7 @@ export default function TopBar({ children }) {
   const navigate = useNavigate();
   const notify = useNotification();
 
-  const [dropdownState, setDropdownState] = useState(
-    /** @type {"init" | "showing" | "visible" | "hiding"} */ ("init")
-  );
+  const [dropdownState, setDropdownState] = useState(/** @type {"init" | "showing" | "visible" | "hiding"} */ ("init"));
 
   const [searchParams] = useSearchParams();
 
@@ -135,9 +116,7 @@ export default function TopBar({ children }) {
         break;
       // reset password action
       case ActionParams.RESET_PASSWORD:
-        compUsr.accountCtx
-          .requestPasswordReset()
-          .catch((e) => notify(e, "error"));
+        compUsr.accountCtx.requestPasswordReset().catch((e) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // log out action
@@ -152,10 +131,7 @@ export default function TopBar({ children }) {
         break;
       // invalid action
       default:
-        notify(
-          lang("Action not recognized", "অবৈধ ক্রিয়া!", "अवैध कार्य"),
-          "error"
-        );
+        notify(lang("Action not recognized", "অবৈধ ক্রিয়া!", "अवैध कार्य"), "error");
         break;
     }
 
@@ -199,17 +175,11 @@ export default function TopBar({ children }) {
       </div>
       <div className="section-buttons-container">{children}</div>
       <div className="action-buttons-container">
-        <ActionMenu
-          dropdownState={dropdownState}
-          handleDropdownClick={handleDropdownClick}
-        />
+        <ActionMenu dropdownState={dropdownState} handleDropdownClick={handleDropdownClick} />
 
         <div className={`dropdown dropdown-anim-${dropdownState}`}>
           {/* View Profile */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}>
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
               ? lang("View Owner Profile", "মালিকের প্রোফাইল দেখুন", "मालिक प्रोफ़ाइल देखें")
@@ -217,10 +187,7 @@ export default function TopBar({ children }) {
             }
           </div>
           {/* Switch Profile Type */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}>
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
               ? lang("Switch to Tenant Profile", "ভাড়াটের প্রোফাইলে স্যুইচ করুন", "किरायेदार पर स्विच करें")
@@ -228,62 +195,35 @@ export default function TopBar({ children }) {
             }
           </div>
           {/* Update Profile Photo */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}>
             {ActionParams.UPDATE_PROFILE_PHOTO}
-            <MarkOfIncompletion
-              isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)}
-            />
+            <MarkOfIncompletion isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)} />
           </div>
           {/* Update ID Documents */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.UPDATE_ID_DOCS)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.UPDATE_ID_DOCS)}>
             {ActionParams.UPDATE_ID_DOCS}
           </div>
           {/* Change Name */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.CHANGE_NAME)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_NAME)}>
             {ActionParams.CHANGE_NAME}
             <MarkOfIncompletion
-              isIncomplete={
-                isEmpty(compUsr.userCtx.user.firstName) ||
-                isEmpty(compUsr.userCtx.user.lastName)
-              }
+              isIncomplete={isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName)}
             />
           </div>
           {/* Change Mobile Number */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.CHANGE_MOBILE_NUMBER)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_MOBILE_NUMBER)}>
             {ActionParams.CHANGE_MOBILE_NUMBER}
           </div>
           {/* Request Password Reset */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}>
             {ActionParams.RESET_PASSWORD}
           </div>
           {/* Change Language */}
-          <div
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.CHANGE_LANGUAGE)}
-          >
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_LANGUAGE)}>
             {ActionParams.CHANGE_LANGUAGE}
           </div>
           {/* Log Out */}
-          <div
-            style={{ color: "red" }}
-            className="dropdown-item"
-            onClick={() => handleItemClick(ActionParams.LOGOUT)}
-          >
+          <div style={{ color: "red" }} className="dropdown-item" onClick={() => handleItemClick(ActionParams.LOGOUT)}>
             {ActionParams.LOGOUT}
           </div>
         </div>

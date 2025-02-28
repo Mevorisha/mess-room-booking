@@ -1,9 +1,6 @@
 import { fbRtdbRead, fbRtdbUpdate } from "../../modules/firebase/db.js";
 import { RtDbPaths, StoragePaths } from "../../modules/firebase/init.js";
-import {
-  fbStorageMove,
-  fbStorageUpload,
-} from "../../modules/firebase/storage.js";
+import { fbStorageMove, fbStorageUpload } from "../../modules/firebase/storage.js";
 import { resizeImage } from "../../modules/util/dataConversion.js";
 import { UploadedImage } from "../user.js";
 import { lang } from "../../modules/util/language.js";
@@ -57,29 +54,17 @@ export async function uploadThreeSizesFromOneImage(
   notify
 ) {
   /* --------------------- SMALL PHOTO --------------------- */
-  const smallimg = await resizeImage(
-    image,
-    { w: UploadedImage.Sizes.SMALL },
-    image.type
-  );
+  const smallimg = await resizeImage(image, { w: UploadedImage.Sizes.SMALL }, image.type);
   const smallTask = fbStorageUpload(smallpath, smallimg);
   smallTask.onProgress = (percent) => notifyProgress(percent, 0, 0, notify);
 
   /* --------------------- MEDIUM PHOTO --------------------- */
-  const mediumimg = await resizeImage(
-    image,
-    { w: UploadedImage.Sizes.MEDIUM },
-    image.type
-  );
+  const mediumimg = await resizeImage(image, { w: UploadedImage.Sizes.MEDIUM }, image.type);
   const mediumTask = fbStorageUpload(mediumpath, mediumimg);
   mediumTask.onProgress = (percent) => notifyProgress(100, percent, 0, notify);
 
   /* --------------------- LARGE PHOTO --------------------- */
-  const largeimg = await resizeImage(
-    image,
-    { w: UploadedImage.Sizes.LARGE },
-    image.type
-  );
+  const largeimg = await resizeImage(image, { w: UploadedImage.Sizes.LARGE }, image.type);
   const largeTask = fbStorageUpload(largepath, largeimg);
   largeTask.onProgress = (percent) => notifyProgress(100, 100, percent, notify);
 
@@ -99,20 +84,10 @@ export async function uploadThreeSizesFromOneImage(
  * @param {FnNotifier} notify - A callback function to notify the user about the status of the operation.
  * @returns {Promise<UploadedImage | null>} - A promise that resolves when the operation is complete.
  */
-export async function updateIdenityPhotosVisibilityGenreic(
-  userId,
-  idKey,
-  idType,
-  visibility,
-  notify
-) {
+export async function updateIdenityPhotosVisibilityGenreic(userId, idKey, idType, visibility, notify) {
   const oldVisibilityCode =
     /** @type {string} */
-    (
-      await fbRtdbRead(
-        RtDbPaths.Identity(userId) + `/identityPhotos/${idKey}Id/visibilityCode`
-      )
-    ) || undefined;
+    (await fbRtdbRead(RtDbPaths.Identity(userId) + `/identityPhotos/${idKey}Id/visibilityCode`)) || undefined;
 
   if (!oldVisibilityCode) {
     return Promise.reject(
@@ -163,9 +138,7 @@ export async function updateIdenityPhotosVisibilityGenreic(
   const [smallTask, medTask, largeTask] = await Promise.all([
     smallTaskPromise.then((t) => notifyProgressAndPassTransfTask(t, 100, 0, 0)),
     medTaskPromise.then((t) => notifyProgressAndPassTransfTask(t, 100, 100, 0)),
-    largeTaskPromise.then((t) =>
-      notifyProgressAndPassTransfTask(t, 100, 100, 100)
-    ),
+    largeTaskPromise.then((t) => notifyProgressAndPassTransfTask(t, 100, 100, 100)),
   ]);
 
   smallTask.onProgress = (percent) => notifyProgress(percent, 0, 0, notify);
@@ -188,7 +161,5 @@ export async function updateIdenityPhotosVisibilityGenreic(
   });
 
   // return url and visibility code
-  return Promise.resolve(
-    new UploadedImage(userId, small, medium, large, targetVisibilityCode)
-  );
+  return Promise.resolve(new UploadedImage(userId, small, medium, large, targetVisibilityCode));
 }

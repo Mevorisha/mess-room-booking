@@ -17,9 +17,7 @@ export default function SetDisplayName() {
   const notify = useNotification();
   const navigate = useNavigate();
 
-  const [buttonKind, setButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   function handleUpdateName(e) {
     e.preventDefault();
@@ -51,8 +49,7 @@ export default function SetDisplayName() {
         <div className="desc">
           <p>
             Name is required for identification and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to
-            address you.
+            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to address you.
           </p>
         </div>
 
@@ -62,30 +59,17 @@ export default function SetDisplayName() {
             type="text"
             name="firstName"
             placeholder="First Name"
-            defaultValue={
-              isEmpty(compUsr.userCtx.user.firstName)
-                ? ""
-                : compUsr.userCtx.user.firstName
-            }
+            defaultValue={isEmpty(compUsr.userCtx.user.firstName) ? "" : compUsr.userCtx.user.firstName}
           />
           <input
             required
             type="text"
             name="lastName"
             placeholder="Last Name"
-            defaultValue={
-              1 && isEmpty(compUsr.userCtx.user.lastName)
-                ? ""
-                : compUsr.userCtx.user.lastName
-            }
+            defaultValue={1 && isEmpty(compUsr.userCtx.user.lastName) ? "" : compUsr.userCtx.user.lastName}
           />
           <div className="submit-container">
-            <ButtonText
-              width="40%"
-              rounded="all"
-              title="Update Name"
-              kind={buttonKind}
-            />
+            <ButtonText width="40%" rounded="all" title="Update Name" kind={buttonKind} />
           </div>
         </form>
       </div>

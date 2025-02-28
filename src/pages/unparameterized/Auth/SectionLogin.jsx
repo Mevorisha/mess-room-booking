@@ -13,9 +13,7 @@ import ButtonText from "../../../components/ButtonText";
  */
 export default function LoginSection({ setShowSection }) {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = useState(
-    /** @type {"primary" | "loading"} */ ("primary")
-  );
+  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -58,19 +56,11 @@ export default function LoginSection({ setShowSection }) {
     <form className="form-container" onSubmit={(e) => handleSubmit(e)}>
       <input required type="email" placeholder="Email" />
       <input required type="password" placeholder="Password" />
-      <span
-        className="reset-passwd-link"
-        onClick={() => setShowSection("resetPasswd")}
-      >
+      <span className="reset-passwd-link" onClick={() => setShowSection("resetPasswd")}>
         Reset password
       </span>
       <div className="submit-container">
-        <ButtonText
-          title="Log In"
-          rounded="all"
-          width="50%"
-          kind={buttonKind}
-        />
+        <ButtonText title="Log In" rounded="all" width="50%" kind={buttonKind} />
       </div>
     </form>
   );

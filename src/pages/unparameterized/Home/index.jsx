@@ -22,12 +22,7 @@ function HomeForTenant({ user }) {
       <NavBars>
         <>
           <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-          <ButtonText
-            rounded="all"
-            title="Booking"
-            kind="cannibalized"
-            width="50%"
-          />
+          <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
         </>
       </NavBars>
       <div className="content-container">
@@ -53,12 +48,7 @@ function HomeForOwner({ user }) {
       <NavBars>
         <>
           <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-          <ButtonText
-            rounded="all"
-            title="Booking"
-            kind="cannibalized"
-            width="50%"
-          />
+          <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
         </>
       </NavBars>
       <div className="content-container">
@@ -109,12 +99,7 @@ export default function Home() {
         search: searchParams.toString(),
       });
     }
-  }, [
-    compUsr.userCtx.user.type,
-    compUsr.userCtx.user.mobile,
-    searchParams,
-    navigate,
-  ]);
+  }, [compUsr.userCtx.user.type, compUsr.userCtx.user.mobile, searchParams, navigate]);
 
   // user logged in but not onboarded
   if (

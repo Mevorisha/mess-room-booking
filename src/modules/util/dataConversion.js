@@ -28,12 +28,7 @@ export function sizehuman(bytes) {
  * @returns {Promise<File>}
  * @throws {Error}
  */
-export function resizeImage(
-  file,
-  { w: targetWidth, h: targetHeight },
-  mimeType = "image/jpeg",
-  quality = undefined
-) {
+export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = undefined) {
   return new Promise((resolve, reject) => {
     const filename = file.name;
     const img = new Image();
@@ -81,13 +76,7 @@ export function resizeImage(
 
       if (!ctx) {
         reject(
-          new Error(
-            lang(
-              "Canvas creation failed",
-              "ক্যানভাস তৈরি করা ব্যর্থ হয়েছে",
-              "कैनवास निर्माण विफल हो गया"
-            )
-          )
+          new Error(lang("Canvas creation failed", "ক্যানভাস তৈরি করা ব্যর্থ হয়েছে", "कैनवास निर्माण विफल हो गया"))
         );
         return;
       }
@@ -98,16 +87,11 @@ export function resizeImage(
       // Convert the canvas back to a File
       canvas.toBlob(
         (resizedBlob) => {
-          if (resizedBlob)
-            resolve(new File([resizedBlob], filename, { type: mimeType }));
+          if (resizedBlob) resolve(new File([resizedBlob], filename, { type: mimeType }));
           else
             reject(
               new Error(
-                lang(
-                  "Canvas conversion failed",
-                  "ক্যানভাস কনভার্সন ব্যর্থ হয়েছে",
-                  "कैनवास रूपांतरण विफल हो गया"
-                )
+                lang("Canvas conversion failed", "ক্যানভাস কনভার্সন ব্যর্থ হয়েছে", "कैनवास रूपांतरण विफल हो गया")
               )
             );
         },
@@ -150,11 +134,7 @@ export function fileToBase64FileData(file) {
   function onloaded(e, reader, fileType, fileName, resolve, reject) {
     const readerData = reader.result;
     if (!readerData) {
-      reject(
-        new Error(
-          lang("File data is null", "ফাইলের ডেটা নাল", "फ़ाइल डेटा नल है")
-        )
-      );
+      reject(new Error(lang("File data is null", "ফাইলের ডেটা নাল", "फ़ाइल डेटा नल है")));
       return;
     }
 
@@ -168,10 +148,7 @@ export function fileToBase64FileData(file) {
       return;
     }
 
-    const base64string = new Uint8Array(readerData).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      ""
-    );
+    const base64string = new Uint8Array(readerData).reduce((data, byte) => data + String.fromCharCode(byte), "");
 
     resolve({
       type: fileType,
@@ -183,8 +160,7 @@ export function fileToBase64FileData(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = (e) =>
-      onloaded(e, reader, file.type, file.name, resolve, reject);
+    reader.onload = (e) => onloaded(e, reader, file.type, file.name, resolve, reject);
     reader.onerror = (error) => reject(error);
   });
 }

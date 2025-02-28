@@ -11,8 +11,7 @@ const DIALOG_ANIM_DURATION = 250;
  * }}
  */
 export default function useDialogBox() {
-  const { dialogState, setChildren, setSize, setOverlayState, setDialogState } =
-    useContext(DialogBoxContext);
+  const { dialogState, setChildren, setSize, setOverlayState, setDialogState } = useContext(DialogBoxContext);
 
   const isVisible = dialogState === "scaleIn";
 

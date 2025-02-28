@@ -20,16 +20,9 @@ export default function PageNotFound() {
         <h4>Page Not Found</h4>
 
         <div className="desc">
-          <p>
-            The resource you are looking for doesn't exist or has been removed.
-          </p>
+          <p>The resource you are looking for doesn't exist or has been removed.</p>
         </div>
-        <ButtonText
-          rounded="all"
-          title="Go Home"
-          kind="primary"
-          onClick={() => navigate(PageUrls.HOME)}
-        />
+        <ButtonText rounded="all" title="Go Home" kind="primary" onClick={() => navigate(PageUrls.HOME)} />
       </div>
     </div>
   );

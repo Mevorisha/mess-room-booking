@@ -419,9 +419,7 @@ async function fetchImageAsBase64(url) {
  * @returns {React.JSX.Element}
  */
 export default function ImageLoader(props) {
-  const [imageData, setImageData] = useState(
-    /** @type {string | null} */ (null)
-  );
+  const [imageData, setImageData] = useState(/** @type {string | null} */ (null));
 
   const notify = useNotification();
 
@@ -453,13 +451,7 @@ export default function ImageLoader(props) {
 
   if (!imageData) {
     return (
-      <img
-        {...props}
-        style={animationStyles}
-        src={loadingAnimation}
-        alt={props.alt}
-        onLoad={onImageElementLoaded}
-      />
+      <img {...props} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
     );
   }
 

@@ -18,13 +18,7 @@ export class UploadedImage {
    * @param {string} largeImageURL
    * @param {"PUBLIC" | number} visibilityCode
    */
-  constructor(
-    filename,
-    smallImageURL,
-    mediumImageURL,
-    largeImageURL,
-    visibilityCode
-  ) {
+  constructor(filename, smallImageURL, mediumImageURL, largeImageURL, visibilityCode) {
     this.filename = filename;
     this.small = smallImageURL;
     this.medium = mediumImageURL;
@@ -39,32 +33,14 @@ export class UploadedImage {
    */
   static from(filename, data) {
     if (!data) {
-      throw new Error(
-        lang(
-          "Invalid UploadedImage data",
-          "অবৈধ আপলোড করা ছবি ডেটা",
-          "अवैध अपलोड की गई छवि डेटा"
-        )
-      );
+      throw new Error(lang("Invalid UploadedImage data", "অবৈধ আপলোড করা ছবি ডেটা", "अवैध अपलोड की गई छवि डेटा"));
     }
-    return new UploadedImage(
-      filename,
-      data.small,
-      data.medium,
-      data.large,
-      data.visibilityCode ?? "PUBLIC"
-    );
+    return new UploadedImage(filename, data.small, data.medium, data.large, data.visibilityCode ?? "PUBLIC");
   }
 
   /** @returns {UploadedImage} */
   clone() {
-    return new UploadedImage(
-      this.filename,
-      this.small,
-      this.medium,
-      this.large,
-      this.visibilityCode
-    );
+    return new UploadedImage(this.filename, this.small, this.medium, this.large, this.visibilityCode);
   }
 
   /** @enum {30 | 90 | 500} */
@@ -179,8 +155,7 @@ export class User {
   clone() {
     const user = new User(this.uid, this.mobile, this.firstName, this.lastName);
 
-    if (!isEmpty(this.type))
-      user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
+    if (!isEmpty(this.type)) user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
 
     if (this.profilePhotos) user.setProfilePhotos(this.profilePhotos.clone());
     if (this.identityPhotos)
@@ -325,8 +300,7 @@ export function UserProvider({ children }) {
         else if (action === "LOADCURRENT") return User.loadCurrentUser();
         else if (action === "RESET") return User.empty();
         else if (action.from) return action.from;
-        else if (action.fromFirebaseAuth)
-          return User.fromFirebaseAuthUser(action.fromFirebaseAuth);
+        else if (action.fromFirebaseAuth) return User.fromFirebaseAuthUser(action.fromFirebaseAuth);
 
         const newUser = oldUser.clone();
 

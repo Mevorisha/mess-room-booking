@@ -1,17 +1,8 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-} from "react";
+import React, { createContext, useState, useEffect, useCallback, useContext } from "react";
 import UserContext, { UploadedImage, User } from "./user.js";
 import useNotification from "../hooks/notification.js";
 import { RtDbPaths } from "../modules/firebase/init.js";
-import {
-  logOut as fbAuthLogOut,
-  onAuthStateChanged,
-} from "../modules/firebase/auth.js";
+import { logOut as fbAuthLogOut, onAuthStateChanged } from "../modules/firebase/auth.js";
 import { onDbContentChange } from "../modules/firebase/db.js";
 import { isEmpty } from "../modules/util/validations.js";
 import { lang } from "../modules/util/language.js";
@@ -53,9 +44,7 @@ export default AuthContext;
  * @returns {React.JSX.Element}
  */
 export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState(
-    /** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING)
-  );
+  const [authState, setAuthState] = useState(/** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING));
   const { user, dispatchUser } = useContext(UserContext);
 
   const notify = useNotification();
@@ -86,20 +75,9 @@ export function AuthProvider({ children }) {
         setAuthState(AuthStateEnum.STILL_LOADING);
       }
 
-      console.log(
-        `${MODULE_NAME}::onAuthStateChanged: new user =`,
-        user ? User.fromFirebaseAuthUser(user) : null
-      );
+      console.log(`${MODULE_NAME}::onAuthStateChanged: new user =`, user ? User.fromFirebaseAuthUser(user) : null);
 
-      if (null == user)
-        notify(
-          lang(
-            "You are not logged in",
-            "আপনি লগইন করেননি",
-            "आप लॉगिन नहीं किए हैं"
-          ),
-          "warning"
-        );
+      if (null == user) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
     });
 
     return () => unsubscribe();
@@ -120,22 +98,17 @@ export function AuthProvider({ children }) {
      * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form RtDb.
      */
 
-    const unsubscribe = onDbContentChange(
-      RtDbPaths.Identity(user.uid),
-      (firbaseRtDbRawData) => {
-        console.log(
-          `${MODULE_NAME}::onDbContentChange: ${authState}: new data =`,
-          firbaseRtDbRawData
-        );
+    const unsubscribe = onDbContentChange(RtDbPaths.Identity(user.uid), (firbaseRtDbRawData) => {
+      console.log(`${MODULE_NAME}::onDbContentChange: ${authState}: new data =`, firbaseRtDbRawData);
 
-        if (!firbaseRtDbRawData) {
-          dispatchUser("LOADCURRENT");
-          setAuthState(AuthStateEnum.LOGGED_IN);
-          return;
-        }
+      if (!firbaseRtDbRawData) {
+        dispatchUser("LOADCURRENT");
+        setAuthState(AuthStateEnum.LOGGED_IN);
+        return;
+      }
 
-        // prettier-ignore
-        dispatchUser({
+      // prettier-ignore
+      dispatchUser({
           // user profile type
           type: isEmpty(firbaseRtDbRawData.type)
             ? undefined
@@ -159,9 +132,8 @@ export function AuthProvider({ children }) {
               },
         });
 
-        setAuthState(AuthStateEnum.LOGGED_IN);
-      }
-    );
+      setAuthState(AuthStateEnum.LOGGED_IN);
+    });
 
     return () => unsubscribe();
   }, [authState, user.uid, dispatchUser]);
@@ -174,12 +146,7 @@ export function AuthProvider({ children }) {
      */
     () =>
       fbAuthLogOut()
-        .then(() =>
-          notify(
-            lang("Logged out", "লগ আউট করা হয়েছে", "लॉगआउट किया गया है"),
-            "info"
-          )
-        )
+        .then(() => notify(lang("Logged out", "লগ আউট করা হয়েছে", "लॉगआउट किया गया है"), "info"))
         .then(() => dispatchUser("RESET")),
     [notify, dispatchUser]
   );

@@ -9,15 +9,8 @@ const DIALOG_ANIM_DURATION = 250;
  * @returns {React.JSX.Element | null}
  */
 export default function DialogBox() {
-  const {
-    children,
-    setChildren,
-    overlayState,
-    dialogState,
-    size,
-    setOverlayState,
-    setDialogState,
-  } = useContext(DialogBoxContext);
+  const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =
+    useContext(DialogBoxContext);
 
   const [clientDims, setClientDims] = useState({
     w: document.body.clientWidth,
@@ -28,7 +21,7 @@ export default function DialogBox() {
     const updateClientDims = () =>
       setClientDims({
         w: document.body.clientWidth,
-        h: document.body.clientHeight,  // no change in height on resize - redundant
+        h: document.body.clientHeight, // no change in height on resize - redundant
       });
 
     window.addEventListener("resize", updateClientDims);
@@ -71,11 +64,7 @@ export default function DialogBox() {
         setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
       }}
     >
-      <div
-        className="dialog-box"
-        style={dialogAnimStyle}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="dialog-box" style={dialogAnimStyle} onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>

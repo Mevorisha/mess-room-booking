@@ -27,21 +27,11 @@ export default function SectionIdentiyDocs() {
     if (kind === "WORK_ID") {
       if (!compUsr.userCtx.user.identityPhotos?.workId) return;
 
-      dialog.show(
-        <DialogImagePreview
-          largeImageUrl={compUsr.userCtx.user.identityPhotos.workId.large}
-        />,
-        "large"
-      );
+      dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.workId.large} />, "large");
     } else if (kind === "GOV_ID") {
       if (!compUsr.userCtx.user.identityPhotos?.govId) return;
 
-      dialog.show(
-        <DialogImagePreview
-          largeImageUrl={compUsr.userCtx.user.identityPhotos.govId.large}
-        />,
-        "large"
-      );
+      dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.govId.large} />, "large");
     }
   }
 
@@ -101,18 +91,15 @@ export default function SectionIdentiyDocs() {
 
         <div className="desc">
           <p>
-            Documents like work or institution identity card and aadhaar card
-            may be used by you room owner to verify your identity.
+            Documents like work or institution identity card and aadhaar card may be used by you room owner to verify
+            your identity.
           </p>
           <p>You can make document visibility public or private.</p>
         </div>
 
         <div className="uploadid-container">
           {compUsr.userCtx.user.identityPhotos?.workId ? (
-            <form
-              className="form-container"
-              onSubmit={(e) => handleSubmit(e, "WORK_ID")}
-            >
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
               <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
               <div className="update-id">
                 <ImageLoader
@@ -127,13 +114,8 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={
-                        compUsr.userCtx.user.identityPhotos.workId
-                          .visibilityCode === "PUBLIC"
-                      }
-                      onChange={(e) =>
-                        handleVisibilityChange(e, "WORK_ID", "PUBLIC")
-                      }
+                      checked={compUsr.userCtx.user.identityPhotos.workId.visibilityCode === "PUBLIC"}
+                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PUBLIC")}
                     />
                     Public
                   </label>
@@ -142,13 +124,8 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={
-                        compUsr.userCtx.user.identityPhotos.workId
-                          .visibilityCode !== "PUBLIC"
-                      }
-                      onChange={(e) =>
-                        handleVisibilityChange(e, "WORK_ID", "PRIVATE")
-                      }
+                      checked={compUsr.userCtx.user.identityPhotos.workId.visibilityCode !== "PUBLIC"}
+                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PRIVATE")}
                     />
                     Private
                   </label>
@@ -157,10 +134,7 @@ export default function SectionIdentiyDocs() {
               </div>
             </form>
           ) : (
-            <form
-              className="form-container"
-              onSubmit={(e) => handleSubmit(e, "WORK_ID")}
-            >
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
               <div className="missing-id">
                 <div>
                   <h4>Work ID</h4>
@@ -174,10 +148,7 @@ export default function SectionIdentiyDocs() {
 
         <div className="uploadid-container">
           {compUsr.userCtx.user.identityPhotos?.govId ? (
-            <form
-              className="form-container"
-              onSubmit={(e) => handleSubmit(e, "GOV_ID")}
-            >
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
               <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
               <div className="update-id">
                 <ImageLoader
@@ -192,13 +163,8 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={
-                        compUsr.userCtx.user.identityPhotos.govId
-                          .visibilityCode === "PUBLIC"
-                      }
-                      onChange={(e) =>
-                        handleVisibilityChange(e, "GOV_ID", "PUBLIC")
-                      }
+                      checked={compUsr.userCtx.user.identityPhotos.govId.visibilityCode === "PUBLIC"}
+                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PUBLIC")}
                     />
                     Public
                   </label>
@@ -207,13 +173,8 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={
-                        compUsr.userCtx.user.identityPhotos.govId
-                          .visibilityCode !== "PUBLIC"
-                      }
-                      onChange={(e) =>
-                        handleVisibilityChange(e, "GOV_ID", "PRIVATE")
-                      }
+                      checked={compUsr.userCtx.user.identityPhotos.govId.visibilityCode !== "PUBLIC"}
+                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PRIVATE")}
                     />
                     Private
                   </label>
@@ -222,10 +183,7 @@ export default function SectionIdentiyDocs() {
               </div>
             </form>
           ) : (
-            <form
-              className="form-container"
-              onSubmit={(e) => handleSubmit(e, "GOV_ID")}
-            >
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
               <div className="missing-id">
                 <div>
                   <h4>Government ID</h4>

@@ -70,11 +70,7 @@ async function updateProfile({ firstName, lastName, photoURL }) {
   }
   if (!FirebaseAuth.currentUser) {
     return Promise.reject(
-      lang(
-        "No user logged in.",
-        "কোনও ব্যবহারকারী লগ ইন করেননি।",
-        "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
-      )
+      lang("No user logged in.", "কোনও ব্যবহারকারী লগ ইন করেননি।", "कोई उपयोगकर्ता लॉगिन नहीं किये है।")
     );
   }
   try {
@@ -94,11 +90,7 @@ async function logOut() {
   try {
     await signOut(FirebaseAuth);
     return Promise.resolve(
-      lang(
-        "Successfully logged out.",
-        "সফলভাবে লগ আউট করা হয়েছে।",
-        "सफलतापूर्वक लॉगआउट किया गया है।"
-      )
+      lang("Successfully logged out.", "সফলভাবে লগ আউট করা হয়েছে।", "सफलतापूर्वक लॉगआउट किया गया है।")
     );
   } catch (error) {
     const errmsg = getCleanFirebaseErrMsg(error);
@@ -112,21 +104,16 @@ async function logOut() {
  * @throws {Error} If RecaptchaVerifier is not properly initialized.
  */
 function initializeRecaptcha() {
-  if (window[AuthConstants.RECAPTCHA_VERIFIER])
-    return window[AuthConstants.RECAPTCHA_VERIFIER];
+  if (window[AuthConstants.RECAPTCHA_VERIFIER]) return window[AuthConstants.RECAPTCHA_VERIFIER];
 
   let recaptchaContainer = document.getElementById("recaptcha-container");
   recaptchaContainer = document.createElement("div");
   recaptchaContainer.id = "recaptcha-container";
   document.body.appendChild(recaptchaContainer);
 
-  const recaptchaVerifier = new RecaptchaVerifier(
-    FirebaseAuth,
-    recaptchaContainer,
-    {
-      size: "invisible",
-    }
-  );
+  const recaptchaVerifier = new RecaptchaVerifier(FirebaseAuth, recaptchaContainer, {
+    size: "invisible",
+  });
 
   return (window[AuthConstants.RECAPTCHA_VERIFIER] = recaptchaVerifier);
 }
@@ -144,11 +131,7 @@ class LinkMobileNumber {
        */
       const recaptchaVerifier = window[AuthConstants.RECAPTCHA_VERIFIER];
 
-      const confirmationResult = await signInWithPhoneNumber(
-        FirebaseAuth,
-        phoneNumber,
-        recaptchaVerifier
-      );
+      const confirmationResult = await signInWithPhoneNumber(FirebaseAuth, phoneNumber, recaptchaVerifier);
       window[AuthConstants.CONFIRMATION_RESULT] = confirmationResult;
       return Promise.resolve();
     } catch (error) {
@@ -179,18 +162,11 @@ class LinkMobileNumber {
 
     try {
       // create a PhoneAuthCredential with the OTP and verify it
-      const phoneAuthCredential = PhoneAuthProvider.credential(
-        confirmationResult.verificationId,
-        otp
-      );
+      const phoneAuthCredential = PhoneAuthProvider.credential(confirmationResult.verificationId, otp);
 
       if (!FirebaseAuth.currentUser) {
         return Promise.reject(
-          lang(
-            "No user logged in.",
-            "কোনও ব্যবহারকারী লগ ইন করেননি।",
-            "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
-          )
+          lang("No user logged in.", "কোনও ব্যবহারকারী লগ ইন করেননি।", "कोई उपयोगकर्ता लॉगिन नहीं किये है।")
         );
       }
 
@@ -221,11 +197,7 @@ class LinkMobileNumber {
     try {
       if (!FirebaseAuth.currentUser) {
         return Promise.reject(
-          lang(
-            "No user logged in.",
-            "কোনও ব্যবহারকারী লগ ইন করেননি।",
-            "कोई उपयोगकर्ता लॉगिन नहीं किये है।"
-          )
+          lang("No user logged in.", "কোনও ব্যবহারকারী লগ ইন করেননি।", "कोई उपयोगकर्ता लॉगिन नहीं किये है।")
         );
       }
 
@@ -246,13 +218,8 @@ class GoogleAuth {
    * @deprecated Google sign-in does not support registration. Use GoogleAuth.login() instead.
    */
   static async register() {
-    logError(
-      "auth_google_register",
-      "Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED
-    );
-    throw new Error(
-      "Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED
-    );
+    logError("auth_google_register", "Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    throw new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
 
   /**
@@ -260,13 +227,8 @@ class GoogleAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        GoogleAuth.googleProvider
-      );
-      await fbRtdbRead(
-        RtDbPaths.Identity(result.user.uid) + "/displayName"
-      ).then((displayName) => {
+      const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
+      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
         if (!displayName) {
           return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
@@ -289,10 +251,7 @@ class AppleAuth {
    * @deprecated Apple sign-in does not support registration. Use AppleAuth.login() instead.
    */
   static async register() {
-    logError(
-      "auth_apple_register",
-      "Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED
-    );
+    logError("auth_apple_register", "Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
     throw new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
 
@@ -301,13 +260,8 @@ class AppleAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        AppleAuth.appleProvider
-      );
-      await fbRtdbRead(
-        RtDbPaths.Identity(result.user.uid) + "/displayName"
-      ).then((displayName) => {
+      const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
+      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
         if (!displayName) {
           return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
@@ -330,13 +284,8 @@ class MicrosoftAuth {
    * @deprecated Microsoft sign-in does not support registration. Use MicrosoftAuth.login() instead.
    */
   static async register() {
-    logError(
-      "auth_microsoft_register",
-      "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED
-    );
-    throw new Error(
-      "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED
-    );
+    logError("auth_microsoft_register", "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    throw new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
 
   /**
@@ -344,13 +293,8 @@ class MicrosoftAuth {
    */
   static async login() {
     try {
-      const result = await signInWithPopup(
-        FirebaseAuth,
-        MicrosoftAuth.microsoftProvider
-      );
-      await fbRtdbRead(
-        RtDbPaths.Identity(result.user.uid) + "/displayName"
-      ).then((displayName) => {
+      const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
+      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
         if (!displayName) {
           return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
@@ -375,11 +319,7 @@ class EmailPasswdAuth {
    */
   static async register(email, password) {
     try {
-      const result = await createUserWithEmailAndPassword(
-        FirebaseAuth,
-        email,
-        password
-      );
+      const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -395,14 +335,8 @@ class EmailPasswdAuth {
    */
   static async login(email, password) {
     try {
-      const result = await signInWithEmailAndPassword(
-        FirebaseAuth,
-        email,
-        password
-      );
-      await fbRtdbRead(
-        RtDbPaths.Identity(result.user.uid) + "/displayName"
-      ).then((displayName) => {
+      const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
+      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
         if (!displayName) {
           return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
             displayName: result.user.displayName,
@@ -424,11 +358,7 @@ class EmailPasswdAuth {
   static async requestPasswordReset(email = "") {
     if (!email && !FirebaseAuth.currentUser?.email) {
       return Promise.reject(
-        lang(
-          "No email provided.",
-          "কোনও ইমেল প্রদান করা হয়নি।",
-          "कोई ईमेल प्रदान नहीं किया गया।"
-        )
+        lang("No email provided.", "কোনও ইমেল প্রদান করা হয়নি।", "कोई ईमेल प्रदान नहीं किया गया।")
       );
     }
 

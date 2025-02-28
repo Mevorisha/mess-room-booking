@@ -30,9 +30,7 @@ export default function Profile() {
 
   // null userProfile means profile not found
   let [userProfile, setProfileUser] = useState(
-    /** @type {import("../../../contexts/user").User | null} */ (
-      compUsr.userCtx.user
-    )
+    /** @type {import("../../../contexts/user").User | null} */ (compUsr.userCtx.user)
   );
 
   useEffect(() => {
@@ -66,10 +64,7 @@ export default function Profile() {
           if (!oldProfile) return null;
           const newProfile = oldProfile.clone();
           newProfile.uid = uid;
-          newProfile.setProfileName(
-            values[0].split(" ")[0],
-            values[0].split(" ")[1]
-          );
+          newProfile.setProfileName(values[0].split(" ")[0], values[0].split(" ")[1]);
           newProfile.setMobile(values[1]);
           newProfile.setProfilePhotos(UploadedImage.from(uid, values[2]));
           return newProfile;
@@ -96,10 +91,7 @@ export default function Profile() {
 
     if (!userProfile.profilePhotos?.large) return;
 
-    dialog.show(
-      <DialogImagePreview largeImageUrl={userProfile.profilePhotos?.large} />,
-      "large"
-    );
+    dialog.show(<DialogImagePreview largeImageUrl={userProfile.profilePhotos?.large} />, "large");
   }
 
   const displayName =

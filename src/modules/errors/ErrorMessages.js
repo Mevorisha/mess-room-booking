@@ -4,11 +4,7 @@ import { lang } from "../util/language.js";
  * @enum {string}
  */
 const ErrorMessages = {
-  USER_NOT_LOGGED_IN: lang(
-    "User is not logged in",
-    "ব্যবহারকারী লগইন করেননি",
-    "उपयोगकर्ता लॉगिन नहीं है"
-  ),
+  USER_NOT_LOGGED_IN: lang("User is not logged in", "ব্যবহারকারী লগইন করেননি", "उपयोगकर्ता लॉगिन नहीं है"),
   REGISTRATION_UNSUPPORTED: lang(
     "Registration is not supported",
     "রেজিস্ট্রেশন সমর্থিত নয়",
@@ -54,26 +50,10 @@ const ErrorMessages = {
     "ডাটাবেস থেকে ডেটা মুছে ফেলার ত্রুটি",
     "डेटाबेस से डेटा हटाने में त्रुटि"
   ),
-  UNKNOWN_ERROR: lang(
-    "An unknown error occurred",
-    "একটি অজানা ত্রুটি ঘটেছে",
-    "एक अज्ञात त्रुटि हुई है"
-  ),
-  FILE_UPLOAD_FAILED: lang(
-    "Error uploading file",
-    "ফাইল আপলোড করতে ত্রুটি",
-    "फ़ाइल अपलोड करने में त्रुटि"
-  ),
-  FILE_DELETE_FAILED: lang(
-    "Error deleting file",
-    "ফাইল মুছে ফেলার ত্রুটি",
-    "फ़ाइल हटाने में त्रुटि"
-  ),
-  FILE_DOWNLOAD_FAILED: lang(
-    "Error downloading file",
-    "ফাইল ডাউনলোড করতে ত্রুটি",
-    "फ़ाइल डाउनलोड करने में त्रुटि"
-  ),
+  UNKNOWN_ERROR: lang("An unknown error occurred", "একটি অজানা ত্রুটি ঘটেছে", "एक अज्ञात त्रुटि हुई है"),
+  FILE_UPLOAD_FAILED: lang("Error uploading file", "ফাইল আপলোড করতে ত্রুটি", "फ़ाइल अपलोड करने में त्रुटि"),
+  FILE_DELETE_FAILED: lang("Error deleting file", "ফাইল মুছে ফেলার ত্রুটি", "फ़ाइल हटाने में त्रुटि"),
+  FILE_DOWNLOAD_FAILED: lang("Error downloading file", "ফাইল ডাউনলোড করতে ত্রুটি", "फ़ाइल डाउनलोड करने में त्रुटि"),
 };
 
 export default ErrorMessages;
@@ -117,10 +97,7 @@ export function getCleanFirebaseErrMsg(error) {
       "क्रेडेंशियल एक मौजूदा खाते से जुड़ा हुआ है। एक अलग क्रेडेंशियल का प्रयास करें।"
     );
   }
-  if (
-    error.code === "storage/unauthorized" ||
-    error.code === "storage/unauthenticated"
-  ) {
+  if (error.code === "storage/unauthorized" || error.code === "storage/unauthenticated") {
     return lang(
       "You do not have permission to perform this action.",
       "এই ক্রিয়া সম্পাদন করার অনুমতি নেই।",
@@ -146,9 +123,7 @@ export function getCleanFirebaseErrMsg(error) {
     return ErrorMessages.UNKNOWN_ERROR;
   }
 
-  let errmsg = error
-    .toString()
-    .replace(/FirebaseError: Firebase: (.+) \(.+\/.+\)./g, "$1");
+  let errmsg = error.toString().replace(/FirebaseError: Firebase: (.+) \(.+\/.+\)./g, "$1");
 
   if (!errmsg || errmsg === "Error" || error.code.startsWith("storage/")) {
     const errcode = error.code;
