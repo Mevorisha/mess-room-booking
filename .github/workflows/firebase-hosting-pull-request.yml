@@ -18,13 +18,19 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
+        working-directory: app
+
       - name: Build
         run: |
           npm run build
+        working-directory: app
+
       - name: Obfuscate
         run: |
           npm install -g javascript-obfuscator
           javascript-obfuscator build --output build
+        working-directory: app
+
       - name: Deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -39,3 +45,4 @@ jobs:
       #     curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
       #       -d '{"body": "🔥 Preview URL: '${{ steps.deploy.outputs.details_url }}'"}' \
       #       "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
+        working-directory: app
