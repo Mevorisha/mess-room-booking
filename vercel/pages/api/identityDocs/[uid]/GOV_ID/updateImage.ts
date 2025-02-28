@@ -69,11 +69,11 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       await Identity.update(uid, {
         identityPhotos: {
           govid: {
-            isPrivate: true,
             small: imagePaths.small,
             medium: imagePaths.medium,
             large: imagePaths.large,
           },
+          govIdIsPrivate: true,
         },
       });
 

@@ -32,7 +32,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
     if (!profile?.identityPhotos?.workid) {
       return respond(res, { status: 404, error: "Image not found" });
     }
-    if (profile.identityPhotos.workid.isPrivate) {
+    if (profile.identityPhotos.workIdIsPrivate) {
       // Require authentication middleware
       if (!(await authenticate(req, res))) return;
     }
