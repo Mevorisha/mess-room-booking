@@ -35,7 +35,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   }
   try {
     await Identity.update(uid, { firstName, lastName });
-    return respond(res, { status: 200, error: "Fields 'firstName' and 'lastName' updated" });
+    return respond(res, { status: 200, message: "Fields 'firstName' and 'lastName' updated" });
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }

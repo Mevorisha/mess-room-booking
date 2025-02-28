@@ -33,7 +33,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   }
   try {
     await Identity.update(uid, { type });
-    return respond(res, { status: 200, error: "Field 'type' updated" });
+    return respond(res, { status: 200, message: "Field 'type' updated" });
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }
