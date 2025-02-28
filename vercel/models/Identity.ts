@@ -2,25 +2,17 @@ import { FirestorePaths } from "../lib/firebaseAdmin/init.js";
 import { ApiError } from "../lib/utils/ApiError.js";
 import { imagePathToUrl } from "./utils.js";
 
-export interface ProfilePhotos {
+export interface MultiSizePhoto {
   small: string;
   medium: string;
   large: string;
 }
 
 export interface IdentityPhotos {
-  workid?: {
-    isPrivate: boolean;
-    small: string;
-    medium: string;
-    large: string;
-  };
-  govid?: {
-    isPrivate: boolean;
-    small: string;
-    medium: string;
-    large: string;
-  };
+  workid?: MultiSizePhoto;
+  govid?: MultiSizePhoto;
+  workIdIsPrivate?: boolean;
+  govIdIsPrivate?: boolean;
 }
 
 export type Language = "ENGLISH" | "BANGLA" | "HINDI";
@@ -33,7 +25,7 @@ interface IdentityData {
   mobile?: string;
   email: string;
   language?: Language;
-  profilePhotos?: ProfilePhotos;
+  profilePhotos?: MultiSizePhoto;
   identityPhotos?: IdentityPhotos;
   type: IdentityType;
   ttl?: FirebaseFirestore.Timestamp;
