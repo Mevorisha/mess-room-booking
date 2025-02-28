@@ -128,7 +128,8 @@ export function AccountProvider({ children }) {
             ),
             "success"
           )
-        ),
+        )
+        .catch((e) => notify(e, "error")),
 
     [user.uid, notify, dispatchUser, unlinkPhoneNumber]
   );
