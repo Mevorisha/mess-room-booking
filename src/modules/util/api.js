@@ -128,7 +128,8 @@ export async function callApi(path, init) {
     else {
       const json = response.headers.get("content-type")?.includes("application/json") ? await response.json() : null;
       return Promise.reject(
-        json?.message ??
+        json?.message ||
+          json?.error ||
           lang(
             `Unknown error with status ${response.status}`,
             `অজানা সমস্যা, স্ট্যাটাস ${response.status}`,
