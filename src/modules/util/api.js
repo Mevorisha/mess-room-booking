@@ -2,7 +2,7 @@ import { lang } from "./language";
 
 const API_ORIGIN = "";
 
-class ApiPaths {
+export class ApiPaths {
   static ACCOUNTS = "accounts";
   static BOOKINGS = "bookings";
   static ID_DOCS = "identityDocs";
