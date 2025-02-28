@@ -54,6 +54,66 @@ class ApiPaths {
      */
     updateVisibility: (type, uid) => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
   };
+
+  // prettier-ignore
+  static Profile = {
+    /** @param {string} uid */
+    read: (uid) => `${ApiPaths.PROFILE}/${uid}/read`,
+
+    /** @param {string} uid */
+    readImage: (uid) => `${ApiPaths.PROFILE}/${uid}/readImage`,
+
+    /** @param {string} uid */
+    updateLanguage: (uid) => `${ApiPaths.PROFILE}/${uid}/updateLanguage`,
+
+    /** @param {string} uid */
+    updateName: (uid) => `${ApiPaths.PROFILE}/${uid}/updateName`,
+
+    /** @param {string} uid */
+    updatePhoto: (uid) => `${ApiPaths.PROFILE}/${uid}/updatePhoto`,
+
+    /** @param {string} uid */
+    updateType: (uid) => `${ApiPaths.PROFILE}/${uid}/updateType`,
+  };
+
+  // prettier-ignore
+  static Rooms = {
+    create: () => `${ApiPaths.ROOMS}/create`,
+
+    readListOnQuery: () => `${ApiPaths.ROOMS}/readListOnQuery`,
+
+    /** @param {string} roomId */
+    createImage: (roomId) => `${ApiPaths.ROOMS}/${roomId}/createImage`,
+
+    /** @param {string} roomId */
+    read: (roomId) => `${ApiPaths.ROOMS}/${roomId}/read`,
+
+    /** @param {string} roomId */
+    updateAvailability: (roomId) => `${ApiPaths.ROOMS}/${roomId}/updateAvailability`,
+
+    /** @param {string} roomId */
+    updateParams: (roomId) => `${ApiPaths.ROOMS}/${roomId}/updateParams`,
+
+    Images: {
+      /**
+       * @param {string} roomId
+       * @param {string} imageId
+       */
+      delete: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/delete`,
+
+      /**
+       * @param {string} roomId
+       * @param {string} imageId
+       */
+      readImage: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage`,
+
+      /**
+       * @param {string} roomId
+       * @param {string} imageId
+       */
+      updateImage: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/updateImage`,
+    },
+  };
 }
 
 /**
