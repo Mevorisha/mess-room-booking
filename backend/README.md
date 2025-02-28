@@ -30,7 +30,6 @@ profilePhotos?: {
 }
 identityPhotos?: {
   workid?: {
-    isPrivate: boolean
     small: string
     medium: string
     large: string
@@ -40,6 +39,9 @@ identityPhotos?: {
     small: string
     medium: string
     large: string
+  }
+  workIdIsPrivate?: boolean
+  govIdIsPrivate?: boolean
 }
 ttl?: timestamp
 ```
