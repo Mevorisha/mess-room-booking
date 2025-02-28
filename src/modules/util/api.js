@@ -1,13 +1,15 @@
+import { FirebaseAuth } from "../firebase/init";
 import { lang } from "./language";
 
-const API_ORIGIN = "";
+const API_ORIGIN = process.env.API_SERVER_ORIGIN || "localhost:5000";
+self["API_ORIGIN"] = API_ORIGIN; // just coz
 
 export class ApiPaths {
-  static ACCOUNTS = "accounts";
-  static BOOKINGS = "bookings";
-  static ID_DOCS = "identityDocs";
-  static PROFILE = "profile";
-  static ROOMS = "rooms";
+  static ACCOUNTS = `${API_ORIGIN}/accounts`;
+  static BOOKINGS = `${API_ORIGIN}/bookings`;
+  static ID_DOCS = `${API_ORIGIN}/identityDocs`;
+  static PROFILE = `${API_ORIGIN}/profile`;
+  static ROOMS = `${API_ORIGIN}/rooms`;
 
   // prettier-ignore
   static Accounts = {
@@ -67,6 +69,9 @@ export class ApiPaths {
     updateLanguage: (uid) => `${ApiPaths.PROFILE}/${uid}/updateLanguage`,
 
     /** @param {string} uid */
+    updateMobile: (uid) => `${ApiPaths.PROFILE}/${uid}/updateMobile`,
+
+    /** @param {string} uid */
     updateName: (uid) => `${ApiPaths.PROFILE}/${uid}/updateName`,
 
     /** @param {string} uid */
@@ -117,14 +122,13 @@ export class ApiPaths {
 }
 
 /**
- * @param {string} path The API call path. Get this from ApiPaths class
- * @param {RequestInit} init
- * @returns {Promise<Response>}
+ * @param {() => Promise<Response>} callback
  */
-export async function callApi(path, init) {
+async function errorHandlerWrapperOnCallApi(callback) {
   try {
-    const response = await fetch(`${API_ORIGIN}/${path}`, init);
-    if (response.status < 400) return response;
+    const response = await callback();
+
+    if (response.ok) return response;
     else {
       const json = response.headers.get("content-type")?.includes("application/json") ? await response.json() : null;
       return Promise.reject(
@@ -142,4 +146,73 @@ export async function callApi(path, init) {
       lang("Unknown error on API call", "এপিআই কলের সময় অজানা সমস্যা", "एपीआई कॉल पर अज्ञात त्रुटि")
     );
   }
+}
+/**
+ * @param {"GET" | "DELETE"} method
+ * @param {string} path The API call path. Get this from ApiPaths class
+ * @returns {Promise<{ json?: Object, blob?: Blob, text?: string }>}
+ */
+export async function apiGetOrDelete(method, path) {
+  const resonse = await errorHandlerWrapperOnCallApi(async () =>
+    fetch(`${API_ORIGIN}/${path}`, {
+      method,
+      headers: {
+        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
+        "Content-Type": "application/json",
+      },
+    })
+  );
+
+  if (resonse.headers.get("content-type")?.includes("application/json")) {
+    return { json: await resonse.json() };
+  } else if (resonse.headers.get("content-type")?.includes("text/plain")) {
+    return { text: await resonse.text() };
+  } else {
+    return { blob: await resonse.blob() };
+  }
+}
+
+/**
+ * @param {"POST" | "PATCH"} method
+ * @param {string} path The API call path. Get this from ApiPaths class
+ * @param {Object} json
+ * @returns {Promise<Object>}
+ */
+export async function apiPostOrPatchJson(method, path, json) {
+  const resonse = await errorHandlerWrapperOnCallApi(async () =>
+    fetch(`${API_ORIGIN}/${path}`, {
+      method,
+      headers: {
+        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json),
+    })
+  );
+
+  return await resonse.json();
+}
+
+/**
+ * @param {"POST" | "PATCH"} method
+ * @param {string} path The API call path. Get this from ApiPaths class
+ * @param {File} file
+ * @returns {Promise<Object>}
+ */
+export async function apiPostOrPatchFile(method, path, file) {
+  const formData = new FormData();
+  formData.append(file.name, file);
+
+  const resonse = await errorHandlerWrapperOnCallApi(async () =>
+    fetch(`${API_ORIGIN}/${path}`, {
+      method,
+      headers: {
+        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) || "",
+        // "Content-Type": "", <-- To be set by browser for formdata, DO NOT set manually
+      },
+      body: formData,
+    })
+  );
+
+  return await resonse.json();
 }
