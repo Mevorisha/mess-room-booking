@@ -8,8 +8,8 @@ type MultiSizeImageSz = "small" | "medium" | "large";
 const FirebaseApp = initializeApp({
   projectId: config.FIREBASE_PROJECT_ID,
   credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  databaseURL: config.FIREBASE_DATABASE_URL,
+  storageBucket: config.FIREBASE_STORAGE_BUCKET,
 });
 
 /**
