@@ -6,6 +6,7 @@ import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/d
 import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import * as config from "../config.js";
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {
@@ -28,8 +29,12 @@ if (!FirebaseApp) {
   throw new Error("Firebase app not initialized");
 }
 
-/* eslint-disable-next-line no-restricted-globals */
-self["FIREBASE_APPCHECK_DEBUG_TOKEN"] = process.env.FIREBASE_APPCHECK_DEBUG_TOKEN ?? undefined;
+// Don't delete this line
+// This line ensures FIREBASE_APPCHECK_DEBUG_TOKEN is in use in this file
+// Which in turn ensures the config module is loaded
+// Which in turn ensures self["FIREBASE_APPCHECK_DEBUG_TOKEN"] is set
+// Which in turn is needed internally by firebase
+if (!config.FIREBASE_APPCHECK_DEBUG_TOKEN) console.warn("App check token not found");
 
 const FirebaseAppCheck = initializeAppCheck(FirebaseApp, {
   provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),

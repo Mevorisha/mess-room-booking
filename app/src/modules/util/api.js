@@ -1,19 +1,17 @@
 import { FirebaseAuth } from "../firebase/init";
 import { lang } from "./language";
-
-const API_ORIGIN = process.env.API_SERVER_ORIGIN || "localhost:5000";
-self["API_ORIGIN"] = API_ORIGIN; // just coz
+import * as config from "../config.js";
 
 /**
  * @typedef {"small"|"medium"|"large"} MultiSizeImageSz
  */
 
 export class ApiPaths {
-  static ACCOUNTS = `${API_ORIGIN}/api/accounts`;
-  static BOOKINGS = `${API_ORIGIN}/api/bookings`;
-  static ID_DOCS = `${API_ORIGIN}/api/identityDocs`;
-  static PROFILE = `${API_ORIGIN}/api/profile`;
-  static ROOMS = `${API_ORIGIN}/api/rooms`;
+  static ACCOUNTS = `${config.API_SERVER_ORIGIN}/api/accounts`;
+  static BOOKINGS = `${config.API_SERVER_ORIGIN}/api/bookings`;
+  static ID_DOCS = `${config.API_SERVER_ORIGIN}/api/identityDocs`;
+  static PROFILE = `${config.API_SERVER_ORIGIN}/api/profile`;
+  static ROOMS = `${config.API_SERVER_ORIGIN}/api/rooms`;
 
   // prettier-ignore
   static Accounts = {
