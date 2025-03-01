@@ -33,7 +33,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
   try {
-    const result = await Identity.get(uid, [
+    const result = await Identity.get(uid, "API_URI", [
       PsudoFields.DISPLAY_NAME,
       SchemaFields.MOBILE,
       SchemaFields.PROFILE_PHOTOS,

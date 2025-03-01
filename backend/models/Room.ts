@@ -1,6 +1,5 @@
 import { getFirestore } from "firebase-admin/firestore";
-import { FirestorePaths } from "../lib/firebaseAdmin/init.js";
-import { imagePathToUrl } from "./utils.js";
+import { FirestorePaths, StoragePaths } from "../lib/firebaseAdmin/init.js";
 import { ApiError } from "../lib/utils/ApiError.js";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
@@ -41,6 +40,16 @@ export enum SchemaFields {
   TTL = "ttl",
 }
 
+function imgConvertGsPathToApiUri(dataToBeUpdated: FirebaseFirestore.DocumentData, roomId: string) {
+  if (dataToBeUpdated.images) {
+    dataToBeUpdated.images = Array.from(dataToBeUpdated.images as Array<string>).map((imgGsPath: string) =>
+      StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPath))
+    );
+  }
+
+  return dataToBeUpdated;
+}
+
 class Room {
   /**
    * Create a new room document
@@ -73,8 +82,12 @@ class Room {
   /**
    * Get specific fields from a room document
    */
-  static async get(id: string, fields: SchemaFields[] = []): Promise<Partial<RoomData> | null> {
-    const ref = FirestorePaths.Rooms(id);
+  static async get(
+    roomId: string,
+    extUrls: "GS_PATH" | "API_URI",
+    fields: SchemaFields[] = []
+  ): Promise<Partial<RoomData> | null> {
+    const ref = FirestorePaths.Rooms(roomId);
     try {
       const doc = await ref.get();
       if (!doc.exists) {
@@ -87,20 +100,17 @@ class Room {
       // If no fields provided, send all params
       if (fields.length === 0) {
         // convert image paths to direct urls
-        if (data.images) {
-          await imagePathToUrl(data, "images");
-        }
-        return data;
+        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data, roomId);
+        else return data;
       }
       // Filter params
       const result = {} as Partial<RoomData>;
       for (const field of fields) {
         result[field] = data[field] || null;
       }
-      if (result.images) {
-        await imagePathToUrl(result, "images");
-      }
-      return result;
+      // convert image paths to api uri if any
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result, roomId);
+      else return result;
     } catch (e) {
       return Promise.reject(ApiError.create(500, e.message));
     }

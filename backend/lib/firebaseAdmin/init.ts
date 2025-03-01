@@ -3,7 +3,7 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import * as config from "../config.js";
 
-type MultiSizeImageSz = "small" | "medium" | "large";
+export type MultiSizeImageSz = "small" | "medium" | "large";
 
 const FirebaseApp = initializeApp({
   projectId: config.FIREBASE_PROJECT_ID,

@@ -4,6 +4,7 @@ import { respond } from "../../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../../middlewares/auth.js";
 import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
 import { MultiSizeImageSz } from "../../../../../lib/firebaseAdmin/init.js";
+import { gsPathToUrl } from "../../../../../models/utils.js";
 
 /**
  * ```
@@ -29,7 +30,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
     return respond(res, { status: 400, error: "Invalid query 'size: small | medium | large'" });
   }
   try {
-    const profile = await Identity.get(uid, [SchemaFields.IDENTITY_PHOTOS]);
+    const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
     if (!profile?.identityPhotos?.workid || !profile?.identityPhotos?.workid[size]) {
       return respond(res, { status: 404, error: "Image not found" });
     }
@@ -37,8 +38,9 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
       // Require authentication middleware
       if (!(await authenticate(req, res))) return;
     }
-    // Redirect to the image URL
-    return res.redirect(301, profile?.identityPhotos?.workid[size]);
+    // Get image direct URL and redirect
+    const directUrl = await gsPathToUrl(profile?.identityPhotos?.workid[size]);
+    return res.redirect(301, directUrl);
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }
