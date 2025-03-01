@@ -7,8 +7,8 @@
 
 ## Environment Variables
 - `FIREBASE_SERVICE_ACCOUNT_KEY`: Firebase service account key in JSON format.
-- `NEXT_PUBLIC_FIREBASE_DATABASE_URL`: URL of the Firebase Realtime Database.
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Firebase Storage bucket name.
+- `FIREBASE_DATABASE_URL`: URL of the Firebase Realtime Database.
+- `FIREBASE_STORAGE_BUCKET`: Firebase Storage bucket name.
   
 ---
 
