@@ -3,6 +3,7 @@ import Identity, { SchemaFields } from "../../../../../models/Identity.js";
 import { respond } from "../../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../../middlewares/auth.js";
 import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
+import { MultiSizeImageSz } from "../../../../../lib/firebaseAdmin/init.js";
 
 /**
  * ```
@@ -17,7 +18,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
   }
   // Extract user ID from request
   const uid = req.query["uid"] as string;
-  const size = req.query["size"] as "small" | "medium" | "large";
+  const size = req.query["size"] as MultiSizeImageSz;
   if (!uid) {
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
@@ -29,7 +30,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
   }
   try {
     const profile = await Identity.get(uid, [SchemaFields.IDENTITY_PHOTOS]);
-    if (!profile?.identityPhotos?.workid) {
+    if (!profile?.identityPhotos?.workid || !profile?.identityPhotos?.workid[size]) {
       return respond(res, { status: 404, error: "Image not found" });
     }
     if (profile.identityPhotos.workIdIsPrivate) {
