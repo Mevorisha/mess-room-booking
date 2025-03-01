@@ -1,11 +1,11 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from "react";
 import UserContext, { UploadedImage, User } from "./user.js";
+import LanguageContext from "./language.js";
 import useNotification from "../hooks/notification.js";
-import { RtDbPaths } from "../modules/firebase/init.js";
 import { logOut as fbAuthLogOut, onAuthStateChanged } from "../modules/firebase/auth.js";
-import { onDbContentChange } from "../modules/firebase/db.js";
 import { isEmpty } from "../modules/util/validations.js";
 import { lang } from "../modules/util/language.js";
+import { apiGetOrDelete, ApiPaths } from "../modules/util/api.js";
 
 const MODULE_NAME = "contexts/auth.js";
 
@@ -49,6 +49,8 @@ export function AuthProvider({ children }) {
 
   const notify = useNotification();
 
+  const { setLang } = useContext(LanguageContext);
+
   /* A bit of knowledge for my future confused self:
    * useEffect is a hook that runs with following conditions:
    *     - the first time the component is rendered
@@ -83,59 +85,67 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, [notify, dispatchUser]);
 
-  /* --------------------------------------- USE EFFECTS RTDB LISTENER ----------------------------------- */
+  /* --------------------------------------- USE EFFECTS GET DATA USING API ----------------------------------- */
 
-  /* listen for changes at rtdb at RtDbPaths.IDENTITY/user.uid/ if temp user is updated
-   * and update the final user with additional data from rtdb */
   useEffect(() => {
     if (!user.uid) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    /*
-     * This useEffect is called twice in prod and 4 times in dev:
-     * - 1. When state is STILL_LOADING: at this stage, additional data is fetched from RtDb.
-     *      This state changes state to LOGGED_IN.
-     * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form RtDb.
+    /**
+     * @param {Object} onlineProfileData
      */
+    function updateLocalUser(onlineProfileData) {
+      console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
-    const unsubscribe = onDbContentChange(RtDbPaths.Identity(user.uid), (firbaseRtDbRawData) => {
-      console.log(`${MODULE_NAME}::onDbContentChange: ${authState}: new data =`, firbaseRtDbRawData);
-
-      if (!firbaseRtDbRawData) {
+      if (!onlineProfileData) {
         dispatchUser("LOADCURRENT");
         setAuthState(AuthStateEnum.LOGGED_IN);
         return;
       }
 
-      // prettier-ignore
-      dispatchUser({
-          // user profile type
-          type: isEmpty(firbaseRtDbRawData.type)
-            ? undefined
-            : firbaseRtDbRawData.type,
-          // profile images
-          profilePhotos: isEmpty(firbaseRtDbRawData.profilePhotos)
-            ? undefined
-            : UploadedImage.from(user.uid, firbaseRtDbRawData.profilePhotos),
-          // identity document images
-          identityPhotos: isEmpty(firbaseRtDbRawData.identityPhotos)
-            ? undefined
-            : {
-                // if workId exists, otherwise undefined
-                workId: isEmpty(firbaseRtDbRawData.identityPhotos.workId)
-                  ? undefined
-                  : UploadedImage.from(user.uid, firbaseRtDbRawData.identityPhotos.workId),
-                // if govId exists, otherwise undefined
-                govId: isEmpty(firbaseRtDbRawData.identityPhotos.govId)
-                  ? undefined
-                  : UploadedImage.from(user.uid, firbaseRtDbRawData.identityPhotos.govId),
-              },
-        });
+      if (!isEmpty(onlineProfileData.type)) {
+        dispatchUser({ type: onlineProfileData.type });
+      }
 
-      setAuthState(AuthStateEnum.LOGGED_IN);
-    });
+      if (!isEmpty(onlineProfileData.firstName)) {
+        dispatchUser({ firstName: onlineProfileData.firstName });
+      }
 
-    return () => unsubscribe();
+      if (!isEmpty(onlineProfileData.lastName)) {
+        dispatchUser({ lastName: onlineProfileData.lastName });
+      }
+
+      if (!isEmpty(onlineProfileData.profilePhotos)) {
+        dispatchUser({ profilePhotos: UploadedImage.from(user.uid, onlineProfileData.profilePhotos) });
+      }
+
+      if (!isEmpty(onlineProfileData.identityPhotos)) {
+        let workId, govId;
+        if (!isEmpty(onlineProfileData.identityPhotos.workId)) {
+          workId = UploadedImage.from(user.uid, onlineProfileData.identityPhotos.workId);
+        }
+        if (!isEmpty(onlineProfileData.identityPhotos.govId)) {
+          govId = UploadedImage.from(user.uid, onlineProfileData.identityPhotos.govId);
+        }
+        dispatchUser({ identityPhotos: { workId, govId } });
+      }
+
+      if (onlineProfileData.language) {
+        setLang(onlineProfileData.language, false);
+      }
+    }
+
+    /*
+     * This useEffect is called twice in prod and 4 times in dev:
+     * - 1. When state is STILL_LOADING: at this stage, additional data is fetched from API.
+     *      This state changes state to LOGGED_IN.
+     * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form API.
+     */
+
+    apiGetOrDelete("GET", ApiPaths.Profile.read(user.uid))
+      .then(({ json }) => updateLocalUser(json))
+      .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
+      .catch((e) => notify(e, "error"));
   }, [authState, user.uid, dispatchUser]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */

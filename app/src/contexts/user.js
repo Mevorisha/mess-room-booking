@@ -124,12 +124,7 @@ export class User {
    * @returns {User}
    */
   static fromFirebaseAuthUser(user) {
-    return new User(
-      user.uid,
-      user.phoneNumber ?? "",
-      user.displayName?.split(" ")[0] ?? "",
-      user.displayName?.split(" ")[1] ?? ""
-    );
+    return new User(user.uid);
   }
 
   /**

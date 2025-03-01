@@ -64,7 +64,12 @@ export function ProfileProvider({ children }) {
      */
     async (image) => {
       // update auth profile
-      const { small, medium, large } = await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
+      await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
+      const { small, medium, large } = {
+        small: ApiPaths.Profile.readImage(user.uid, "small"),
+        medium: ApiPaths.Profile.readImage(user.uid, "medium"),
+        large: ApiPaths.Profile.readImage(user.uid, "large"),
+      };
       dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, "PUBLIC") });
       notify(
         lang(
