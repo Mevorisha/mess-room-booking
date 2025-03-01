@@ -56,12 +56,12 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       const resizedImages = await resizeImage(fileBuffer);
       const bucket = getStorage().bucket();
       // Create upload promise and get image paths
-      const imagePaths: any = {};
-      const uploadPromises = Object.entries(resizedImages).map(([size, buffer]) => {
-        const filePath = StoragePaths.IdentityDocuments(uid, "GOV_ID", size, size);
+      const imagePaths = { small: "", medium: "", large: "" };
+      const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
+        const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
         imagePaths[size] = filePath;
         const fileRef = bucket.file(filePath);
-        return fileRef.save(buffer, { contentType: "image/jpeg" });
+        return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
       });
       // Start upload
       await Promise.all(uploadPromises);

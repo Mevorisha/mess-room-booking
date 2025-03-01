@@ -4,7 +4,7 @@ import { getStorage } from "firebase-admin/storage";
 import { authenticate } from "../../../../middlewares/auth.js";
 import { StoragePaths } from "../../../../lib/firebaseAdmin/init.js";
 import { resizeImage } from "../../../../lib/utils/dataConversion.js";
-import Identity, { SchemaFields } from "../../../../models/Identity.js";
+import Identity from "../../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { respond } from "../../../../lib/utils/respond.js";
 import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
@@ -56,12 +56,12 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       const resizedImages = await resizeImage(fileBuffer);
       const bucket = getStorage().bucket();
       // Create upload promise and get image paths
-      const imagePaths: any = {};
-      const uploadPromises = Object.entries(resizedImages).map(([size, buffer]) => {
-        const filePath = StoragePaths.ProfilePhotos(uid, size, size);
+      const imagePaths = { small: "", medium: "", large: "" };
+      const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
+        const filePath = StoragePaths.ProfilePhotos.gsBucket(uid, imgWithSz.sz, imgWithSz.sz);
         imagePaths[size] = filePath;
         const fileRef = bucket.file(filePath);
-        return fileRef.save(buffer, { contentType: "image/jpeg" });
+        return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
       });
       // Start upload
       await Promise.all(uploadPromises);
@@ -73,13 +73,8 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
           large: imagePaths.large,
         },
       });
-      // Get URLs from Identity
-      const profile = await Identity.get(uid, [SchemaFields.PROFILE_PHOTOS]);
-      // All sizes defined
-      if (profile?.profilePhotos?.small && profile?.profilePhotos?.medium && profile?.profilePhotos?.large) {
-        return respond(res, { status: 200, json: profile?.profilePhotos });
-      }
-      return respond(res, { status: 500, error: "Couldn't get profile photo URLs" });
+
+      return respond(res, { status: 200, error: "Field profilePhotos updated" });
     } catch (e) {
       return respond(res, { status: e.status ?? 500, error: e.message });
     }
