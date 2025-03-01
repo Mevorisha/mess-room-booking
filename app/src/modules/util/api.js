@@ -4,12 +4,16 @@ import { lang } from "./language";
 const API_ORIGIN = process.env.API_SERVER_ORIGIN || "localhost:5000";
 self["API_ORIGIN"] = API_ORIGIN; // just coz
 
+/**
+ * @typedef {"small"|"medium"|"large"} MultiSizeImageSz
+ */
+
 export class ApiPaths {
-  static ACCOUNTS = `${API_ORIGIN}/accounts`;
-  static BOOKINGS = `${API_ORIGIN}/bookings`;
-  static ID_DOCS = `${API_ORIGIN}/identityDocs`;
-  static PROFILE = `${API_ORIGIN}/profile`;
-  static ROOMS = `${API_ORIGIN}/rooms`;
+  static ACCOUNTS = `${API_ORIGIN}/api/accounts`;
+  static BOOKINGS = `${API_ORIGIN}/api/bookings`;
+  static ID_DOCS = `${API_ORIGIN}/api/identityDocs`;
+  static PROFILE = `${API_ORIGIN}/api/profile`;
+  static ROOMS = `${API_ORIGIN}/api/rooms`;
 
   // prettier-ignore
   static Accounts = {
@@ -41,8 +45,9 @@ export class ApiPaths {
     /**
      * @param { "GOV_ID" | "WORK_ID" } type
      * @param {string} uid
+     * @param {MultiSizeImageSz} size
      */
-    readImage: (type, uid) => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage`,
+    readImage: (type, uid, size) => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}`,
 
     /**
      * @param { "GOV_ID" | "WORK_ID" } type
@@ -62,8 +67,11 @@ export class ApiPaths {
     /** @param {string} uid */
     read: (uid) => `${ApiPaths.PROFILE}/${uid}/read`,
 
-    /** @param {string} uid */
-    readImage: (uid) => `${ApiPaths.PROFILE}/${uid}/readImage`,
+    /**
+     * @param {string} uid
+     * @param {MultiSizeImageSz} size
+     */
+    readImage: (uid, size) => `${ApiPaths.PROFILE}/${uid}/readImage?size=${size}`,
 
     /** @param {string} uid */
     updateLanguage: (uid) => `${ApiPaths.PROFILE}/${uid}/updateLanguage`,
@@ -109,8 +117,9 @@ export class ApiPaths {
       /**
        * @param {string} roomId
        * @param {string} imageId
+       * @param {MultiSizeImageSz} size
        */
-      readImage: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage`,
+      readImage: (roomId, imageId, size) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
 
       /**
        * @param {string} roomId
