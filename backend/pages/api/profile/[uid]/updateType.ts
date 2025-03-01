@@ -17,14 +17,15 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
   }
-  // Require authentication middleware
-  if (!(await authenticate(req, res))) return;
 
   const uid = req.query["uid"] as string;
-  const type = req.body["type"] as IdentityType;
   if (!uid) {
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
+  // Require authentication middleware
+  if (!(await authenticate(req, res, uid))) return;
+
+  const type = req.body["type"] as IdentityType;
   if (!type) {
     return respond(res, { status: 400, error: "Missing field 'type: OWNER | TENANT'" });
   }

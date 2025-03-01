@@ -18,15 +18,16 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
   }
-  // Require authentication middleware
-  if (!(await authenticate(req, res))) return;
 
   const uid = req.query["uid"] as string;
-  const firstName = req.body["firstName"] as string;
-  const lastName = req.body["lastName"] as string;
   if (!uid) {
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
+  // Require authentication middleware
+  if (!(await authenticate(req, res, uid))) return;
+
+  const firstName = req.body["firstName"] as string;
+  const lastName = req.body["lastName"] as string;
   if (!firstName) {
     return respond(res, { status: 400, error: "Missing field 'firstName: string'" });
   }

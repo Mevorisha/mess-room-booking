@@ -36,7 +36,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
     }
     if (profile.identityPhotos.workIdIsPrivate) {
       // Require authentication middleware
-      if (!(await authenticate(req, res))) return;
+      if (!(await authenticate(req, res, uid))) return;
     }
     // Get image direct URL and redirect
     const directUrl = await gsPathToUrl(profile?.identityPhotos?.workid[size]);

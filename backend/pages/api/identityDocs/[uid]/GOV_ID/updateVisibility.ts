@@ -15,14 +15,15 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
   }
-  // Require authentication middleware
-  if (!(await authenticate(req, res))) return;
 
   const uid = req.query["uid"] as string;
-  const visibility = req.body["visibility"] as "PUBLIC" | "PRIVATE";
   if (!uid) {
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
+  // Require authentication middleware
+  if (!(await authenticate(req, res, uid))) return;
+
+  const visibility = req.body["visibility"] as "PUBLIC" | "PRIVATE";
   if (!visibility) {
     return respond(res, { status: 400, error: "Missing field 'visibility: PUBLIC | PRIVATE'" });
   }

@@ -17,14 +17,15 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   if (req.method !== "PATCH") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
   }
-  // Require authentication middleware
-  if (!(await authenticate(req, res))) return;
 
   const uid = req.query["uid"] as string;
-  const language = req.body["language"] as Language;
   if (!uid) {
     return respond(res, { status: 400, error: "Missing field 'uid: string'" });
   }
+  // Require authentication middleware
+  if (!(await authenticate(req, res, uid))) return;
+
+  const language = req.body["language"] as Language;
   if (!language) {
     return respond(res, { status: 400, error: "Missing field 'language: ENGLISH | BANGLA | HINDI'" });
   }
