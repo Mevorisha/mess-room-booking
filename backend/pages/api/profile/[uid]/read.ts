@@ -12,6 +12,8 @@ import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
  * response = {
  *   type: IdentityType
  *   displayName?: string
+ *   firstName?: string
+ *   lastName?: string
  *   mobile?: string
  *   language?: Language
  *   profilePhotos?: {
@@ -35,6 +37,8 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
   try {
     const result = await Identity.get(uid, "API_URI", [
       PsudoFields.DISPLAY_NAME,
+      SchemaFields.FIRST_NAME,
+      SchemaFields.LAST_NAME,
       SchemaFields.MOBILE,
       SchemaFields.PROFILE_PHOTOS,
       SchemaFields.TYPE,
