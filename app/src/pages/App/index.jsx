@@ -62,13 +62,15 @@ function AuthCheck({ children }) {
 function CompositeUsrProvider({ children }) {
   return (
     <UserProvider>
-      <AuthProvider>
-        <AccountProvider>
-          <ProfileProvider>
-            <IdentityProvider>{children}</IdentityProvider>
-          </ProfileProvider>
-        </AccountProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AccountProvider>
+            <ProfileProvider>
+              <IdentityProvider>{children}</IdentityProvider>
+            </ProfileProvider>
+          </AccountProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </UserProvider>
   );
 }
@@ -79,30 +81,28 @@ function CompositeUsrProvider({ children }) {
 export default function App() {
   // prettier-ignore
   return (
-    <LanguageProvider>
-      <NotificationProvider>              {/* provide the notification context */}
-        <DialogBoxProvider>               {/* provide the dialog box context */}
-          <CompositeUsrProvider>          {/* provides multple functions; used to handle user state */}
-            <BrowserRouter>               {/* use the browser router to handle routing */}
-              <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
-                <Routes>
-                  <Route path={PageUrls.ROOT} Component={HomePage} />
-                  <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />
-                  <Route path={PageUrls.AUTH} Component={AuthPage} />
-                  <Route path={PageUrls.HOME} Component={HomePage} />
-                  <Route path={PageUrls.PROFILE} Component={ProfilePage} />
-                  {/*
-                    <Route path="/notif" component={NotifPage} />
-                    <Route path="/account" component={AccountPage} />
-                  */}
-                  <Route path={PageUrls.PAGE_NOT_FOUND} Component={PageNotFound} />
-                  <Route path="*" Component={PageNotFound} />
-                </Routes>
-              </AuthCheck>
-            </BrowserRouter>
-          </CompositeUsrProvider>
-        </DialogBoxProvider>
-      </NotificationProvider>
-    </LanguageProvider>
+    <NotificationProvider>              {/* provide the notification context */}
+      <DialogBoxProvider>               {/* provide the dialog box context */}
+        <CompositeUsrProvider>          {/* provides multple functions; used to handle user state */}
+          <BrowserRouter>               {/* use the browser router to handle routing */}
+            <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
+              <Routes>
+                <Route path={PageUrls.ROOT} Component={HomePage} />
+                <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />
+                <Route path={PageUrls.AUTH} Component={AuthPage} />
+                <Route path={PageUrls.HOME} Component={HomePage} />
+                <Route path={PageUrls.PROFILE} Component={ProfilePage} />
+                {/*
+                  <Route path="/notif" component={NotifPage} />
+                  <Route path="/account" component={AccountPage} />
+                */}
+                <Route path={PageUrls.PAGE_NOT_FOUND} Component={PageNotFound} />
+                <Route path="*" Component={PageNotFound} />
+              </Routes>
+            </AuthCheck>
+          </BrowserRouter>
+        </CompositeUsrProvider>
+      </DialogBoxProvider>
+    </NotificationProvider>
   );
 }
