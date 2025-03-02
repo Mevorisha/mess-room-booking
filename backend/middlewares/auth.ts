@@ -11,7 +11,6 @@ export async function getLoggedInUser(req: VercelRequest, res: VercelResponse): 
     req.query["auth.uid"] = loggedInUid;
     return loggedInUid;
   } catch (e) {
-    respond(res, { status: 401, error: "User auth failure" });
     return null;
   }
 }
