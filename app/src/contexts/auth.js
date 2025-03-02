@@ -116,16 +116,24 @@ export function AuthProvider({ children }) {
       }
 
       if (!isEmpty(onlineProfileData.profilePhotos)) {
-        dispatchUser({ profilePhotos: UploadedImage.from(user.uid, onlineProfileData.profilePhotos) });
+        dispatchUser({ profilePhotos: UploadedImage.from(user.uid, onlineProfileData.profilePhotos, false) });
       }
 
       if (!isEmpty(onlineProfileData.identityPhotos)) {
         let workId, govId;
         if (!isEmpty(onlineProfileData.identityPhotos.workId)) {
-          workId = UploadedImage.from(user.uid, onlineProfileData.identityPhotos.workId);
+          workId = UploadedImage.from(
+            user.uid,
+            onlineProfileData.identityPhotos.workId,
+            onlineProfileData.identityPhotos.workIdIsPrivate
+          );
         }
         if (!isEmpty(onlineProfileData.identityPhotos.govId)) {
-          govId = UploadedImage.from(user.uid, onlineProfileData.identityPhotos.govId);
+          govId = UploadedImage.from(
+            user.uid,
+            onlineProfileData.identityPhotos.govId,
+            onlineProfileData.identityPhotos.govIdIsPrivate
+          );
         }
         dispatchUser({ identityPhotos: { workId, govId } });
       }

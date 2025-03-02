@@ -16,31 +16,32 @@ export class UploadedImage {
    * @param {string} smallImageURL
    * @param {string} mediumImageURL
    * @param {string} largeImageURL
-   * @param {"PUBLIC" | number} visibilityCode
+   * @param {boolean} isPrivate
    */
-  constructor(filename, smallImageURL, mediumImageURL, largeImageURL, visibilityCode) {
+  constructor(filename, smallImageURL, mediumImageURL, largeImageURL, isPrivate) {
     this.filename = filename;
     this.small = smallImageURL;
     this.medium = mediumImageURL;
     this.large = largeImageURL;
-    this.visibilityCode = visibilityCode;
+    this.isPrivate = isPrivate;
   }
 
   /**
    * @param {string} filename
    * @param {any} data
    * @returns {UploadedImage}
+   * @param {boolean} isPrivate
    */
-  static from(filename, data) {
+  static from(filename, data, isPrivate) {
     if (!data) {
       throw new Error(lang("Invalid UploadedImage data", "অবৈধ আপলোড করা ছবি ডেটা", "अवैध अपलोड की गई छवि डेटा"));
     }
-    return new UploadedImage(filename, data.small, data.medium, data.large, data.visibilityCode ?? "PUBLIC");
+    return new UploadedImage(filename, data.small, data.medium, data.large, isPrivate);
   }
 
   /** @returns {UploadedImage} */
   clone() {
-    return new UploadedImage(this.filename, this.small, this.medium, this.large, this.visibilityCode);
+    return new UploadedImage(this.filename, this.small, this.medium, this.large, this.isPrivate);
   }
 
   /** @enum {30 | 90 | 500} */
@@ -56,7 +57,7 @@ export class UploadedImage {
       small: this.small,
       medium: this.medium,
       large: this.large,
-      visibilityCode: this.visibilityCode,
+      isPrivate: this.isPrivate,
     });
   }
 }
