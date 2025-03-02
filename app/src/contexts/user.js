@@ -69,6 +69,9 @@ export class User {
   uid;
 
   /** @type {string} */
+  email;
+
+  /** @type {string} */
   mobile;
 
   /** @type {string} */
@@ -97,12 +100,14 @@ export class User {
    * are fetched from the database.
    *
    * @param {string} uid
+   * @param {string} email
    * @param {string} mobile
    * @param {string} firstName
    * @param {string} lastName
    */
-  constructor(uid, mobile = "", firstName = "", lastName = "") {
+  constructor(uid, email = "", mobile = "", firstName = "", lastName = "") {
     this.uid = uid;
+    this.email = email;
     this.mobile = mobile;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -115,7 +120,7 @@ export class User {
    * @returns {User}
    */
   static empty() {
-    return new User("");
+    return new User("", "");
   }
 
   /**
@@ -124,7 +129,7 @@ export class User {
    * @returns {User}
    */
   static fromFirebaseAuthUser(user) {
-    return new User(user.uid);
+    return new User(user.uid, user.email || "");
   }
 
   /**
