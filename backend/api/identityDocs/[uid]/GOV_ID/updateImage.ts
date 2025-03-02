@@ -2,11 +2,11 @@ import fs from "fs";
 import formidable from "formidable";
 import { getStorage } from "firebase-admin/storage";
 import { authenticate } from "../../../../middlewares/auth.js";
-import { StoragePaths } from "../../../../modules/firebaseAdmin/init.js";
-import { resizeImage } from "../../../../modules/utils/dataConversion.js";
+import { StoragePaths } from "../../../../lib/firebaseAdmin/init.js";
+import { resizeImage } from "../../../../lib/utils/dataConversion.js";
 import Identity from "../../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../modules/utils/respond.js";
+import { respond } from "../../../../lib/utils/respond.js";
 import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
 
 export const config = {

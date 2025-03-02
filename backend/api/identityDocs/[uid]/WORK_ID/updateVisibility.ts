@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../modules/utils/respond.js";
+import { respond } from "../../../../lib/utils/respond.js";
 import { authenticate } from "../../../../middlewares/auth.js";
 import Identity from "../../../../models/Identity.js";
 import { withmiddleware } from "../../../../middlewares/withMiddleware.js";

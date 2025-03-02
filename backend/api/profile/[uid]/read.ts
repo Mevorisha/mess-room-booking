@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import Identity, { PsudoFields, SchemaFields } from "../../../models/Identity.js";
-import { respond } from "../../../modules/utils/respond.js";
+import { respond } from "../../../lib/utils/respond.js";
 import { withmiddleware } from "../../../middlewares/withMiddleware.js";
 import { getLoggedInUser } from "../../../middlewares/auth.js";
 
