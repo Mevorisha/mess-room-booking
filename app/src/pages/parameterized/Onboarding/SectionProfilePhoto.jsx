@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { loadFileFromFilePicker } from "../../../modules/firebase/storage.js";
+import { loadFileFromFilePicker } from "../../../modules/util/dom.js";
 import { PageUrls } from "../../../modules/util/pageUrls.js";
 
 import useCompositeUser from "../../../hooks/compositeUser.js";

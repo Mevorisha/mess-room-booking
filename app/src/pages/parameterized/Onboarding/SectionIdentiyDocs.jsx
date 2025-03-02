@@ -1,6 +1,6 @@
 import React from "react";
 
-import { loadFileFromFilePicker } from "../../../modules/firebase/storage.js";
+import { loadFileFromFilePicker } from "../../../modules/util/dom.js";
 import useNotification from "../../../hooks/notification.js";
 import useCompositeUser from "../../../hooks/compositeUser.js";
 import useDialog from "../../../hooks/dialogbox.js";
