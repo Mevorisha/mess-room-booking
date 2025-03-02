@@ -44,6 +44,16 @@ export class UploadedImage {
     return new UploadedImage(this.filename, this.small, this.medium, this.large, this.isPrivate);
   }
 
+  makePrivate() {
+    this.isPrivate = true;
+    return this;
+  }
+
+  makePublic() {
+    this.isPrivate = false;
+    return this;
+  }
+
   /** @enum {30 | 90 | 500} */
   static Sizes = {
     SMALL: /**  @type {30}  */ (30),

@@ -1,11 +1,8 @@
 import React, { createContext, useCallback, useContext } from "react";
-import { RtDbPaths, StoragePaths } from "../modules/firebase/init.js";
-import { fbRtdbDelete, fbRtdbRead, fbRtdbUpdate } from "../modules/firebase/db.js";
-import { fbStorageDelete } from "../modules/firebase/storage.js";
 import useNotification from "../hooks/notification.js";
 import UserContext, { UploadedImage } from "./user.js";
-import { updateIdenityPhotosVisibilityGenreic, uploadThreeSizesFromOneImage } from "./utils/utils.js";
 import { lang } from "../modules/util/language.js";
+import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -50,74 +47,26 @@ export function IdentityProvider({ children }) {
 
       // upload id
       if (workId) {
-        const visibilityCode = Date.now();
-        const oldVisibilityCode =
-          /** @type {string} */
-          (await fbRtdbRead(RtDbPaths.Identity(user.uid) + "/identityPhotos/workId/visibilityCode")) || undefined;
-
-        // delete existing WORK_ID before uploading
-        if (oldVisibilityCode) {
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
-          await fbRtdbDelete(RtDbPaths.Identity(user.uid) + "/identityPhotos/workId"); // prettier-ignore
-        }
-
-        uploadedWorkId = await uploadThreeSizesFromOneImage(
-          user.uid,
-          visibilityCode,
-
-          // three paths for upload
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "WORK_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
-
-          workId, // the file itself
-          notify // notify callback
-        );
-
-        const { small, medium, large } = uploadedWorkId;
-        await fbRtdbUpdate(RtDbPaths.Identity(user.uid) + "/identityPhotos", {
-          workId: { small, medium, large, visibilityCode },
-        });
-
-        dispatchUser({ identityPhotos: { workId: uploadedWorkId } });
+        await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("WORK_ID", user.uid), workId);
+        const { small, medium, large } = {
+          small: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "small"),
+          medium: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "medium"),
+          large: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "large"),
+        };
+        dispatchUser({ identityPhotos: { workId: new UploadedImage(user.uid, small, medium, large, true) } });
+        uploadedWorkId = { small, medium, large };
       }
 
       // upload govId
       if (govId) {
-        const visibilityCode = Date.now();
-        const oldVisibilityCode =
-          /** @type {string} */
-          (await fbRtdbRead(RtDbPaths.Identity(user.uid) + "/identityPhotos/govId/visibilityCode")) || undefined;
-
-        // delete existing WORK_ID before uploading
-        if (oldVisibilityCode) {
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL)); // prettier-ignore
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM)); // prettier-ignore
-          await fbStorageDelete(StoragePaths.IdentityDocuments(user.uid, oldVisibilityCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE)); // prettier-ignore
-          await fbRtdbDelete(RtDbPaths.Identity(user.uid) + "/identityPhotos/govId"); // prettier-ignore
-        }
-
-        uploadedGovId = await uploadThreeSizesFromOneImage(
-          user.uid,
-          visibilityCode,
-
-          // three paths for upload
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.SMALL, UploadedImage.Sizes.SMALL), // prettier-ignore
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.MEDIUM, UploadedImage.Sizes.MEDIUM), // prettier-ignore
-          StoragePaths.IdentityDocuments(user.uid, visibilityCode, "GOV_ID", UploadedImage.Sizes.LARGE, UploadedImage.Sizes.LARGE), // prettier-ignore
-
-          govId,
-          notify
-        );
-
-        const { small, medium, large } = uploadedGovId;
-        await fbRtdbUpdate(RtDbPaths.Identity(user.uid) + "/identityPhotos", {
-          govId: { small, medium, large, visibilityCode },
-        });
-
-        dispatchUser({ identityPhotos: { govId: uploadedGovId } });
+        await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("GOV_ID", user.uid), govId);
+        const { small, medium, large } = {
+          small: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "small"),
+          medium: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "medium"),
+          large: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "large"),
+        };
+        dispatchUser({ identityPhotos: { govId: new UploadedImage(user.uid, small, medium, large, true) } });
+        uploadedGovId = { small, medium, large };
       }
 
       notify(
@@ -143,14 +92,16 @@ export function IdentityProvider({ children }) {
      */
     async ({ workId, govId }) => {
       if (workId) {
-        const uploaded = await updateIdenityPhotosVisibilityGenreic(user.uid, "work", "WORK_ID", workId, notify); // prettier-ignore
-        if (!uploaded) return;
-        dispatchUser({ identityPhotos: { workId: uploaded } });
+        const oldLocalImageObj = user.identityPhotos?.workId?.clone();
+        const newLocalImageObj = workId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
+        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("WORK_ID", user.uid), { visibility: workId }); // prettier-ignore
+        dispatchUser({ identityPhotos: { workId: newLocalImageObj } });
       }
       if (govId) {
-        const uploaded = await updateIdenityPhotosVisibilityGenreic(user.uid, "gov", "GOV_ID", govId, notify); // prettier-ignore
-        if (!uploaded) return;
-        dispatchUser({ identityPhotos: { govId: uploaded } });
+        const oldLocalImageObj = user.identityPhotos?.govId?.clone();
+        const newLocalImageObj = govId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
+        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("GOV_ID", user.uid), { visibility: govId }); // prettier-ignore
+        dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
       }
     },
     [user.uid, notify, dispatchUser]
