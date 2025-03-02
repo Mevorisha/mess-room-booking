@@ -66,7 +66,7 @@ export default function Profile() {
           newProfile.uid = uid;
           newProfile.setProfileName(firstName, lastName);
           newProfile.setMobile(mobile);
-          newProfile.setProfilePhotos(UploadedImage.from(uid, profilePhotos));
+          newProfile.setProfilePhotos(UploadedImage.from(uid, profilePhotos, false));
           return newProfile;
         });
       })

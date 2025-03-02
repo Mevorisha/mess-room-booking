@@ -70,7 +70,7 @@ export function ProfileProvider({ children }) {
         medium: ApiPaths.Profile.readImage(user.uid, "medium"),
         large: ApiPaths.Profile.readImage(user.uid, "large"),
       };
-      dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, "PUBLIC") });
+      dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, false) });
       notify(
         lang(
           "Profile photo updated successfully",
