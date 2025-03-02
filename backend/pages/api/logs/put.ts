@@ -10,9 +10,9 @@ import { withmiddleware } from "../../../middlewares/withMiddleware.js";
  * response = { message: string }
  * ```
  */
-export default withmiddleware(async function PATCH(req: VercelRequest, res: VercelResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
+export default withmiddleware(async function POST(req: VercelRequest, res: VercelResponse) {
+  // Only allow POST method
+  if (req.method !== "POST") {
     return respond(res, { status: 405, error: "Method Not Allowed" });
   }
 

@@ -1,6 +1,5 @@
-import { fbRtdbGetRef, RtDbPaths } from "./init.js";
-import { set } from "firebase/database";
 import ErrorMessages, { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
+import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
 
 /**
  * @param {string} operation
@@ -9,11 +8,11 @@ import ErrorMessages, { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.j
  */
 async function logInfo(operation, descrip, code = "code_unknown") {
   const uid = localStorage.getItem("uid") || "user_logged_out";
-  console.log(`I: ${uid}: ${operation}: ${code}: ${descrip}`);
+  const message = `I: ${uid}: ${operation}: ${code}: ${descrip}`;
+  console.log(message);
   try {
     const timestamp = new Date().toUTCString();
-    const logRef = fbRtdbGetRef(RtDbPaths.Logs(), timestamp);
-    await set(logRef, `I: ${uid}: ${operation}: ${code}: ${descrip}`);
+    await apiPostOrPatchJson("POST", ApiPaths.Logs.put("info"), { timestamp, message });
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));
   }
@@ -26,11 +25,11 @@ async function logInfo(operation, descrip, code = "code_unknown") {
  */
 async function logError(operation, descrip, code = "code_unknown") {
   const uid = localStorage.getItem("uid") || "user_logged_out";
-  console.error(`I: ${uid}: ${operation}: ${code}: ${descrip}`);
+  const message = `E: ${uid}: ${operation}: ${code}: ${descrip}`;
+  console.error(message);
   try {
     const timestamp = new Date().toUTCString();
-    const logRef = fbRtdbGetRef(RtDbPaths.Logs(), timestamp);
-    await set(logRef, `E: ${uid}: ${operation}: ${code}: ${descrip}`);
+    await apiPostOrPatchJson("POST", ApiPaths.Logs.put("error"), { timestamp, message });
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));
   }

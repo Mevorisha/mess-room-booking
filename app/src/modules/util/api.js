@@ -12,6 +12,7 @@ export class ApiPaths {
   static ID_DOCS = `${config.API_SERVER_ORIGIN}/api/identityDocs`;
   static PROFILE = `${config.API_SERVER_ORIGIN}/api/profile`;
   static ROOMS = `${config.API_SERVER_ORIGIN}/api/rooms`;
+  static LOGS = `${config.API_SERVER_ORIGIN}/api/logs`;
 
   // prettier-ignore
   static Accounts = {
@@ -125,6 +126,13 @@ export class ApiPaths {
        */
       updateImage: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/updateImage`,
     },
+  };
+
+  static Logs = {
+    /**
+     * @param {"info" | "error"} type
+     */
+    put: (type) => `${ApiPaths.LOGS}/put?type=${type}`,
   };
 }
 
