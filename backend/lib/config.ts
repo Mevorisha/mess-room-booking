@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 if (!process.env.VERCEL_ENV) throw new Error(".env VERCEL_ENV undefined");
 if (!process.env.API_SERVER_ORIGIN) throw new Error(".env API_SERVER_ORIGIN undefined");
 if (!process.env.FIREBASE_PROJECT_ID) throw new Error(".env FIREBASE_PROJECT_ID undefined");
