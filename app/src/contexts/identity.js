@@ -104,7 +104,7 @@ export function IdentityProvider({ children }) {
         dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
       }
     },
-    [user.uid, notify, dispatchUser]
+    [user.uid, dispatchUser, user.identityPhotos?.govId, user.identityPhotos?.workId]
   );
 
   return (

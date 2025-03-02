@@ -48,7 +48,7 @@ export function LanguageProvider({ children }) {
         if (oldVal !== newVal) window.location.href = "/";
         return newVal;
       }),
-    [_setLang]
+    [_setLang, notify, uid]
   );
 
   return (

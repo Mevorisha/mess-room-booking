@@ -154,7 +154,7 @@ export function AuthProvider({ children }) {
       .then(({ json }) => updateLocalUser(json))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e) => notify(e, "error"));
-  }, [authState, user.uid, dispatchUser]);
+  }, [authState, user.uid, dispatchUser, notify, setLang]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
