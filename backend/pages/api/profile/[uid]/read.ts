@@ -11,16 +11,33 @@ import { getLoggedInUser } from "../../../../middlewares/auth.js";
  * request = "GET /api/profile/[uid]/read"
  *
  * response = {
- *   type: IdentityType
  *   displayName?: string
  *   firstName?: string
  *   lastName?: string
  *   mobile?: string
- *   language?: Language
  *   profilePhotos?: {
- *     small: string (direct url)
- *     medium: string (direct url)
- *     large: string (direct url)
+ *     small: string (api uri)
+ *     medium: string (api uri)
+ *     large: string (api uri)
+ *   }
+ *
+ * < The following need authentication >
+ *
+ *   type?: IdentityType
+ *   language?: Language
+ *   identityPhotos?: {
+ *     workId?: {
+ *       small: string (api uri)
+ *       medium: string (api uri)
+ *       large: string (api uri)
+ *     }
+ *     govId?: {
+ *       small: string (api uri)
+ *       medium: string (api uri)
+ *       large: string (api uri)
+ *     }
+ *     workIdIsPrivate?: boolean
+ *     govIdIsPrivate?: boolean
  *   }
  * }
  * ```
