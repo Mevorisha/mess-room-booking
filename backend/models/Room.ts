@@ -40,7 +40,7 @@ export enum SchemaFields {
   TTL = "ttl",
 }
 
-function imgConvertGsPathToApiUri(dataToBeUpdated: FirebaseFirestore.DocumentData, roomId: string) {
+function imgConvertGsPathToApiUri(dataToBeUpdated: RoomData, roomId: string) {
   if (dataToBeUpdated.images) {
     dataToBeUpdated.images = Array.from(dataToBeUpdated.images as Array<string>).map((imgGsPath: string) =>
       StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPath))
@@ -100,7 +100,7 @@ class Room {
       // If no fields provided, send all params
       if (fields.length === 0) {
         // convert image paths to direct urls
-        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data, roomId);
+        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
         else return data;
       }
       // Filter params
@@ -109,7 +109,7 @@ class Room {
         result[field] = data[field] || null;
       }
       // convert image paths to api uri if any
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result, roomId);
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as RoomData, roomId);
       else return result;
     } catch (e) {
       return Promise.reject(ApiError.create(500, e.message));
