@@ -11,8 +11,7 @@ export const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "mess-book
 
 export const API_SERVER_ORIGIN = process.env.API_SERVER_ORIGIN || "";
 
-export const IS_PREVIEW =
-  !/localhost|127\.0\.0\.1/i.test(window.location.href) && process.env.VERCEL_ENV === "preview";
+export const IS_PREVIEW = process.env.VERCEL_ENV === "preview";
 
 export const FIREBASE_SERVICE_ACCOUNT_KEY = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY ?? "{}");
 
