@@ -1,12 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../../lib/utils/respond.js";
-import { authenticate } from "../../../../../middlewares/auth.js";
-import Identity from "../../../../../models/Identity.js";
-import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
+import { respond } from "../../../../modules/utils/respond.js";
+import { authenticate } from "../../../../middlewares/auth.js";
+import Identity from "../../../../models/Identity.js";
+import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
 
 /**
  * ```
- * request = "PATCH /api/profile/[uid]/WORK_ID/updateVisibility" { visibility: "PUBLIC" | "PRIVATE" }
+ * request = "PATCH /api/profile/[uid]/GOV_ID/updateVisibility" { visibility: "PUBLIC" | "PRIVATE" }
  * response = { message: string }
  * ```
  */
@@ -31,7 +31,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
     return respond(res, { status: 400, error: "Invalid field 'visibility: PUBLIC | PRIVATE'" });
   }
   try {
-    await Identity.update(uid, { identityPhotos: { workIdIsPrivate: visibility === "PRIVATE" } });
+    await Identity.update(uid, { identityPhotos: { govIdIsPrivate: visibility === "PRIVATE" } });
     return respond(res, { status: 200, message: `Governemnt ID made ${visibility.toLowerCase()}` });
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });

@@ -1,13 +1,13 @@
 import fs from "fs";
 import formidable from "formidable";
 import { getStorage } from "firebase-admin/storage";
-import { authenticate } from "../../../../../middlewares/auth.js";
-import { StoragePaths } from "../../../../../lib/firebaseAdmin/init.js";
-import { resizeImage } from "../../../../../lib/utils/dataConversion.js";
-import Identity from "../../../../../models/Identity.js";
+import { authenticate } from "../../../middlewares/auth.js";
+import { StoragePaths } from "../../../modules/firebaseAdmin/init.js";
+import { resizeImage } from "../../../modules/utils/dataConversion.js";
+import Identity from "../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../../lib/utils/respond.js";
-import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
+import { respond } from "../../../modules/utils/respond.js";
+import { withmiddleware } from "../../../middlewares/withMiddleware.js";
 
 export const config = {
   api: {
@@ -17,7 +17,7 @@ export const config = {
 
 /**
  * ```
- * request = "PATCH /api/identityDocs/[uid]/WORK_ID/updateImage"
+ * request = "PATCH /api/profile/[uid]/updatePhoto"
  *           "Content-Type: image/(jpeg|png)"
  * response = { message: string }
  * ```
@@ -59,7 +59,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       // Create upload promise and get image paths
       const imagePaths = { small: "", medium: "", large: "" };
       const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-        const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "WORK_ID", imgWithSz.sz, imgWithSz.sz);
+        const filePath = StoragePaths.ProfilePhotos.gsBucket(uid, imgWithSz.sz, imgWithSz.sz);
         imagePaths[size] = filePath;
         const fileRef = bucket.file(filePath);
         return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
@@ -68,17 +68,14 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       await Promise.all(uploadPromises);
       // Update Firestore with image paths
       await Identity.update(uid, {
-        identityPhotos: {
-          workId: {
-            small: imagePaths.small,
-            medium: imagePaths.medium,
-            large: imagePaths.large,
-          },
-          workIdIsPrivate: true,
+        profilePhotos: {
+          small: imagePaths.small,
+          medium: imagePaths.medium,
+          large: imagePaths.large,
         },
       });
 
-      return respond(res, { status: 200, message: "Upload successful" });
+      return respond(res, { status: 200, error: "Field profilePhotos updated" });
     } catch (e) {
       return respond(res, { status: e.status ?? 500, error: e.message });
     }

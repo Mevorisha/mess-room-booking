@@ -1,14 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../lib/utils/respond.js";
+import { respond } from "../../../../modules/utils/respond.js";
 import { authenticate } from "../../../../middlewares/auth.js";
-import Identity, { IdentityType } from "../../../../models/Identity.js";
+import Identity from "../../../../models/Identity.js";
 import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
 
 /**
  * ```
- * import { IdentityType } from "../../../../models/Identity.js";
- *
- * request = "PATCH /api/profile/[uid]/updateType" { type: IdentityType }
+ * request = "PATCH /api/profile/[uid]/WORK_ID/updateVisibility" { visibility: "PUBLIC" | "PRIVATE" }
  * response = { message: string }
  * ```
  */
@@ -25,16 +23,16 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   // Require authentication middleware
   if (!(await authenticate(req, res, uid))) return;
 
-  const type = req.body["type"] as IdentityType;
-  if (!type) {
-    return respond(res, { status: 400, error: "Missing field 'type: OWNER | TENANT'" });
+  const visibility = req.body["visibility"] as "PUBLIC" | "PRIVATE";
+  if (!visibility) {
+    return respond(res, { status: 400, error: "Missing field 'visibility: PUBLIC | PRIVATE'" });
   }
-  if (!["OWNER", "TENANT"].includes(type)) {
-    return respond(res, { status: 400, error: "Invalid field 'type: OWNER | TENANT'" });
+  if (!["PUBLIC", "PRIVATE"].includes(visibility)) {
+    return respond(res, { status: 400, error: "Invalid field 'visibility: PUBLIC | PRIVATE'" });
   }
   try {
-    await Identity.update(uid, { type });
-    return respond(res, { status: 200, message: "Field 'type' updated" });
+    await Identity.update(uid, { identityPhotos: { workIdIsPrivate: visibility === "PRIVATE" } });
+    return respond(res, { status: 200, message: `Governemnt ID made ${visibility.toLowerCase()}` });
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
   }

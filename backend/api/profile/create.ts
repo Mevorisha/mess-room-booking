@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../lib/utils/respond.js";
-import { getLoggedInUser } from "../../../middlewares/auth.js";
-import Identity, { SchemaFields } from "../../../models/Identity.js";
-import { withmiddleware } from "../../../middlewares/withMiddleware.js";
+import { respond } from "../../modules/utils/respond.js";
+import { getLoggedInUser } from "../../middlewares/auth.js";
+import Identity, { SchemaFields } from "../../models/Identity.js";
+import { withmiddleware } from "../../middlewares/withMiddleware.js";
 
 /**
  * ```

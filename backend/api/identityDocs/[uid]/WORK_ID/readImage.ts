@@ -1,10 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import Identity, { SchemaFields } from "../../../../../models/Identity.js";
-import { respond } from "../../../../../lib/utils/respond.js";
-import { authenticate } from "../../../../../middlewares/auth.js";
-import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
-import { MultiSizeImageSz } from "../../../../../lib/firebaseAdmin/init.js";
-import { gsPathToUrl } from "../../../../../models/utils.js";
+import Identity, { SchemaFields } from "../../../../models/Identity.js";
+import { respond } from "../../../../modules/utils/respond.js";
+import { authenticate } from "../../../../middlewares/auth.js";
+import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
+import { MultiSizeImageSz } from "../../../../modules/firebaseAdmin/init.js";
+import { gsPathToUrl } from "../../../../models/utils.js";
 
 /**
  * ```
