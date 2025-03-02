@@ -18,7 +18,6 @@ import {
 import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
-import { fbRtdbRead, fbRtdbUpdate } from "./db.js";
 import { lang } from "../util/language.js";
 
 const AuthConstants = {
@@ -228,13 +227,6 @@ class GoogleAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
-      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
-        if (!displayName) {
-          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
-            displayName: result.user.displayName,
-          });
-        }
-      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -261,13 +253,6 @@ class AppleAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
-      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
-        if (!displayName) {
-          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
-            displayName: result.user.displayName,
-          });
-        }
-      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -294,13 +279,6 @@ class MicrosoftAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
-      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
-        if (!displayName) {
-          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
-            displayName: result.user.displayName,
-          });
-        }
-      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -336,13 +314,6 @@ class EmailPasswdAuth {
   static async login(email, password) {
     try {
       const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
-      await fbRtdbRead(RtDbPaths.Identity(result.user.uid) + "/displayName").then((displayName) => {
-        if (!displayName) {
-          return fbRtdbUpdate(RtDbPaths.Identity(result.user.uid), {
-            displayName: result.user.displayName,
-          });
-        }
-      });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
