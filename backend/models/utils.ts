@@ -1,6 +1,5 @@
 import { getStorage } from "firebase-admin/storage";
 import { ApiError } from "../lib/utils/ApiError";
-import { StoragePaths } from "../lib/firebaseAdmin/init.js";
 
 interface UrlCacheData {
   url: string;
