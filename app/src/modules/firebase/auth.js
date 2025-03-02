@@ -1,4 +1,4 @@
-import { FirebaseAuth, RtDbPaths } from "./init.js";
+import { FirebaseAuth } from "./init.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -19,6 +19,7 @@ import { logError } from "./util.js";
 import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
 import { lang } from "../util/language.js";
+import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
 
 const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
@@ -227,6 +228,7 @@ class GoogleAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -253,6 +255,7 @@ class AppleAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -279,6 +282,7 @@ class MicrosoftAuth {
   static async login() {
     try {
       const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -314,6 +318,7 @@ class EmailPasswdAuth {
   static async login(email, password) {
     try {
       const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);

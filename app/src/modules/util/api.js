@@ -63,6 +63,8 @@ export class ApiPaths {
 
   // prettier-ignore
   static Profile = {
+    create: () => `${ApiPaths.PROFILE}/create`,
+
     /** @param {string} uid */
     read: (uid) => `${ApiPaths.PROFILE}/${uid}/read`,
 

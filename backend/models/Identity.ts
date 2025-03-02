@@ -76,10 +76,10 @@ class Identity {
   /**
    * Create a new identity document
    */
-  static async create(uid: string, email: string, type: IdentityType): Promise<void> {
+  static async create(uid: string, email: string): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     try {
-      await ref.set({ email, type }, { merge: true });
+      await ref.set({ email, type: "EMPTY" }, { merge: true });
     } catch (e) {
       return Promise.reject(ApiError.create(500, e.message));
     }
