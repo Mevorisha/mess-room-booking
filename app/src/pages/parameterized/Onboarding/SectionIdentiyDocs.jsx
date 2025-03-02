@@ -114,7 +114,7 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={compUsr.userCtx.user.identityPhotos.workId.visibilityCode === "PUBLIC"}
+                      checked={!compUsr.userCtx.user.identityPhotos.workId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PUBLIC")}
                     />
                     Public
@@ -124,7 +124,7 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={compUsr.userCtx.user.identityPhotos.workId.visibilityCode !== "PUBLIC"}
+                      checked={compUsr.userCtx.user.identityPhotos.workId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PRIVATE")}
                     />
                     Private
@@ -163,7 +163,7 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={compUsr.userCtx.user.identityPhotos.govId.visibilityCode === "PUBLIC"}
+                      checked={!compUsr.userCtx.user.identityPhotos.govId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PUBLIC")}
                     />
                     Public
@@ -173,7 +173,7 @@ export default function SectionIdentiyDocs() {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={compUsr.userCtx.user.identityPhotos.govId.visibilityCode !== "PUBLIC"}
+                      checked={compUsr.userCtx.user.identityPhotos.govId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PRIVATE")}
                     />
                     Private
