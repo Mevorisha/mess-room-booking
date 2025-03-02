@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { fbRtdbRead } from "../../../modules/firebase/db";
-import { RtDbPaths } from "../../../modules/firebase/init";
 import { UploadedImage } from "../../../contexts/user";
 import useNotification from "../../../hooks/notification";
 import useCompositeUser from "../../../hooks/compositeUser";
@@ -18,6 +16,7 @@ import "./styles.css";
 
 // @ts-ignore
 import dpGeneric from "../../../assets/images/dpGeneric.png";
+import { apiGetOrDelete, ApiPaths } from "../../../modules/util/api";
 
 /**
  * @returns {React.JSX.Element}
@@ -43,19 +42,20 @@ export default function Profile() {
     }
 
     const uid = /** @type {string} */ (searchParams.get("id"));
-    const displayName = fbRtdbRead(RtDbPaths.Identity(uid) + "/displayName");
-    const mobileNo = fbRtdbRead(RtDbPaths.Identity(uid) + "/mobile");
-    // prettier-ignore
-    const profilePhotos = fbRtdbRead(RtDbPaths.Identity(uid) + "/profilePhotos");
 
-    Promise.all([displayName, mobileNo, profilePhotos])
-      .then((values) => {
-        if (!values[1]) {
+    apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
+      .then(({ json: { firstName, lastName, mobile, profilePhotos } }) => {
+        if (!mobile) {
           setProfileUser(null);
           return;
         }
-        values[0] ||= "(No Name)";
-        values[2] ||= {
+        firstName ||= "";
+        lastName ||= "";
+        if (!firstName && !lastName) {
+          firstName = "(No Name)";
+          lastName = "";
+        }
+        profilePhotos ||= {
           small: dpGeneric,
           medium: dpGeneric,
           large: dpGeneric,
@@ -64,9 +64,9 @@ export default function Profile() {
           if (!oldProfile) return null;
           const newProfile = oldProfile.clone();
           newProfile.uid = uid;
-          newProfile.setProfileName(values[0].split(" ")[0], values[0].split(" ")[1]);
-          newProfile.setMobile(values[1]);
-          newProfile.setProfilePhotos(UploadedImage.from(uid, values[2]));
+          newProfile.setProfileName(firstName, lastName);
+          newProfile.setMobile(mobile);
+          newProfile.setProfilePhotos(UploadedImage.from(uid, profilePhotos));
           return newProfile;
         });
       })
@@ -95,10 +95,9 @@ export default function Profile() {
   }
 
   const displayName =
-    !userProfile.firstName || !userProfile.lastName
+    !userProfile.firstName && !userProfile.lastName
       ? "(Not Provided)"
       : `${userProfile.firstName} ${userProfile.lastName}`;
-  const mobileNo = userProfile.mobile;
 
   return (
     <div className="pages-Profile">
@@ -128,7 +127,7 @@ export default function Profile() {
             </tr>
             <tr className="detail">
               <td className="detail-label">Mobile: </td>
-              <td className="detail-value">{mobileNo}</td>
+              <td className="detail-value">{userProfile.mobile}</td>
             </tr>
           </tbody>
         </table>
