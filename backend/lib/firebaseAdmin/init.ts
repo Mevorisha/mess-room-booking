@@ -24,7 +24,7 @@ class FirestorePaths {
 
   static Identity = (uid: string) => getFirestore().collection(FirestorePaths.IDENTITY).doc(uid);
 
-  static Logs = () => getFirestore().collection(FirestorePaths.LOGS);
+  static Logs = (uid: string) => getFirestore().collection(FirestorePaths.LOGS).doc(uid);
 
   static Feedback = () => getFirestore().collection(FirestorePaths.FEEDBACK);
 
