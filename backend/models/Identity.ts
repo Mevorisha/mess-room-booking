@@ -8,8 +8,8 @@ export interface MultiSizePhoto {
 }
 
 export interface IdentityPhotos {
-  workid?: MultiSizePhoto;
-  govid?: MultiSizePhoto;
+  workId?: MultiSizePhoto;
+  govId?: MultiSizePhoto;
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
@@ -46,7 +46,7 @@ export enum PsudoFields {
   DISPLAY_NAME = "displayName",
 }
 
-function imgConvertGsPathToApiUri(dataToUpdate: FirebaseFirestore.DocumentData, uid: string) {
+function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
   // convert image paths in profile photos to URLs
   if (dataToUpdate.profilePhotos) {
     dataToUpdate.profilePhotos = {
@@ -57,16 +57,18 @@ function imgConvertGsPathToApiUri(dataToUpdate: FirebaseFirestore.DocumentData, 
   }
   if (dataToUpdate.identityPhotos) {
     dataToUpdate.identityPhotos = {
-      workid: {
+      workId: {
         small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
         medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
         large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
       },
-      govid: {
+      govId: {
         small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
         medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
         large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
       },
+      workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate,
+      govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate,
     };
   }
   return dataToUpdate;
@@ -124,7 +126,7 @@ class Identity {
       data.displayName = [data.firstName, data.lastName].filter(Boolean).join(" ");
       // If no fields are provided, return the entire document
       if (fields.length === 0) {
-        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data, uid);
+        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as IdentityData, uid);
         else return data;
       }
       // Return only requested fields
@@ -133,7 +135,7 @@ class Identity {
         result[field] = data[field] || null;
       }
       // convert image paths to api uri if any
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result, uid);
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as IdentityData, uid);
       else return result;
     } catch (e) {
       return Promise.reject(ApiError.create(500, e.message));

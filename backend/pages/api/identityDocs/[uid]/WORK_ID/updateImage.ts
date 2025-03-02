@@ -69,7 +69,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
       // Update Firestore with image paths
       await Identity.update(uid, {
         identityPhotos: {
-          workid: {
+          workId: {
             small: imagePaths.small,
             medium: imagePaths.medium,
             large: imagePaths.large,

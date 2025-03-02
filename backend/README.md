@@ -29,12 +29,12 @@ profilePhotos?: {
   large: string
 }
 identityPhotos?: {
-  workid?: {
+  workId?: {
     small: string
     medium: string
     large: string
   }
-  govid?: {
+  govId?: {
     isPrivate: boolean
     small: string
     medium: string

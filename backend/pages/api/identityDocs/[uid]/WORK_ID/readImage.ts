@@ -31,7 +31,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
   }
   try {
     const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
-    if (!profile?.identityPhotos?.workid || !profile?.identityPhotos?.workid[size]) {
+    if (!profile?.identityPhotos?.workId || !profile?.identityPhotos?.workId[size]) {
       return respond(res, { status: 404, error: "Image not found" });
     }
     if (profile.identityPhotos.workIdIsPrivate) {
@@ -39,7 +39,7 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
       if (!(await authenticate(req, res, uid))) return;
     }
     // Get image direct URL and redirect
-    const directUrl = await gsPathToUrl(profile?.identityPhotos?.workid[size]);
+    const directUrl = await gsPathToUrl(profile?.identityPhotos?.workId[size]);
     return res.redirect(301, directUrl);
   } catch (e) {
     return respond(res, { status: e.status ?? 500, error: e.message });
