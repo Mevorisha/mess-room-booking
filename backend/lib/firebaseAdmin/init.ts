@@ -8,9 +8,14 @@ export type MultiSizeImageSz = "small" | "medium" | "large";
 const FirebaseApp = initializeApp({
   projectId: config.FIREBASE_PROJECT_ID,
   credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
-  databaseURL: config.FIREBASE_DATABASE_URL,
-  storageBucket: config.FIREBASE_STORAGE_BUCKET,
+  databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_DATABASE_URL : "localhost:9002",
+  storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_STORAGE_BUCKET : "localhost:9003",
 });
+
+if (config.RUN_ON_EMULATOR) {
+  const firestore = getFirestore();
+  firestore.settings({ host: "localhost:9004", ssl: false });
+}
 
 /**
  * Firestore paths

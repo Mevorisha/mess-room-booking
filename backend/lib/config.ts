@@ -20,6 +20,7 @@ CORS_ALLOWED_ORIGINS.push(API_SERVER_ORIGIN);
 CORS_ALLOWED_ORIGINS.push(WEB_SERVER_ORIGIN);
 
 export const IS_DEV = process.env.VERCEL_ENV === "dev";
+export const RUN_ON_EMULATOR = /localhost|127\.0\.0\.1/i.test(API_SERVER_ORIGIN);
 
 export const FIREBASE_SERVICE_ACCOUNT_KEY = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY ?? "{}");
 
