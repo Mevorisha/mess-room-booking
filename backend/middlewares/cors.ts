@@ -1,11 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { respond } from "../lib/utils/respond.js";
+import * as config from "../lib/config.js";
 
-const AllowedOrigins = [
-  "mess-booking-app-serverless.web.app",
-  "mess-booking-app-serverless.firebaseapp.com",
-  "mess-booking-app-serverless.vercel.app",
-];
+const AllowedOrigins: string[] = config.CORS_ALLOWED_ORIGINS;
 
 const AllowedMethods = ["POST", "GET", "PATCH", "DELETE"];
 
@@ -16,7 +13,8 @@ export async function cors(req: VercelRequest, res: VercelResponse): Promise<boo
   if (AllowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
-    respond(res, { status: 403, error: "Origin not allowed" });
+    console.error(origin);
+    respond(res, { status: 418, error: "Origin not allowed" });
     return false;
   }
   res.setHeader("Access-Control-Allow-Methods", AllowedMethods.join(", "));
