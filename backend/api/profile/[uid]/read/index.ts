@@ -1,12 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import Identity, { PsudoFields, SchemaFields } from "../../../models/Identity.js";
-import { respond } from "../../../lib/utils/respond.js";
-import { withmiddleware } from "../../../middlewares/withMiddleware.js";
-import { getLoggedInUser } from "../../../middlewares/auth.js";
+import Identity, { PsudoFields, SchemaFields } from "../../../../models/Identity.js";
+import { respond } from "../../../../lib/utils/respond.js";
+import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
+import { getLoggedInUser } from "../../../../middlewares/auth.js";
 
 /**
  * ```
- * import { IdentityType, Language } from "../../../../models/Identity.js";
+ * import { IdentityType, Language } from "../../../../../models/Identity.js";
  *
  * request = "GET /api/profile/[uid]/read"
  *
@@ -67,13 +67,9 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
     fields.concat([SchemaFields.IDENTITY_PHOTOS, SchemaFields.LANGUAGE, SchemaFields.TYPE]);
   }
 
-  try {
-    const result = await Identity.get(uid, "API_URI", fields);
-    if (!result) {
-      return respond(res, { status: 404, error: "User not found" });
-    }
-    return respond(res, { status: 200, json: result });
-  } catch (e) {
-    return respond(res, { status: e.status ?? 500, error: e.message });
+  const result = await Identity.get(uid, "API_URI", fields);
+  if (!result) {
+    return respond(res, { status: 404, error: "User not found" });
   }
+  return respond(res, { status: 200, json: result });
 });

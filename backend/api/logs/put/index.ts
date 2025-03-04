@@ -37,10 +37,6 @@ export default withmiddleware(async function POST(req: VercelRequest, res: Verce
     return respond(res, { status: 400, error: "Missing field 'message: string'" });
   }
 
-  try {
-    await Logs.put(uid, { timestamp, message, type });
-    return respond(res, { status: 200, message: `Log added on ${timestamp}` });
-  } catch (e) {
-    return respond(res, { status: e.status ?? 500, error: e.message });
-  }
+  await Logs.put(uid, { timestamp, message, type });
+  return respond(res, { status: 200, message: `Log added on ${timestamp}` });
 });

@@ -1,10 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import Identity, { SchemaFields } from "../../../../models/Identity.js";
-import { respond } from "../../../../lib/utils/respond.js";
-import { authenticate } from "../../../../middlewares/auth.js";
-import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
-import { MultiSizeImageSz } from "../../../../lib/firebaseAdmin/init.js";
-import { gsPathToUrl } from "../../../../models/utils.js";
+import Identity, { SchemaFields } from "../../../../../models/Identity.js";
+import { respond } from "../../../../../lib/utils/respond.js";
+import { authenticate } from "../../../../../middlewares/auth.js";
+import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
+import { MultiSizeImageSz } from "../../../../../lib/firebaseAdmin/init.js";
+import { gsPathToUrl } from "../../../../../models/utils.js";
 
 /**
  * ```
@@ -29,19 +29,16 @@ export default withmiddleware(async function GET(req: VercelRequest, res: Vercel
   if (!["small", "medium", "large"].includes(size)) {
     return respond(res, { status: 400, error: "Invalid query 'size: small | medium | large'" });
   }
-  try {
-    const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
-    if (!profile?.identityPhotos?.govId || !profile?.identityPhotos?.govId[size]) {
-      return respond(res, { status: 404, error: "Image not found" });
-    }
-    if (profile.identityPhotos.workIdIsPrivate) {
-      // Require authentication middleware
-      if (!(await authenticate(req, res, uid))) return;
-    }
-    // Get image direct URL and redirect
-    const directUrl = await gsPathToUrl(profile?.identityPhotos?.govId[size]);
-    return res.redirect(301, directUrl);
-  } catch (e) {
-    return respond(res, { status: e.status ?? 500, error: e.message });
+
+  const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
+  if (!profile?.identityPhotos?.govId || !profile?.identityPhotos?.govId[size]) {
+    return respond(res, { status: 404, error: "Image not found" });
   }
+  if (profile.identityPhotos.workIdIsPrivate) {
+    // Require authentication middleware
+    if (!(await authenticate(req, res, uid))) return;
+  }
+  // Get image direct URL and redirect
+  const directUrl = await gsPathToUrl(profile?.identityPhotos?.govId[size]);
+  return res.redirect(301, directUrl);
 });

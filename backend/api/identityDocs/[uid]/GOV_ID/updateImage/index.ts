@@ -1,13 +1,13 @@
 import fs from "fs";
 import formidable from "formidable";
 import { getStorage } from "firebase-admin/storage";
-import { authenticate } from "../../../../middlewares/auth.js";
-import { StoragePaths } from "../../../../lib/firebaseAdmin/init.js";
-import { resizeImage } from "../../../../lib/utils/dataConversion.js";
-import Identity from "../../../../models/Identity.js";
+import { authenticate } from "../../../../../middlewares/auth.js";
+import { StoragePaths } from "../../../../../lib/firebaseAdmin/init.js";
+import { resizeImage } from "../../../../../lib/utils/dataConversion.js";
+import Identity from "../../../../../models/Identity.js";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../../lib/utils/respond.js";
-import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
+import { respond } from "../../../../../lib/utils/respond.js";
+import { withmiddleware } from "../../../../../middlewares/withMiddleware.js";
 
 export const config = {
   api: {
@@ -53,34 +53,31 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
     }
     // Read file buffer
     const fileBuffer = fs.readFileSync(file.filepath);
-    try {
-      const resizedImages = await resizeImage(fileBuffer);
-      const bucket = getStorage().bucket();
-      // Create upload promise and get image paths
-      const imagePaths = { small: "", medium: "", large: "" };
-      const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-        const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
-        imagePaths[size] = filePath;
-        const fileRef = bucket.file(filePath);
-        return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
-      });
-      // Start upload
-      await Promise.all(uploadPromises);
-      // Update Firestore with image paths
-      await Identity.update(uid, {
-        identityPhotos: {
-          govId: {
-            small: imagePaths.small,
-            medium: imagePaths.medium,
-            large: imagePaths.large,
-          },
-          govIdIsPrivate: true,
-        },
-      });
 
-      return respond(res, { status: 200, message: "Upload successful" });
-    } catch (e) {
-      return respond(res, { status: e.status ?? 500, error: e.message });
-    }
+    const resizedImages = await resizeImage(fileBuffer);
+    const bucket = getStorage().bucket();
+    // Create upload promise and get image paths
+    const imagePaths = { small: "", medium: "", large: "" };
+    const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
+      const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
+      imagePaths[size] = filePath;
+      const fileRef = bucket.file(filePath);
+      return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
+    });
+    // Start upload
+    await Promise.all(uploadPromises);
+    // Update Firestore with image paths
+    await Identity.update(uid, {
+      identityPhotos: {
+        govId: {
+          small: imagePaths.small,
+          medium: imagePaths.medium,
+          large: imagePaths.large,
+        },
+        govIdIsPrivate: true,
+      },
+    });
+
+    return respond(res, { status: 200, message: "Upload successful" });
   });
 });

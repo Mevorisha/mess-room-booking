@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../../lib/utils/respond.js";
-import { authenticate } from "../../../middlewares/auth.js";
-import Identity from "../../../models/Identity.js";
-import { withmiddleware } from "../../../middlewares/withMiddleware.js";
+import { respond } from "../../../../lib/utils/respond.js";
+import { authenticate } from "../../../../middlewares/auth.js";
+import Identity from "../../../../models/Identity.js";
+import { withmiddleware } from "../../../../middlewares/withMiddleware.js";
 
 /**
  * ```
@@ -27,10 +27,7 @@ export default withmiddleware(async function PATCH(req: VercelRequest, res: Verc
   if (!mobile) {
     return respond(res, { status: 400, error: "Missing field 'mobile: string'" });
   }
-  try {
-    await Identity.update(uid, { mobile });
-    return respond(res, { status: 200, message: "Field 'mobile' updated" });
-  } catch (e) {
-    return respond(res, { status: e.status ?? 500, error: e.message });
-  }
+
+  await Identity.update(uid, { mobile });
+  return respond(res, { status: 200, message: "Field 'mobile' updated" });
 });

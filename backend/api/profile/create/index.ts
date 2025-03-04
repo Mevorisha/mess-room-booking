@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { respond } from "../../lib/utils/respond.js";
-import { getLoggedInUser } from "../../middlewares/auth.js";
-import Identity, { SchemaFields } from "../../models/Identity.js";
-import { withmiddleware } from "../../middlewares/withMiddleware.js";
+import { respond } from "../../../lib/utils/respond.js";
+import { getLoggedInUser } from "../../../middlewares/auth.js";
+import Identity from "../../../models/Identity.js";
+import { withmiddleware } from "../../../middlewares/withMiddleware.js";
 
 /**
  * ```
@@ -32,10 +32,6 @@ export default withmiddleware(async function POST(req: VercelRequest, res: Verce
     return respond(res, { status: 400, error: "Missing field 'email: string'" });
   }
 
-  try {
-    await Identity.create(uid, email);
-    return respond(res, { status: 200, message: `Added user w/ email ${email}` });
-  } catch (e) {
-    return respond(res, { status: e.status ?? 500, error: e.message });
-  }
+  await Identity.create(uid, email);
+  return respond(res, { status: 200, message: `Added user w/ email ${email}` });
 });
