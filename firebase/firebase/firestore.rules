@@ -36,8 +36,8 @@ service cloud.firestore {
         let network_delays = 5; // 5 minutes
 
         return (resource.data.accepted_on is timestamp || resource.data.accepted_on == null) &&
-               (resource.data.is_accepted is boolean || resource.data.is_accepted == null) &&
-               (resource.data.is_cancelled_or_cleared is boolean || resource.data.is_cancelled_or_cleared == null) &&
+               (resource.data.is_accepted is bool || resource.data.is_accepted == null) &&
+               (resource.data.is_cancelled_or_cleared is bool || resource.data.is_cancelled_or_cleared == null) &&
                resource.data.occupant_count is number &&
                resource.data.requested_on is timestamp &&
                resource.data.room_id is path &&
@@ -61,13 +61,13 @@ service cloud.firestore {
       // Room owner can update only 'is_accepted' and 'accepted_on'
       allow update: if isRoomOwner() &&
                     request.resource.data.keys().hasOnly(['is_accepted', 'accepted_on']) &&
-                    request.resource.data.is_accepted is boolean &&
+                    request.resource.data.is_accepted is bool &&
                     (request.resource.data.accepted_on is timestamp || request.resource.data.accepted_on == null);
 
       // Tenant can update only 'is_cancelled_or_cleared'
       allow update: if isTenant() &&
                     request.resource.data.keys().hasOnly(['is_cancelled_or_cleared']) &&
-                    request.resource.data.is_cancelled_or_cleared is boolean;
+                    request.resource.data.is_cancelled_or_cleared is bool;
 
       // A booking may not be updated after it has been created
       allow update: if false;
@@ -112,8 +112,8 @@ service cloud.firestore {
         let network_delays = 5; // 5 minutes
 
         return (resource.data.accepted_on is timestamp || resource.data.accepted_on == null) &&
-               (resource.data.is_accepted is boolean || resource.data.is_accepted == null) &&
-               (resource.data.is_cancelled_or_cleared is boolean || resource.data.is_cancelled_or_cleared == null) &&
+               (resource.data.is_accepted is bool || resource.data.is_accepted == null) &&
+               (resource.data.is_cancelled_or_cleared is bool || resource.data.is_cancelled_or_cleared == null) &&
                resource.data.occupant_count is number &&
                resource.data.requested_on is timestamp &&
                resource.data.room_id is path &&
@@ -137,13 +137,13 @@ service cloud.firestore {
       // Room owner can update only 'is_accepted' and 'accepted_on'
       allow update: if isRoomOwner() &&
                     request.resource.data.keys().hasOnly(['is_accepted', 'accepted_on']) &&
-                    request.resource.data.is_accepted is boolean &&
+                    request.resource.data.is_accepted is bool &&
                     (request.resource.data.accepted_on is timestamp || request.resource.data.accepted_on == null);
 
       // Tenant can update only 'is_cancelled_or_cleared'
       allow update: if isTenant() &&
                     request.resource.data.keys().hasOnly(['is_cancelled_or_cleared']) &&
-                    request.resource.data.is_cancelled_or_cleared is boolean;
+                    request.resource.data.is_cancelled_or_cleared is bool;
 
       // A booking may not be updated after it has been created
       allow update: if false;
