@@ -45,4 +45,4 @@ jobs:
       #     curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
       #       -d '{"body": "🔥 Preview URL: '${{ steps.deploy.outputs.details_url }}'"}' \
       #       "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
-        working-directory: app
+        working-directory: firebase

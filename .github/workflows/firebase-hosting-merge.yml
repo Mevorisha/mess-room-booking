@@ -35,4 +35,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
           projectId: mess-booking-app-serverless
-        working-directory: app
+        working-directory: firebase
