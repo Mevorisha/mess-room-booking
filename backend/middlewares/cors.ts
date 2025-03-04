@@ -14,7 +14,7 @@ export async function cors(req: VercelRequest, res: VercelResponse): Promise<boo
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
     console.error(origin);
-    respond(res, { status: 418, error: "Origin not allowed" });
+    respond(res, { status: 403, error: "Origin not allowed" });
     return false;
   }
   res.setHeader("Access-Control-Allow-Methods", AllowedMethods.join(", "));
