@@ -1,4 +1,4 @@
-import ErrorMessages, { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
+import ErrorMessages from "../errors/ErrorMessages.js";
 import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
 
 /**
@@ -14,7 +14,7 @@ async function logInfo(operation, descrip, code = "code_unknown") {
     const timestamp = new Date().toUTCString();
     await apiPostOrPatchJson("POST", ApiPaths.Logs.put("info"), { timestamp, message });
   } catch (error) {
-    console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));
+    console.error(ErrorMessages.LOGGING_FAILED, error);
   }
 }
 
@@ -31,7 +31,7 @@ async function logError(operation, descrip, code = "code_unknown") {
     const timestamp = new Date().toUTCString();
     await apiPostOrPatchJson("POST", ApiPaths.Logs.put("error"), { timestamp, message });
   } catch (error) {
-    console.error(ErrorMessages.LOGGING_FAILED, getCleanFirebaseErrMsg(error));
+    console.error(ErrorMessages.LOGGING_FAILED, error);
   }
 }
 
