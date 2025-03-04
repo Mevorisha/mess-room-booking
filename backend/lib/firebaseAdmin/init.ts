@@ -16,11 +16,11 @@ const FirebaseApp = initializeApp({
  * Firestore paths
  */
 class FirestorePaths {
-  static IDENTITY = !config.IS_PREVIEW ? "/fstr_Identity" : "/preview_fstr_Identity";
-  static LOGS = !config.IS_PREVIEW ? "/fstr_Logs" : "/preview_fstr_Logs";
-  static FEEDBACK = !config.IS_PREVIEW ? "/fstr_Feedback" : "/preview_fstr_Feedback";
-  static ROOMS = !config.IS_PREVIEW ? "/fstr_Rooms" : "/preview_fstr_Rooms";
-  static BOOKINGS = !config.IS_PREVIEW ? "/fstr_Bookings" : "/preview_fstr_Bookings";
+  static IDENTITY = !config.IS_DEV ? "/fstr_Identity" : "/preview_fstr_Identity";
+  static LOGS = !config.IS_DEV ? "/fstr_Logs" : "/preview_fstr_Logs";
+  static FEEDBACK = !config.IS_DEV ? "/fstr_Feedback" : "/preview_fstr_Feedback";
+  static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
+  static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
 
   static Identity = (uid: string) => getFirestore().collection(FirestorePaths.IDENTITY).doc(uid);
 
@@ -37,10 +37,10 @@ class FirestorePaths {
  * Storage paths
  */
 class StoragePaths {
-  static PROFILE_PHOTOS = !config.IS_PREVIEW ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
-  static ROOM_PHOTOS = !config.IS_PREVIEW ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
-  static IDENTITY_DOCUMENTS = !config.IS_PREVIEW ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
-  static FEEDBACK_PHOTOS = !config.IS_PREVIEW ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
+  static PROFILE_PHOTOS = !config.IS_DEV ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
+  static ROOM_PHOTOS = !config.IS_DEV ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
+  static IDENTITY_DOCUMENTS = !config.IS_DEV ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !config.IS_DEV ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
 
   static ProfilePhotos = {
     gsBucket: (uid: string, w: number, h: number): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`,
