@@ -13,7 +13,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   if (AllowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
-    console.error(origin);
+    console.error("Blocked origin:", origin);
     respond(res, { status: 403, error: "Origin not allowed" });
     return false;
   }
