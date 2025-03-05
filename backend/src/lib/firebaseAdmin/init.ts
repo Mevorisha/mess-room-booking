@@ -1,19 +1,27 @@
 import admin from "firebase-admin";
-import { initializeApp } from "firebase-admin/app";
-import { getDatabase } from "firebase-admin/database";
-import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
+import { App, getApp, initializeApp } from "firebase-admin/app";
+import { Database, getDatabase } from "firebase-admin/database";
+import { Firestore, getFirestore } from "firebase-admin/firestore";
+import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "../config";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
 
-let FirebaseApp = null;
-let FirebaseRtDb = null;
-let FirebaseFirestore = null;
-let FirebaseStorage = null;
+let FirebaseApp: App;
+let FirebaseRtDb: Database;
+let FirebaseFirestore: Firestore;
+let FirebaseStorage: Storage;
+let alreadyInit = false;
 
-// Without this if-else check, next.js hot-reload causes firebase re-init and hence error
-if (!admin.apps.length) {
+// Without this try-catch-finally, next.js hot-reload causes firebase re-init and hence error
+// If you're gonna modify this code test the following
+// npm run dev the live dev server
+// Visit any api endpoint
+// Make a change in code
+// Reload the API endoint
+// If no error, you're good to go
+// Errors if any will appear in console and in web frontend
+try {
   FirebaseApp = initializeApp(
     {
       projectId: config.FIREBASE_PROJECT_ID,
@@ -24,11 +32,17 @@ if (!admin.apps.length) {
     config.FIREBASE_PROJECT_ID
   );
 
+  alreadyInit = false;
+} catch (e) {
+  FirebaseApp = getApp(config.FIREBASE_PROJECT_ID);
+
+  alreadyInit = true;
+} finally {
   FirebaseRtDb = getDatabase(FirebaseApp);
   FirebaseFirestore = getFirestore(FirebaseApp);
   FirebaseStorage = getStorage(FirebaseApp);
 
-  if (config.RUN_ON_EMULATOR) {
+  if (!alreadyInit && config.RUN_ON_EMULATOR) {
     FirebaseFirestore.settings({ host: "localhost:9004", ssl: false });
   }
 }
@@ -43,15 +57,15 @@ class FirestorePaths {
   static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
   static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
 
-  static Identity = (uid: string) => getFirestore(FirebaseApp).collection(FirestorePaths.IDENTITY).doc(uid);
+  static Identity = (uid: string) => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
 
-  static Logs = (uid: string) => getFirestore(FirebaseApp).collection(FirestorePaths.LOGS).doc(uid);
+  static Logs = (uid: string) => FirebaseFirestore.collection(FirestorePaths.LOGS).doc(uid);
 
-  static Feedback = () => getFirestore(FirebaseApp).collection(FirestorePaths.FEEDBACK);
+  static Feedback = () => FirebaseFirestore.collection(FirestorePaths.FEEDBACK);
 
-  static Rooms = (roomId: string) => getFirestore(FirebaseApp).collection(FirestorePaths.ROOMS).doc(roomId);
+  static Rooms = (roomId: string) => FirebaseFirestore.collection(FirestorePaths.ROOMS).doc(roomId);
 
-  static Bookings = (bookingId: string) => getFirestore(FirebaseApp).collection(FirestorePaths.BOOKINGS).doc(bookingId);
+  static Bookings = (bookingId: string) => FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
 }
 
 /**
