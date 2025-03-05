@@ -23,7 +23,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   res.setHeader("Access-Control-Allow-Credentials", "false");
 
   if (req.method === "OPTIONS") {
-    res.status(204).json({});
+    res.status(204).end();
     return false;
   }
 
