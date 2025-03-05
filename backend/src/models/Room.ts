@@ -1,5 +1,4 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
+import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { ApiError } from "@/lib/utils/ApiError";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
@@ -55,7 +54,7 @@ class Room {
    * Create a new room document
    */
   static async create(roomData: RoomData): Promise<string> {
-    const ref = getFirestore().collection(FirestorePaths.ROOMS);
+    const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     try {
       const docRef = await ref.add(roomData);
       return docRef.id;

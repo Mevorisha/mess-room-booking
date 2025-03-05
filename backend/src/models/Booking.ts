@@ -1,5 +1,5 @@
-import firestore, { getFirestore } from "firebase-admin/firestore";
-import { FirestorePaths } from "@/lib/firebaseAdmin/init";
+import firestore from "firebase-admin/firestore";
+import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
 import { ApiError } from "@/lib/utils/ApiError";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
@@ -46,7 +46,7 @@ class Booking {
    * Create a new booking document
    */
   static async create(tenantId: string, roomId: string, occupantCount: number): Promise<string> {
-    const ref = getFirestore().collection(FirestorePaths.BOOKINGS);
+    const ref = FirebaseFirestore.collection(FirestorePaths.BOOKINGS);
     const requestedOn = firestore.Timestamp.now();
     try {
       const docRef = await ref.add({ tenantId, roomId, occupantCount, requestedOn });

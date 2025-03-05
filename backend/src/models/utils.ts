@@ -1,4 +1,4 @@
-import { getStorage } from "firebase-admin/storage";
+import { FirebaseStorage } from "@/lib/firebaseAdmin/init";
 import { ApiError } from "@/lib/utils/ApiError";
 
 interface UrlCacheData {
@@ -20,7 +20,7 @@ export async function gsPathToUrl(path: string): Promise<string> {
       }
     }
 
-    const bucket = getStorage().bucket();
+    const bucket = FirebaseStorage.bucket();
     const file = bucket.file(path);
     const expires = Date.now() + /* 15 min */ 15 * 60 * 1000;
     const [signedUrl] = await file.getSignedUrl({ action: "read", expires });

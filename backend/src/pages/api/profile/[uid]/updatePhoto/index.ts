@@ -1,8 +1,7 @@
 import fs from "fs";
 import formidable from "formidable";
-import { getStorage } from "firebase-admin/storage";
 import { authenticate } from "@/middlewares/auth";
-import { StoragePaths } from "@/lib/firebaseAdmin/init";
+import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { resizeImage } from "@/lib/utils/dataConversion";
 import Identity from "@/models/Identity";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -55,7 +54,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     const fileBuffer = fs.readFileSync(file.filepath);
 
     const resizedImages = await resizeImage(fileBuffer);
-    const bucket = getStorage().bucket();
+    const bucket = FirebaseStorage.bucket();
     // Create upload promise and get image paths
     const imagePaths = { small: "", medium: "", large: "" };
     const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {

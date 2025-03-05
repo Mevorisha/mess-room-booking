@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
 import { initializeApp } from "firebase-admin/app";
+import { getDatabase } from "firebase-admin/database";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 import * as config from "../config";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
@@ -15,9 +17,12 @@ const FirebaseApp = initializeApp(
   config.FIREBASE_PROJECT_ID
 );
 
+const FirebaseRtDb = getDatabase(FirebaseApp);
+const FirebaseFirestore = getFirestore(FirebaseApp);
+const FirebaseStorage = getStorage(FirebaseApp);
+
 if (config.RUN_ON_EMULATOR) {
-  const firestore = getFirestore();
-  firestore.settings({ host: "localhost:9004", ssl: false });
+  FirebaseFirestore.settings({ host: "localhost:9004", ssl: false });
 }
 
 /**
@@ -30,15 +35,15 @@ class FirestorePaths {
   static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
   static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
 
-  static Identity = (uid: string) => getFirestore().collection(FirestorePaths.IDENTITY).doc(uid);
+  static Identity = (uid: string) => getFirestore(FirebaseApp).collection(FirestorePaths.IDENTITY).doc(uid);
 
-  static Logs = (uid: string) => getFirestore().collection(FirestorePaths.LOGS).doc(uid);
+  static Logs = (uid: string) => getFirestore(FirebaseApp).collection(FirestorePaths.LOGS).doc(uid);
 
-  static Feedback = () => getFirestore().collection(FirestorePaths.FEEDBACK);
+  static Feedback = () => getFirestore(FirebaseApp).collection(FirestorePaths.FEEDBACK);
 
-  static Rooms = (roomId: string) => getFirestore().collection(FirestorePaths.ROOMS).doc(roomId);
+  static Rooms = (roomId: string) => getFirestore(FirebaseApp).collection(FirestorePaths.ROOMS).doc(roomId);
 
-  static Bookings = (bookingId: string) => getFirestore().collection(FirestorePaths.BOOKINGS).doc(bookingId);
+  static Bookings = (bookingId: string) => getFirestore(FirebaseApp).collection(FirestorePaths.BOOKINGS).doc(bookingId);
 }
 
 /**
@@ -77,4 +82,4 @@ class StoragePaths {
 }
 
 export default admin;
-export { FirebaseApp, FirestorePaths, StoragePaths };
+export { FirebaseApp, FirebaseRtDb, FirebaseFirestore, FirebaseStorage, FirestorePaths, StoragePaths };
