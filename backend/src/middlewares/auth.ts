@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import admin from "@/lib/firebaseAdmin/init";
+import { FirebaseAuth } from "@/lib/firebaseAdmin/init";
 import { respond } from "@/lib/utils/respond";
 import { ApiError } from "@/lib/utils/ApiError";
 
@@ -17,11 +17,12 @@ export async function getLoggedInUser(
         return null;
       }
     }
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await FirebaseAuth.verifyIdToken(token);
     const loggedInUid = decodedToken.uid;
     req.query["auth.uid"] = loggedInUid;
     return loggedInUid;
   } catch (e) {
+    console.error(e);
     return null;
   }
 }
@@ -37,7 +38,7 @@ export async function authenticate(req: NextApiRequest, res: NextApiResponse, ex
       return false;
     }
 
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await FirebaseAuth.verifyIdToken(token);
     req.query["auth.uid"] = decodedToken.uid;
 
     if (expectedUid === req.query["auth.uid"]) return true;

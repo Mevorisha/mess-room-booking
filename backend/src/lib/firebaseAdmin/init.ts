@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { App, getApp, initializeApp } from "firebase-admin/app";
+import { Auth, getAuth } from "firebase-admin/auth";
 import { Database, getDatabase } from "firebase-admin/database";
 import { Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
@@ -8,6 +9,7 @@ import * as config from "../config";
 export type MultiSizeImageSz = "small" | "medium" | "large";
 
 let FirebaseApp: App;
+let FirebaseAuth: Auth;
 let FirebaseRtDb: Database;
 let FirebaseFirestore: Firestore;
 let FirebaseStorage: Storage;
@@ -38,6 +40,7 @@ try {
 
   alreadyInit = true;
 } finally {
+  FirebaseAuth = getAuth(FirebaseApp);
   FirebaseRtDb = getDatabase(FirebaseApp);
   FirebaseFirestore = getFirestore(FirebaseApp);
   FirebaseStorage = getStorage(FirebaseApp);
@@ -103,5 +106,4 @@ class StoragePaths {
   static FeedbackPhotos = (uid: string, code: string): string => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
 }
 
-export default admin;
-export { FirebaseApp, FirebaseRtDb, FirebaseFirestore, FirebaseStorage, FirestorePaths, StoragePaths };
+export { FirebaseApp, FirebaseAuth, FirebaseRtDb, FirebaseFirestore, FirebaseStorage, FirestorePaths, StoragePaths };
