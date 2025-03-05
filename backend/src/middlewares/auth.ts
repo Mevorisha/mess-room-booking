@@ -1,11 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import admin from "@/lib/firebaseAdmin/init";
 import { respond } from "@/lib/utils/respond";
+import { ApiError } from "@/lib/utils/ApiError";
 
-export async function getLoggedInUser(req: NextApiRequest, res: NextApiResponse): Promise<string | null> {
+export async function getLoggedInUser(
+  req: NextApiRequest,
+  _: NextApiResponse,
+  errOnMissingCred = false
+): Promise<string | null> {
   try {
     const token = req.headers["x-firebase-token"] as string;
-    if (!token) return null;
+    if (!token) {
+      if (errOnMissingCred) {
+        throw new ApiError(403, "Missing X-Firebase-Token header");
+      } else {
+        return null;
+      }
+    }
     const decodedToken = await admin.auth().verifyIdToken(token);
     const loggedInUid = decodedToken.uid;
     req.query["auth.uid"] = loggedInUid;

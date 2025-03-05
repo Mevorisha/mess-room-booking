@@ -17,7 +17,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   }
 
   // Auth middleware to get user
-  const uid = await getLoggedInUser(req, res);
+  const uid = await getLoggedInUser(req, res, true);
   if (!uid) {
     return respond(res, { status: 404, error: "User not found" });
   }
