@@ -7,22 +7,30 @@ import * as config from "../config";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
 
-const FirebaseApp = initializeApp(
-  {
-    projectId: config.FIREBASE_PROJECT_ID,
-    credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
-    databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_DATABASE_URL : "localhost:9002",
-    storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_STORAGE_BUCKET : "localhost:9003",
-  },
-  config.FIREBASE_PROJECT_ID
-);
+let FirebaseApp = null;
+let FirebaseRtDb = null;
+let FirebaseFirestore = null;
+let FirebaseStorage = null;
 
-const FirebaseRtDb = getDatabase(FirebaseApp);
-const FirebaseFirestore = getFirestore(FirebaseApp);
-const FirebaseStorage = getStorage(FirebaseApp);
+// Without this if-else check, next.js hot-reload causes firebase re-init and hence error
+if (!admin.apps.length) {
+  FirebaseApp = initializeApp(
+    {
+      projectId: config.FIREBASE_PROJECT_ID,
+      credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
+      databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_DATABASE_URL : "localhost:9002",
+      storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_STORAGE_BUCKET : "localhost:9003",
+    },
+    config.FIREBASE_PROJECT_ID
+  );
 
-if (config.RUN_ON_EMULATOR) {
-  FirebaseFirestore.settings({ host: "localhost:9004", ssl: false });
+  FirebaseRtDb = getDatabase(FirebaseApp);
+  FirebaseFirestore = getFirestore(FirebaseApp);
+  FirebaseStorage = getStorage(FirebaseApp);
+
+  if (config.RUN_ON_EMULATOR) {
+    FirebaseFirestore.settings({ host: "localhost:9004", ssl: false });
+  }
 }
 
 /**
