@@ -13,7 +13,8 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   if (AllowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
-    console.error("Blocked origin:", origin);
+    if (origin) console.error("Blocked origin:", origin);
+    else console.log("No origin header found");
     respond(res, { status: 403, error: "Origin not allowed" });
     return false;
   }
@@ -23,9 +24,11 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   res.setHeader("Access-Control-Allow-Credentials", "false");
 
   if (req.method === "OPTIONS") {
-    res.status(204).end();
+    res.status(204);
+    res.end();
     return false;
   }
 
+  // Not to end response here and let it be end by handler
   return true;
 }
