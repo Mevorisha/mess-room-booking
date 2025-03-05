@@ -302,6 +302,7 @@ class EmailPasswdAuth {
   static async register(email, password) {
     try {
       const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
