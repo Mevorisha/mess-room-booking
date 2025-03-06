@@ -164,7 +164,7 @@ export class User {
    * @returns {User}
    */
   clone() {
-    const user = new User(this.uid, this.mobile, this.firstName, this.lastName);
+    const user = new User(this.uid, this.email, this.mobile, this.firstName, this.lastName);
 
     if (!isEmpty(this.type)) user.setType(/** @type {"TENANT" | "OWNER"} */ (this.type));
 
@@ -220,13 +220,22 @@ export class User {
   }
 
   /**
-   * @param {string} firstName
-   * @param {string} lastName
+   * @param {string?} firstName
+   * @param {string?} lastName
    * @returns {this}
    */
   setProfileName(firstName, lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+    if (firstName) this.firstName = firstName;
+    if (lastName) this.lastName = lastName;
+    return this;
+  }
+
+  /**
+   * @param {string} email
+   * @returns {this}
+   */
+  setEmail(email) {
+    this.email = email;
     return this;
   }
 
@@ -269,6 +278,7 @@ export class User {
  *     from?: User,
  *     fromFirebaseAuth?: import("firebase/auth").User
  *     type?: "TENANT" | "OWNER"
+ *     email?: string,
  *     mobile?: string,
  *     firstName?: string,
  *     lastName?: string,
@@ -318,11 +328,17 @@ export function UserProvider({ children }) {
         if (action.type) {
           newUser.setType(action.type);
         }
+        if (action.email) {
+          newUser.setEmail(action.email);
+        }
         if (action.mobile) {
           newUser.setMobile(action.mobile);
         }
-        if (action.firstName && action.lastName) {
-          newUser.setProfileName(action.firstName, action.lastName);
+        if (action.firstName) {
+          newUser.setProfileName(action.firstName, null);
+        }
+        if (action.lastName) {
+          newUser.setProfileName(null, action.lastName);
         }
         if (action.profilePhotos) {
           newUser.setProfilePhotos(action.profilePhotos);
