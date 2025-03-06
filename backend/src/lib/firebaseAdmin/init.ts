@@ -28,8 +28,8 @@ try {
     {
       projectId: config.FIREBASE_PROJECT_ID,
       credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
-      databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_DATABASE_URL : "localhost:9002",
-      storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_STORAGE_BUCKET : "localhost:9003",
+      databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_DATABASE_URL : config.FIREBASE_DATABASE_URL,
+      storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_STORAGE_BUCKET : config.FIREBASE_STORAGE_BUCKET,
     },
     config.FIREBASE_PROJECT_ID
   );
@@ -46,7 +46,7 @@ try {
   FirebaseStorage = getStorage(FirebaseApp);
 
   if (!alreadyInit && config.RUN_ON_EMULATOR) {
-    FirebaseFirestore.settings({ host: "localhost:9004", ssl: false });
+    FirebaseFirestore.settings({ host: config.FIREBASE_FIRESTORE_EMULATOR_HOST, ssl: false });
   }
 }
 
