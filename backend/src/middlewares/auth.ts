@@ -22,7 +22,7 @@ export async function getLoggedInUser(
     req.query["auth.uid"] = loggedInUid;
     return loggedInUid;
   } catch (e) {
-    console.error(e);
+    console.trace(e);
     return null;
   }
 }

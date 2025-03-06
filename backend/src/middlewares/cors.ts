@@ -14,7 +14,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
     if (origin) console.error("Blocked origin:", origin);
-    else console.log("No origin header found");
+    else console.error("No origin header found");
     respond(res, { status: 403, error: "Origin not allowed" });
     return false;
   }

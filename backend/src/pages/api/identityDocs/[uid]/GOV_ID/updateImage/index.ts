@@ -47,7 +47,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { err, files } = await formParsePromise;
   // Parsing error
   if (err) {
-    console.error(err);
+    console.trace(err);
     return respond(res, { status: 500, error: "Error parsing file" });
   }
   // Get file from form data (only 1 file)

@@ -11,11 +11,11 @@ export function catchAll(
     if (prom instanceof Promise) {
       prom.catch((e) => {
         respond(res, { status: 500, error: "Internal Server Error" });
-        console.error(e);
+        console.trace(e);
       });
     }
   } catch (e) {
     respond(res, { status: 500, error: "Internal Server Error" });
-    console.error(e);
+    console.trace(e);
   }
 }
