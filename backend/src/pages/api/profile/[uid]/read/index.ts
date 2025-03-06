@@ -64,7 +64,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   // If logged-in, send additional identity information
   const loggedInUid = await getLoggedInUser(req, res);
   if (loggedInUid === uid) {
-    fields.concat([SchemaFields.IDENTITY_PHOTOS, SchemaFields.LANGUAGE, SchemaFields.TYPE]);
+    [SchemaFields.IDENTITY_PHOTOS, SchemaFields.LANGUAGE, SchemaFields.TYPE].forEach((type) => fields.push(type));
   }
 
   const result = await Identity.get(uid, "API_URI", fields);
