@@ -3,6 +3,7 @@ import useNotification from "../../hooks/notification.js";
 import { lang } from "../../modules/util/language.js";
 import { fileToBase64FileData } from "../../modules/util/dataConversion.js";
 import { CachePaths } from "../../modules/util/caching.js";
+import { FirebaseAuth } from "../../modules/firebase/init.js";
 
 const IMAGE_LOADER_CACHE_PATH = CachePaths.IMAGE_LOADER;
 
@@ -370,9 +371,10 @@ const LOADING_GIF_DATA =
 
 /**
  * @param {string} url
+ * @param {boolean} [requireAuth]
  * @returns {Promise<string>} - Base64 image data
  */
-async function fetchImageAsBase64(url) {
+async function fetchImageAsBase64(url, requireAuth = true) {
   const cache = await caches.open(IMAGE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
   if (cachedRes) {
@@ -381,8 +383,13 @@ async function fetchImageAsBase64(url) {
     return result;
   }
 
+  const headers = /** @type {Record<String, string>} */ ({});
+  if (requireAuth) {
+    headers["X-Firebase-Token"] = await FirebaseAuth.currentUser?.getIdToken() ?? "";
+  }
+
   // Fetch the image from the URL
-  const response = await fetch(url);
+  const response = await fetch(url, { headers });
 
   if (!response.ok) {
     throw new Error(
@@ -415,6 +422,7 @@ async function fetchImageAsBase64(url) {
  *   loadingAnimation?: string;
  *   src: string;
  *   alt: string;
+ *   requireAuth?: boolean;
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -426,7 +434,7 @@ export default function ImageLoader(props) {
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
   function onImageElementLoaded() {
-    fetchImageAsBase64(props.src)
+    fetchImageAsBase64(props.src, props.requireAuth)
       .then((data) => setImageData(data))
       .catch((e) => notify(e, "error"));
   }

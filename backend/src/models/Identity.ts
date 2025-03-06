@@ -56,17 +56,19 @@ function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
     };
   }
   if (dataToUpdate.identityPhotos) {
+    const workId = {
+      small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
+    };
+    const govId = {
+      small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
+    };
     dataToUpdate.identityPhotos = {
-      workId: {
-        small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
-        medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
-        large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
-      },
-      govId: {
-        small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
-        medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
-        large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
-      },
+      workId: dataToUpdate.identityPhotos.workId && workId,
+      govId: dataToUpdate.identityPhotos.govId && govId,
       workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate,
       govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate,
     };
