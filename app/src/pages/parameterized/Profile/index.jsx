@@ -95,7 +95,7 @@ export default function Profile() {
   }
 
   const displayName =
-    !userProfile.firstName && !userProfile.lastName
+    !userProfile.firstName || !userProfile.lastName
       ? "(Not Provided)"
       : `${userProfile.firstName} ${userProfile.lastName}`;
 

@@ -225,8 +225,8 @@ export class User {
    * @returns {this}
    */
   setProfileName(firstName, lastName) {
-    if (firstName) this.firstName = firstName;
-    if (lastName) this.lastName = lastName;
+    if (typeof firstName === "string") this.firstName = firstName;
+    if (typeof lastName === "string") this.lastName = lastName;
     return this;
   }
 
