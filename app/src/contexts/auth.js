@@ -107,6 +107,10 @@ export function AuthProvider({ children }) {
         dispatchUser({ type: onlineProfileData.type });
       }
 
+      if (!isEmpty(onlineProfileData.mobile)) {
+        dispatchUser({ mobile: onlineProfileData.mobile });
+      }
+
       if (!isEmpty(onlineProfileData.firstName)) {
         dispatchUser({ firstName: onlineProfileData.firstName });
       }
