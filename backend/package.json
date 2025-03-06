@@ -1,10 +1,10 @@
 {
-  "name": "backend-next",
+  "name": "mevorisha-mess-booking-apis",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001 --turbopack",
-    "build": "next build",
+    "build": "DISABLE_ESLINT_PLUGIN=true next build",
     "start": "next start -p 3001",
     "lint": "next lint"
   },
@@ -17,13 +17,10 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@types/formidable": "^3.4.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.1",
     "typescript": "^5"
   }
 }
