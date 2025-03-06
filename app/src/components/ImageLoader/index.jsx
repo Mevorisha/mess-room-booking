@@ -457,11 +457,15 @@ export default function ImageLoader(props) {
     objectFit: "scale-down",
   };
 
+  const newProps = { ...props };
+  delete newProps.requireAuth;
+  delete newProps.loadingAnimation;
+
   if (!imageData) {
     return (
-      <img {...props} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
+      <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
     );
   }
 
-  return <img {...props} src={imageData} alt={props.alt} />;
+  return <img {...newProps} src={imageData} alt={props.alt} />;
 }
