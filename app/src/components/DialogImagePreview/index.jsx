@@ -13,7 +13,7 @@ export default function DialogImagePreview({ largeImageUrl }) {
 
   return (
     <div className="components-DialogImagePreview">
-      <ImageLoader src={largeImageUrl} alt="preview" />
+      <ImageLoader src={largeImageUrl} alt="preview" requireAuth />
       <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />
     </div>
   );

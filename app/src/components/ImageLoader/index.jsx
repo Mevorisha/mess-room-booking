@@ -374,7 +374,7 @@ const LOADING_GIF_DATA =
  * @param {boolean} [requireAuth]
  * @returns {Promise<string>} - Base64 image data
  */
-async function fetchImageAsBase64(url, requireAuth = true) {
+async function fetchImageAsBase64(url, requireAuth = false) {
   const cache = await caches.open(IMAGE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
   if (cachedRes) {
@@ -385,7 +385,7 @@ async function fetchImageAsBase64(url, requireAuth = true) {
 
   const headers = /** @type {Record<String, string>} */ ({});
   if (requireAuth) {
-    headers["X-Firebase-Token"] = await FirebaseAuth.currentUser?.getIdToken() ?? "";
+    headers["X-Firebase-Token"] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
   }
 
   // Fetch the image from the URL

@@ -103,6 +103,7 @@ export default function SectionIdentiyDocs() {
               <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
               <div className="update-id">
                 <ImageLoader
+                  requireAuth
                   alt="Work Identity Document"
                   src={compUsr.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
@@ -152,6 +153,7 @@ export default function SectionIdentiyDocs() {
               <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
               <div className="update-id">
                 <ImageLoader
+                  requireAuth
                   alt="Government Identity Document"
                   src={compUsr.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"
