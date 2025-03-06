@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useCallback, useContext } fr
 import UserContext, { UploadedImage, User } from "./user.js";
 import LanguageContext from "./language.js";
 import useNotification from "../hooks/notification.js";
-import { logOut as fbAuthLogOut, onAuthStateChanged } from "../modules/firebase/auth.js";
+import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "../modules/firebase/auth.js";
 import { isEmpty } from "../modules/util/validations.js";
 import { lang } from "../modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "../modules/util/api.js";
@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
       else {
         dispatchUser({ fromFirebaseAuth: user });
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
-        setAuthState(AuthStateEnum.STILL_LOADING);
+        AuthLock.CREATING_USER.onClear(() => setAuthState(AuthStateEnum.STILL_LOADING));
       }
 
       console.log(`${MODULE_NAME}::onAuthStateChanged: new user =`, user ? User.fromFirebaseAuthUser(user) : null);
