@@ -40,12 +40,13 @@ export function LanguageProvider({ children }) {
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         if (updateRemote) {
-          apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateLanguage(uid), { language: newVal }).catch((e) =>
-            notify(e, "error")
-          );
+          apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateLanguage(uid), { language: newVal })
+            .then(() => {
+              // ensure all modules are reloaded with the new language value
+              if (oldVal !== newVal) window.location.href = "/";
+            })
+            .catch((e) => notify(e, "error"));
         }
-        // ensure all modules are reloaded with the new language value
-        if (oldVal !== newVal) window.location.href = "/";
         return newVal;
       }),
     [_setLang, notify, uid]
