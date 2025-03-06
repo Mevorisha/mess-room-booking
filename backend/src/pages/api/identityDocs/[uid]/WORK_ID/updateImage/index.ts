@@ -7,6 +7,7 @@ import Identity from "@/models/Identity";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
+import FormParseResult from "@/lib/types/IFormParseResult";
 
 export const config = {
   api: {
@@ -36,52 +37,58 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   // Parse form data
   const form = formidable({ multiples: true });
-  form.parse(req, async (err: any, _: formidable.Fields<string>, files: formidable.Files<"file">) => {
-    // Parsing error
-    if (err) {
-      console.error(err);
-      return respond(res, { status: 500, error: "Error parsing file" });
-    }
-    // Get file from form data (only 1 file)
-    const fileNames = Object.keys(files);
-    const file = fileNames.length === 1 && files[fileNames[0]][0];
-    if (fileNames.length !== 1) {
-      return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
-    }
-    if (!file) {
-      return respond(res, { status: 400, error: "No file uploaded" });
-    }
-    // File should be JPEG or PNG
-    if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {
-      return respond(res, { status: 400, error: `Invalid file type '${file.mimetype}'` });
-    }
-    // Read file buffer
-    const fileBuffer = fs.readFileSync(file.filepath);
 
-    const resizedImages = await resizeImage(fileBuffer);
-    const bucket = FirebaseStorage.bucket();
-    // Create upload promise and get image paths
-    const imagePaths = { small: "", medium: "", large: "" };
-    const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-      const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "WORK_ID", imgWithSz.sz, imgWithSz.sz);
-      imagePaths[size] = filePath;
-      const fileRef = bucket.file(filePath);
-      return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
+  const formParsePromise = new Promise<FormParseResult>((resolve, _) => {
+    form.parse(req, async (err: any, fields: formidable.Fields<string>, files: formidable.Files<"file">) => {
+      resolve({ err, fields, files });
     });
-    // Start upload
-    await Promise.all(uploadPromises);
-    // Update Firestore with image paths
-    await Identity.update(uid, {
-      identityPhotos: {
-        workId: {
-          small: imagePaths.small,
-          medium: imagePaths.medium,
-          large: imagePaths.large,
-        },
-        workIdIsPrivate: true,
-      },
-    });
-
-    return respond(res, { status: 200, message: "Upload successful" });
   });
+
+  const { err, files } = await formParsePromise;
+  // Parsing error
+  if (err) {
+    console.error(err);
+    return respond(res, { status: 500, error: "Error parsing file" });
+  }
+  // Get file from form data (only 1 file)
+  const fileNames = Object.keys(files);
+  const file = fileNames.length === 1 && files[fileNames[0]][0];
+  if (fileNames.length !== 1) {
+    return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
+  }
+  if (!file) {
+    return respond(res, { status: 400, error: "No file uploaded" });
+  }
+  // File should be JPEG or PNG
+  if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {
+    return respond(res, { status: 400, error: `Invalid file type '${file.mimetype}'` });
+  }
+  // Read file buffer
+  const fileBuffer = fs.readFileSync(file.filepath);
+
+  const resizedImages = await resizeImage(fileBuffer);
+  const bucket = FirebaseStorage.bucket();
+  // Create upload promise and get image paths
+  const imagePaths = { small: "", medium: "", large: "" };
+  const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
+    const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "WORK_ID", imgWithSz.sz, imgWithSz.sz);
+    imagePaths[size] = filePath;
+    const fileRef = bucket.file(filePath);
+    return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
+  });
+  // Start upload
+  await Promise.all(uploadPromises);
+  // Update Firestore with image paths
+  await Identity.update(uid, {
+    identityPhotos: {
+      workId: {
+        small: imagePaths.small,
+        medium: imagePaths.medium,
+        large: imagePaths.large,
+      },
+      workIdIsPrivate: true,
+    },
+  });
+
+  return respond(res, { status: 200, message: "Upload successful" });
 });
