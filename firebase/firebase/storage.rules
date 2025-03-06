@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service firebase.storage {
+  // ------------------------------- PRODUCTION RULES ------------------------------------
+  match /b/{bucket}/o {
+
+    // ------------------------------- COMMON FUNCTIONS ------------------------------------
+
+    // Check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user is the owner of the resource
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Validate allowed image dimensions
+    function isValidImageSize(w, h) {
+      return (w == '30' && h == '30') ||
+             (w == '90' && h == '90') ||
+             (w == '500' && h == '500');
+    }
+
+    // Validate identity document types
+    function isValidIdType(type) {
+      return type == "WORK_ID" || type == "GOV_ID";
+    }
+
+    // ------------------------------- STORAGE RULES ------------------------------------
+
+    match /storg_ProfilePhotos/{uid}/{w}/{h} {
+      allow read:  if isAuthenticated();                                                // Anyone logged in can read
+      allow write: if isOwner(uid) && isValidImageSize(w, h);                           // User can upload their own profile photo with allowed sizes
+    }
+
+    // The `code` param is a unique identifier for the image
+
+    match /storg_MessPhotos/{uid}/{code} {
+      allow read:  if isAuthenticated();                                                // Anyone logged in can read
+      allow write: if isOwner(uid);                                                     // User can upload their own mess photos
+    }
+
+    // Identity documents (either "WORK_ID" or "GOV_ID")  
+    // The `code` param is "PUBLIC" if the document is public, otherwise, it's user-specific  
+
+    match /storg_IdentityDocuments/{uid}/{type}/{code}/{w}/{h} {
+      allow read:  if isAuthenticated() && isValidIdType(type);                         // Anyone logged in can read identity documents
+      allow write: if isOwner(uid) && isValidIdType(type) && isValidImageSize(w, h);    // Only the user can upload their identity documents
+    }
+
+    // Feedback photos are private; only writing is allowed
+
+    match /storg_FeedbackPhotos/{uid}/{code} {
+      allow read:  if false;                                                            // No one can read feedback photos
+      allow write: if isAuthenticated();                                                // Anyone logged in can upload feedback photos
+    }
+  }
+
+  // ------------------------------- PREVIEW RULES ------------------------------------
+  match /b/{bucket}/o {
+
+    // ------------------------------- COMMON FUNCTIONS ------------------------------------
+
+    // Check if a user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user is the owner of the resource
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Validate allowed image dimensions
+    function isValidImageSize(w, h) {
+      return (w == '30' && h == '30') ||
+             (w == '90' && h == '90') ||
+             (w == '500' && h == '500');
+    }
+
+    // Validate identity document types
+    function isValidIdType(type) {
+      return type == "WORK_ID" || type == "GOV_ID";
+    }
+
+    // ------------------------------- STORAGE RULES ------------------------------------
+
+    match /preview_storg_ProfilePhotos/{uid}/{w}/{h} {
+      allow read:  if isAuthenticated();                                                // Anyone logged in can read
+      allow write: if isOwner(uid) && isValidImageSize(w, h);                           // User can upload their own profile photo with allowed sizes
+    }
+
+    // The `code` param is a unique identifier for the image
+
+    match /preview_storg_MessPhotos/{uid}/{code} {
+      allow read:  if isAuthenticated();                                                // Anyone logged in can read
+      allow write: if isOwner(uid);                                                     // User can upload their own mess photos
+    }
+
+    // Identity documents (either "WORK_ID" or "GOV_ID")  
+    // The `code` param is "PUBLIC" if the document is public, otherwise, it's user-specific  
+
+    match /preview_storg_IdentityDocuments/{uid}/{type}/{code}/{w}/{h} {
+      allow read:  if isAuthenticated() && isValidIdType(type);                         // Anyone logged in can read identity documents
+      allow write: if isOwner(uid) && isValidIdType(type) && isValidImageSize(w, h);    // Only the user can upload their identity documents
+    }
+
+    // Feedback photos are private; only writing is allowed
+
+    match /preview_storg_FeedbackPhotos/{uid}/{code} {
+      allow read:  if false;                                                            // No one can read feedback photos
+      allow write: if isAuthenticated();                                                // Anyone logged in can upload feedback photos
+    }
+  }
+}

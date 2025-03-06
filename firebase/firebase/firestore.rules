@@ -1,0 +1,155 @@
+rules_version = '2';
+
+service cloud.firestore {
+  // ------------------------------- PRODUCTION RULES ------------------------------------
+  match /fstr_databases/{database}/documents {
+
+    //  Fields and their Types:
+    //  - accepted_on: null | timestamp (nullable)
+    //  - is_accepted: boolean
+    //  - is_cancelled_or_cleared: boolean
+    //  - occupant_count: number
+    //  - requested_on: timestamp
+    //  - room_id: reference (Firestore document reference)
+    //  - tenant_id: string
+    //  - tenant_id_docs: string[] (array of strings)
+
+    // ----------------------------- BOOKINGS RULES -----------------------------
+    match /fstr_bookings/{bookingId} {
+
+      // Check if the authenticated user is the tenant of the booking
+      function isTenant() {
+        return request.auth.uid == resource.data.tenant_id;
+      }
+
+      // Check if the authenticated user is the owner of the room being booked
+      function isRoomOwner() {
+        return exists(/databases/$(database)/documents/$(resource.data.room_id)) &&
+               get(/databases/$(database)/documents/$(resource.data.room_id)).data.owner_id == request.auth.uid;
+      }
+
+      // Ensure data types are valid
+      function isValidBookingData() {
+        let now = request.time;
+        let oneYear = duration.value(365, 'd');
+        let twoYears = duration.value(730, 'd');
+        let network_delays = 5; // 5 minutes
+
+        return (resource.data.accepted_on is timestamp || resource.data.accepted_on == null) &&
+               (resource.data.is_accepted is bool || resource.data.is_accepted == null) &&
+               (resource.data.is_cancelled_or_cleared is bool || resource.data.is_cancelled_or_cleared == null) &&
+               resource.data.occupant_count is number &&
+               resource.data.requested_on is timestamp &&
+               resource.data.room_id is path &&
+               resource.data.tenant_id is string &&
+               resource.data.tenant_id_docs is list &&
+               resource.data.ttl is timestamp &&
+               resource.data.ttl >= resource.data.requested_on + oneYear &&
+               resource.data.ttl <= resource.data.requested_on + twoYears &&
+               resource.data.requested_on >= now - duration.value(network_delays, 'm') &&
+               resource.data.requested_on <= now + duration.value(network_delays, 'm');
+      }
+
+      // Tenant can create a booking for themselves only but cannot set acceptance fields
+      allow create: if isTenant() &&
+                    !request.resource.data.keys().hasAny(['is_accepted', 'accepted_on']) &&
+                    isValidBookingData();
+
+      // Read access is granted to the tenant and the room owner
+      allow read: if isTenant() || isRoomOwner();
+
+      // Room owner can update only 'is_accepted' and 'accepted_on'
+      allow update: if isRoomOwner() &&
+                    request.resource.data.keys().hasOnly(['is_accepted', 'accepted_on']) &&
+                    request.resource.data.is_accepted is bool &&
+                    (request.resource.data.accepted_on is timestamp || request.resource.data.accepted_on == null);
+
+      // Tenant can update only 'is_cancelled_or_cleared'
+      allow update: if isTenant() &&
+                    request.resource.data.keys().hasOnly(['is_cancelled_or_cleared']) &&
+                    request.resource.data.is_cancelled_or_cleared is bool;
+
+      // A booking may not be updated after it has been created
+      allow update: if false;
+
+      // A booking may not be deleted unless TTL has expired
+      allow delete: if request.time > resource.data.ttl;
+    }
+  }
+
+  // ------------------------------- PREVIEW RULES ------------------------------------
+  match /preview_fstr_databases/{database}/documents {
+
+    //  Fields and their Types:
+    //  - accepted_on: null | timestamp (nullable)
+    //  - is_accepted: boolean
+    //  - is_cancelled_or_cleared: boolean
+    //  - occupant_count: number
+    //  - requested_on: timestamp
+    //  - room_id: reference (Firestore document reference)
+    //  - tenant_id: string
+    //  - tenant_id_docs: string[] (array of strings)
+
+    // ----------------------------- BOOKINGS RULES -----------------------------
+    match /preview_fstr_bookings/{bookingId} {
+
+      // Check if the authenticated user is the tenant of the booking
+      function isTenant() {
+        return request.auth.uid == resource.data.tenant_id;
+      }
+
+      // Check if the authenticated user is the owner of the room being booked
+      function isRoomOwner() {
+        return exists(/databases/$(database)/documents/$(resource.data.room_id)) &&
+               get(/databases/$(database)/documents/$(resource.data.room_id)).data.owner_id == request.auth.uid;
+      }
+
+      // Ensure data types are valid
+      function isValidBookingData() {
+        let now = request.time;
+        let oneYear = duration.value(365, 'd');
+        let twoYears = duration.value(730, 'd');
+        let network_delays = 5; // 5 minutes
+
+        return (resource.data.accepted_on is timestamp || resource.data.accepted_on == null) &&
+               (resource.data.is_accepted is bool || resource.data.is_accepted == null) &&
+               (resource.data.is_cancelled_or_cleared is bool || resource.data.is_cancelled_or_cleared == null) &&
+               resource.data.occupant_count is number &&
+               resource.data.requested_on is timestamp &&
+               resource.data.room_id is path &&
+               resource.data.tenant_id is string &&
+               resource.data.tenant_id_docs is list &&
+               resource.data.ttl is timestamp &&
+               resource.data.ttl >= resource.data.requested_on + oneYear &&
+               resource.data.ttl <= resource.data.requested_on + twoYears &&
+               resource.data.requested_on >= now - duration.value(network_delays, 'm') &&
+               resource.data.requested_on <= now + duration.value(network_delays, 'm');
+      }
+
+      // Tenant can create a booking for themselves only but cannot set acceptance fields
+      allow create: if isTenant() &&
+                    !request.resource.data.keys().hasAny(['is_accepted', 'accepted_on']) &&
+                    isValidBookingData();
+
+      // Read access is granted to the tenant and the room owner
+      allow read: if isTenant() || isRoomOwner();
+
+      // Room owner can update only 'is_accepted' and 'accepted_on'
+      allow update: if isRoomOwner() &&
+                    request.resource.data.keys().hasOnly(['is_accepted', 'accepted_on']) &&
+                    request.resource.data.is_accepted is bool &&
+                    (request.resource.data.accepted_on is timestamp || request.resource.data.accepted_on == null);
+
+      // Tenant can update only 'is_cancelled_or_cleared'
+      allow update: if isTenant() &&
+                    request.resource.data.keys().hasOnly(['is_cancelled_or_cleared']) &&
+                    request.resource.data.is_cancelled_or_cleared is bool;
+
+      // A booking may not be updated after it has been created
+      allow update: if false;
+
+      // A booking may not be deleted unless TTL has expired
+      allow delete: if request.time > resource.data.ttl;
+    }
+  }
+}

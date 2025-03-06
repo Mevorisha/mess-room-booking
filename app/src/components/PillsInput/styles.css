@@ -1,0 +1,108 @@
+.components-PillsSelect {
+  width: 100%;
+  padding: var(--pad-0);
+  border-radius: calc(var(--rounded-rad) + 2px);
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.components-PillsSelect .clearbtn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  margin: 0;
+  padding: calc(var(--pad-2) + 0.5px) calc(var(--pad-2) + 1px);
+
+  border-radius: 100%;
+
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #696767;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear:hover {
+  background-color: #bababa5c;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear.disabled {
+  cursor: not-allowed;
+}
+
+.components-PillsSelect .clearbtn-container .btn-clear.disabled:hover {
+  background-color: unset;
+}
+
+.components-PillsSelect .pills-container {
+  display: grid;
+  grid-gap: var(--pad-1);
+  grid-template-columns: repeat(auto-fill, 80px) ;
+  padding: var(--pad-1);
+  overflow: hidden;
+}
+
+.components-PillsSelect .pills-container .pill {
+  width: calc(100% - 2 * var(--pad-1));
+  height: fit-content;
+  display: flex;
+  flex-direction: row;
+  background-color: #eee;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--rounded-rad);
+  border: 1.5px solid #bbb;
+  padding-left: var(--pad-2);
+}
+
+.components-PillsSelect .pills-container .pill-data {
+  width: calc(100% - 2 * var(--pad-1));
+  font-size: 0.8rem;
+  overflow: scroll;
+  white-space: nowrap;
+  cursor: e-resize;
+}
+
+.components-PillsSelect .pills-container .pill-data {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.components-PillsSelect .pills-container .pill-data ::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+.components-PillsSelect .pills-container .pill i {
+  font-size: 0.65rem;
+}
+
+.components-PillsSelect .editing-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.components-PillsSelect .editing-container input {
+  /* grid-area: 1 / 2; */
+  width: calc(100% - 2 * var(--pad-3));
+  padding: var(--pad-3);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.components-PillsSelect .editing-container input:disabled {
+  cursor: not-allowed;
+}
+
+.components-PillsSelect .editing-container .clearbtn-container {
+  height: 100%;
+  padding: 0 var(--pad-3);
+  width: 20px;
+}
