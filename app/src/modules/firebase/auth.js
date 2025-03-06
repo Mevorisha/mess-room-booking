@@ -20,10 +20,15 @@ import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
 import ErrorMessages from "../errors/ErrorMessages.js";
 import { lang } from "../util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
+import { AsyncLock } from "../util/asyncLock.js";
 
 const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",
   CONFIRMATION_RESULT: "AUTH_OTP_CONFIRMATION_RESULT",
+};
+
+export const AuthLock = {
+  CREATING_USER: /** @type {AsyncLock} */ (new AsyncLock()),
 };
 
 /**
@@ -227,8 +232,10 @@ class GoogleAuth {
    */
   static async login() {
     try {
+      AuthLock.CREATING_USER = AsyncLock.create();
       const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
       await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      AuthLock.CREATING_USER.clear();
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -254,8 +261,10 @@ class AppleAuth {
    */
   static async login() {
     try {
+      AuthLock.CREATING_USER = AsyncLock.create();
       const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
       await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      AuthLock.CREATING_USER.clear();
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -281,8 +290,10 @@ class MicrosoftAuth {
    */
   static async login() {
     try {
+      AuthLock.CREATING_USER = AsyncLock.create();
       const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
       await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      AuthLock.CREATING_USER.clear();
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -301,8 +312,10 @@ class EmailPasswdAuth {
    */
   static async register(email, password) {
     try {
+      AuthLock.CREATING_USER = AsyncLock.create();
       const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
       await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      AuthLock.CREATING_USER.clear();
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -318,8 +331,10 @@ class EmailPasswdAuth {
    */
   static async login(email, password) {
     try {
+      AuthLock.CREATING_USER = AsyncLock.create();
       const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
       await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      AuthLock.CREATING_USER.clear();
       return Promise.resolve(result.user.uid);
     } catch (error) {
       const errmsg = getCleanFirebaseErrMsg(error);
