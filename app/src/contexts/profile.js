@@ -3,6 +3,7 @@ import UserContext, { UploadedImage } from "./user.js";
 import useNotification from "../hooks/notification.js";
 import { lang } from "../modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
+import { CachePaths } from "../modules/util/caching.js";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -70,6 +71,8 @@ export function ProfileProvider({ children }) {
         medium: ApiPaths.Profile.readImage(user.uid, "medium"),
         large: ApiPaths.Profile.readImage(user.uid, "large"),
       };
+      const cache = await caches.open(CachePaths.IMAGE_LOADER);
+      await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
       dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, false) });
       notify(
         lang(

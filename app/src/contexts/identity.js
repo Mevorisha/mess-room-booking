@@ -3,6 +3,7 @@ import useNotification from "../hooks/notification.js";
 import UserContext, { UploadedImage } from "./user.js";
 import { lang } from "../modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
+import { CachePaths } from "../modules/util/caching.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -53,6 +54,8 @@ export function IdentityProvider({ children }) {
           medium: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "medium"),
           large: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "large"),
         };
+        const cache = await caches.open(CachePaths.IMAGE_LOADER);
+        await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
         dispatchUser({ identityPhotos: { workId: new UploadedImage(user.uid, small, medium, large, true) } });
         uploadedWorkId = { small, medium, large };
       }
@@ -65,6 +68,8 @@ export function IdentityProvider({ children }) {
           medium: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "medium"),
           large: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "large"),
         };
+        const cache = await caches.open(CachePaths.IMAGE_LOADER);
+        await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
         dispatchUser({ identityPhotos: { govId: new UploadedImage(user.uid, small, medium, large, true) } });
         uploadedGovId = { small, medium, large };
       }
