@@ -35,20 +35,25 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   if (!(await authenticate(req, res, uid))) return;
 
   // Parse form data
-  const form = formidable({ multiples: false });
-  form.parse(req, async (err: any, fields: any, files: { file: any[] }) => {
+  const form = formidable({ multiples: true });
+  form.parse(req, async (err: any, _: formidable.Fields<string>, files: formidable.Files<"file">) => {
     // Parsing error
     if (err) {
+      console.error(err);
       return respond(res, { status: 500, error: "Error parsing file" });
     }
     // Get file from form data (only 1 file)
-    const file = files.file && files.file[0];
+    const fileNames = Object.keys(files);
+    const file = fileNames.length === 1 && files[fileNames[0]][0];
+    if (fileNames.length !== 1) {
+      return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
+    }
     if (!file) {
       return respond(res, { status: 400, error: "No file uploaded" });
     }
     // File should be JPEG or PNG
-    if (file && !/^image\/(jpeg|png)$/.test(file.mimetype ?? "")) {
-      return respond(res, { status: 400, error: "Invalid file type" });
+    if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {
+      return respond(res, { status: 400, error: `Invalid file type '${file.mimetype}'` });
     }
     // Read file buffer
     const fileBuffer = fs.readFileSync(file.filepath);
