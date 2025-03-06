@@ -423,6 +423,7 @@ async function fetchImageAsBase64(url, requireAuth = false) {
  *   src: string;
  *   alt: string;
  *   requireAuth?: boolean;
+ *   forceReloadState?: number;
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -448,7 +449,7 @@ export default function ImageLoader(props) {
    * Hence, we reset imageData when props.src changes using a useEffect. This creates a
    * dependency from props.src to imageData.
    */
-  useEffect(() => setImageData(null), [props.src]);
+  useEffect(() => setImageData(null), [props.src, props.forceReloadState]);
 
   /**
    * @type {React.CSSProperties}
@@ -460,6 +461,7 @@ export default function ImageLoader(props) {
   const newProps = { ...props };
   delete newProps.requireAuth;
   delete newProps.loadingAnimation;
+  delete newProps.forceReloadState;
 
   if (!imageData) {
     return (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { loadFileFromFilePicker } from "../../../modules/util/dom.js";
 import useNotification from "../../../hooks/notification.js";
@@ -14,6 +14,9 @@ import DialogImagePreview from "../../../components/DialogImagePreview";
  * @return {React.JSX.Element}
  */
 export default function SectionIdentiyDocs() {
+  const [forceWorkImgReload, setForceWorkImgReload] = useState(0);
+  const [forceGovImgReload, setForceGovImgReload] = useState(0);
+
   const compUsr = useCompositeUser();
   const notify = useNotification();
   const dialog = useDialog();
@@ -47,6 +50,7 @@ export default function SectionIdentiyDocs() {
           notify("Intializing, please wait...", "info");
           compUsr.identityCtx.updateIdentityPhotos({ workId: file });
         })
+        .then(() => setForceWorkImgReload((old) => old + 1))
         .catch((e) => notify(e, "error"));
     } else if (type === "GOV_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
@@ -54,6 +58,7 @@ export default function SectionIdentiyDocs() {
           notify("Intializing, please wait...", "info");
           compUsr.identityCtx.updateIdentityPhotos({ govId: file });
         })
+        .then(() => setForceGovImgReload((old) => old + 1))
         .catch((e) => notify(e, "error"));
     }
   }
@@ -70,12 +75,14 @@ export default function SectionIdentiyDocs() {
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ workId: value })
           .then(() => notify("Made work ID " + value.toLowerCase(), "success"))
+          .then(() => setForceWorkImgReload((old) => old + 1))
           .catch((e) => notify(e, "error"));
         break;
       case "GOV_ID":
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ govId: value })
           .then(() => notify("Made gov ID " + value.toLowerCase(), "success"))
+          .then(() => setForceGovImgReload((old) => old + 1))
           .catch((e) => notify(e, "error"));
         break;
       default:
@@ -104,6 +111,7 @@ export default function SectionIdentiyDocs() {
               <div className="update-id">
                 <ImageLoader
                   requireAuth
+                  forceReloadState={forceWorkImgReload}
                   alt="Work Identity Document"
                   src={compUsr.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
@@ -154,6 +162,7 @@ export default function SectionIdentiyDocs() {
               <div className="update-id">
                 <ImageLoader
                   requireAuth
+                  forceReloadState={forceGovImgReload}
                   alt="Government Identity Document"
                   src={compUsr.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"
