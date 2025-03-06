@@ -38,7 +38,14 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     // Require authentication middleware
     if (!(await authenticate(req, res, uid))) return;
   }
-  // Get image direct URL and redirect
+  // Get image direct URL and send binary data
   const directUrl = await gsPathToUrl(profile?.identityPhotos?.workId[size]);
-  return res.redirect(301, directUrl);
+  const response = await fetch(directUrl);
+  if (!response.ok) {
+    return respond(res, { status: 500, error: "Failed to fetch image" });
+  }
+  const contentType = response.headers.get("content-type");
+  const imageBuffer = await response.arrayBuffer();
+  res.setHeader("Content-Type", contentType || "application/octet-stream");
+  res.send(Buffer.from(imageBuffer));
 });

@@ -33,7 +33,14 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!profile?.profilePhotos || !profile?.profilePhotos[size]) {
     return respond(res, { status: 404, error: "Image not found" });
   }
-  // Get image direct URL and redirect
+  // Get image direct URL and send binary data
   const directUrl = await gsPathToUrl(profile?.profilePhotos[size]);
-  return res.redirect(301, directUrl);
+  const response = await fetch(directUrl);
+  if (!response.ok) {
+    return respond(res, { status: 500, error: "Failed to fetch image" });
+  }
+  const contentType = response.headers.get("content-type");
+  const imageBuffer = await response.arrayBuffer();
+  res.setHeader("Content-Type", contentType || "application/octet-stream");
+  res.send(Buffer.from(imageBuffer));
 });
