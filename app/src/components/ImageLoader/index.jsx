@@ -422,7 +422,7 @@ async function fetchImageAsBase64(url, requireAuth = false) {
  *   loadingAnimation?: string;
  *   src: string;
  *   alt: string;
- *   requireAuth?: boolean;
+ *   requireauth?: boolean;
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -434,7 +434,7 @@ export default function ImageLoader(props) {
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
   function onImageElementLoaded() {
-    fetchImageAsBase64(props.src, props.requireAuth)
+    fetchImageAsBase64(props.src, props.requireauth)
       .then((data) => setImageData(data))
       .catch((e) => notify(e, "error"));
   }
