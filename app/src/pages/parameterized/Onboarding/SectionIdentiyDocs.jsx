@@ -46,18 +46,12 @@ export default function SectionIdentiyDocs() {
     e.preventDefault();
     if (type === "WORK_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) => {
-          notify("Intializing, please wait...", "info");
-          compUsr.identityCtx.updateIdentityPhotos({ workId: file });
-        })
+        .then((file) => compUsr.identityCtx.updateIdentityPhotos({ workId: file }))
         .then(() => setForceWorkImgReload((old) => old + 1))
         .catch((e) => notify(e, "error"));
     } else if (type === "GOV_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
-        .then((file) => {
-          notify("Intializing, please wait...", "info");
-          compUsr.identityCtx.updateIdentityPhotos({ govId: file });
-        })
+        .then((file) => compUsr.identityCtx.updateIdentityPhotos({ govId: file }))
         .then(() => setForceGovImgReload((old) => old + 1))
         .catch((e) => notify(e, "error"));
     }
