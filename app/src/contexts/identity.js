@@ -46,6 +46,17 @@ export function IdentityProvider({ children }) {
       let uploadedWorkId;
       let uploadedGovId;
 
+      if (workId || govId) {
+        notify(
+          lang(
+            "Updating document(s), please wait...",
+            "ডকুমেন্ট আপডেট করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...",
+            "डॉक्यूमेंट अपडेट किया जा रहा है, कृपया प्रतीक्षा करें..."
+          ),
+          "info"
+        );
+      }
+
       // upload id
       if (workId) {
         await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("WORK_ID", user.uid), workId);
@@ -96,6 +107,17 @@ export function IdentityProvider({ children }) {
      * @param {{ workId?: "PUBLIC" | "PRIVATE", govId?: "PUBLIC" | "PRIVATE" }} images
      */
     async ({ workId, govId }) => {
+      if (workId || govId) {
+        notify(
+          lang(
+            "Changing visibility, please wait...",
+            "গোপনীয়তা পরিবর্তন করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...",
+            "गोपनीयता बदली जा रही है, कृपया प्रतीक्षा करें..."
+          ),
+          "info"
+        );
+      }
+
       if (workId) {
         const oldLocalImageObj = user.identityPhotos?.workId?.clone();
         const newLocalImageObj = workId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
@@ -109,7 +131,7 @@ export function IdentityProvider({ children }) {
         dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
       }
     },
-    [user.uid, dispatchUser, user.identityPhotos?.govId, user.identityPhotos?.workId]
+    [user.uid, dispatchUser, user.identityPhotos?.govId, user.identityPhotos?.workId, notify]
   );
 
   return (
