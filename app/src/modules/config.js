@@ -11,7 +11,7 @@ const IS_PREVIEW =
 
 const API_SERVER_URL = IS_DEV ? process.env.REACT_APP_API_SERVER_URL : prodApiServerUrl;
 /* eslint-disable-next-line no-restricted-globals */
-self["API_SERVER_ORIGIN"] = API_SERVER_URL; // just coz
+self["API_SERVER_URL"] = API_SERVER_URL; // just coz
 
 const FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.REACT_APP_FIREBASE_APPCHECK_DEBUG_TOKEN;
 /* eslint-disable-next-line no-restricted-globals */

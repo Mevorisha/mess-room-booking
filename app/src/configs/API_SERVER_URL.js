@@ -1,1 +1,1 @@
-export default "mevorisha-mess-booking-apis.vercel.app";
+export default "https://mevorisha-mess-booking-apis.vercel.app";
