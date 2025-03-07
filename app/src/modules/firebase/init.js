@@ -64,19 +64,14 @@ if (/localhost|127\.0\.0\.1/i.test(window.location.href)) {
   connectFirestoreEmulator(FirebaseFirestore, "localhost", 9004);
 }
 
-const IS_PREVIEW =
-  !/localhost|127\.0\.0\.1/i.test(window.location.href) &&
-  window.location.hostname !== "mess-booking-app-serverless.web.app" &&
-  window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com";
-
 /**
  * Realtime Database paths
  */
 class RtDbPaths {
-  static IDENTITY = !IS_PREVIEW ? "/db_Identity" : "/preview_db_Identity";
-  static LOGS = !IS_PREVIEW ? "/db_Logs" : "/preview_db_Logs";
-  static FEEDBACK = !IS_PREVIEW ? "/db_Feedback" : "/preview_db_Feedback";
-  static ROOMS = !IS_PREVIEW ? "/db_Rooms" : "/preview_db_Rooms";
+  static IDENTITY = !config.IS_PREVIEW ? "/db_Identity" : "/preview_db_Identity";
+  static LOGS = !config.IS_PREVIEW ? "/db_Logs" : "/preview_db_Logs";
+  static FEEDBACK = !config.IS_PREVIEW ? "/db_Feedback" : "/preview_db_Feedback";
+  static ROOMS = !config.IS_PREVIEW ? "/db_Rooms" : "/preview_db_Rooms";
 
   /**
    * @param {string} uid - Unique identifier for the user.
@@ -96,10 +91,10 @@ class RtDbPaths {
  * Storage paths
  */
 class StoragePaths {
-  static PROFILE_PHOTOS = !IS_PREVIEW ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
-  static ROOM_PHOTOS = !IS_PREVIEW ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
-  static IDENTITY_DOCUMENTS = !IS_PREVIEW ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
-  static FEEDBACK_PHOTOS = !IS_PREVIEW ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
+  static PROFILE_PHOTOS = !config.IS_PREVIEW ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
+  static ROOM_PHOTOS = !config.IS_PREVIEW ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
+  static IDENTITY_DOCUMENTS = !config.IS_PREVIEW ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !config.IS_PREVIEW ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
 
   /**
    * @param {string} uid - Unique identifier for the user.

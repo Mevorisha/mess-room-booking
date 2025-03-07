@@ -7,12 +7,12 @@ import * as config from "../config.js";
  */
 
 export class ApiPaths {
-  static ACCOUNTS = `${config.API_SERVER_ORIGIN}/api/accounts`;
-  static BOOKINGS = `${config.API_SERVER_ORIGIN}/api/bookings`;
-  static ID_DOCS = `${config.API_SERVER_ORIGIN}/api/identityDocs`;
-  static PROFILE = `${config.API_SERVER_ORIGIN}/api/profile`;
-  static ROOMS = `${config.API_SERVER_ORIGIN}/api/rooms`;
-  static LOGS = `${config.API_SERVER_ORIGIN}/api/logs`;
+  static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
+  static BOOKINGS = `${config.API_SERVER_URL}/api/bookings`;
+  static ID_DOCS = `${config.API_SERVER_URL}/api/identityDocs`;
+  static PROFILE = `${config.API_SERVER_URL}/api/profile`;
+  static ROOMS = `${config.API_SERVER_URL}/api/rooms`;
+  static LOGS = `${config.API_SERVER_URL}/api/logs`;
 
   // prettier-ignore
   static Accounts = {
