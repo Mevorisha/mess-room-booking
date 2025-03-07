@@ -46,7 +46,6 @@ jobs:
           javascript-obfuscator build --output build
 
       - name: Deploy Frontend
-        working-directory: firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -54,6 +53,7 @@ jobs:
           channelId: ${{ github.event.number }}
           expires: 1d
           projectId: mess-booking-app-serverless
+          entryPoint: ./firebase
       # - name: Comment Preview URL on PR
       #   run: |
       #     echo "Preview URL: ${{ steps.deploy.outputs.details_url }}"
