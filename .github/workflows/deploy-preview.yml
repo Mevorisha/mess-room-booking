@@ -45,7 +45,7 @@ jobs:
           npm run build
 
       - name: Obfuscate
-        working-directory: app
+        working-directory: firebase
         run: |
           npm install -g javascript-obfuscator
           javascript-obfuscator build --output build
