@@ -10,7 +10,7 @@ const AllowedHeaders = ["Content-Type", "X-Firebase-Token"];
 
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
   const origin = req.headers.origin as string;
-  if (AllowedOrigins.includes(origin)) {
+  if (AllowedOrigins.includes(origin) || /mess-booking-app-serverless-[a-z0-9\-]+.web.app/.test(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
     if (origin) console.error("Blocked origin:", origin);
