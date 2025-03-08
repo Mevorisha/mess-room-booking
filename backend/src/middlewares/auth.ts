@@ -1,17 +1,17 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest } from "next";
 import { FirebaseAuth } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
 
-export type AuthStatus = "USER_FOUND" | "USER_NOT_FOUND" | "MISSING_CREDS";
+type AuthStatus = "USER_FOUND" | "USER_NOT_FOUND" | "MISSING_CREDS";
 
-export class AuthResult {
-  status: AuthStatus;
-  uid: string;
+class AuthResult {
+  #status: AuthStatus;
+  #uid: string;
 
   constructor(status: AuthStatus, uid?: string) {
-    this.status = status;
+    this.#status = status;
     if (typeof uid === "string") {
-      this.uid = uid;
+      this.#uid = uid;
     }
   }
 
@@ -23,21 +23,21 @@ export class AuthResult {
    * If a valid auth token is found
    */
   isSuccess() {
-    return this.status === "USER_FOUND";
+    return this.#status === "USER_FOUND";
   }
 
   /**
    * If auth token is not valid
    */
   isNotFound() {
-    return this.status === "USER_NOT_FOUND";
+    return this.#status === "USER_NOT_FOUND";
   }
 
   /**
    * If no auth token is found
    */
   isMissingCreds() {
-    return this.status === "MISSING_CREDS";
+    return this.#status === "MISSING_CREDS";
   }
 
   /**
@@ -51,8 +51,8 @@ export class AuthResult {
       throw CustomApiError.create(401, "Missing auth credentials");
     }
     if (this.isSuccess()) {
-      if (typeof this.uid === "string") {
-        return this.uid;
+      if (typeof this.#uid === "string") {
+        return this.#uid;
       } else {
         throw CustomApiError.create(500, "Auth error");
       }
