@@ -19,13 +19,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
-  if (authResult.isMissingCreds()) {
-    throw CustomApiError.create(401, "Missing auth credentials");
-  }
-  if (authResult.isNotFound()) {
-    throw CustomApiError.create(401, "Invalid auth credentials");
-  }
-
+  // Automatically throws ApiError and is caught by catchAll (middleware)
   const uid = authResult.getUid();
 
   const profile = await Identity.get(uid, "GS_PATH", []);
