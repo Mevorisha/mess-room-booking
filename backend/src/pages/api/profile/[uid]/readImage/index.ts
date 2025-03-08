@@ -14,30 +14,30 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
-    throw new CustomApiError(405, "Method Not Allowed");
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
   // Extract user ID from request
   const uid = req.query["uid"] as string;
   const size = req.query["size"] as MultiSizeImageSz;
   if (!uid) {
-    throw new CustomApiError(400, "Missing field 'uid: string'");
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
   if (!size) {
-    throw new CustomApiError(400, "Missing query 'size: small | medium | large'");
+    throw CustomApiError.create(400, "Missing query 'size: small | medium | large'");
   }
   if (!["small", "medium", "large"].includes(size)) {
-    throw new CustomApiError(400, "Invalid query 'size: small | medium | large'");
+    throw CustomApiError.create(400, "Invalid query 'size: small | medium | large'");
   }
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.PROFILE_PHOTOS]);
   if (!profile?.profilePhotos || !profile?.profilePhotos[size]) {
-    throw new CustomApiError(404, "Image not found");
+    throw CustomApiError.create(404, "Image not found");
   }
   // Get image direct URL and send binary data
   const directUrl = await gsPathToUrl(profile?.profilePhotos[size]);
   const response = await fetch(directUrl);
   if (!response.ok) {
-    throw new CustomApiError(500, "Failed to fetch image");
+    throw CustomApiError.create(500, "Failed to fetch image");
   }
   const contentType = response.headers.get("content-type");
   const imageBuffer = await response.arrayBuffer();

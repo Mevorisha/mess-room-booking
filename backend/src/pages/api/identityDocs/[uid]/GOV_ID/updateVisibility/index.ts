@@ -14,22 +14,22 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    throw new CustomApiError(405, "Method Not Allowed");
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
 
   const uid = req.query["uid"] as string;
   if (!uid) {
-    throw new CustomApiError(400, "Missing field 'uid: string'");
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
   // Require authentication middleware
   await authenticate(req, uid);
 
   const visibility = req.body["visibility"] as "PUBLIC" | "PRIVATE";
   if (!visibility) {
-    throw new CustomApiError(400, "Missing field 'visibility: PUBLIC | PRIVATE'");
+    throw CustomApiError.create(400, "Missing field 'visibility: PUBLIC | PRIVATE'");
   }
   if (!["PUBLIC", "PRIVATE"].includes(visibility)) {
-    throw new CustomApiError(400, "Invalid field 'visibility: PUBLIC | PRIVATE'");
+    throw CustomApiError.create(400, "Invalid field 'visibility: PUBLIC | PRIVATE'");
   }
 
   await Identity.update(uid, { identityPhotos: { govIdIsPrivate: visibility === "PRIVATE" } });

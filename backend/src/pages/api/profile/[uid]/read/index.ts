@@ -46,12 +46,12 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Allow only GET requests
   if (req.method !== "GET") {
-    throw new CustomApiError(405, "Method Not Allowed");
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
   // Extract UID from the query
   const uid = req.query["uid"] as string;
   if (!uid) {
-    throw new CustomApiError(400, "Missing field 'uid: string'");
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
 
   const fields = [
@@ -73,7 +73,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
 
   const result = await Identity.get(uid, "API_URI", fields);
   if (!result) {
-    throw new CustomApiError(404, "User not found");
+    throw CustomApiError.create(404, "User not found");
   }
   return respond(res, { status: 200, json: result });
 });

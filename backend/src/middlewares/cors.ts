@@ -19,7 +19,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   } else {
     if (origin) console.error("Blocked origin:", origin);
     else console.error("No origin header found");
-    throw new CustomApiError(403, "Origin not allowed");
+    throw CustomApiError.create(403, "Origin not allowed");
   }
   res.setHeader("Access-Control-Allow-Methods", AllowedMethods.join(", "));
   res.setHeader("Access-Control-Allow-Headers", AllowedHeaders.join(", "));

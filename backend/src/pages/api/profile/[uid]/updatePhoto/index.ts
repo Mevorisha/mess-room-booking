@@ -26,12 +26,12 @@ export const config = {
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    throw new CustomApiError(405, "Method Not Allowed");
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
 
   const uid = req.query["uid"] as string;
   if (!uid) {
-    throw new CustomApiError(400, "Missing field 'uid: string'");
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
   // Require authentication middleware
   await authenticate(req, uid);
@@ -49,7 +49,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Parsing error
   if (err) {
     console.trace(err);
-    throw new CustomApiError(500, "Error parsing file");
+    throw CustomApiError.create(500, "Error parsing file");
   }
   // Get file from form data (only 1 file)
   const fileNames = Object.keys(files);
@@ -58,7 +58,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
   }
   if (!file) {
-    throw new CustomApiError(400, "No file uploaded");
+    throw CustomApiError.create(400, "No file uploaded");
   }
   // File should be JPEG or PNG
   if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {

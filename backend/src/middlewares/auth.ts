@@ -45,16 +45,16 @@ export class AuthResult {
    */
   getUid() {
     if (this.isNotFound()) {
-      throw new CustomApiError(401, "Invalid auth credentials");
+      throw CustomApiError.create(401, "Invalid auth credentials");
     }
     if (this.isMissingCreds()) {
-      throw new CustomApiError(401, "Missing auth credentials");
+      throw CustomApiError.create(401, "Missing auth credentials");
     }
     if (this.isSuccess()) {
       if (typeof this.uid === "string") {
         return this.uid;
       } else {
-        throw new CustomApiError(500, "Auth error");
+        throw CustomApiError.create(500, "Auth error");
       }
     }
   }
@@ -90,7 +90,7 @@ export async function authenticate(req: NextApiRequest, expectedUid?: string): P
     if (expectedUid === loggedInUid) {
       return loggedInUid;
     } else {
-      throw new CustomApiError(401, "Invalid auth credentials");
+      throw CustomApiError.create(401, "Invalid auth credentials");
     }
   } else {
     return loggedInUid;
