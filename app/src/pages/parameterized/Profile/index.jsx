@@ -45,10 +45,8 @@ export default function Profile() {
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
       .then(({ json: { firstName, lastName, mobile, profilePhotos } }) => {
-        if (!mobile) {
-          setProfileUser(null);
-          return;
-        }
+        // If no mobile no., the user is considered to not exist
+        mobile ||= "";
         firstName ||= "";
         lastName ||= "";
         if (!firstName && !lastName) {
@@ -127,7 +125,7 @@ export default function Profile() {
             </tr>
             <tr className="detail">
               <td className="detail-label">Mobile: </td>
-              <td className="detail-value">{userProfile.mobile}</td>
+              <td className="detail-value">{userProfile.mobile || "(Unavailable)"}</td>
             </tr>
           </tbody>
         </table>
