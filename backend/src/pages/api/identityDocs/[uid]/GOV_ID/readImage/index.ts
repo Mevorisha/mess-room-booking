@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
-import { authenticate } from "@/middlewares/auth";
+import { getLoggedInUser } from "@/middlewares/auth";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
 import { gsPathToUrl } from "@/models/utils";
@@ -36,7 +36,12 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   }
   if (profile.identityPhotos.workIdIsPrivate) {
     // Require authentication middleware
-    await authenticate(req, uid);
+    const authResult = await getLoggedInUser(req);
+    if (authResult.isSuccess() && authResult.getUid() !== uid) {
+      throw CustomApiError.create(403, "Cannot view private resource");
+    }
+    // Trigger ApiError
+    if (!authResult.isSuccess()) authResult.getUid();
   }
   // Get image direct URL and send binary data
   const directUrl = await gsPathToUrl(profile?.identityPhotos?.govId[size]);
