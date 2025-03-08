@@ -1,4 +1,4 @@
-export class ApiError extends Error {
+export class CustomApiError extends Error {
   status: number = 500;
 
   constructor(status: number, message: string) {
@@ -7,7 +7,7 @@ export class ApiError extends Error {
   }
 
   static create(status: number, message: string) {
-    return new ApiError(status, message);
+    return new CustomApiError(status, message);
   }
 
   toString() {
