@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
 import * as config from "@/lib/config";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 const AllowedOrigins: string[] = config.CORS_ALLOWED_ORIGINS;
 
@@ -8,6 +8,10 @@ const AllowedMethods = ["POST", "GET", "PATCH", "DELETE"];
 
 const AllowedHeaders = ["Content-Type", "X-Firebase-Token"];
 
+/**
+ * @returns {boolean} True if response can be continued, false if response has been ended
+ * @throws {CustomApiError} If CORS checks fail
+ */
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
   const origin = req.headers.origin as string;
   if (AllowedOrigins.includes(origin) || /mess-booking-app-serverless-[a-z0-9\-]+.web.app/.test(origin)) {
@@ -15,8 +19,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   } else {
     if (origin) console.error("Blocked origin:", origin);
     else console.error("No origin header found");
-    respond(res, { status: 403, error: "Origin not allowed" });
-    return false;
+    throw new CustomApiError(403, "Origin not allowed");
   }
   res.setHeader("Access-Control-Allow-Methods", AllowedMethods.join(", "));
   res.setHeader("Access-Control-Allow-Headers", AllowedHeaders.join(", "));
