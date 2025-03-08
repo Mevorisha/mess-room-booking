@@ -1,5 +1,5 @@
 import { FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export interface MultiSizePhoto {
   small: string;
@@ -85,7 +85,7 @@ class Identity {
     try {
       await ref.set({ email, type: "EMPTY" }, { merge: true });
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -97,11 +97,11 @@ class Identity {
     try {
       const docSnapshot = await ref.get();
       if (!docSnapshot || !docSnapshot.exists) {
-        return Promise.reject(ApiError.create(404, "User not found"));
+        return Promise.reject(CustomApiError.create(404, "User not found"));
       }
       await ref.set(updateData, { merge: true });
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -140,7 +140,7 @@ class Identity {
       if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as IdentityData, uid);
       else return result;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 }

@@ -1,5 +1,5 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -18,7 +18,7 @@ export interface RoomData {
   images: Array<string>;
   capacity: number;
   pricePerOccupant: number;
-  isAvailable?: boolean;
+  isUnavailable?: boolean;
   ttl?: FirebaseFirestore.Timestamp;
 }
 
@@ -35,7 +35,7 @@ export enum SchemaFields {
   IMAGES = "images",
   CAPACITY = "capacity",
   PRICE_PER_OCCUPANT = "pricePerOccupant",
-  IS_AVAILABLE = "isAvailable",
+  IS_UNAVAILABLE = "isUnavailable",
   TTL = "ttl",
 }
 
@@ -59,7 +59,7 @@ class Room {
       const docRef = await ref.add(roomData);
       return docRef.id;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -74,7 +74,7 @@ class Room {
     try {
       await ref.set(updateData, { merge: true });
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -111,7 +111,7 @@ class Room {
       if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as RoomData, roomId);
       else return result;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 }

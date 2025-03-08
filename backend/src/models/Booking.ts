@@ -1,6 +1,6 @@
 import firestore from "firebase-admin/firestore";
 import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
 
@@ -52,7 +52,7 @@ class Booking {
       const docRef = await ref.add({ tenantId, roomId, occupantCount, requestedOn });
       return docRef.id;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -68,14 +68,14 @@ class Booking {
         if (data) {
           for (const field of Object.values(OneTimeSetFields)) {
             if (data[field] && updateData[field]) {
-              return Promise.reject(ApiError.create(400, `Cannot update one-time-set field: ${field}`));
+              return Promise.reject(CustomApiError.create(400, `Cannot update one-time-set field: ${field}`));
             }
           }
         }
       }
       await docRef.set(updateData, { merge: true });
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -111,7 +111,7 @@ class Booking {
       }
       return result;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 }

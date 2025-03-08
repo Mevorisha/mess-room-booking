@@ -1,5 +1,5 @@
 import { FirestorePaths } from "@/lib/firebaseAdmin/init";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export type LogType = "info" | "error" | "warn";
 export type DateTimeRange = { from: Date; to: Date };
@@ -21,7 +21,7 @@ class Logs {
     try {
       await docRef.set({ [timestamp]: { message, type } }, { merge: true });
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 
@@ -72,7 +72,7 @@ class Logs {
 
       return result;
     } catch (e) {
-      return Promise.reject(ApiError.create(500, e.message));
+      return Promise.reject(CustomApiError.create(500, e.message));
     }
   }
 }
