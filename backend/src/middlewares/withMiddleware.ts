@@ -5,8 +5,10 @@ import { catchAll } from "./catchAll";
 export function withmiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
 ) {
-  return async (req: NextApiRequest, res: NextApiResponse) => {
-    if (!(await cors(req, res))) return;
-    return catchAll(req, res, handler);
-  };
+  return async (req: NextApiRequest, res: NextApiResponse) =>
+    catchAll(req, res, async (req: NextApiRequest, res: NextApiResponse) => {
+      const continueRes = await cors(req, res);
+      if (!continueRes) return;
+      return handler(req, res);
+    });
 }

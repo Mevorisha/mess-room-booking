@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
-import { respond } from "@/lib/utils/respond";
-import { authenticate } from "@/middlewares/auth";
+import { getLoggedInUser } from "@/middlewares/auth";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
 import { gsPathToUrl } from "@/models/utils";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 /**
  * ```
@@ -15,34 +15,39 @@ import { gsPathToUrl } from "@/models/utils";
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
-    return respond(res, { status: 405, error: "Method Not Allowed" });
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
   // Extract user ID from request
   const uid = req.query["uid"] as string;
   const size = req.query["size"] as MultiSizeImageSz;
   if (!uid) {
-    return respond(res, { status: 400, error: "Missing field 'uid: string'" });
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
   if (!size) {
-    return respond(res, { status: 400, error: "Missing query 'size: small | medium | large'" });
+    throw CustomApiError.create(400, "Missing query 'size: small | medium | large'");
   }
   if (!["small", "medium", "large"].includes(size)) {
-    return respond(res, { status: 400, error: "Invalid query 'size: small | medium | large'" });
+    throw CustomApiError.create(400, "Invalid query 'size: small | medium | large'");
   }
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
   if (!profile?.identityPhotos?.workId || !profile?.identityPhotos?.workId[size]) {
-    return respond(res, { status: 404, error: "Image not found" });
+    throw CustomApiError.create(404, "Image not found");
   }
   if (profile.identityPhotos.workIdIsPrivate) {
     // Require authentication middleware
-    if (!(await authenticate(req, res, uid))) return;
+    const authResult = await getLoggedInUser(req);
+    if (authResult.isSuccess() && authResult.getUid() !== uid) {
+      throw CustomApiError.create(403, "Cannot view private resource");
+    }
+    // Trigger ApiError
+    if (!authResult.isSuccess()) authResult.getUid();
   }
   // Get image direct URL and send binary data
   const directUrl = await gsPathToUrl(profile?.identityPhotos?.workId[size]);
   const response = await fetch(directUrl);
   if (!response.ok) {
-    return respond(res, { status: 500, error: "Failed to fetch image" });
+    throw CustomApiError.create(500, "Failed to fetch image");
   }
   const contentType = response.headers.get("content-type");
   const imageBuffer = await response.arrayBuffer();

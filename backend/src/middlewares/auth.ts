@@ -1,50 +1,98 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest } from "next";
 import { FirebaseAuth } from "@/lib/firebaseAdmin/init";
-import { respond } from "@/lib/utils/respond";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
-export async function getLoggedInUser(
-  req: NextApiRequest,
-  _: NextApiResponse,
-  errOnMissingCred = false
-): Promise<string | null> {
+type AuthStatus = "USER_FOUND" | "USER_NOT_FOUND" | "MISSING_CREDS";
+
+class AuthResult {
+  #status: AuthStatus;
+  #uid: string;
+
+  constructor(status: AuthStatus, uid?: string) {
+    this.#status = status;
+    if (typeof uid === "string") {
+      this.#uid = uid;
+    }
+  }
+
+  static create(status: AuthStatus, uid?: string) {
+    return new AuthResult(status, uid);
+  }
+
+  /**
+   * If a valid auth token is found
+   */
+  isSuccess() {
+    return this.#status === "USER_FOUND";
+  }
+
+  /**
+   * If auth token is not valid
+   */
+  isNotFound() {
+    return this.#status === "USER_NOT_FOUND";
+  }
+
+  /**
+   * If no auth token is found
+   */
+  isMissingCreds() {
+    return this.#status === "MISSING_CREDS";
+  }
+
+  /**
+   * @throws {CustomApiError} If no user UID is found
+   */
+  getUid() {
+    if (this.isNotFound()) {
+      throw CustomApiError.create(401, "Invalid auth credentials");
+    }
+    if (this.isMissingCreds()) {
+      throw CustomApiError.create(401, "Missing auth credentials");
+    }
+    if (this.isSuccess()) {
+      if (typeof this.#uid === "string") {
+        return this.#uid;
+      } else {
+        throw CustomApiError.create(500, "Auth error");
+      }
+    }
+  }
+}
+
+export async function getLoggedInUser(req: NextApiRequest): Promise<AuthResult> {
   try {
     const token = req.headers["x-firebase-token"] as string;
     if (!token) {
-      if (errOnMissingCred) {
-        throw new ApiError(403, "Missing X-Firebase-Token header");
-      } else {
-        return null;
-      }
+      return AuthResult.create("MISSING_CREDS");
     }
     const decodedToken = await FirebaseAuth.verifyIdToken(token);
     const loggedInUid = decodedToken.uid;
     req.query["auth.uid"] = loggedInUid;
-    return loggedInUid;
+    return AuthResult.create("USER_FOUND", loggedInUid);
   } catch (e) {
     console.trace(e);
-    return null;
+    return AuthResult.create("USER_NOT_FOUND");
   }
 }
 
 /**
  * Middleware to authenticate Firebase token and get UID.
+ * Throws error if not logged in.
+ * @returns {Promise<string>} UID of authenticated user
+ * @throws {CustomApiError} If not authenticated
  */
-export async function authenticate(req: NextApiRequest, res: NextApiResponse, expectedUid: string): Promise<boolean> {
-  try {
-    const token = req.headers["x-firebase-token"] as string;
-    if (!token) {
-      respond(res, { status: 401, error: "Missing 'x-firebase-token' header" });
-      return false;
+export async function authenticate(req: NextApiRequest, expectedUid?: string): Promise<string> {
+  const authResult = await getLoggedInUser(req);
+  const loggedInUid = authResult.getUid();
+
+  if (typeof expectedUid === "string") {
+    if (expectedUid === loggedInUid) {
+      return loggedInUid;
+    } else {
+      throw CustomApiError.create(401, "Invalid auth credentials");
     }
-
-    const decodedToken = await FirebaseAuth.verifyIdToken(token);
-    req.query["auth.uid"] = decodedToken.uid;
-
-    if (expectedUid === req.query["auth.uid"]) return true;
-    else return false;
-  } catch (e) {
-    respond(res, { status: 401, error: "User auth failure" });
-    return false;
+  } else {
+    return loggedInUid;
   }
 }

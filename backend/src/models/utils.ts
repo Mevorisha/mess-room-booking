@@ -1,5 +1,5 @@
 import { FirebaseStorage } from "@/lib/firebaseAdmin/init";
-import { ApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 interface UrlCacheData {
   url: string;
@@ -28,6 +28,6 @@ export async function gsPathToUrl(path: string): Promise<string> {
     UrlCache.set(path, { url: signedUrl, expires });
     return signedUrl;
   } catch (e) {
-    return Promise.reject(ApiError.create(500, e.message));
+    return Promise.reject(CustomApiError.create(500, e.message));
   }
 }

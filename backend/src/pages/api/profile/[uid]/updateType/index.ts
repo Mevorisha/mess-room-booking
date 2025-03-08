@@ -3,6 +3,7 @@ import { respond } from "@/lib/utils/respond";
 import { authenticate } from "@/middlewares/auth";
 import Identity, { IdentityType } from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 /**
  * ```
@@ -15,22 +16,22 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    return respond(res, { status: 405, error: "Method Not Allowed" });
+    throw CustomApiError.create(405, "Method Not Allowed");
   }
 
   const uid = req.query["uid"] as string;
   if (!uid) {
-    return respond(res, { status: 400, error: "Missing field 'uid: string'" });
+    throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
   // Require authentication middleware
-  if (!(await authenticate(req, res, uid))) return;
+  await authenticate(req, uid);
 
   const type = req.body["type"] as IdentityType;
   if (!type) {
-    return respond(res, { status: 400, error: "Missing field 'type: OWNER | TENANT'" });
+    throw CustomApiError.create(400, "Missing field 'type: OWNER | TENANT'");
   }
   if (!["OWNER", "TENANT"].includes(type)) {
-    return respond(res, { status: 400, error: "Invalid field 'type: OWNER | TENANT'" });
+    throw CustomApiError.create(400, "Invalid field 'type: OWNER | TENANT'");
   }
 
   await Identity.update(uid, { type });
