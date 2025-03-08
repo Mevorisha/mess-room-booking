@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import FormParseResult from "@/lib/types/IFormParseResult";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export const config = {
   api: {
@@ -25,15 +26,15 @@ export const config = {
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    return respond(res, { status: 405, error: "Method Not Allowed" });
+    throw new CustomApiError(405, "Method Not Allowed");
   }
 
   const uid = req.query["uid"] as string;
   if (!uid) {
-    return respond(res, { status: 400, error: "Missing field 'uid: string'" });
+    throw new CustomApiError(400, "Missing field 'uid: string'");
   }
   // Require authentication middleware
-  if (!(await authenticate(req, res, uid))) return;
+  await authenticate(req, uid);
 
   // Parse form data
   const form = formidable({ multiples: true });
@@ -48,7 +49,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Parsing error
   if (err) {
     console.trace(err);
-    return respond(res, { status: 500, error: "Error parsing file" });
+    throw new CustomApiError(500, "Error parsing file");
   }
   // Get file from form data (only 1 file)
   const fileNames = Object.keys(files);
@@ -57,7 +58,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
   }
   if (!file) {
-    return respond(res, { status: 400, error: "No file uploaded" });
+    throw new CustomApiError(400, "No file uploaded");
   }
   // File should be JPEG or PNG
   if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {

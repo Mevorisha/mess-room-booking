@@ -3,6 +3,7 @@ import { respond } from "@/lib/utils/respond";
 import { authenticate } from "@/middlewares/auth";
 import Identity from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 /**
  * ```
@@ -16,23 +17,23 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
-    return respond(res, { status: 405, error: "Method Not Allowed" });
+    throw new CustomApiError(405, "Method Not Allowed");
   }
 
   const uid = req.query["uid"] as string;
   if (!uid) {
-    return respond(res, { status: 400, error: "Missing field 'uid: string'" });
+    throw new CustomApiError(400, "Missing field 'uid: string'");
   }
   // Require authentication middleware
-  if (!(await authenticate(req, res, uid))) return;
+  await authenticate(req, uid);
 
   const firstName = req.body["firstName"] as string;
   const lastName = req.body["lastName"] as string;
   if (!firstName) {
-    return respond(res, { status: 400, error: "Missing field 'firstName: string'" });
+    throw new CustomApiError(400, "Missing field 'firstName: string'");
   }
   if (!lastName) {
-    return respond(res, { status: 400, error: "Missing field 'lastName: string'" });
+    throw new CustomApiError(400, "Missing field 'lastName: string'");
   }
 
   await Identity.update(uid, { firstName, lastName });

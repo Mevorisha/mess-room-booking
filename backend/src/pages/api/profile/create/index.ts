@@ -3,6 +3,7 @@ import { respond } from "@/lib/utils/respond";
 import { getLoggedInUser } from "@/middlewares/auth";
 import Identity from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 /**
  * ```
@@ -13,14 +14,19 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST method
   if (req.method !== "POST") {
-    return respond(res, { status: 405, error: "Method Not Allowed" });
+    throw new CustomApiError(405, "Method Not Allowed");
   }
 
   // Auth middleware to get user
-  const uid = await getLoggedInUser(req, res, true);
-  if (!uid) {
-    return respond(res, { status: 404, error: "User not found" });
+  const authResult = await getLoggedInUser(req);
+  if (authResult.isMissingCreds()) {
+    throw new CustomApiError(401, "Missing auth credentials");
   }
+  if (authResult.isNotFound()) {
+    throw new CustomApiError(401, "Invalid auth credentials");
+  }
+
+  const uid = authResult.getUid();
 
   const profile = await Identity.get(uid, "GS_PATH", []);
   if (profile) {
@@ -29,7 +35,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
 
   const email = req.body["email"] as string;
   if (!email) {
-    return respond(res, { status: 400, error: "Missing field 'email: string'" });
+    throw new CustomApiError(400, "Missing field 'email: string'");
   }
 
   await Identity.create(uid, email);
