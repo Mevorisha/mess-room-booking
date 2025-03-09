@@ -1,5 +1,5 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
@@ -33,6 +33,19 @@ export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavai
 type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
 // During read, all data may be read
 type RoomReadData = Partial<RoomData>;
+// Params to query a room by
+type RoomQueryParams = Partial<{
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
+  city: string;
+  state: string;
+  capacity: number;
+  lowPrice: number;
+  highPrice: number;
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
+  searchTags: Set<string>;
+}>;
 
 export enum SchemaFields {
   OWNER_ID = "ownerId",
