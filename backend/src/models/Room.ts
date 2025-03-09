@@ -116,7 +116,83 @@ class Room {
   }
 
   static async queryAll(params: RoomQueryParams): Promise<RoomReadData[]> {
-    return;
+    const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+
+    let query: FirebaseFirestore.Query;
+    const queryOrRef = () => (query ? query : ref);
+
+    // Apply filters for exact matches
+    if (params.acceptGender) {
+      query = queryOrRef().where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
+    }
+    if (params.acceptOccupation) {
+      query = queryOrRef().where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
+    }
+    if (params.city) {
+      query = queryOrRef().where(SchemaFields.CITY, "==", params.city);
+    }
+    if (params.state) {
+      query = queryOrRef().where(SchemaFields.STATE, "==", params.state);
+    }
+    if (params.capacity) {
+      query = queryOrRef().where(SchemaFields.CAPACITY, ">=", params.capacity);
+    }
+
+    // Price range filters
+    if (params.lowPrice) {
+      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
+    }
+    if (params.highPrice) {
+      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
+    }
+
+    // Timestamp filters
+    if (params.createdOn) {
+      query = queryOrRef().where(SchemaFields.CREATED_ON, ">=", params.createdOn);
+    }
+    if (params.lastModifiedOn) {
+      query = queryOrRef().where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+    }
+
+    // Execute query
+    const snapshot = await queryOrRef().get();
+    const results: RoomReadData[] = [];
+
+    // Process results and apply any tag filters in code
+    // (since we can't query array containment for multiple arrays effectively)
+    for (const doc of snapshot.docs) {
+      const data = doc.data() as RoomReadData;
+
+      // Filter by tags if specified
+      if (params.searchTags && params.searchTags.size > 0) {
+        // Convert arrays to Sets for easier checking
+        const landmarkTags = new Set(data.landmarkTags || []);
+        const majorTags = new Set(data.majorTags || []);
+        const minorTags = new Set(data.minorTags || []);
+
+        // Check if any tag in searchTags matches in landmarkTags, majorTags, or minorTags
+        let hasMatchingTag = false;
+        for (const tag of params.searchTags) {
+          if (landmarkTags.has(tag) || majorTags.has(tag) || minorTags.has(tag)) {
+            hasMatchingTag = true;
+            break;
+          }
+        }
+
+        if (!hasMatchingTag) {
+          continue; // Skip this document if no matching tags
+        }
+      }
+
+      // Convert back to sets from arrays in the result
+      if (data.landmarkTags) data.landmarkTags = new Set(data.landmarkTags);
+      if (data.majorTags) data.majorTags = new Set(data.majorTags);
+      if (data.minorTags) data.minorTags = new Set(data.minorTags);
+
+      results.push(data);
+    }
+
+    return results;
   }
 
   /**
