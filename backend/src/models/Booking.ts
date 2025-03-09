@@ -1,4 +1,4 @@
-import firestore, { Timestamp } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { AutoSetFields } from "./utils";
@@ -59,12 +59,8 @@ class Booking {
   static async create(bookingData: BookingCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.BOOKINGS);
     const createdOn = Timestamp.now();
-    try {
-      const docRef = await ref.add({ ...bookingData, createdOn });
-      return docRef.id;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
-    }
+    const docRef = await ref.add({ ...bookingData, createdOn });
+    return docRef.id;
   }
 
   /**
@@ -73,22 +69,18 @@ class Booking {
   static async update(bookingId: string, updateData: BookingUpdateData): Promise<void> {
     const docRef = FirestorePaths.Bookings(bookingId);
     const lastModifiedOn = Timestamp.now();
-    try {
-      const docSnapshot = await docRef.get();
-      if (docSnapshot.exists) {
-        const data = docSnapshot.data();
-        if (data) {
-          for (const field of Object.values(OneTimeSetFields)) {
-            if (data[field] && updateData[field]) {
-              return Promise.reject(CustomApiError.create(400, `Cannot update one-time-set field: '${field}'`));
-            }
+    const docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      const data = docSnapshot.data();
+      if (data) {
+        for (const field of Object.values(OneTimeSetFields)) {
+          if (data[field] && updateData[field]) {
+            return Promise.reject(CustomApiError.create(400, `Cannot update one-time-set field: '${field}'`));
           }
         }
       }
-      await docRef.set({ ...updateData, lastModifiedOn }, { merge: true });
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
     }
+    await docRef.set({ ...updateData, lastModifiedOn }, { merge: true });
   }
 
   /**
@@ -99,32 +91,34 @@ class Booking {
     fields: (SchemaFields | PsudoFields | OneTimeSetFields)[] = []
   ): Promise<BookingReadData | null> {
     const ref = FirestorePaths.Bookings(id);
-    try {
-      const doc = await ref.get();
-      if (!doc.exists) {
-        return null;
-      }
-      const data = doc.data();
-      if (!data) {
-        return null;
-      }
-      // Add pseudo fields
-      data.isAccepted = !!data.acceptedOn;
-      data.isCancelled = !!data.cancelledOn;
-      data.isCleared = !!data.clearedOn;
-      // If no fields given return all params
-      if (fields.length === 0) {
-        return data;
-      }
-      // Filter params
-      const result = {} as BookingReadData;
-      for (const field of fields) {
-        (result as any)[field] = data[field] || null;
-      }
-      return result;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+      return null;
     }
+
+    const data = doc.data();
+    if (!data) {
+      return null;
+    }
+
+    // Add pseudo fields
+    data.isAccepted = !!data.acceptedOn;
+    data.isCancelled = !!data.cancelledOn;
+    data.isCleared = !!data.clearedOn;
+
+    // If no fields given return all params
+    if (fields.length === 0) {
+      return data;
+    }
+
+    // Filter params
+    const result = {} as BookingReadData;
+    for (const field of fields) {
+      (result as any)[field] = data[field] || null;
+    }
+
+    return result;
   }
 }
 

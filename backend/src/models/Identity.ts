@@ -98,11 +98,7 @@ class Identity {
     const identityData: IdentityCreateData = { email, type: "EMPTY" };
     const ref = FirestorePaths.Identity(uid);
     const createdOn = Timestamp.now();
-    try {
-      await ref.set({ ...identityData, createdOn }, { merge: true });
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
-    }
+    await ref.set({ ...identityData, createdOn }, { merge: true });
   }
 
   /**
@@ -111,15 +107,11 @@ class Identity {
   static async update(uid: string, updateData: IdentityUpdateData): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const lastModifiedOn = Timestamp.now();
-    try {
-      const docSnapshot = await ref.get();
-      if (!docSnapshot || !docSnapshot.exists) {
-        return Promise.reject(CustomApiError.create(404, "User not found"));
-      }
-      await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+    const docSnapshot = await ref.get();
+    if (!docSnapshot || !docSnapshot.exists) {
+      return Promise.reject(CustomApiError.create(404, "User not found"));
     }
+    await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
   }
 
   /**
@@ -131,33 +123,37 @@ class Identity {
     fields: (SchemaFields | PsudoFields)[] = []
   ): Promise<IdentityReadData | null> {
     const ref = FirestorePaths.Identity(uid);
-    try {
-      const doc = await ref.get();
-      if (!doc.exists) {
-        return null;
-      }
 
-      const data = doc.data();
-      if (!data) {
-        return null;
-      }
-      // Compose pseduo fields
-      data.displayName = [data.firstName, data.lastName].filter(Boolean).join(" ");
-      // If no fields are provided, return the entire document
-      if (fields.length === 0) {
-        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as IdentityData, uid);
-        else return data;
-      }
-      // Return only requested fields
-      const result = {} as IdentityReadData;
-      for (const field of fields) {
-        (result as any)[field] = data[field] || null;
-      }
-      // convert image paths to api uri if any
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as IdentityData, uid);
-      else return result;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+    const doc = await ref.get();
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data();
+    if (!data) {
+      return null;
+    }
+
+    // Compose pseduo fields
+    data.displayName = [data.firstName, data.lastName].filter(Boolean).join(" ");
+
+    // If no fields are provided, return the entire document
+    if (fields.length === 0) {
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as IdentityData, uid);
+      else return data;
+    }
+
+    // Return only requested fields
+    const result = {} as IdentityReadData;
+    for (const field of fields) {
+      (result as any)[field] = data[field] || null;
+    }
+
+    // convert image paths to api uri if any
+    if (extUrls === "API_URI") {
+      return imgConvertGsPathToApiUri(result as IdentityData, uid);
+    } else {
+      return result;
     }
   }
 }

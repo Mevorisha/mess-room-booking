@@ -1,5 +1,4 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { CustomApiError } from "@/lib/utils/ApiError";
 import { Timestamp } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
@@ -70,12 +69,8 @@ class Room {
   static async create(roomData: RoomCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     const createdOn = Timestamp.now();
-    try {
-      const docRef = await ref.add({ ...roomData, createdOn });
-      return docRef.id;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
-    }
+    const docRef = await ref.add({ ...roomData, createdOn });
+    return docRef.id;
   }
 
   /**
@@ -84,11 +79,7 @@ class Room {
   static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
     const ref = FirestorePaths.Rooms(roomId);
     const lastModifiedOn = Timestamp.now();
-    try {
-      await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
-    }
+    await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
   }
 
   /**
@@ -100,31 +91,35 @@ class Room {
     fields: SchemaFields[] = []
   ): Promise<RoomReadData | null> {
     const ref = FirestorePaths.Rooms(roomId);
-    try {
-      const doc = await ref.get();
-      if (!doc.exists) {
-        return null;
-      }
-      const data = doc.data();
-      if (!data) {
-        return null;
-      }
-      // If no fields provided, send all params
-      if (fields.length === 0) {
-        // convert image paths to direct urls
-        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
-        else return data;
-      }
-      // Filter params
-      const result = {} as RoomReadData;
-      for (const field of fields) {
-        (result as any)[field] = data[field] || null;
-      }
-      // convert image paths to api uri if any
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as RoomData, roomId);
-      else return result;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data();
+    if (!data) {
+      return null;
+    }
+
+    // If no fields provided, send all params
+    if (fields.length === 0) {
+      // convert image paths to direct urls
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
+      else return data;
+    }
+
+    // Filter params
+    const result = {} as RoomReadData;
+    for (const field of fields) {
+      (result as any)[field] = data[field] || null;
+    }
+
+    // convert image paths to api uri if any
+    if (extUrls === "API_URI") {
+      return imgConvertGsPathToApiUri(result as RoomData, roomId);
+    } else {
+      return result;
     }
   }
 }
