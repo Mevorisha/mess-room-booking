@@ -1,6 +1,6 @@
 import { FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
 export interface MultiSizePhoto {
@@ -97,8 +97,10 @@ class Identity {
   static async create(uid: string, email: string): Promise<void> {
     const identityData: IdentityCreateData = { email, type: "EMPTY" };
     const ref = FirestorePaths.Identity(uid);
-    const createdOn = Timestamp.now();
-    await ref.set({ ...identityData, createdOn }, { merge: true });
+    await ref.set(
+      { ...identityData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
   }
 
   /**
@@ -106,12 +108,14 @@ class Identity {
    */
   static async update(uid: string, updateData: IdentityUpdateData): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
-    const lastModifiedOn = Timestamp.now();
     const docSnapshot = await ref.get();
     if (!docSnapshot || !docSnapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
-    await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
+    await ref.set(
+      { ...updateData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
   }
 
   /**

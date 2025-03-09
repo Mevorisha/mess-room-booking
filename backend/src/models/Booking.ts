@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue } from "firebase-admin/firestore";
 import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { AutoSetFields } from "./utils";
@@ -58,8 +58,12 @@ class Booking {
    */
   static async create(bookingData: BookingCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.BOOKINGS);
-    const createdOn = Timestamp.now();
-    const docRef = await ref.add({ ...bookingData, createdOn });
+    const docRef = await ref.add({
+      ...bookingData,
+      // Add auto fields
+      createdOn: FieldValue.serverTimestamp(),
+      lastModifiedOn: FieldValue.serverTimestamp(),
+    });
     return docRef.id;
   }
 
@@ -68,7 +72,6 @@ class Booking {
    */
   static async update(bookingId: string, updateData: BookingUpdateData): Promise<void> {
     const docRef = FirestorePaths.Bookings(bookingId);
-    const lastModifiedOn = Timestamp.now();
     const docSnapshot = await docRef.get();
     if (docSnapshot.exists) {
       const data = docSnapshot.data();
@@ -80,7 +83,10 @@ class Booking {
         }
       }
     }
-    await docRef.set({ ...updateData, lastModifiedOn }, { merge: true });
+    await docRef.set(
+      { ...updateData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
   }
 
   /**
