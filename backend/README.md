@@ -43,6 +43,8 @@ identityPhotos?: {
   workIdIsPrivate?: boolean
   govIdIsPrivate?: boolean
 }
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 
@@ -51,11 +53,12 @@ ttl?: timestamp
 tenantId: string
 roomId: /rooms/{roomId}
 occupantCount: number
-requestedOn: timestamp
 acceptance?: "ACCEPTED" | "REJECTED"
 acceptedOn?: timestamp
 cancelledOn? timestamp
 clearedOn?: timestamp
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 
@@ -73,6 +76,8 @@ minorTags: Set<string>
 images: Array<string>
 capacity: number
 pricePerOccupant: number
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 
