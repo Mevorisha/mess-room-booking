@@ -69,8 +69,16 @@ class Room {
    */
   static async create(roomData: RoomCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-    const createdOn = Timestamp.now();
-    const docRef = await ref.add({ ...roomData, createdOn });
+    const docRef = await ref.add({
+      ...roomData,
+      // Convert sets to array
+      landmarkTags: Array.from(roomData.landmarkTags ?? []),
+      majorTags: Array.from(roomData.majorTags ?? []),
+      minorTags: Array.from(roomData.minorTags ?? []),
+      // Add auto fields
+      createdOn: FieldValue.serverTimestamp(),
+      lastModifiedOn: FieldValue.serverTimestamp(),
+    });
     return docRef.id;
   }
 
@@ -79,8 +87,23 @@ class Room {
    */
   static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
     const ref = FirestorePaths.Rooms(roomId);
-    const lastModifiedOn = Timestamp.now();
-    await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
+    await ref.set(
+      {
+        ...updateData,
+        // Convert sets to array
+        landmarkTags: Array.from(updateData.landmarkTags ?? []),
+        majorTags: Array.from(updateData.majorTags ?? []),
+        minorTags: Array.from(updateData.minorTags ?? []),
+        // Add auto fields
+        createdOn: FieldValue.serverTimestamp(),
+        lastModifiedOn: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }
+
+  static async queryAll(params: RoomQueryParams): Promise<RoomReadData[]> {
+    return;
   }
 
   /**
