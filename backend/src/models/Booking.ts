@@ -1,6 +1,7 @@
-import firestore from "firebase-admin/firestore";
+import firestore, { Timestamp } from "firebase-admin/firestore";
 import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { AutoSetFields } from "./utils";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
 
@@ -8,23 +9,33 @@ export interface BookingData {
   tenantId: string;
   roomId: string;
   occupantCount: number;
-  requestedOn: FirebaseFirestore.Timestamp;
   acceptance?: AcceptanceStatus;
   acceptedOn?: FirebaseFirestore.Timestamp;
   cancelledOn?: FirebaseFirestore.Timestamp;
   clearedOn?: FirebaseFirestore.Timestamp;
+  // AutoSetFields
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
+
+// During create, only tenantId, roomId and occupantCount may be set
+type BookingCreateData = Pick<BookingData, "tenantId" | "roomId" | "occupantCount">;
+// During update, apart from AutoSetFields, tenantId, roomId & occupantCount MUST not be set
+type BookingUpdateData = Partial<Omit<BookingData, AutoSetFields | "tenantId" | "roomId" | "occupantCount">>;
+// During read, all data may be read
+type BookingReadData = Partial<BookingData & { isAccepted: boolean; isCancelled: boolean; isCleared: boolean }>;
 
 export enum SchemaFields {
   TENANT_ID = "tenantId",
   ROOM_ID = "roomId",
   OCCUPANT_COUNT = "occupantCount",
-  REQUESTED_ON = "requestedOn",
   ACCEPTANCE = "acceptance",
   ACCEPTED_ON = "acceptedOn",
   CANCELLED_ON = "cancelledOn",
   CLEARED_ON = "clearedOn",
+  CREATED_ON = "createdOn",
+  LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
 }
 
@@ -45,11 +56,11 @@ class Booking {
   /**
    * Create a new booking document
    */
-  static async create(tenantId: string, roomId: string, occupantCount: number): Promise<string> {
+  static async create(bookingData: BookingCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.BOOKINGS);
-    const requestedOn = firestore.Timestamp.now();
+    const createdOn = Timestamp.now();
     try {
-      const docRef = await ref.add({ tenantId, roomId, occupantCount, requestedOn });
+      const docRef = await ref.add({ ...bookingData, createdOn });
       return docRef.id;
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
@@ -59,8 +70,9 @@ class Booking {
   /**
    * Update an existing booking document
    */
-  static async update(id: string, updateData: Partial<BookingData>): Promise<void> {
-    const docRef = FirestorePaths.Bookings(id);
+  static async update(bookingId: string, updateData: BookingUpdateData): Promise<void> {
+    const docRef = FirestorePaths.Bookings(bookingId);
+    const lastModifiedOn = Timestamp.now();
     try {
       const docSnapshot = await docRef.get();
       if (docSnapshot.exists) {
@@ -68,12 +80,12 @@ class Booking {
         if (data) {
           for (const field of Object.values(OneTimeSetFields)) {
             if (data[field] && updateData[field]) {
-              return Promise.reject(CustomApiError.create(400, `Cannot update one-time-set field: ${field}`));
+              return Promise.reject(CustomApiError.create(400, `Cannot update one-time-set field: '${field}'`));
             }
           }
         }
       }
-      await docRef.set(updateData, { merge: true });
+      await docRef.set({ ...updateData, lastModifiedOn }, { merge: true });
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
     }
@@ -85,7 +97,7 @@ class Booking {
   static async get(
     id: string,
     fields: (SchemaFields | PsudoFields | OneTimeSetFields)[] = []
-  ): Promise<Partial<BookingData & { isAccepted: boolean; isCancelled: boolean; isCleared: boolean }> | null> {
+  ): Promise<BookingReadData | null> {
     const ref = FirestorePaths.Bookings(id);
     try {
       const doc = await ref.get();
@@ -105,7 +117,7 @@ class Booking {
         return data;
       }
       // Filter params
-      const result = {} as Partial<BookingData & { isAccepted: boolean; isCancelled: boolean; isCleared: boolean }>;
+      const result = {} as BookingReadData;
       for (const field of fields) {
         (result as any)[field] = data[field] || null;
       }

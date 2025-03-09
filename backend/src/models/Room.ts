@@ -1,5 +1,7 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { Timestamp } from "firebase-admin/firestore";
+import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -19,8 +21,18 @@ export interface RoomData {
   capacity: number;
   pricePerOccupant: number;
   isUnavailable?: boolean;
+  // AutoSetFields
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
+
+// During create, apart from AutoSetFields, isUnavailable MUST not be set
+type RoomCreateData = Omit<RoomData, AutoSetFields | "isUnavailable">;
+// During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
+type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
+// During read, all data may be read
+type RoomReadData = Partial<RoomData>;
 
 export enum SchemaFields {
   OWNER_ID = "ownerId",
@@ -36,6 +48,8 @@ export enum SchemaFields {
   CAPACITY = "capacity",
   PRICE_PER_OCCUPANT = "pricePerOccupant",
   IS_UNAVAILABLE = "isUnavailable",
+  CREATED_ON = "createdOn",
+  LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
 }
 
@@ -53,10 +67,11 @@ class Room {
   /**
    * Create a new room document
    */
-  static async create(roomData: RoomData): Promise<string> {
+  static async create(roomData: RoomCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+    const createdOn = Timestamp.now();
     try {
-      const docRef = await ref.add(roomData);
+      const docRef = await ref.add({ ...roomData, createdOn });
       return docRef.id;
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
@@ -65,14 +80,12 @@ class Room {
 
   /**
    * Update an existing room document
-   * @param {string} id
-   * @param {Partial<RoomData>} updateData
-   * @returns {Promise<void>}
    */
-  static async update(id: string, updateData: Partial<RoomData>): Promise<void> {
-    const ref = FirestorePaths.Rooms(id);
+  static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
+    const ref = FirestorePaths.Rooms(roomId);
+    const lastModifiedOn = Timestamp.now();
     try {
-      await ref.set(updateData, { merge: true });
+      await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
     }
@@ -83,9 +96,9 @@ class Room {
    */
   static async get(
     roomId: string,
-    extUrls: "GS_PATH" | "API_URI",
+    extUrls: ApiResponseUrlType,
     fields: SchemaFields[] = []
-  ): Promise<Partial<RoomData> | null> {
+  ): Promise<RoomReadData | null> {
     const ref = FirestorePaths.Rooms(roomId);
     try {
       const doc = await ref.get();
@@ -103,7 +116,7 @@ class Room {
         else return data;
       }
       // Filter params
-      const result = {} as Partial<RoomData>;
+      const result = {} as RoomReadData;
       for (const field of fields) {
         (result as any)[field] = data[field] || null;
       }

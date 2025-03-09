@@ -1,5 +1,7 @@
 import { FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { Timestamp } from "firebase-admin/firestore";
+import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
 export interface MultiSizePhoto {
   small: string;
@@ -19,16 +21,26 @@ export type Language = "ENGLISH" | "BANGLA" | "HINDI";
 export type IdentityType = "OWNER" | "TENANT";
 
 interface IdentityData {
+  email: string;
+  type: IdentityType;
   firstName?: string;
   lastName?: string;
   mobile?: string;
-  email: string;
   language?: Language;
   profilePhotos?: MultiSizePhoto;
   identityPhotos?: IdentityPhotos;
-  type: IdentityType;
+  // AutoSetFields
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
+
+// During create, only email & type may be set
+type IdentityCreateData = Pick<IdentityData, "email"> & { type: IdentityType | "EMPTY" };
+// During update, AutoSetFields MUST not be set
+type IdentityUpdateData = Partial<Omit<IdentityData, AutoSetFields>>;
+// During read, all data may be read
+type IdentityReadData = Partial<IdentityData & { displayName: string }>;
 
 export enum SchemaFields {
   FIRST_NAME = "firstName",
@@ -39,6 +51,8 @@ export enum SchemaFields {
   PROFILE_PHOTOS = "profilePhotos",
   IDENTITY_PHOTOS = "identityPhotos",
   TYPE = "type",
+  CREATED_ON = "createdOn",
+  LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
 }
 
@@ -81,9 +95,11 @@ class Identity {
    * Create a new identity document
    */
   static async create(uid: string, email: string): Promise<void> {
+    const identityData: IdentityCreateData = { email, type: "EMPTY" };
     const ref = FirestorePaths.Identity(uid);
+    const createdOn = Timestamp.now();
     try {
-      await ref.set({ email, type: "EMPTY" }, { merge: true });
+      await ref.set({ ...identityData, createdOn }, { merge: true });
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
     }
@@ -92,14 +108,15 @@ class Identity {
   /**
    * Update an existing identity document
    */
-  static async update(uid: string, updateData: Partial<IdentityData>): Promise<void> {
+  static async update(uid: string, updateData: IdentityUpdateData): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
+    const lastModifiedOn = Timestamp.now();
     try {
       const docSnapshot = await ref.get();
       if (!docSnapshot || !docSnapshot.exists) {
         return Promise.reject(CustomApiError.create(404, "User not found"));
       }
-      await ref.set(updateData, { merge: true });
+      await ref.set({ ...updateData, lastModifiedOn }, { merge: true });
     } catch (e) {
       return Promise.reject(CustomApiError.create(500, e.message));
     }
@@ -110,9 +127,9 @@ class Identity {
    */
   static async get(
     uid: string,
-    extUrls: "GS_PATH" | "API_URI",
+    extUrls: ApiResponseUrlType,
     fields: (SchemaFields | PsudoFields)[] = []
-  ): Promise<Partial<IdentityData & { displayName: string }> | null> {
+  ): Promise<IdentityReadData | null> {
     const ref = FirestorePaths.Identity(uid);
     try {
       const doc = await ref.get();
@@ -132,7 +149,7 @@ class Identity {
         else return data;
       }
       // Return only requested fields
-      const result = {} as Partial<IdentityData & { displayName: string }>;
+      const result = {} as IdentityReadData;
       for (const field of fields) {
         (result as any)[field] = data[field] || null;
       }

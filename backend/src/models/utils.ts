@@ -1,6 +1,13 @@
 import { FirebaseStorage } from "@/lib/firebaseAdmin/init";
 import { CustomApiError } from "@/lib/utils/ApiError";
 
+// -------------------------------------------- TYPEDEFS -----------------------------------------------
+
+export type AutoSetFields = "createdOn" | "lastModifiedOn" | "ttl";
+export type ApiResponseUrlType = "GS_PATH" | "API_URI";
+
+// -------------------------------------------- THIS FILE ---------------------------------------------------
+
 interface UrlCacheData {
   url: string;
   expires: number;
