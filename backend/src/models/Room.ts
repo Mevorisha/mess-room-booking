@@ -16,9 +16,10 @@ export interface RoomData {
   state: string;
   majorTags: Set<string>;
   minorTags: Set<string>;
-  images: Array<string>;
   capacity: number;
   pricePerOccupant: number;
+  // Set later on
+  images?: Array<string>;
   isUnavailable?: boolean;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
@@ -27,7 +28,7 @@ export interface RoomData {
 }
 
 // During create, apart from AutoSetFields, isUnavailable MUST not be set
-type RoomCreateData = Omit<RoomData, AutoSetFields | "isUnavailable">;
+export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
 type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
 // During read, all data may be read
