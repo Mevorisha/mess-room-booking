@@ -67,7 +67,8 @@ ttl?: timestamp
 ownerId: string
 acceptGender: "MALE" | "FEMALE" | "OTHER"
 acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
-landmarkTags: Set<string>
+landmark: string
+searchTags: Set<string>
 address: string
 city: string
 state: string

@@ -10,7 +10,8 @@ export interface RoomData {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
-  landmarkTags: Set<string>;
+  searchTags: Set<string>;
+  landmark: string;
   address: string;
   city: string;
   state: string;
@@ -37,6 +38,7 @@ type RoomReadData = Partial<RoomData>;
 type RoomQueryParams = Partial<{
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
+  landmark: string;
   city: string;
   state: string;
   capacity: number;
@@ -51,7 +53,8 @@ export enum SchemaFields {
   OWNER_ID = "ownerId",
   ACCEPT_GENDER = "acceptGender",
   ACCEPT_OCCUPATION = "acceptOccupation",
-  LANDMARK_TAGS = "landmarkTags",
+  SEARCH_TAGS = "searchTags",
+  LANDMARK = "landmark",
   ADDRESS = "address",
   CITY = "city",
   STATE = "state",
@@ -85,7 +88,7 @@ class Room {
     const docRef = await ref.add({
       ...roomData,
       // Convert sets to array
-      landmarkTags: Array.from(roomData.landmarkTags ?? []),
+      searchTags: Array.from(roomData.searchTags ?? []),
       majorTags: Array.from(roomData.majorTags ?? []),
       minorTags: Array.from(roomData.minorTags ?? []),
       // Add auto fields
@@ -104,7 +107,7 @@ class Room {
       {
         ...updateData,
         // Convert sets to array
-        landmarkTags: Array.from(updateData.landmarkTags ?? []),
+        searchTags: Array.from(updateData.searchTags ?? []),
         majorTags: Array.from(updateData.majorTags ?? []),
         minorTags: Array.from(updateData.minorTags ?? []),
         // Add auto fields
@@ -127,6 +130,9 @@ class Room {
     }
     if (params.acceptOccupation) {
       query = queryOrRef().where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
+    }
+    if (params.landmark) {
+      query = queryOrRef().where(SchemaFields.LANDMARK, "==", params.landmark);
     }
     if (params.city) {
       query = queryOrRef().where(SchemaFields.CITY, "==", params.city);
@@ -166,14 +172,14 @@ class Room {
       // Filter by tags if specified
       if (params.searchTags && params.searchTags.size > 0) {
         // Convert arrays to Sets for easier checking
-        const landmarkTags = new Set(data.landmarkTags || []);
+        const searchTags = new Set(data.searchTags || []);
         const majorTags = new Set(data.majorTags || []);
         const minorTags = new Set(data.minorTags || []);
 
-        // Check if any tag in searchTags matches in landmarkTags, majorTags, or minorTags
+        // Check if any tag in searchTags matches in searchTags, majorTags, or minorTags
         let hasMatchingTag = false;
         for (const tag of params.searchTags) {
-          if (landmarkTags.has(tag) || majorTags.has(tag) || minorTags.has(tag)) {
+          if (searchTags.has(tag) || majorTags.has(tag) || minorTags.has(tag)) {
             hasMatchingTag = true;
             break;
           }
@@ -185,7 +191,7 @@ class Room {
       }
 
       // Convert back to sets from arrays in the result
-      if (data.landmarkTags) data.landmarkTags = new Set(data.landmarkTags);
+      if (data.searchTags) data.searchTags = new Set(data.searchTags);
       if (data.majorTags) data.majorTags = new Set(data.majorTags);
       if (data.minorTags) data.minorTags = new Set(data.minorTags);
 

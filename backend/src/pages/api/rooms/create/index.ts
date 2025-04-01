@@ -15,7 +15,8 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
     ownerId: Joi.string().trim().required(),
     acceptGender: Joi.string().valid("MALE", "FEMALE", "OTHER").required(),
     acceptOccupation: Joi.string().valid("STUDENT", "PROFESSIONAL", "ANY").required(),
-    landmarkTags: Joi.array().items(Joi.string().trim().required()).required(),
+    searchTags: Joi.array().items(Joi.string().trim().required()).required(),
+    landmark: Joi.string().trim().required(),
     address: Joi.string().trim().required(),
     city: Joi.string().trim().required(),
     state: Joi.string().trim().required(),
@@ -33,7 +34,7 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
 
   return {
     ...value,
-    landmarkTags: new Set(value.landmarkTags),
+    searchTags: new Set(value.searchTags),
     majorTags: new Set(value.majorTags),
     minorTags: new Set(value.minorTags),
   };
@@ -42,10 +43,10 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
 /**
  * ```
  * request = "POST /api/rooms/create" {
- *   ownerId: string
  *   acceptGender: "MALE" | "FEMALE" | "OTHER"
  *   acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
- *   landmarkTags: Set<string>
+ *   searchTags: Set<string>
+ *   landmark: string
  *   address: string
  *   city: string
  *   state: string
@@ -76,6 +77,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
     throw CustomApiError.create(403, "Please switch profile type to OWNER before creating a room");
   }
 
+  req.body.ownerId = uid;
   const roomData = createRoomData(req);
   const roomId = await Room.create(roomData);
 

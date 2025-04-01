@@ -3,6 +3,7 @@ import useDialog from "../../../../hooks/dialogbox.js";
 
 import { base64FileDataToFile, fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "../../../../modules/util/caching.js";
+import { ApiPaths, apiPostOrPatchJson } from "../../../../modules/util/api.js";
 import useNotification from "../../../../hooks/notification.js";
 
 import PillsInput from "../../../../components/PillsInput/index.jsx";
@@ -20,11 +21,14 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 /**
  * @typedef {Object} CachableDraftFormData
  * @property {string[]} searchTags
+ * @property {string} landmark
  * @property {string} address
  * @property {string} city
  * @property {string} state
  * @property {string[]} majorTags
  * @property {string[]} minorTags
+ * @property {number} capacity
+ * @property {number} pricePerOccupant
  * @property {Base64FileData[]} files
  */
 
@@ -64,9 +68,12 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
 
   const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
 
+  const landmarkInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const capacityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const pricePerOccupantInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
 
   const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
 
@@ -81,7 +88,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
   /* useEffect to load cache data */
   useEffect(() => {
     if (!viewDraftCacheUrl) return;
-    if (!addressInput.current || !cityInput.current || !stateInput.current) return;
+    if (!landmarkInput.current || !addressInput.current || !cityInput.current || !stateInput.current) return;
 
     caches
       .open(SECTION_ROOM_FORM_CACHE_PATH)
@@ -90,15 +97,18 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
       .then((/** @type {CachableDraftFormData} */ data) => {
         if (!data) return;
         setSearchTagsSet(new Set(data.searchTags));
+        if (landmarkInput.current) landmarkInput.current.value = data.landmark;
         if (addressInput.current) addressInput.current.value = data.address;
         if (cityInput.current) cityInput.current.value = data.city;
         if (stateInput.current) stateInput.current.value = data.state;
+        if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
+        if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
         setFilesSet(new Set(data.files.map((fileData) => base64FileDataToFile(fileData))));
       })
       .catch((e) => notify(e, "error"));
-  }, [viewDraftCacheUrl, addressInput.current, cityInput.current, stateInput.current]);
+  }, [viewDraftCacheUrl, landmarkInput.current, addressInput.current, cityInput.current, stateInput.current]);
 
   /**
    * @param {React.FormEvent<HTMLFormElement>} e
@@ -117,14 +127,23 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
      */
     const formData = {
       searchTags: Array.from(searchTagsSet),
+
+      // @ts-ignore
+      landmark: /** @type {string} */ (e.target.landmark.value),
       // @ts-ignore
       address: /** @type {string} */ (e.target.address.value),
       // @ts-ignore
       city: /** @type {string} */ (e.target.city.value),
       // @ts-ignore
       state: /** @type {string} */ (e.target.state.value),
+
       majorTags: Array.from(majorTagsSet),
       minorTags: Array.from(minorTagsSet),
+
+      // @ts-ignore
+      capacity: /** @type {number} */ (Number(e.target.capacity.value)),
+      // @ts-ignore
+      pricePerOccupant: /** @type {number} */ (Number(e.target.pricePerOccupant.value)),
 
       files: base64Files,
     };
@@ -141,7 +160,8 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
     }
 
     if (submitAction === "submit") {
-      Promise.resolve() // <-- submission db call placeholder
+      apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
+        .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
         .then((cache) => cache.delete(internalCacheUrl))
         .catch((e) => notify(e, "error"));
@@ -186,11 +206,13 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
     <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
       <div className="editable-container">
         <div className="textedit-container">
-          <PillsInput
+          <input
+            required
             disabled={viewOnly}
-            placeholder={lang("Set Search Tags", "সার্চ ট্যাগ সেট করুন", "सर्च टैग सेट करें")}
-            pillsSet={searchTagsSet}
-            setPillsSet={setSearchTagsSet}
+            ref={landmarkInput}
+            type="text"
+            placeholder={lang("Landmark", "ল্যান্ডমার্ক", "लैंडमार्क")}
+            name="landmark"
           />
           <input
             required
@@ -220,6 +242,12 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
           </div>
           <PillsInput
             disabled={viewOnly}
+            placeholder={lang("Set Search Tags", "সার্চ ট্যাগ সেট করুন", "सर्च टैग सेट करें")}
+            pillsSet={searchTagsSet}
+            setPillsSet={setSearchTagsSet}
+          />
+          <PillsInput
+            disabled={viewOnly}
             placeholder={lang("Set major tags", "প্রধান ট্যাগ সেট করুন", "मुख्य टैग सेट करें")}
             pillsSet={majorTagsSet}
             setPillsSet={setMajorTagsSet}
@@ -230,6 +258,24 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
             pillsSet={minorTagsSet}
             setPillsSet={setMinorTagsSet}
           />
+          <div className="city-state-container">
+            <input
+              required
+              disabled={viewOnly}
+              ref={capacityInput}
+              type="number"
+              placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
+              name="capacity"
+            />
+            <input
+              required
+              disabled={viewOnly}
+              ref={pricePerOccupantInput}
+              type="number"
+              placeholder={lang("Price Per Occupant", "প্রতি বাসিন্দার দাম", "प्रति व्यक्ति कीमत")}
+              name="pricePerOccupant"
+            />
+          </div>
         </div>
 
         <div className="filedit-container">{/* TODO: Add multi-file input */}</div>
