@@ -7,6 +7,7 @@ import LanguageContext from "../../../contexts/language.js";
 import useNotification from "../../../hooks/notification.js";
 
 import ButtonText from "../../../components/ButtonText";
+import { lang } from "../../../modules/util/language.js";
 
 /**
  * @returns {React.JSX.Element}
@@ -43,8 +44,14 @@ export default function SetProfileType() {
   return (
     <div className="pages-Onboarding">
       <div className="onboarding-container">
-        <h1>Choose Language</h1>
-        <h4>Language can be changed later</h4>
+        <h1>{lang("Choose Language", "ভাষা নির্বাচন করুন", "भाषा चुनें")}</h1>
+        <h4>
+          {lang(
+            "Language can be changed later",
+            "ভাষা পরে পরিবর্তন করা যেতে পারে",
+            "भाषा बाद में बदली जा सकती है"
+          )}
+        </h4>
 
         <div className="desc">
           <p>Choose a language to get started.</p>

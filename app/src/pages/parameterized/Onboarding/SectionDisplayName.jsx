@@ -8,6 +8,7 @@ import useCompositeUser from "../../../hooks/compositeUser.js";
 import useNotification from "../../../hooks/notification.js";
 
 import ButtonText from "../../../components/ButtonText";
+import { lang } from "../../../modules/util/language.js";
 
 /**
  * @returns {React.JSX.Element}
@@ -43,13 +44,21 @@ export default function SetDisplayName() {
   return (
     <div className="pages-Onboarding">
       <div className="onboarding-container">
-        <h1>Set Display Name</h1>
-        <h4>Name can be changed later</h4>
-
+        <h1>{lang("Set Display Name", "ডিসপ্লে নাম সেট করুন", "डिस्प्ले नाम सेट करें")}</h1>
+        <h4>{lang("Name can be changed later", "নাম পরে পরিবর্তন করা যেতে পারে", "नाम बाद में बदला जा सकता है")}</h4>
         <div className="desc">
           <p>
-            Name is required for identification and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to address you.
+            {lang(
+              "Name is required for identification and allows your room " +
+                (compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant") +
+                " to address you.",
+              "পরিচিতির জন্য নাম প্রয়োজন এবং আপনার রুম " +
+                (compUsr.userCtx.user.type === "TENANT" ? "মালিক" : "ভাড়াটে") +
+                " আপনাকে সম্বোধন করতে পারবে।",
+              "पहचान के लिए नाम आवश्यक है और आपके कमरे का " +
+                (compUsr.userCtx.user.type === "TENANT" ? "मालिक" : "किरायेदार") +
+                " आपको संबोधित कर सकेगा।"
+            )}
           </p>
         </div>
 
