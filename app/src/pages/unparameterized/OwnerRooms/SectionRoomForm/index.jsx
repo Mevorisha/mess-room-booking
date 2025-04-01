@@ -19,7 +19,7 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
  * @typedef {Object} CachableDraftFormData
- * @property {string[]} landmarks
+ * @property {string[]} searchTags
  * @property {string} address
  * @property {string} city
  * @property {string} state
@@ -62,7 +62,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
     }
   }
 
-  const [landmarksSet, setLandmarksSet] = useState(/** @type {Set<string>} */ (new Set()));
+  const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
 
   const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
@@ -89,7 +89,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
       .then((response) => response?.json())
       .then((/** @type {CachableDraftFormData} */ data) => {
         if (!data) return;
-        setLandmarksSet(new Set(data.landmarks));
+        setSearchTagsSet(new Set(data.searchTags));
         if (addressInput.current) addressInput.current.value = data.address;
         if (cityInput.current) cityInput.current.value = data.city;
         if (stateInput.current) stateInput.current.value = data.state;
@@ -116,7 +116,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
      * @type {CachableDraftFormData}
      */
     const formData = {
-      landmarks: Array.from(landmarksSet),
+      searchTags: Array.from(searchTagsSet),
       // @ts-ignore
       address: /** @type {string} */ (e.target.address.value),
       // @ts-ignore
@@ -188,24 +188,45 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
         <div className="textedit-container">
           <PillsInput
             disabled={viewOnly}
-            placeholder="Set landmarks"
-            pillsSet={landmarksSet}
-            setPillsSet={setLandmarksSet}
+            placeholder={lang("Set Search Tags", "সার্চ ট্যাগ সেট করুন", "सर्च टैग सेट करें")}
+            pillsSet={searchTagsSet}
+            setPillsSet={setSearchTagsSet}
           />
-          <input required disabled={viewOnly} ref={addressInput} type="text" placeholder="Address" name="address" />
+          <input
+            required
+            disabled={viewOnly}
+            ref={addressInput}
+            type="text"
+            placeholder={lang("Address", "ঠিকানা", "पता")}
+            name="address"
+          />
           <div className="city-state-container">
-            <input required disabled={viewOnly} ref={cityInput} type="text" placeholder="City" name="city" />
-            <input required disabled={viewOnly} ref={stateInput} type="text" placeholder="State" name="state" />
+            <input
+              required
+              disabled={viewOnly}
+              ref={cityInput}
+              type="text"
+              placeholder={lang("City", "শহর", "शहर")}
+              name="city"
+            />
+            <input
+              required
+              disabled={viewOnly}
+              ref={stateInput}
+              type="text"
+              placeholder={lang("State", "রাজ্য", "राज्य")}
+              name="state"
+            />
           </div>
           <PillsInput
             disabled={viewOnly}
-            placeholder="Set major tags"
+            placeholder={lang("Set major tags", "প্রধান ট্যাগ সেট করুন", "मुख्य टैग सेट करें")}
             pillsSet={majorTagsSet}
             setPillsSet={setMajorTagsSet}
           />
           <PillsInput
             disabled={viewOnly}
-            placeholder="Set minor tags"
+            placeholder={lang("Set minor tags", "গৌণ ট্যাগ সেট করুন", "छोटे टैग सेट करें")}
             pillsSet={minorTagsSet}
             setPillsSet={setMinorTagsSet}
           />
@@ -218,7 +239,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
         <ButtonText
           disabled={viewOnly}
           name="save-draft"
-          title="Save Draft"
+          title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
           rounded="all"
           width="50%"
           kind={draftButtonKind}
@@ -227,7 +248,7 @@ export default function SectionRoomForm({ viewDraftCacheUrl, editExistingRoomId,
         <ButtonText
           disabled={viewOnly}
           name="submit"
-          title="Submit"
+          title={lang("Submit", "জমা দিন", "सबमिट करें")}
           rounded="all"
           width="50%"
           kind={submitButtonKind}
