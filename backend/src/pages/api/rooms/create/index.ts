@@ -10,7 +10,7 @@ import Joi from "joi";
 /**
  * @throws {CustomApiError} On joi validation failure
  */
-function createRoomData(req: NextApiRequest): RoomCreateData {
+function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: string; name: string; base64: string }>] {
   const roomCreateSchema = Joi.object({
     ownerId: Joi.string().trim().required(),
     acceptGender: Joi.string().valid("MALE", "FEMALE", "OTHER").required(),
@@ -24,6 +24,18 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
     minorTags: Joi.array().items(Joi.string().trim().required()).required(),
     capacity: Joi.number().integer().positive().required(),
     pricePerOccupant: Joi.number().positive().required(),
+    files: Joi.array()
+      .items(
+        Joi.object({
+          type: Joi.string().required(),
+          name: Joi.string().required(),
+          base64: Joi.string()
+            .pattern(/^[A-Za-z0-9+/=]+$/)
+            .required(),
+        })
+      )
+      .min(0)
+      .required(),
   });
 
   const { error, value } = roomCreateSchema.validate(req.body);
@@ -32,12 +44,16 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
     throw CustomApiError.create(400, `Validation error: ${error.message}`);
   }
 
-  return {
-    ...value,
-    searchTags: new Set(value.searchTags),
-    majorTags: new Set(value.majorTags),
-    minorTags: new Set(value.minorTags),
-  };
+  return [
+    {
+      ...value,
+      files: undefined,
+      searchTags: new Set(value.searchTags),
+      majorTags: new Set(value.majorTags),
+      minorTags: new Set(value.minorTags),
+    },
+    value.files,
+  ];
 }
 
 /**
@@ -54,6 +70,7 @@ function createRoomData(req: NextApiRequest): RoomCreateData {
  *   minorTags: Set<string>
  *   capacity: number
  *   pricePerOccupant: number
+ *   files: Array<{ type: string, name: string, base64: string }>
  * }
  * response = { roomId: string }
  * ```
@@ -78,8 +95,10 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   }
 
   req.body.ownerId = uid;
-  const roomData = createRoomData(req);
+  const [roomData, images] = createRoomData(req);
   const roomId = await Room.create(roomData);
+
+  // TODO: create images for the room as well
 
   return respond(res, { status: 200, json: { roomId } });
 });
