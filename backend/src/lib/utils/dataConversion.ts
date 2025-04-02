@@ -17,3 +17,8 @@ export async function resizeImage(
     large: { img: large, sz: 500 },
   };
 }
+
+export async function resizeImageOneSz<N>(imageBuffer: Buffer, n: N): Promise<ImgWithSz<N>> {
+  const buffer = await sharp(imageBuffer).resize(n).toBuffer();
+  return { img: buffer, sz: n };
+}

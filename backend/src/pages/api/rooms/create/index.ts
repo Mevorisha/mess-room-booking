@@ -6,6 +6,8 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import Room, { RoomCreateData } from "@/models/Room";
 import Joi from "joi";
+import { resizeImageOneSz } from "@/lib/utils/dataConversion";
+import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
 /**
  * @throws {CustomApiError} On joi validation failure
@@ -98,7 +100,32 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   const [roomData, images] = createRoomData(req);
   const roomId = await Room.create(roomData);
 
-  // TODO: create images for the room as well
+  // Create images for the room
+  const bucket = FirebaseStorage.bucket();
+  // Array for all images, each entry is for a single imageId (1 size only, 500px)
+  const uploadPromises: Promise<void>[] = [];
+  // Array of respective image gs bucket paths
+  const imagePaths = new Array<string>(images.length);
+  // For each image from request
+  for (let i = 0; i < images.length; ++i) {
+    const { type, base64 } = images[i];
+    if (!/^image\/(jpeg|png|jpg)$/.test(type)) {
+      return respond(res, { status: 400, error: `Invalid file type '${type}'` });
+    }
+    // Convert from b64 and resize to 500
+    const { img: fileBuffer, sz: _ } = await resizeImageOneSz<500>(Buffer.from(base64, "base64"), 500);
+    const imageId = "" + Date.now();
+    const filePath = StoragePaths.RoomPhotos.gsBucket(roomId, imageId);
+    // Save gs file path
+    imagePaths[i] = filePath;
+    const fileRef = bucket.file(filePath);
+    // Push promise for async upload
+    uploadPromises.push(fileRef.save(fileBuffer, { contentType: "image/jpeg" }));
+  }
+  // Upload all to gs bucket
+  await Promise.all(uploadPromises);
+
+  await Room.update(roomId, { images: imagePaths, isUnavailable: false });
 
   return respond(res, { status: 200, json: { roomId } });
 });
