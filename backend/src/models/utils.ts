@@ -47,9 +47,21 @@ export async function gsPathToUrl(path: string): Promise<string> {
 // Maximum number of entries to keep in cache
 const MAX_CACHE_SIZE = 100;
 
+// Rate limiting - track last cleanup time
+let lastCleanupTime = 0;
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 // Function to clean up the cache
 function cleanupCache() {
   const now = Date.now();
+  
+  // Check if enough time has passed since last cleanup
+  if (now - lastCleanupTime < CLEANUP_INTERVAL) {
+    return; // Skip this cleanup
+  }
+  
+  // Update last cleanup time
+  lastCleanupTime = now;
 
   // Remove expired entries
   for (const [path, data] of UrlCache.entries()) {
