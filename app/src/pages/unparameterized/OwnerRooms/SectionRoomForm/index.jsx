@@ -118,13 +118,9 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
    * @param {React.FormEvent<HTMLFormElement>} e
    */
   async function handleSubmitAsync(e) {
-    // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchroneously
+    // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
 
-    const base64Files = /** @type {Base64FileData[]} */ ([]);
-
-    for (const file of Array.from(filesSet)) {
-      base64Files.push(await fileToBase64FileData(file));
-    }
+    const base64Files = await Promise.all(Array.from(filesSet).map(fileToBase64FileData));
 
     /**
      * @type {CachableDraftFormData}
@@ -185,7 +181,7 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
    * @returns {void}
    */
   function handleSubmitSync(e) {
-    e.preventDefault(); // <-- this HAS to be synchronous or else the form will submit before the cache is updated
+    e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
 
     if (viewOnly) {
       notify(
