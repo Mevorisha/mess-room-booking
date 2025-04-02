@@ -41,7 +41,7 @@ export function IdentityProvider({ children }) {
      * @returns {Promise<{ workId?: string, govId?: string }>}
      */
     async ({ workId, govId }) => {
-      if (!workId && !govId) return { workId: undefined, govId: undefined };
+      if (!workId && !govId) return { workId: void 0, govId: void 0 };
 
       let uploadedWorkId;
       let uploadedGovId;
