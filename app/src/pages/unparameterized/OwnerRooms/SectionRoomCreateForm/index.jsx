@@ -309,7 +309,6 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           name="save-draft"
           title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
           rounded="all"
-          width="50%"
           kind={draftButtonKind}
           onClick={() => setSubmitAction("save-draft")}
         />
@@ -318,7 +317,6 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           name="submit"
           title={lang("New Room", "নতুন রুম", "नया रूम")}
           rounded="all"
-          width="50%"
           kind={submitButtonKind}
           onClick={() => setSubmitAction("submit")}
         />

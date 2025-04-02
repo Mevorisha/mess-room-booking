@@ -43,7 +43,7 @@ export default function DialogBox() {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 10}px`;
     dialogAnimStyle.maxHeight = "calc(100vh - 40px)";
     dialogAnimStyle.overflowX = "hidden";
-    dialogAnimStyle.overflowY = "scroll";
+    dialogAnimStyle.overflowY = "hidden";
   }
 
   if (size === "large") {

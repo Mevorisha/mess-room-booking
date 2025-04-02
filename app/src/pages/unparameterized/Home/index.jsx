@@ -3,12 +3,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { isEmpty } from "../../../modules/util/validations.js";
 import { ActionParams, PageUrls } from "../../../modules/util/pageUrls.js";
+import { lang } from "../../../modules/util/language.js";
 
 import useCompositeUser from "../../../hooks/compositeUser.js";
+import useDialog from "../../../hooks/dialogbox.js";
 
 import ButtonText from "../../../components/ButtonText";
+import CustomFab from "../../../components/CustomFab";
 import NavBars from "../../../components/NavBars";
 import LoadingPage from "../Loading";
+import SectionRoomCreateForm from "../OwnerRooms/SectionRoomCreateForm/index.jsx";
 
 import "./styles.css";
 
@@ -43,6 +47,7 @@ function HomeForTenant({ user }) {
  * @returns {React.JSX.Element}
  */
 function HomeForOwner({ user }) {
+  const dialog = useDialog();
   return (
     <div className="pages-Home">
       <NavBars>
@@ -60,6 +65,11 @@ function HomeForOwner({ user }) {
           </ul>
         </div>
       </div>
+      <CustomFab
+        marginBottom={70}
+        title={lang("New Room", "নতুন রুম", "नया रूम")}
+        onClick={() => dialog.show(<SectionRoomCreateForm />, "fullwidth")}
+      />
     </div>
   );
 }
