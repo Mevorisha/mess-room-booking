@@ -16,10 +16,14 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
  * @typedef {import("../../../../modules/util/dataConversion.js").Base64FileData} Base64FileData
+ * @typedef {"MALE" | "FEMALE" | "OTHER" | "UNKNOWN"} GenderOptions
+ * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | "UNKNOWN"} OccupationOptions
  */
 
 /**
  * @typedef {Object} CachableDraftFormData
+ * @property {GenderOptions} acceptGender
+ * @property {OccupationOptions} acceptOccupation
  * @property {string[]} searchTags
  * @property {string} landmark
  * @property {string} address
@@ -33,49 +37,42 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  */
 
 /**
- * If `mode` is "READ", "EDIT" or "DELETE", either `roomId` or if a draft, `viewDraftCacheUrl` must be provided.
- * NOTE: Error will happen if none is provided during "READ", "EDIT" or "DELETE".
- * @param {{ roomId?: string, viewDraftCacheUrl?: string, mode: "CREATE" | "UPDATE" | "READ" | "DELETE" }} props
+ * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
+ * @param {{ draftCacheUrl?: string }} props
  * @returns {JSX.Element}
  */
-export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
-  const viewOnly = mode === "READ" || mode === "DELETE";
+export default function SectionRoomCreateForm({ draftCacheUrl }) {
+  const viewOnly = false;
 
   const notify = useNotification();
   const dialog = useDialog();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState(viewDraftCacheUrl ?? "");
+  const [internalCacheUrl, setInternalCacheUrl] = useState(draftCacheUrl ?? "");
 
-  const [draftButtonKind, setDraftButtonKind] = useState(/** @type {"secondary" | "loading"} */ ("secondary"));
-  const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
-
+  const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ ("UNKNOWN"));
+  const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ ("UNKNOWN"));
+  const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const landmarkInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
+  const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const capacityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const pricePerOccupantInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
 
-  const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const [filesSet, setFilesSet] = useState(/** @type {Set<File>} */ (new Set()));
 
-  const [submitAction, setSubmitAction] = useState(
-    /** @type {"save-draft" | "submit-create" | "submit-update" | "submit-delete"} */ ("save-draft")
-  );
+  const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
-  if (["READ", "EDIT", "DELETE"].includes(mode)) {
-    if (!roomId && !viewDraftCacheUrl) {
-      throw new Error("SectionRoomForm: provide either 'roomId' or 'viewDraftCacheUrl'");
-    }
-  }
+  const [draftButtonKind, setDraftButtonKind] = useState(/** @type {"secondary" | "loading"} */ ("secondary"));
+  const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
   /**
    * @param {"not-loading" | "loading"} kind
    */
   function setActiveButtonKind(kind) {
-    if (submitAction.startsWith("submit-")) {
+    if (submitAction.startsWith("submit")) {
       setSubmitButtonKind(kind === "loading" ? "loading" : "primary");
     }
     if (submitAction === "save-draft") {
@@ -85,78 +82,84 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
 
   /* useEffect to load cache data */
   useEffect(() => {
-    // if neither roomId nor viewDraftCacheUrl defined
-    if (!roomId || !viewDraftCacheUrl) return;
+    // if draftCacheUrl not defined
+    if (!draftCacheUrl) return;
     // if input elements not initialized
-    if (!landmarkInput.current || !addressInput.current || !cityInput.current || !stateInput.current) return;
+    if (
+      !landmarkInput.current ||
+      !addressInput.current ||
+      !cityInput.current ||
+      !stateInput.current ||
+      !capacityInput.current ||
+      !pricePerOccupantInput.current
+    )
+      return;
 
-    if (viewDraftCacheUrl) {
-      caches
-        .open(SECTION_ROOM_FORM_CACHE_PATH)
-        .then((cache) => cache.match(internalCacheUrl))
-        .then((response) => response?.json())
-        .then((/** @type {CachableDraftFormData} */ data) => {
-          if (!data) return;
-          setSearchTagsSet(new Set(data.searchTags));
-          if (landmarkInput.current) landmarkInput.current.value = data.landmark;
-          if (addressInput.current) addressInput.current.value = data.address;
-          if (cityInput.current) cityInput.current.value = data.city;
-          if (stateInput.current) stateInput.current.value = data.state;
-          if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
-          if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
-          setMajorTagsSet(new Set(data.majorTags));
-          setMinorTagsSet(new Set(data.minorTags));
-          setFilesSet(new Set(data.files.map((fileData) => base64FileDataToFile(fileData))));
-        })
-        .catch((e) => notify(e, "error"));
-    } else if (roomId) {
-      // pull from db
-    }
-  }, [viewDraftCacheUrl, landmarkInput.current, addressInput.current, cityInput.current, stateInput.current]);
+    caches
+      .open(SECTION_ROOM_FORM_CACHE_PATH)
+      .then((cache) => cache.match(internalCacheUrl))
+      .then((response) => response?.json())
+      .then((/** @type {CachableDraftFormData} */ data) => {
+        if (!data) return;
+        setAcceptGender(data.acceptGender);
+        setAcceptOccupation(data.acceptOccupation);
+        setSearchTagsSet(new Set(data.searchTags));
+        if (landmarkInput.current) landmarkInput.current.value = data.landmark;
+        if (addressInput.current) addressInput.current.value = data.address;
+        if (cityInput.current) cityInput.current.value = data.city;
+        if (stateInput.current) stateInput.current.value = data.state;
+        setMajorTagsSet(new Set(data.majorTags));
+        setMinorTagsSet(new Set(data.minorTags));
+        if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
+        if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   */
-  async function handleSubmitAsync(e) {
+        setFilesSet(new Set(data.files.map(base64FileDataToFile)));
+      })
+      .catch((e) => notify(e, "error"));
+  }, [
+    draftCacheUrl,
+    landmarkInput.current,
+    addressInput.current,
+    cityInput.current,
+    stateInput.current,
+    capacityInput.current,
+    pricePerOccupantInput.current,
+  ]);
+
+  async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
-
     const base64Files = await Promise.all(Array.from(filesSet).map(fileToBase64FileData));
-
     /**
      * @type {CachableDraftFormData}
      */
     const formData = {
+      acceptGender,
+      acceptOccupation,
       searchTags: Array.from(searchTagsSet),
-
-      // @ts-ignore
-      landmark: /** @type {string} */ (e.target.landmark.value),
-      // @ts-ignore
-      address: /** @type {string} */ (e.target.address.value),
-      // @ts-ignore
-      city: /** @type {string} */ (e.target.city.value),
-      // @ts-ignore
-      state: /** @type {string} */ (e.target.state.value),
-
+      landmark: landmarkInput.current.value,
+      address: addressInput.current.value,
+      city: cityInput.current.value,
+      state: stateInput.current.value,
       majorTags: Array.from(majorTagsSet),
       minorTags: Array.from(minorTagsSet),
-
-      // @ts-ignore
-      capacity: /** @type {number} */ (Number(e.target.capacity.value)),
-      // @ts-ignore
-      pricePerOccupant: /** @type {number} */ (Number(e.target.pricePerOccupant.value)),
+      capacity: Number(capacityInput.current.value),
+      pricePerOccupant: Number(pricePerOccupantInput.current.value),
 
       files: base64Files,
     };
 
-    const jsonString = JSON.stringify(formData);
-
     // save form data draft in cache
     if (submitAction === "save-draft") {
+      const jsonString = JSON.stringify(formData);
       const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
-      const newUrl = await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH);
-      await cache.put(newUrl, new Response(jsonString, { status: 200 }));
-      await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, newUrl);
-      setInternalCacheUrl(newUrl);
+      const cacheUrl = internalCacheUrl || (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
+      await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));
+      if (internalCacheUrl !== cacheUrl) {
+        // update last cache url if createNewCacheUrl called
+        await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, cacheUrl);
+        // also update the internalCacheUrl
+        setInternalCacheUrl(cacheUrl);
+      }
       notify(
         lang(
           "Form draft saved to this computer",
@@ -165,9 +168,7 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
         ),
         "success"
       );
-    }
-
-    if (submitAction === "submit-create") {
+    } else if (submitAction === "submit") {
       apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
@@ -182,17 +183,23 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
    */
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
-
-    if (viewOnly) {
+    if (
+      !landmarkInput.current ||
+      !addressInput.current ||
+      !cityInput.current ||
+      !stateInput.current ||
+      !capacityInput.current ||
+      !pricePerOccupantInput.current
+    ) {
+      console.error("undefined input refs");
       notify(
-        lang("This form is view only", "এই ফর্মটি শুধুমাত্র দেখার জন্য", "यह फॉर्म केवल देखने के लिए है"),
+        lang("Input error, please try again", "ইনপুট ত্রুটি, আবার চেষ্টা করুন", "इनपुट त्रुटि, कृपया पुनः प्रयास करें"),
         "error"
       );
       return;
     }
-
     setActiveButtonKind("loading");
-    handleSubmitAsync(e)
+    handleSubmitAsync()
       .then(() => setActiveButtonKind("not-loading"))
       .catch((e) => {
         notify(e, "error");
@@ -274,44 +281,48 @@ export default function SectionRoomForm({ roomId, viewDraftCacheUrl, mode }) {
               name="pricePerOccupant"
             />
           </div>
+
+          <select value={acceptGender} onChange={(e) => setAcceptGender(/** @type {GenderOptions} */ (e.target.value))}>
+            <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
+            <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
+            <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
+            <option value="UNKNOWN">{lang("Choose gender", "লিঙ্গ নির্বাচন করুন", "लिंग चुनें")}</option>
+          </select>
+
+          <select
+            value={acceptOccupation}
+            onChange={(e) => setAcceptOccupation(/** @type {OccupationOptions} */ (e.target.value))}
+          >
+            <option value="STUDENT">{lang("Student", "ছাত্র", "छात्र")}</option>
+            <option value="PROFESSIONAL">{lang("Professional", "পেশাদার", "प्रोफेशनल")}</option>
+            <option value="ANY">{lang("Any", "যেকোনো", "कोई भी")}</option>
+            <option value="UNKNOWN">{lang("Choose occupation", "আপনি কি কাজ করেন", "आप क्या करते हैं")}</option>
+          </select>
         </div>
 
         <div className="filedit-container">{/* TODO: Add multi-file input */}</div>
       </div>
 
-      {mode !== "READ" && (
-        <div className="submit-container">
-          <ButtonText
-            disabled={viewOnly}
-            name="save-draft"
-            title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
-            rounded="all"
-            width="50%"
-            kind={draftButtonKind}
-            onClick={() => setSubmitAction("save-draft")}
-          />
-          <ButtonText
-            disabled={viewOnly}
-            name="submit"
-            title={
-              mode === "DELETE"
-                ? lang("Delete", "ডিলিট", "डिलीट")
-                : mode === "UPDATE"
-                ? lang("Update", "আপডেট", "अपडेट")
-                : lang("New Room", "নতুন রুম", "नया रूम")
-            }
-            rounded="all"
-            width="50%"
-            kind={submitButtonKind}
-            bgColor={mode === "DELETE" ? "red" : void 0}
-            onClick={() =>
-              setSubmitAction(
-                mode === "DELETE" ? "submit-delete" : mode === "UPDATE" ? "submit-update" : "submit-create"
-              )
-            }
-          />
-        </div>
-      )}
+      <div className="submit-container">
+        <ButtonText
+          disabled={viewOnly}
+          name="save-draft"
+          title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
+          rounded="all"
+          width="50%"
+          kind={draftButtonKind}
+          onClick={() => setSubmitAction("save-draft")}
+        />
+        <ButtonText
+          disabled={viewOnly}
+          name="submit"
+          title={lang("New Room", "নতুন রুম", "नया रूम")}
+          rounded="all"
+          width="50%"
+          kind={submitButtonKind}
+          onClick={() => setSubmitAction("submit")}
+        />
+      </div>
 
       <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />
     </form>
