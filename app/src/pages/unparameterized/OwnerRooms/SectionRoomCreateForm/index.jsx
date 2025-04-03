@@ -246,12 +246,14 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
             />
           </div>
           <PillsInput
+            required
             disabled={viewOnly}
             placeholder={lang("Set Search Tags", "সার্চ ট্যাগ সেট করুন", "सर्च टैग सेट करें")}
             pillsSet={searchTagsSet}
             setPillsSet={setSearchTagsSet}
           />
           <PillsInput
+            required
             disabled={viewOnly}
             placeholder={lang("Set major tags", "প্রধান ট্যাগ সেট করুন", "मुख्य टैग सेट करें")}
             pillsSet={majorTagsSet}
@@ -277,12 +279,17 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
               disabled={viewOnly}
               ref={pricePerOccupantInput}
               type="number"
-              placeholder={lang("Price Per Occupant", "প্রতি বাসিন্দার দাম", "प्रति व्यक्ति कीमत")}
+              placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
               name="pricePerOccupant"
             />
           </div>
 
-          <select value={acceptGender} onChange={(e) => setAcceptGender(/** @type {GenderOptions} */ (e.target.value))}>
+          <select
+            required
+            value={acceptGender}
+            defaultValue={"UNKNOWN"}
+            onChange={(e) => setAcceptGender(/** @type {GenderOptions} */ (e.target.value))}
+          >
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
@@ -290,13 +297,15 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           </select>
 
           <select
+            required
             value={acceptOccupation}
+            defaultValue={"UNKNOWN"}
             onChange={(e) => setAcceptOccupation(/** @type {OccupationOptions} */ (e.target.value))}
           >
             <option value="STUDENT">{lang("Student", "ছাত্র", "छात्र")}</option>
             <option value="PROFESSIONAL">{lang("Professional", "পেশাদার", "प्रोफेशनल")}</option>
             <option value="ANY">{lang("Any", "যেকোনো", "कोई भी")}</option>
-            <option value="UNKNOWN">{lang("Choose occupation", "আপনি কি কাজ করেন", "आप क्या करते हैं")}</option>
+            <option value="UNKNOWN">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
           </select>
         </div>
 
