@@ -100,6 +100,10 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   const [roomData, images] = createRoomData(req);
   const roomId = await Room.create(roomData);
 
+  // at this point no need to add guards for images.length == 0
+  // coz while it does end up creating a large array (and ill optimize it later)
+  // the update after the loop sets isUnavailable to false, which is needed
+
   // Create images for the room
   const bucket = FirebaseStorage.bucket();
   // Array for all images, each entry is for a single imageId (1 size only, 500px)
