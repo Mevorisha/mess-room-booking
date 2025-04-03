@@ -48,7 +48,7 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:has(option[value="UNKNOWN"]:checked) {
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:has(option[value=""]:checked) {
   color: #777;
 }
 
@@ -75,7 +75,7 @@
   display: flex;
   flex-direction: row ;
   justify-content: end;
-  align-items: end;
+  align-items: center;
   gap: var(--pad-2);
   padding: var(--pad-3);
   padding-top: var(--pad-0);

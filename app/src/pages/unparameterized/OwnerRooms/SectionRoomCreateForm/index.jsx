@@ -16,8 +16,8 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
  * @typedef {import("../../../../modules/util/dataConversion.js").Base64FileData} Base64FileData
- * @typedef {"MALE" | "FEMALE" | "OTHER" | "UNKNOWN"} GenderOptions
- * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | "UNKNOWN"} OccupationOptions
+ * @typedef {"MALE" | "FEMALE" | "OTHER" | ""} GenderOptions
+ * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | ""} OccupationOptions
  */
 
 /**
@@ -49,8 +49,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
 
   const [internalCacheUrl, setInternalCacheUrl] = useState(draftCacheUrl ?? "");
 
-  const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ ("UNKNOWN"));
-  const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ ("UNKNOWN"));
+  const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ (""));
+  const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ (""));
   const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const landmarkInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
   const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
@@ -65,20 +65,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
 
   const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
-  const [draftButtonKind, setDraftButtonKind] = useState(/** @type {"secondary" | "loading"} */ ("secondary"));
   const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
-
-  /**
-   * @param {"not-loading" | "loading"} kind
-   */
-  function setActiveButtonKind(kind) {
-    if (submitAction.startsWith("submit")) {
-      setSubmitButtonKind(kind === "loading" ? "loading" : "primary");
-    }
-    if (submitAction === "save-draft") {
-      setDraftButtonKind(kind === "loading" ? "loading" : "secondary");
-    }
-  }
 
   /* useEffect to load cache data */
   useEffect(() => {
@@ -97,7 +84,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
 
     caches
       .open(SECTION_ROOM_FORM_CACHE_PATH)
-      .then((cache) => cache.match(internalCacheUrl))
+      .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
       .then((/** @type {CachableDraftFormData} */ data) => {
         if (!data) return;
@@ -116,15 +103,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         setFilesSet(new Set(data.files.map(base64FileDataToFile)));
       })
       .catch((e) => notify(e, "error"));
-  }, [
-    draftCacheUrl,
-    landmarkInput.current,
-    addressInput.current,
-    cityInput.current,
-    stateInput.current,
-    capacityInput.current,
-    pricePerOccupantInput.current,
-  ]);
+  }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
 
   async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
@@ -168,12 +147,22 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         ),
         "success"
       );
-    } else if (submitAction === "submit") {
+    }
+
+    // submit to backend
+    else if (submitAction === "submit") {
+      setSubmitButtonKind("loading");
       apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
         .then((cache) => cache.delete(internalCacheUrl))
-        .catch((e) => notify(e, "error"));
+        .then(() => setSubmitButtonKind("primary"))
+        .then(() => notify(lang("Created new room", "নতুন রুম তৈরি হয়েছে", "नया रूम बनाया गया"), "success"))
+        // .then(() => dialog.hide())
+        .catch((e) => {
+          notify(e, "error");
+          setSubmitButtonKind("primary");
+        });
     }
   }
 
@@ -183,6 +172,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
    */
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
+
     if (
       !landmarkInput.current ||
       !addressInput.current ||
@@ -198,13 +188,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       );
       return;
     }
-    setActiveButtonKind("loading");
-    handleSubmitAsync()
-      .then(() => setActiveButtonKind("not-loading"))
-      .catch((e) => {
-        notify(e, "error");
-        setActiveButtonKind("not-loading");
-      });
+
+    handleSubmitAsync().catch((e) => notify(e, "error"));
   }
 
   return (
@@ -287,25 +272,23 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           <select
             required
             value={acceptGender}
-            defaultValue={"UNKNOWN"}
             onChange={(e) => setAcceptGender(/** @type {GenderOptions} */ (e.target.value))}
           >
+            <option value="">{lang("Choose gender", "লিঙ্গ নির্বাচন করুন", "लिंग चुनें")}</option>
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
-            <option value="UNKNOWN">{lang("Choose gender", "লিঙ্গ নির্বাচন করুন", "लिंग चुनें")}</option>
           </select>
 
           <select
             required
             value={acceptOccupation}
-            defaultValue={"UNKNOWN"}
             onChange={(e) => setAcceptOccupation(/** @type {OccupationOptions} */ (e.target.value))}
           >
+            <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
             <option value="STUDENT">{lang("Student", "ছাত্র", "छात्र")}</option>
             <option value="PROFESSIONAL">{lang("Professional", "পেশাদার", "प्रोफेशनल")}</option>
             <option value="ANY">{lang("Any", "যেকোনো", "कोई भी")}</option>
-            <option value="UNKNOWN">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
           </select>
         </div>
 
@@ -318,11 +301,12 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           name="save-draft"
           title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
           rounded="all"
-          kind={draftButtonKind}
+          kind="secondary"
           onClick={() => setSubmitAction("save-draft")}
         />
         <ButtonText
           disabled={viewOnly}
+          width="25%"
           name="submit"
           title={lang("New Room", "নতুন রুম", "नया रूम")}
           rounded="all"
