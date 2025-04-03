@@ -39,13 +39,21 @@ export function PillInputTest({ disabled }) {
  *   type?: React.HTMLInputTypeAttribute,
  *   placeholder?: string,
  *   disabled?: boolean,
+ *   required?: boolean,
+ *   minRequired?: number,
  *   pillsSet: Set<string>,
  *   setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>
  * }} props
  * @returns {React.JSX.Element}
  */
-export default function PillInput({ type, placeholder, disabled, pillsSet, setPillsSet }) {
+export default function PillInput({ type, placeholder, disabled, required, minRequired = 1, pillsSet, setPillsSet }) {
   const [inputValue, setInputValue] = useState("");
+
+  // Use rewuired property of input element
+  // If `required` is set, if pillsSet size > 0, set input.reuquired to false
+  // Otherwise, keep it as true (same as `required`)
+  let isRequired = required;
+  if (required && pillsSet.size >= minRequired) isRequired = false;
 
   /**
    * @param {string} item
@@ -112,6 +120,7 @@ export default function PillInput({ type, placeholder, disabled, pillsSet, setPi
 
       <div className="editing-container">
         <input
+          required={isRequired}
           autoCapitalize="none"
           autoComplete="off"
           autoCorrect="off"
