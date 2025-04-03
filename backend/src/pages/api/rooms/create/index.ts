@@ -23,7 +23,7 @@ function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: str
     city: Joi.string().trim().required(),
     state: Joi.string().trim().required(),
     majorTags: Joi.array().items(Joi.string().trim().required()).required(),
-    minorTags: Joi.array().items(Joi.string().trim().required()).required(),
+    minorTags: Joi.array().items(Joi.string().trim()).min(0).required(),
     capacity: Joi.number().integer().positive().required(),
     pricePerOccupant: Joi.number().positive().required(),
     files: Joi.array()
@@ -46,16 +46,16 @@ function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: str
     throw CustomApiError.create(400, `Validation error: ${error.message}`);
   }
 
-  return [
-    {
-      ...value,
-      files: undefined,
-      searchTags: new Set(value.searchTags),
-      majorTags: new Set(value.majorTags),
-      minorTags: new Set(value.minorTags),
-    },
-    value.files,
-  ];
+  const roomCreateData = {
+    ...value,
+    searchTags: new Set(value.searchTags),
+    majorTags: new Set(value.majorTags),
+    minorTags: new Set(value.minorTags),
+  };
+
+  delete roomCreateData.files;
+
+  return [roomCreateData, value.files];
 }
 
 /**
