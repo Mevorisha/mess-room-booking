@@ -306,7 +306,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         />
         <ButtonText
           disabled={viewOnly}
-          width="25%"
+          width="15%"
           name="submit"
           title={lang("New Room", "নতুন রুম", "नया रूम")}
           rounded="all"
