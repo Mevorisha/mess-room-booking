@@ -21,6 +21,34 @@
   border-radius: var(--rounded-rad);
 }
 
+.components-DialogBox .dialog-box {
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #bbb transparent;
+}
+
+.components-DialogBox .dialog-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.components-DialogBox .dialog-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.components-DialogBox .dialog-box::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 3px;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+}
+
+/* Show scrollbar when scrolling */
+.components-DialogBox .dialog-box:hover::-webkit-scrollbar-thumb,
+.components-DialogBox .dialog-box:active::-webkit-scrollbar-thumb,
+.components-DialogBox .dialog-box:focus::-webkit-scrollbar-thumb {
+  opacity: 0.5;
+}
+
 .components-DialogBox .dialog-box hr {
   width: calc(100% - 4px);
   padding: 0;
