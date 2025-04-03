@@ -103,19 +103,21 @@ class Room {
    */
   static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
     const ref = FirestorePaths.Rooms(roomId);
-    await ref.set(
-      {
-        ...updateData,
-        // Convert sets to array
-        searchTags: Array.from(updateData.searchTags ?? []),
-        majorTags: Array.from(updateData.majorTags ?? []),
-        minorTags: Array.from(updateData.minorTags ?? []),
-        // Add auto fields
-        createdOn: FieldValue.serverTimestamp(),
-        lastModifiedOn: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+
+    const updateDataFrstrFormat: Record<string, any> = {
+      ...updateData,
+      // Add auto fields
+      createdOn: FieldValue.serverTimestamp(),
+      lastModifiedOn: FieldValue.serverTimestamp(),
+    };
+
+    // Convert sets to array
+    // Make sure u update the array type fields only if they exist in given data
+    if (updateDataFrstrFormat.searchTags) updateDataFrstrFormat.searchTags = Array.from(updateData.searchTags);
+    if (updateDataFrstrFormat.majorTags) updateDataFrstrFormat.majorTags = Array.from(updateData.majorTags);
+    if (updateDataFrstrFormat.minorTags) updateDataFrstrFormat.minorTags = Array.from(updateData.minorTags);
+
+    await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
   static async queryAll(params: RoomQueryParams): Promise<RoomReadData[]> {
