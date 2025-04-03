@@ -76,7 +76,7 @@ export default function ButtonText({
   return (
     <div
       className={classes.join(" ")}
-      style={{ minWidth, borderRadius: borderRadiusStyle[rounded], backgroundColor: bgColor }}
+      style={{ minWidth, borderRadius: borderRadiusStyle[rounded], backgroundColor: bgColor, borderColor: bgColor }}
       onClick={(event) => {
         if (linkToForm?.current) {
           // if form present, submit with validations
