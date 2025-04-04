@@ -106,8 +106,6 @@ class Room {
 
     const updateDataFrstrFormat: Record<string, any> = {
       ...updateData,
-      // Add auto fields
-      createdOn: FieldValue.serverTimestamp(),
       lastModifiedOn: FieldValue.serverTimestamp(),
     };
 
