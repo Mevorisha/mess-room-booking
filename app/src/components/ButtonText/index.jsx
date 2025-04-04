@@ -2,26 +2,25 @@ import React from "react";
 import "./styles.css";
 
 /**
- * Renders a customizable button that can submit a form with validation and display a loading spinner.
- *
- * This component displays an input button with configurable text, styling, and behavior.
- * If a form reference is provided via `linkToForm`, clicking the button will trigger the form's submission
- * and run validation before executing any additional click logic. When the `kind` prop is set to "loading",
- * a spinner is displayed instead of the interactive button.
- *
  * @typedef {Object} ButtonTextProps
- * @property {string} title - The text displayed on the button.
- * @property {string} [name] - The name attribute for the button input, useful for form integration.
- * @property {(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void} [onClick] - Callback triggered on button click.
- * @property {React.RefObject<HTMLFormElement>} [linkToForm] - A form ref; if provided, the button submits the form with validation.
- * @property {boolean} [disabled] - Disables the button when true.
- * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - Specifies which corners of the button are rounded.
- * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind] - Defines the button's style; "loading" displays a spinner.
- * @property {"default" | "full" | string} [width] - Sets the minimum width of the button with special handling for "full" and "default".
- * @property {string} [bgColor] - Custom background and border color for the button.
- *
- * @param {ButtonTextProps} props - The properties for configuring the button.
- * @returns {React.JSX.Element} The rendered button component.
+ * @property {string} title                                                   - The text to be displayed on the button.
+ * @property {string} [name]                                                  - The name of the button. This is useful when the button is part of a form.
+ * @property {(
+ *   event: React.MouseEvent<HTMLDivElement, MouseEvent>
+ * ) => void} [onClick]                                                       - The function to be called when the button is clicked. Second argument is a
+ *                                                                              function to stop the spinning animation.
+ * @property {React.RefObject<HTMLFormElement>} [linkToForm]                  - A ref using `useRef` to the form to be submitted when the button is clicked.
+ *                                                                              If provided, the button will submit the form when clicked with validations.
+ * @property {boolean} [disabled]                                             - Whether the button is disabled or not.
+ * @property {"all" | "left" | "right" | "top" | "bottom" | "none"} [rounded] - The placement of rounded corners on the button.
+ * @property {"primary" | "secondary" | "cannibalized" | "loading"} [kind]    - The kind of button. Primary has background and border, secondary has
+ *                                                                              light background and light border, cannibalized has no background and no border.
+ *                                                                              Loading is a special kind that shows a spinning animation.
+ * @property {"default" | "full" | string} [width]                            - The minimum width of the button in CSS units. To use less width, encapsulate the
+ *                                                                              button in a container with the desired width.
+ * @property {string} [bgColor]
+ * @param {ButtonTextProps} props
+ * @return {React.JSX.Element}
  */
 export default function ButtonText({
   title,

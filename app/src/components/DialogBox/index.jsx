@@ -6,13 +6,7 @@ import "./styles.css";
 const DIALOG_ANIM_DURATION = 250;
 
 /**
- * Renders the dialog box with an animated overlay.
- *
- * This component uses context to manage its state, including the dialog's content, animation states, and size settings.
- * It listens for window resize events to update its dimensions and adjusts the dialog's maximum width based on the current "size" setting.
- * When the overlay is clicked, it initiates closing animations and clears the content after the animation duration.
- *
- * @returns {React.JSX.Element | null} The dialog box element with overlay animations, or null if the dialog is inactive.
+ * @returns {React.JSX.Element | null}
  */
 export default function DialogBox() {
   const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =

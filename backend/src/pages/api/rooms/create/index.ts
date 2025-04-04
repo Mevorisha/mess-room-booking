@@ -10,16 +10,7 @@ import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
 /**
- * Validates and structures the incoming room creation data from the request body.
- *
- * This function uses a Joi schema to ensure that all required fields for creating a room are present and correctly formatted.
- * It converts the arrays for search tags, major tags, and minor tags into sets, and extracts any file information for image uploads.
- *
- * @param req - The API request containing the room creation payload.
- * @returns A tuple where the first element is the processed room creation data (with tags converted to sets)
- *          and the second element is an array of file objects (each with type, name, and base64 encoded content).
- *
- * @throws {CustomApiError} If the request payload fails validation.
+ * @throws {CustomApiError} On joi validation failure
  */
 function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: string; name: string; base64: string }>] {
   const roomCreateSchema = Joi.object({

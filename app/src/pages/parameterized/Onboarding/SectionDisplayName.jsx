@@ -11,13 +11,7 @@ import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
 
 /**
- * Renders a form that allows a user to update their display name.
- *
- * The component validates the provided first and last name inputs and, upon successful validation,
- * updates the user's profile using the composite user context. If the update succeeds, the component navigates to the home page;
- * otherwise, it displays an error notification. The UI text supports multiple languages via the lang function.
- *
- * @returns {React.JSX.Element} The rendered UI for updating the user's display name.
+ * @returns {React.JSX.Element}
  */
 export default function SetDisplayName() {
   const compUsr = useCompositeUser();

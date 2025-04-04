@@ -37,14 +37,9 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  */
 
 /**
- * Renders a room creation form that supports draft caching and submission.
- *
- * The form allows users to input room details such as location, capacity, and tags. If a cache URL
- * is provided via the `draftCacheUrl` prop, the form is pre-populated with saved draft data.
- *
- * @param {Object} props - Component properties.
- * @param {string} [props.draftCacheUrl] - Optional URL to retrieve cached form data.
- * @returns {JSX.Element} The rendered room creation form.
+ * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
+ * @param {{ draftCacheUrl?: string }} props
+ * @returns {JSX.Element}
  */
 export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const viewOnly = false;
@@ -110,13 +105,6 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       .catch((e) => notify(e, "error"));
   }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
 
-  /**
-   * Asynchronously processes and submits the room form data.
-   *
-   * This function gathers values from input fields and converts attached files to base64 format to build a form data object. Depending on the current submit action, it either saves the form data as a draft in a client-side cache (updating the cache URL as needed) or submits the data to a backend API. On a draft save, it caches the JSON stringified form data and notifies the user of success; on submission, it updates the UI state, calls the API, clears the cached entry, and notifies the user based on the outcome.
-   *
-   * @remark Ensure that event default prevention (e.g., e.preventDefault()) is handled in the synchronous submit function before invoking this asynchronous function.
-   */
   async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
     const base64Files = await Promise.all(Array.from(filesSet).map(fileToBase64FileData));
@@ -179,14 +167,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   }
 
   /**
-   * Synchronously handles the form submission event.
-   *
-   * Prevents the browser's default behavior to ensure that any cached modifications are applied before submission.
-   * It verifies that all required input references are available; if any are missing, it logs an error and notifies the user.
-   * Upon successful validation, it initiates asynchronous form submission via {@link handleSubmitAsync},
-   * catching and notifying any errors that occur during the process.
-   *
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   * @param {React.FormEvent<HTMLFormElement>} e
+   * @returns {void}
    */
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
