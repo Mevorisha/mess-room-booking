@@ -113,7 +113,7 @@ class Identity {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
     await ref.set(
-      { ...updateData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { ...updateData, astModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }
     );
   }
