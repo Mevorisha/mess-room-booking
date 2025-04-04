@@ -9,6 +9,14 @@ import Joi from "joi";
 import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb", // Set desired value here
+    },
+  },
+};
+
 /**
  * @throws {CustomApiError} On joi validation failure
  */
