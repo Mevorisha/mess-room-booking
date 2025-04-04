@@ -3,12 +3,13 @@ import useDialog from "@/hooks/dialogbox.js";
 
 import { base64FileDataToFile, fileToBase64FileData } from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
+import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
 import ButtonText from "@/components/ButtonText/index.jsx";
-import { lang } from "@/modules/util/language.js";
+import ImageFilesInput from "@/components/ImageFilesInput";
 
 import "./styles.css";
 
@@ -39,7 +40,7 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 /**
  * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
  * @param {{ draftCacheUrl?: string }} props
- * @returns {JSX.Element}
+ * @returns {React.JSX.Element}
  */
 export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const viewOnly = false;
@@ -52,14 +53,14 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ (""));
   const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ (""));
   const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const landmarkInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const landmarkInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const addressInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const cityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const stateInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
   const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const capacityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const pricePerOccupantInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
   const [filesSet, setFilesSet] = useState(/** @type {Set<File>} */ (new Set()));
 
@@ -292,7 +293,9 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           </select>
         </div>
 
-        <div className="filedit-container">{/* TODO: Add multi-file input */}</div>
+        <div className="filedit-container">
+          <ImageFilesInput required filesSet={filesSet} setFilesSet={setFilesSet} />
+        </div>
       </div>
 
       <div className="submit-container">
