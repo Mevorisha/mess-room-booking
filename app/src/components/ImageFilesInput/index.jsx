@@ -9,13 +9,16 @@ import ButtonText from "../ButtonText";
 
 import "./styles.css";
 
-const MAX_SIZE_IN_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
+const MAX_TOTAL_SIZE_IN_BYTES = 10 * MAX_SIZE_IN_BYTES; // 10MB
 
 /**
  * @typedef {object} ImageFilesInputProps
  * @property {string} [placeholder] - The placeholder text for the input field when enabled.
  * @property {boolean} [disabled] - If true, disables the input field and interactions.
  * @property {boolean} [required] - Indicates if the input should initially be required.
+ * @property {number} [maxTotalSizeBytes] - The maximum total size of all files in bytes.
+ * @property {number} [maxOneFileSizeBytes=MAX_SIZE_IN_BYTES] - The maximum size of a single file in bytes.
  * @property {number} [minRequired=1] - The minimum number of files required for the input to no longer be marked as required.
  * @property {Set<File>} filesSet - A set containing the current files.
  * @property {React.Dispatch<React.SetStateAction<Set<File>>>} setFilesSet - State updater for modifying the files set.
@@ -149,7 +152,16 @@ function NotEmptyFilesInput(props) {
  * @returns {React.JSX.Element} The rendered image files input component.
  */
 export default function ImageFilesInput(props) {
-  const { required, minRequired = 1, filesSet, setFilesSet } = props;
+  const {
+    required,
+    minRequired = 1,
+    maxTotalSizeBytes = MAX_TOTAL_SIZE_IN_BYTES,
+    maxOneFileSizeBytes = MAX_SIZE_IN_BYTES,
+    filesSet,
+    setFilesSet,
+  } = props;
+
+  const notify = useNotification();
 
   // Use rewuired property of input element
   // If `required` is set, if pillsSet size > 0, set input.reuquired to false
@@ -162,6 +174,28 @@ export default function ImageFilesInput(props) {
    */
   function handleItemAdd(item) {
     setFilesSet((oldSet) => {
+      if (item.size > maxOneFileSizeBytes) {
+        notify(
+          lang(
+            `FIle exceeds limit ${sizehuman(maxOneFileSizeBytes)}`,
+            `ফাইলের সীমা ${sizehuman(maxOneFileSizeBytes)} অতিক্রম করেছে`,
+            `फ़ाइल सीमा ${sizehuman(maxOneFileSizeBytes)} से अधिक है`
+          ),
+          "error"
+        );
+        return oldSet;
+      }
+      if (item.size + Array.from(oldSet).reduce((acc, file) => acc + file.size, 0) > maxTotalSizeBytes) {
+        notify(
+          lang(
+            `Total size exceeds limit ${sizehuman(maxTotalSizeBytes)}`,
+            `মোট আকার সীমা ${sizehuman(maxTotalSizeBytes)} অতিক্রম করেছে`,
+            `कुल आकार सीमा ${sizehuman(maxTotalSizeBytes)} से अधिक है`
+          ),
+          "error"
+        );
+        return oldSet;
+      }
       const newSet = new Set(oldSet);
       newSet.add(item);
       return newSet;

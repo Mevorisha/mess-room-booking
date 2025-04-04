@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData } from "@/modules/util/dataConversion.js";
+import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
@@ -153,6 +153,18 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
     // submit to backend
     else if (submitAction === "submit") {
       setSubmitButtonKind("loading");
+      let totalSize = 0;
+      for (const f of filesSet) {
+        totalSize += f.size;
+      }
+      notify(
+        lang(
+          `Uploading ${sizehuman(totalSize)}. This may take a long time. Please be patient.`,
+          `${sizehuman(totalSize)} আপলোড হচ্ছে। এটি অনেক সময় নিতে পারে। দয়া করে ধৈর্য ধরুন।`,
+          `${sizehuman(totalSize)} अपलोड हो रहा है। इसमें बहुत समय लग सकता है। कृपया धैर्य रखें।`
+        ),
+        "info"
+      );
       apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
