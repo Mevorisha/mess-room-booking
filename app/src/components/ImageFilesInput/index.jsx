@@ -74,7 +74,7 @@ function NotEmptyFilesInput(props) {
     <div className="not-empty-files-container">
       <div className="files-header">
         <div className="files-count">
-          {filesSet.size} {lang("file", "ফাইল", "फ़ाइल")}{filesSet.size !== 1 ? "s" : ""}
+          {filesSet.size} {lang("file(s)", "ফাইল", "फ़ाइल")}
         </div>
         <div className="files-actions">
           <div className="add-file-container">
