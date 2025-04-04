@@ -3,6 +3,8 @@ import { loadFileFromFilePicker } from "@/modules/util/dom.js";
 import useNotification from "@/hooks/notification";
 import ButtonText from "../ButtonText";
 
+import "./styles.css";
+
 const MAX_SIZE_IN_BYTES = 5 * 1024 * 1024; // 5MB
 
 /**

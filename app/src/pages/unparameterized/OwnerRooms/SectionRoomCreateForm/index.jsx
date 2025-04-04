@@ -195,6 +195,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
 
   return (
     <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
+      <h1 className="heading">{lang("Create New Room", "নতুন রুম তৈরি করুন", "नया रूम बनाएं")}</h1>
+
       <div className="editable-container">
         <div className="textedit-container">
           <input

@@ -1,5 +1,6 @@
 .components-ImageFilesInput {
   width: 100%;
+  height: 100%;
   padding: var(--pad-0);
   border-radius: calc(var(--rounded-rad) + 2px);
   border: 1px solid #ccc;
@@ -9,6 +10,8 @@
 
 /* Empty state styling */
 .components-ImageFilesInput .empty-files-container {
+  width: calc(100% - 2 * var(--pad-3));
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,6 +65,7 @@
   padding: calc(var(--pad-2) + 0.5px);
   border-radius: 100%;
   color: #696767;
+  font-size: 0.8rem;
 }
 
 .components-ImageFilesInput .btn-add:hover {
@@ -94,7 +98,7 @@
 
   border-radius: 100%;
 
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   color: #696767;
 }
