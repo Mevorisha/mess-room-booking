@@ -174,6 +174,13 @@ export default function ImageFilesInput(props) {
    */
   function handleItemAdd(item) {
     setFilesSet((oldSet) => {
+      if (!item.type.startsWith("image/")) {
+        notify(
+          lang("Only image files are allowed", "শুধুমাত্র ইমেজ ফাইল অনুমোদিত", "केवल छवि फ़ाइलें अनुमत हैं"),
+          "error"
+        );
+        return oldSet;
+      }
       if (item.size > maxOneFileSizeBytes) {
         notify(
           lang(
