@@ -84,7 +84,7 @@ class Booking {
       }
     }
     await docRef.set(
-      { ...updateData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { ...updateData, lastModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }
     );
   }
