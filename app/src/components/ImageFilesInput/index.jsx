@@ -10,7 +10,7 @@ import ButtonText from "../ButtonText";
 import "./styles.css";
 
 const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
-const MAX_TOTAL_SIZE_IN_BYTES = 10 * MAX_SIZE_IN_BYTES; // 10MB
+const MAX_TOTAL_SIZE_IN_BYTES = 8 * MAX_SIZE_IN_BYTES; // 8MB
 
 /**
  * @typedef {object} ImageFilesInputProps
