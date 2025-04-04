@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "dev": "firebase emulators:start"
+    "dev": "firebase emulators:start --export-on-exit=./data --import=./data"
   }
 }

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
-import { EmailPasswdAuth } from "../../../modules/firebase/auth.js";
-import { checkForEasterEgg } from "../../../modules/util/easterEggs.js";
+import { EmailPasswdAuth } from "@/modules/firebase/auth.js";
+import { checkForEasterEgg } from "@/modules/util/easterEggs.js";
 
-import useNotification from "../../../hooks/notification.js";
+import useNotification from "@/hooks/notification.js";
 
-import ButtonText from "../../../components/ButtonText";
+import ButtonText from "@/components/ButtonText";
 
 /**
  * @param {{ setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">> }} props

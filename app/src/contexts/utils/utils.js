@@ -1,4 +1,4 @@
-import { lang } from "../../modules/util/language.js";
+import { lang } from "@/modules/util/language.js";
 
 /* -------------------------------------- TYPEDEFS ----------------------------------- */
 

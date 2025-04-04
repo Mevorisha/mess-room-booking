@@ -1,9 +1,9 @@
 /** USER is the base Context, used by all other contexts */
 
 import React, { createContext, useCallback, useState } from "react";
-import { FirebaseAuth } from "../modules/firebase/init.js";
-import { isEmpty } from "../modules/util/validations.js";
-import { lang } from "../modules/util/language.js";
+import { FirebaseAuth } from "@/modules/firebase/init.js";
+import { isEmpty } from "@/modules/util/validations.js";
+import { lang } from "@/modules/util/language.js";
 
 /* -------------------------------------- UTIL CLASSES -------------------------------------- */
 

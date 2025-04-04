@@ -1,17 +1,17 @@
 import { useContext } from "react";
-import AuthContext from "../contexts/auth.js";
-import AccountContext from "../contexts/account.js";
-import ProfileContext from "../contexts/profile.js";
-import IdentityContext from "../contexts/identity.js";
-import UserContext from "../contexts/user.js";
+import AuthContext from "@/contexts/auth.jsx";
+import AccountContext from "@/contexts/account.jsx";
+import ProfileContext from "@/contexts/profile.jsx";
+import IdentityContext from "@/contexts/identity.jsx";
+import UserContext from "@/contexts/user.jsx";
 
 /**
  * @typedef {{
- *   userCtx: import("../contexts/user.js").UserContextType;
- *   authCtx: import("../contexts/auth.js").AuthContextType;
- *   accountCtx: import("../contexts/account.js").AccountContextType;
- *   profileCtx: import("../contexts/profile.js").ProfileContextType;
- *   identityCtx: import("../contexts/identity.js").IdentityContextType;
+ *   userCtx: import("@/contexts/user.jsx").UserContextType;
+ *   authCtx: import("@/contexts/auth.jsx").AuthContextType;
+ *   accountCtx: import("@/contexts/account.jsx").AccountContextType;
+ *   profileCtx: import("@/contexts/profile.jsx").ProfileContextType;
+ *   identityCtx: import("@/contexts/identity.jsx").IdentityContextType;
  * }} CompositeUserContextType
  *
  * @returns {CompositeUserContextType}

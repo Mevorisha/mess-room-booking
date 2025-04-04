@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import DialogBox from "../components/DialogBox";
+import DialogBox from "@/components/DialogBox";
 
 const DialogBoxContext = createContext({
   children: /** @type {React.JSX.Element | null} */ (null),

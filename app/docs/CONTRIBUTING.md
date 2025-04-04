@@ -335,7 +335,7 @@ Well, those are the basics. Here comes the fun part.
 #### How to use Notification Context
 
 ```jsx
-import useNotification from "../hooks/notification.js";
+import useNotification from "@/hooks/notification.js";
 ...
 const notify = useNotification();
 notify("This is a notification", "success");
@@ -346,7 +346,7 @@ The status can be `success`, `error`, `warning` or `info`. The respective colors
 #### How to use Composite User Context
 
 ```jsx
-import useCompositeUser from "../hooks/compositeUser.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
 ...
 const compUsr = useCompositeUser();
 ```
@@ -414,8 +414,8 @@ As long as the `setState` functions is not used, this will apply.
 For example, instead of the following:
 
 ```jsx
-import useCompositeUser from "../hooks/compositeUser.js";
-import dpGeneric from "../../assets/images/dpGeneric.png";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import dpGeneric from "@/assets/images/dpGeneric.png";
 
 function ProfilePhoto() {
   const compUsr = useCompositeUser();
@@ -431,8 +431,8 @@ function ProfilePhoto() {
 You can refactor into:
 
 ```jsx
-import useCompositeUser from "../hooks/compositeUser.js";
-import dpGeneric from "../../assets/images/dpGeneric.png";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import dpGeneric from "@/assets/images/dpGeneric.png";
 
 function ProfilePhoto() {
   const compUsr = useCompositeUser();

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import NotificationContext from "../../contexts/notification.js";
+import NotificationContext from "@/contexts/notification.jsx";
 import "./styles.css";
 
 /**

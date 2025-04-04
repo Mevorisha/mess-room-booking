@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "../../../modules/util/pageUrls.js";
-import { isEmpty } from "../../../modules/util/validations.js";
+import { PageUrls } from "@/modules/util/pageUrls.js";
+import { isEmpty } from "@/modules/util/validations.js";
 
-import useCompositeUser from "../../../hooks/compositeUser.js";
-import useNotification from "../../../hooks/notification.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useNotification from "@/hooks/notification.js";
 
-import ButtonText from "../../../components/ButtonText";
-import { lang } from "../../../modules/util/language.js";
+import ButtonText from "@/components/ButtonText";
+import { lang } from "@/modules/util/language.js";
 
 /**
  * @returns {React.JSX.Element}

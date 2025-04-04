@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "../../../modules/util/pageUrls.js";
+import { PageUrls } from "@/modules/util/pageUrls.js";
 
-import LanguageContext from "../../../contexts/language.js";
-import useNotification from "../../../hooks/notification.js";
+import LanguageContext from "@/contexts/language.jsx";
+import useNotification from "@/hooks/notification.js";
 
-import ButtonText from "../../../components/ButtonText";
-import { lang } from "../../../modules/util/language.js";
+import ButtonText from "@/components/ButtonText";
+import { lang } from "@/modules/util/language.js";
 
 /**
  * @returns {React.JSX.Element}
@@ -46,11 +46,7 @@ export default function SetProfileType() {
       <div className="onboarding-container">
         <h1>{lang("Choose Language", "ভাষা নির্বাচন করুন", "भाषा चुनें")}</h1>
         <h4>
-          {lang(
-            "Language can be changed later",
-            "ভাষা পরে পরিবর্তন করা যেতে পারে",
-            "भाषा बाद में बदली जा सकती है"
-          )}
+          {lang("Language can be changed later", "ভাষা পরে পরিবর্তন করা যেতে পারে", "भाषा बाद में बदली जा सकती है")}
         </h4>
 
         <div className="desc">

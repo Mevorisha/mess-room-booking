@@ -1,7 +1,7 @@
 import React, { useState, createContext, useCallback, useContext } from "react";
-import UserContext from "./user.js";
-import { ApiPaths, apiPostOrPatchJson } from "../modules/util/api";
-import useNotification from "../hooks/notification";
+import UserContext from "./user.jsx";
+import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import useNotification from "@/hooks/notification.js";
 
 const LangContext = createContext({
   lang: /** @type {"ENGLISH" | "BANGLA" | "HINDI"} */ (window.localStorage.getItem("lang") || "ENGLISH"),

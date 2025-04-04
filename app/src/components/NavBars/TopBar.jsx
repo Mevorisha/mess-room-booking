@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { isEmpty } from "../../modules/util/validations.js";
-import { lang } from "../../modules/util/language.js";
-import { ActionParams, PageUrls } from "../../modules/util/pageUrls.js";
-import ImageLoader from "../ImageLoader";
-import useCompositeUser from "../../hooks/compositeUser.js";
-import useNotification from "../../hooks/notification.js";
+import { isEmpty } from "@/modules/util/validations.js";
+import { lang } from "@/modules/util/language.js";
+import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
+import ImageLoader from "@/components/ImageLoader";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useNotification from "@/hooks/notification.js";
 
 // @ts-ignore
-import dpMevorisha from "../../assets/images/dpMevorisha.png";
+import dpMevorisha from "@/assets/images/dpMevorisha.png";
 import "./styles.css";
 
 /**

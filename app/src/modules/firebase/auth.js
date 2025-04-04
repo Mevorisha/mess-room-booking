@@ -16,11 +16,11 @@ import {
   PhoneAuthProvider,
 } from "firebase/auth";
 import { logError } from "./util.js";
-import { getCleanFirebaseErrMsg } from "../errors/ErrorMessages.js";
-import ErrorMessages from "../errors/ErrorMessages.js";
-import { lang } from "../util/language.js";
-import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
-import { AsyncLock } from "../util/asyncLock.js";
+import { getCleanFirebaseErrMsg } from "@/modules/errors/ErrorMessages.js";
+import ErrorMessages from "@/modules/errors/ErrorMessages.js";
+import { lang } from "@/modules/util/language.js";
+import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import { AsyncLock } from "@/modules/util/asyncLock.js";
 
 const AuthConstants = {
   RECAPTCHA_VERIFIER: "AUTH_RECAPTCHA_VERIFIER",

@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import useDialog from "../../../../hooks/dialogbox.js";
+import useDialog from "@/hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData } from "../../../../modules/util/dataConversion.js";
-import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "../../../../modules/util/caching.js";
-import { ApiPaths, apiPostOrPatchJson } from "../../../../modules/util/api.js";
-import useNotification from "../../../../hooks/notification.js";
+import { base64FileDataToFile, fileToBase64FileData } from "@/modules/util/dataConversion.js";
+import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
+import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import useNotification from "@/hooks/notification.js";
 
-import PillsInput from "../../../../components/PillsInput/index.jsx";
-import ButtonText from "../../../../components/ButtonText/index.jsx";
-import { lang } from "../../../../modules/util/language.js";
+import PillsInput from "@/components/PillsInput/index.jsx";
+import ButtonText from "@/components/ButtonText/index.jsx";
+import { lang } from "@/modules/util/language.js";
 
 import "./styles.css";
 
 const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
- * @typedef {import("../../../../modules/util/dataConversion.js").Base64FileData} Base64FileData
+ * @typedef {import("@/modules/util/dataConversion.js").Base64FileData} Base64FileData
  * @typedef {"MALE" | "FEMALE" | "OTHER" | ""} GenderOptions
  * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | ""} OccupationOptions
  */

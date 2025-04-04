@@ -1,22 +1,19 @@
 {
   "name": "mevorisha-mess-booking-app",
-  "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.0.1",
-    "@testing-library/user-event": "^14.5.2",
-    "firebase": "^11.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.27.0",
-    "react-scripts": "^5.0.1",
-    "web-vitals": "^4.2.4"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "react-scripts start",
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build && mv build ../firebase/build",
-    "test": "react-scripts test"
+    "dev": "vite --port 3000",
+    "build": "DISABLE_ESLINT_PLUGIN=true tsc -b && vite build && rm -r ../firebase/build && mv dist ../firebase/build",
+    "lint": "eslint .",
+    "preview": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "firebase": "^11.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.27.0"
   },
   "eslintConfig": {
     "extends": [
@@ -24,16 +21,17 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0"
   }
 }

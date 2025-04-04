@@ -1,5 +1,5 @@
-import ErrorMessages from "../errors/ErrorMessages.js";
-import { ApiPaths, apiPostOrPatchJson } from "../util/api.js";
+import ErrorMessages from "@/modules/errors/ErrorMessages.js";
+import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 
 /**
  * @param {string} operation

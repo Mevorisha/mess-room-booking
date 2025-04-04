@@ -1,4 +1,4 @@
-import { lang } from "./language";
+import { lang } from "./language.js";
 
 /**
  * @enum {-1 | "/" | "/auth" | "/home" | "/onboarding" | "/profile" | "/404"}

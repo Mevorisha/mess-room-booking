@@ -1,5 +1,5 @@
-import { sizehuman } from "./dataConversion";
-import { lang } from "./language";
+import { sizehuman } from "./dataConversion.js";
+import { lang } from "./language.js";
 
 /**
  * Load a file from a file input element

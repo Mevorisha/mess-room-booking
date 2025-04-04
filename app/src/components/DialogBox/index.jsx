@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
-import DialogBoxContext from "../../contexts/dialogbox.js";
+import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 import "./styles.css";
 

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import useNotification from "../../hooks/notification.js";
-import { lang } from "../../modules/util/language.js";
-import { fileToBase64FileData } from "../../modules/util/dataConversion.js";
-import { CachePaths } from "../../modules/util/caching.js";
-import { FirebaseAuth } from "../../modules/firebase/init.js";
+import useNotification from "@/hooks/notification.js";
+import { lang } from "@/modules/util/language.js";
+import { fileToBase64FileData } from "@/modules/util/dataConversion.js";
+import { CachePaths } from "@/modules/util/caching.js";
+import { FirebaseAuth } from "@/modules/firebase/init.js";
 
 const IMAGE_LOADER_CACHE_PATH = CachePaths.IMAGE_LOADER;
 

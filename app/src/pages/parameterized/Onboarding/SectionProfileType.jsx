@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "../../../modules/util/pageUrls.js";
+import { PageUrls } from "@/modules/util/pageUrls.js";
 
-import useCompositeUser from "../../../hooks/compositeUser.js";
-import useNotification from "../../../hooks/notification.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useNotification from "@/hooks/notification.js";
 
-import ButtonText from "../../../components/ButtonText";
+import ButtonText from "@/components/ButtonText";
 
 /**
  * @returns {React.JSX.Element}

@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext } from "react";
-import UserContext from "./user.js";
-import useNotification from "../hooks/notification.js";
-import { EmailPasswdAuth, LinkMobileNumber } from "../modules/firebase/auth.js";
-import { isEmpty } from "../modules/util/validations.js";
-import { lang } from "../modules/util/language.js";
-import { ApiPaths, apiPostOrPatchJson } from "../modules/util/api.js";
+import UserContext from "./user.jsx";
+import useNotification from "@/hooks/notification.js";
+import { EmailPasswdAuth, LinkMobileNumber } from "@/modules/firebase/auth.js";
+import { isEmpty } from "@/modules/util/validations.js";
+import { lang } from "@/modules/util/language.js";
+import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 

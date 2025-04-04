@@ -1,5 +1,5 @@
 import { useCallback, useContext } from "react";
-import NotificationContext from "../contexts/notification.js";
+import NotificationContext from "@/contexts/notification.jsx";
 
 /**
  * @returns {(message: string | Error, kind: "info" | "success" | "warning" | "error") => void}
