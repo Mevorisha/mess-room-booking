@@ -10,9 +10,15 @@ import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
 
 /**
- * @returns {React.JSX.Element}
+ * Renders a language selection interface for setting the user's profile language.
+ *
+ * This component provides buttons for English, Bangla, and Hindi. When a user selects a language,
+ * the component updates the language context, displays a loading state on the selected button, and navigates
+ * to the home page. If an error occurs during the process, an error notification is shown.
+ *
+ * @returns {React.JSX.Element} The rendered UI for language selection.
  */
-export default function SetProfileType() {
+export default function SetLanguage() {
   const langCtx = useContext(LanguageContext);
   const notify = useNotification();
   const navigate = useNavigate();

@@ -2,13 +2,18 @@ import React from "react";
 import "./styles.css";
 
 /**
- * @typedef {Object} CustomFabProps
- * @property {number} marginBottom - The bottom margin for the button
- * @property {string} title - The text to display on the button
- * @property {React.MouseEventHandler<HTMLButtonElement>} onClick - The function to call when the button is clicked
+ * Renders a custom floating action button.
  *
- * CustomFab - A custom floating action button component
- * @param {CustomFabProps} props
+ * The button displays a text label provided via the `title` prop and applies a dynamic bottom margin based on the `marginBottom` prop
+ * (in pixels), defaulting to 20px if no margin is specified. The button triggers the supplied `onClick` callback when clicked.
+ *
+ * @typedef {Object} CustomFabProps
+ * @property {number} marginBottom - Bottom margin of the button in pixels; defaults to 20px if not provided.
+ * @property {string} title - The text to display inside the button.
+ * @property {React.MouseEventHandler<HTMLButtonElement>} onClick - Callback function invoked when the button is clicked.
+ *
+ * @param {CustomFabProps} props - Component properties.
+ * @returns {JSX.Element} The rendered floating action button element.
  */
 export default function CustomFab({ marginBottom, title, onClick }) {
   const buttonStyle = {
