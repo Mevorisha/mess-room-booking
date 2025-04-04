@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 
-import { loadFileFromFilePicker } from "../../../modules/util/dom.js";
-import useNotification from "../../../hooks/notification.js";
-import useCompositeUser from "../../../hooks/compositeUser.js";
-import useDialog from "../../../hooks/dialogbox.js";
+import { loadFileFromFilePicker } from "@/modules/util/dom.js";
+import useNotification from "@/hooks/notification.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useDialog from "@/hooks/dialogbox.js";
 
-import ButtonText from "../../../components/ButtonText";
-import ImageLoader from "../../../components/ImageLoader";
-import DialogImagePreview from "../../../components/DialogImagePreview";
+import ButtonText from "@/components/ButtonText";
+import ImageLoader from "@/components/ImageLoader";
+import DialogImagePreview from "@/components/DialogImagePreview";
+import { lang } from "@/modules/util/language.js";
 
 /**
  * Section where the user can upload their identity documents.
@@ -68,14 +69,32 @@ export default function SectionIdentiyDocs() {
       case "WORK_ID":
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ workId: value })
-          .then(() => notify("Made work ID " + value.toLowerCase(), "success"))
+          .then(() =>
+            notify(
+              lang(
+                `Made work ID '${value.toLocaleUpperCase()}'`,
+                `কাজ আইডি '${value.toLocaleUpperCase()}' করা হয়েছে`,
+                `कार्य आईडी '${value.toLocaleUpperCase()}' बनाई गई है`
+              ),
+              "success"
+            )
+          )
           .then(() => setForceWorkImgReload((old) => old + 1))
           .catch((e) => notify(e, "error"));
         break;
       case "GOV_ID":
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ govId: value })
-          .then(() => notify("Made gov ID " + value.toLowerCase(), "success"))
+          .then(() =>
+            notify(
+              lang(
+                `Made gov ID '${value.toLowerCase()}'`,
+                `গভর্নমেন্ট আইডি '${value.toLowerCase()}' করা হয়েছে`,
+                `सरकारी आईडी '${value.toLowerCase()}' बनाई गई है`
+              ),
+              "success"
+            )
+          )
           .then(() => setForceGovImgReload((old) => old + 1))
           .catch((e) => notify(e, "error"));
         break;
@@ -87,15 +106,30 @@ export default function SectionIdentiyDocs() {
   return (
     <div className="pages-Onboarding">
       <div className="onboarding-container">
-        <h1>Upload ID Documents</h1>
-        <h4>Documents may be removed or re-uploaded later.</h4>
+        <h1>{lang("Upload ID Documents", "আইডি ডকুমেন্ট আপলোড করুন", "आईडी दस्तावेज़ अपलोड करें")}</h1>
+        <h4>
+          {lang(
+            "Documents may be removed or re-uploaded later.",
+            "ডকুমেন্টগুলি পরবর্তীতে মুছে ফেলা বা আবার আপলোড করা যেতে পারে।",
+            "दस्तावेज़ बाद में हटाए जा सकते हैं या फिर से अपलोड किए जा सकते हैं।"
+          )}
+        </h4>
 
         <div className="desc">
           <p>
-            Documents like work or institution identity card and aadhaar card may be used by you room owner to verify
-            your identity.
+            {lang(
+              "Documents like work or institution identity card and aadhaar card may be used by your room owner to verify your identity.",
+              "কর্ম বা প্রতিষ্ঠান পরিচয়পত্র এবং আধার কার্ডের মতো ডকুমেন্টগুলি আপনার রুম মালিক আপনার পরিচয় যাচাই করতে ব্যবহার করতে পারেন।",
+              "काम या संस्थान पहचान पत्र और आधार कार्ड जैसे दस्तावेज़ आपके कमरे के मालिक द्वारा आपकी पहचान सत्यापित करने के लिए उपयोग किए जा सकते हैं।"
+            )}
           </p>
-          <p>You can make document visibility public or private.</p>
+          <p>
+            {lang(
+              "You can make document visibility public or private.",
+              "আপনি ডকুমেন্টের দৃশ্যমানতা পাবলিক বা প্রাইভেট করতে পারেন।",
+              "आप दस्तावेज़ की दृश्यता सार्वजनिक या निजी बना सकते हैं।"
+            )}
+          </p>
         </div>
 
         <div className="uploadid-container">
@@ -106,7 +140,7 @@ export default function SectionIdentiyDocs() {
                 <ImageLoader
                   requireAuth
                   forceReloadState={forceWorkImgReload}
-                  alt="Work Identity Document"
+                  alt={lang("Work ID", "কাজের আইডি", "काम के लिए आईडी")}
                   src={compUsr.userCtx.user.identityPhotos.workId.medium}
                   className="preview-img"
                   onClick={() => handleShowLargeImage("WORK_ID")}
@@ -120,7 +154,7 @@ export default function SectionIdentiyDocs() {
                       checked={!compUsr.userCtx.user.identityPhotos.workId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PUBLIC")}
                     />
-                    Public
+                    {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
                   <label>
                     <input
@@ -130,20 +164,20 @@ export default function SectionIdentiyDocs() {
                       checked={compUsr.userCtx.user.identityPhotos.workId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PRIVATE")}
                     />
-                    Private
+                    {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>
                 </div>
-                <ButtonText title="Update" rounded="all" kind="secondary" />
+                <ButtonText title={lang("Update", "আপডেট", "अपडेट")} rounded="all" kind="secondary" />
               </div>
             </form>
           ) : (
             <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
               <div className="missing-id">
                 <div>
-                  <h4>Work ID</h4>
-                  <p>Eg: Photo ID Card</p>
+                  <h4>{lang("Work ID", "কাজের আইডি", "काम के लिए आईडी")}</h4>
+                  <p>{lang("Eg: Photo ID Card", "যেমন: ছবিযুক্ত আইডি কার্ড", "उदाहरण: फोटो आईडी कार्ड")}</p>
                 </div>
-                <ButtonText title="Upload" rounded="all" kind="secondary" />
+                <ButtonText title={lang("Upload", "আপলোড", "अपलोड")} rounded="all" kind="secondary" />
               </div>
             </form>
           )}
@@ -157,7 +191,7 @@ export default function SectionIdentiyDocs() {
                 <ImageLoader
                   requireAuth
                   forceReloadState={forceGovImgReload}
-                  alt="Government Identity Document"
+                  alt={lang("Government ID", "সরকারি আইডি", "सरकारी आईडी")}
                   src={compUsr.userCtx.user.identityPhotos.govId.medium}
                   className="preview-img"
                   onClick={() => handleShowLargeImage("GOV_ID")}
@@ -171,7 +205,7 @@ export default function SectionIdentiyDocs() {
                       checked={!compUsr.userCtx.user.identityPhotos.govId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PUBLIC")}
                     />
-                    Public
+                    {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
                   <label>
                     <input
@@ -181,20 +215,20 @@ export default function SectionIdentiyDocs() {
                       checked={compUsr.userCtx.user.identityPhotos.govId.isPrivate}
                       onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PRIVATE")}
                     />
-                    Private
+                    {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>
                 </div>
-                <ButtonText title="Update" rounded="all" kind="secondary" />
+                <ButtonText title={lang("Update", "আপডেট", "अपडेट")} rounded="all" kind="secondary" />
               </div>
             </form>
           ) : (
             <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
               <div className="missing-id">
                 <div>
-                  <h4>Government ID</h4>
-                  <p>Eg: Aadhaar Card</p>
+                  <h4>{lang("Government ID", "সরকারি আইডি", "सरकारी आईडी")}</h4>
+                  <p>{lang("Eg: Aadhaar Card", "যেমন: আধার কার্ড", "उदाहरण: आधार कार्ड")}</p>
                 </div>
-                <ButtonText title="Upload" rounded="all" kind="secondary" />
+                <ButtonText title={lang("Upload", "আপলোড", "अपलोड")} rounded="all" kind="secondary" />
               </div>
             </form>
           )}

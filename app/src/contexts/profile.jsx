@@ -1,9 +1,9 @@
 import React, { createContext, useCallback, useContext } from "react";
-import UserContext, { UploadedImage } from "./user.js";
-import useNotification from "../hooks/notification.js";
-import { lang } from "../modules/util/language.js";
-import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
-import { CachePaths } from "../modules/util/caching.js";
+import UserContext, { UploadedImage } from "./user.jsx";
+import useNotification from "@/hooks/notification.js";
+import { lang } from "@/modules/util/language.js";
+import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
+import { CachePaths } from "@/modules/util/caching.js";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 

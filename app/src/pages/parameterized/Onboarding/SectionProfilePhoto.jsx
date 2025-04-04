@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { loadFileFromFilePicker } from "../../../modules/util/dom.js";
-import { PageUrls } from "../../../modules/util/pageUrls.js";
+import { loadFileFromFilePicker } from "@/modules/util/dom.js";
+import { PageUrls } from "@/modules/util/pageUrls.js";
 
-import useCompositeUser from "../../../hooks/compositeUser.js";
-import useNotification from "../../../hooks/notification.js";
-import useDialog from "../../../hooks/dialogbox.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useNotification from "@/hooks/notification.js";
+import useDialog from "@/hooks/dialogbox.js";
 
-import ButtonText from "../../../components/ButtonText";
-import ImageLoader from "../../../components/ImageLoader";
-import DialogImagePreview from "../../../components/DialogImagePreview";
+import ButtonText from "@/components/ButtonText";
+import ImageLoader from "@/components/ImageLoader";
+import DialogImagePreview from "@/components/DialogImagePreview";
 
 // @ts-ignore
-import dpGeneric from "../../../assets/images/dpGeneric.png";
+import dpGeneric from "@/assets/images/dpGeneric.png";
 
 /**
  * @returns {React.JSX.Element}

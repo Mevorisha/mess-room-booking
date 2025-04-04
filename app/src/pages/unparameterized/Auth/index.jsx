@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AuthStateEnum } from "../../../contexts/auth.js";
-import { PageUrls } from "../../../modules/util/pageUrls.js";
+import { AuthStateEnum } from "@/contexts/auth.jsx";
+import { PageUrls } from "@/modules/util/pageUrls.js";
 
-import useCompositeUser from "../../../hooks/compositeUser.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
 
-import ButtonText from "../../../components/ButtonText";
-import ImageLoader from "../../../components/ImageLoader";
+import ButtonText from "@/components/ButtonText";
+import ImageLoader from "@/components/ImageLoader";
 
 import LoginSection from "./SectionLogin";
 import RegisterSection from "./SectionRegister";
 import ResetPasswdSection from "./SectionResetPasswd";
 import OAuthSection from "./SectionOAuth";
 
-import LoadingPage from "../Loading";
+import LoadingPage from "@/pages/unparameterized/Loading";
 
 import "./styles.css";
 
 // @ts-ignore
-import dpMevorisha from "../../../assets/images/dpMevorisha.png";
+import dpMevorisha from "@/assets/images/dpMevorisha.png";
 
 /**
  * @param {{

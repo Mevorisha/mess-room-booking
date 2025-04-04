@@ -4,5 +4,5 @@
  * @returns {boolean}
  */
 export function isEmpty(value) {
-  return value === undefined || value === null || value === "" || value === "EMPTY";
+  return value === void 0 || value === null || value === "" || value === "EMPTY";
 }

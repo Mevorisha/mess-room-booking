@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { EmailPasswdAuth } from "../../../modules/firebase/auth.js";
-import { checkForEasterEgg } from "../../../modules/util/easterEggs.js";
+import { EmailPasswdAuth } from "@/modules/firebase/auth.js";
+import { checkForEasterEgg } from "@/modules/util/easterEggs.js";
 
-import useNotification from "../../../hooks/notification.js";
-import useDialogBox from "../../../hooks/dialogbox.js";
+import useNotification from "@/hooks/notification.js";
+import useDialogBox from "@/hooks/dialogbox.js";
 
-import ButtonText from "../../../components/ButtonText";
+import ButtonText from "@/components/ButtonText";
 
 /**
  * @param {{

@@ -1,5 +1,6 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { FieldValue } from "firebase-admin/firestore";
+import { ApiResponseUrlType, AutoSetFields } from "./utils";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -9,24 +10,51 @@ export interface RoomData {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
-  landmarkTags: Set<string>;
+  searchTags: Set<string>;
+  landmark: string;
   address: string;
   city: string;
   state: string;
   majorTags: Set<string>;
   minorTags: Set<string>;
-  images: Array<string>;
   capacity: number;
   pricePerOccupant: number;
+  // Set later on
+  images?: Array<string>;
   isUnavailable?: boolean;
+  // AutoSetFields
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
+
+// During create, apart from AutoSetFields, isUnavailable MUST not be set
+export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
+// During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
+type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
+// During read, all data may be read
+type RoomReadData = Partial<RoomData>;
+// Params to query a room by
+type RoomQueryParams = Partial<{
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
+  landmark: string;
+  city: string;
+  state: string;
+  capacity: number;
+  lowPrice: number;
+  highPrice: number;
+  createdOn: FirebaseFirestore.Timestamp;
+  lastModifiedOn: FirebaseFirestore.Timestamp;
+  searchTags: Set<string>;
+}>;
 
 export enum SchemaFields {
   OWNER_ID = "ownerId",
   ACCEPT_GENDER = "acceptGender",
   ACCEPT_OCCUPATION = "acceptOccupation",
-  LANDMARK_TAGS = "landmarkTags",
+  SEARCH_TAGS = "searchTags",
+  LANDMARK = "landmark",
   ADDRESS = "address",
   CITY = "city",
   STATE = "state",
@@ -36,6 +64,8 @@ export enum SchemaFields {
   CAPACITY = "capacity",
   PRICE_PER_OCCUPANT = "pricePerOccupant",
   IS_UNAVAILABLE = "isUnavailable",
+  CREATED_ON = "createdOn",
+  LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
 }
 
@@ -53,29 +83,122 @@ class Room {
   /**
    * Create a new room document
    */
-  static async create(roomData: RoomData): Promise<string> {
+  static async create(roomData: RoomCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-    try {
-      const docRef = await ref.add(roomData);
-      return docRef.id;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
-    }
+    const docRef = await ref.add({
+      ...roomData,
+      // Convert sets to array
+      searchTags: Array.from(roomData.searchTags ?? []),
+      majorTags: Array.from(roomData.majorTags ?? []),
+      minorTags: Array.from(roomData.minorTags ?? []),
+      // Add auto fields
+      createdOn: FieldValue.serverTimestamp(),
+      lastModifiedOn: FieldValue.serverTimestamp(),
+    });
+    return docRef.id;
   }
 
   /**
    * Update an existing room document
-   * @param {string} id
-   * @param {Partial<RoomData>} updateData
-   * @returns {Promise<void>}
    */
-  static async update(id: string, updateData: Partial<RoomData>): Promise<void> {
-    const ref = FirestorePaths.Rooms(id);
-    try {
-      await ref.set(updateData, { merge: true });
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+  static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
+    const ref = FirestorePaths.Rooms(roomId);
+
+    const updateDataFrstrFormat: Record<string, any> = {
+      ...updateData,
+      lastModifiedOn: FieldValue.serverTimestamp(),
+    };
+
+    // Convert sets to array
+    // Make sure u update the array type fields only if they exist in given data
+    if (updateDataFrstrFormat.searchTags) updateDataFrstrFormat.searchTags = Array.from(updateData.searchTags);
+    if (updateDataFrstrFormat.majorTags) updateDataFrstrFormat.majorTags = Array.from(updateData.majorTags);
+    if (updateDataFrstrFormat.minorTags) updateDataFrstrFormat.minorTags = Array.from(updateData.minorTags);
+
+    await ref.set(updateDataFrstrFormat, { merge: true });
+  }
+
+  static async queryAll(params: RoomQueryParams): Promise<RoomReadData[]> {
+    const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+
+    let query: FirebaseFirestore.Query;
+    const queryOrRef = () => (query ? query : ref);
+
+    // Apply filters for exact matches
+    if (params.acceptGender) {
+      query = queryOrRef().where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
     }
+    if (params.acceptOccupation) {
+      query = queryOrRef().where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
+    }
+    if (params.landmark) {
+      query = queryOrRef().where(SchemaFields.LANDMARK, "==", params.landmark);
+    }
+    if (params.city) {
+      query = queryOrRef().where(SchemaFields.CITY, "==", params.city);
+    }
+    if (params.state) {
+      query = queryOrRef().where(SchemaFields.STATE, "==", params.state);
+    }
+    if (params.capacity) {
+      query = queryOrRef().where(SchemaFields.CAPACITY, ">=", params.capacity);
+    }
+
+    // Price range filters
+    if (params.lowPrice) {
+      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
+    }
+    if (params.highPrice) {
+      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
+    }
+
+    // Timestamp filters
+    if (params.createdOn) {
+      query = queryOrRef().where(SchemaFields.CREATED_ON, ">=", params.createdOn);
+    }
+    if (params.lastModifiedOn) {
+      query = queryOrRef().where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+    }
+
+    // Execute query
+    const snapshot = await queryOrRef().get();
+    const results: RoomReadData[] = [];
+
+    // Process results and apply any tag filters in code
+    // (since we can't query array containment for multiple arrays effectively)
+    for (const doc of snapshot.docs) {
+      const data = doc.data() as RoomReadData;
+
+      // Filter by tags if specified
+      if (params.searchTags && params.searchTags.size > 0) {
+        // Convert arrays to Sets for easier checking
+        const searchTags = new Set(data.searchTags || []);
+        const majorTags = new Set(data.majorTags || []);
+        const minorTags = new Set(data.minorTags || []);
+
+        // Check if any tag in searchTags matches in searchTags, majorTags, or minorTags
+        let hasMatchingTag = false;
+        for (const tag of params.searchTags) {
+          if (searchTags.has(tag) || majorTags.has(tag) || minorTags.has(tag)) {
+            hasMatchingTag = true;
+            break;
+          }
+        }
+
+        if (!hasMatchingTag) {
+          continue; // Skip this document if no matching tags
+        }
+      }
+
+      // Convert back to sets from arrays in the result
+      if (data.searchTags) data.searchTags = new Set(data.searchTags);
+      if (data.majorTags) data.majorTags = new Set(data.majorTags);
+      if (data.minorTags) data.minorTags = new Set(data.minorTags);
+
+      results.push(data);
+    }
+
+    return results;
   }
 
   /**
@@ -83,35 +206,39 @@ class Room {
    */
   static async get(
     roomId: string,
-    extUrls: "GS_PATH" | "API_URI",
+    extUrls: ApiResponseUrlType,
     fields: SchemaFields[] = []
-  ): Promise<Partial<RoomData> | null> {
+  ): Promise<RoomReadData | null> {
     const ref = FirestorePaths.Rooms(roomId);
-    try {
-      const doc = await ref.get();
-      if (!doc.exists) {
-        return null;
-      }
-      const data = doc.data();
-      if (!data) {
-        return null;
-      }
-      // If no fields provided, send all params
-      if (fields.length === 0) {
-        // convert image paths to direct urls
-        if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
-        else return data;
-      }
-      // Filter params
-      const result = {} as Partial<RoomData>;
-      for (const field of fields) {
-        (result as any)[field] = data[field] || null;
-      }
-      // convert image paths to api uri if any
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(result as RoomData, roomId);
-      else return result;
-    } catch (e) {
-      return Promise.reject(CustomApiError.create(500, e.message));
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data();
+    if (!data) {
+      return null;
+    }
+
+    // If no fields provided, send all params
+    if (fields.length === 0) {
+      // convert image paths to direct urls
+      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
+      else return data;
+    }
+
+    // Filter params
+    const result = {} as RoomReadData;
+    for (const field of fields) {
+      (result as any)[field] = data[field] || null;
+    }
+
+    // convert image paths to api uri if any
+    if (extUrls === "API_URI") {
+      return imgConvertGsPathToApiUri(result as RoomData, roomId);
+    } else {
+      return result;
     }
   }
 }

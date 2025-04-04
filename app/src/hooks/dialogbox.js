@@ -1,5 +1,5 @@
 import { useCallback, useContext } from "react";
-import DialogBoxContext from "../contexts/dialogbox.js";
+import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 const DIALOG_ANIM_DURATION = 250;
 

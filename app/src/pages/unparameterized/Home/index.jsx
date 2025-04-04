@@ -1,19 +1,23 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { isEmpty } from "../../../modules/util/validations.js";
-import { ActionParams, PageUrls } from "../../../modules/util/pageUrls.js";
+import { isEmpty } from "@/modules/util/validations.js";
+import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
+import { lang } from "@/modules/util/language.js";
 
-import useCompositeUser from "../../../hooks/compositeUser.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
+import useDialog from "@/hooks/dialogbox.js";
 
-import ButtonText from "../../../components/ButtonText";
-import NavBars from "../../../components/NavBars";
-import LoadingPage from "../Loading";
+import ButtonText from "@/components/ButtonText";
+import CustomFab from "@/components/CustomFab";
+import NavBars from "@/components/NavBars";
+import LoadingPage from "@/pages/unparameterized/Loading";
+import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm/index.jsx";
 
 import "./styles.css";
 
 /**
- * @param {{ user: import("../../../contexts/user.js").User }} props
+ * @param {{ user: import("@/contexts/user.jsx").User }} props
  * @returns {React.JSX.Element}
  */
 function HomeForTenant({ user }) {
@@ -39,10 +43,11 @@ function HomeForTenant({ user }) {
 }
 
 /**
- * @param {{ user: import("../../../contexts/user.js").User }} props
+ * @param {{ user: import("@/contexts/user.jsx").User }} props
  * @returns {React.JSX.Element}
  */
 function HomeForOwner({ user }) {
+  const dialog = useDialog();
   return (
     <div className="pages-Home">
       <NavBars>
@@ -60,6 +65,11 @@ function HomeForOwner({ user }) {
           </ul>
         </div>
       </div>
+      <CustomFab
+        marginBottom={70}
+        title={lang("New Room", "নতুন রুম", "नया रूम")}
+        onClick={() => dialog.show(<SectionRoomCreateForm />, "fullwidth")}
+      />
     </div>
   );
 }

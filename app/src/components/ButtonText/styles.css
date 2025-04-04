@@ -27,7 +27,7 @@
   background-color: var(--color-primary);
   color: var(--color-white);
   cursor: pointer;
-  border: 1px solid var(--color-primary);
+  border: 2px solid var(--color-primary);
   transition: filter 0.2s, scale 0.2s;
 }
 
@@ -94,7 +94,7 @@
   color: var(--color-white);
   padding: var(--pad-2) calc(var(--pad-2) - 1.3rem);
   cursor: not-allowed;
-  border: 1px solid var(--color-primary);
+  border: 2px solid var(--color-primary);
   filter: brightness(1.2);
 }
 

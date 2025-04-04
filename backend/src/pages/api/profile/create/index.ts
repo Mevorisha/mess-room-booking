@@ -8,7 +8,7 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 /**
  * ```
  * request = "POST /api/profile/create" { email: string }
- * response = { message: string }
+ * response = { uid: string }
  * ```
  */
 export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
@@ -24,7 +24,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
 
   const profile = await Identity.get(uid, "GS_PATH", []);
   if (profile) {
-    return respond(res, { status: 200, message: "Already exists" });
+    return respond(res, { status: 200, json: { message: "Already exists", uid } });
   }
 
   const email = req.body["email"] as string;
@@ -33,5 +33,5 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   }
 
   await Identity.create(uid, email);
-  return respond(res, { status: 200, message: `Added user w/ email ${email}` });
+  return respond(res, { status: 200, json: { uid } });
 });

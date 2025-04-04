@@ -1,6 +1,6 @@
 import React from "react";
-import useDialog from "../../hooks/dialogbox.js";
-import ImageLoader from "../ImageLoader";
+import useDialog from "@/hooks/dialogbox.js";
+import ImageLoader from "@/components/ImageLoader";
 
 import "./styles.css";
 

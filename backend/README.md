@@ -43,6 +43,8 @@ identityPhotos?: {
   workIdIsPrivate?: boolean
   govIdIsPrivate?: boolean
 }
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 
@@ -51,11 +53,12 @@ ttl?: timestamp
 tenantId: string
 roomId: /rooms/{roomId}
 occupantCount: number
-requestedOn: timestamp
 acceptance?: "ACCEPTED" | "REJECTED"
 acceptedOn?: timestamp
 cancelledOn? timestamp
 clearedOn?: timestamp
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 
@@ -64,7 +67,8 @@ ttl?: timestamp
 ownerId: string
 acceptGender: "MALE" | "FEMALE" | "OTHER"
 acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
-landmarkTags: Set<string>
+landmark: string
+searchTags: Set<string>
 address: string
 city: string
 state: string
@@ -73,6 +77,8 @@ minorTags: Set<string>
 images: Array<string>
 capacity: number
 pricePerOccupant: number
+createdOn: timestamp
+lastModifiedOn: timestamp
 ttl?: timestamp
 ```
 

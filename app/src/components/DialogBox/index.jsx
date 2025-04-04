@@ -1,5 +1,5 @@
 import React, { useContext, useLayoutEffect, useState } from "react";
-import DialogBoxContext from "../../contexts/dialogbox.js";
+import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 import "./styles.css";
 
@@ -43,7 +43,7 @@ export default function DialogBox() {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 10}px`;
     dialogAnimStyle.maxHeight = "calc(100vh - 40px)";
     dialogAnimStyle.overflowX = "hidden";
-    dialogAnimStyle.overflowY = "scroll";
+    dialogAnimStyle.overflowY = "auto";
   }
 
   if (size === "large") {

@@ -1,28 +1,28 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { PageUrls } from "../../modules/util/pageUrls.js";
+import { PageUrls } from "@/modules/util/pageUrls.js";
 
-import { UserProvider } from "../../contexts/user.js";
-import { AuthProvider, AuthStateEnum } from "../../contexts/auth.js";
-import { AccountProvider } from "../../contexts/account.js";
-import { ProfileProvider } from "../../contexts/profile.js";
-import { IdentityProvider } from "../../contexts/identity.js";
-import { NotificationProvider } from "../../contexts/notification.js";
-import { DialogBoxProvider } from "../../contexts/dialogbox.js";
-import { LanguageProvider } from "../../contexts/language.js";
+import { UserProvider } from "@/contexts/user.jsx";
+import { AuthProvider, AuthStateEnum } from "@/contexts/auth.jsx";
+import { AccountProvider } from "@/contexts/account.jsx";
+import { ProfileProvider } from "@/contexts/profile.jsx";
+import { IdentityProvider } from "@/contexts/identity.jsx";
+import { NotificationProvider } from "@/contexts/notification.jsx";
+import { DialogBoxProvider } from "@/contexts/dialogbox.jsx";
+import { LanguageProvider } from "@/contexts/language.jsx";
 
-import useCompositeUser from "../../hooks/compositeUser.js";
+import useCompositeUser from "@/hooks/compositeUser.js";
 
-import PageNotFound from "../unparameterized/PageNotFound";
-import LoadingPage from "../unparameterized/Loading";
-import AuthPage from "../unparameterized/Auth";
-import HomePage from "../unparameterized/Home";
-import OnboardingPage from "../parameterized/Onboarding";
-import ProfilePage from "../parameterized/Profile";
+import PageNotFound from "@/pages/unparameterized/PageNotFound";
+import LoadingPage from "@/pages/unparameterized/Loading";
+import AuthPage from "@/pages/unparameterized/Auth";
+import HomePage from "@/pages/unparameterized/Home";
+import OnboardingPage from "@/pages/parameterized/Onboarding";
+import ProfilePage from "@/pages/parameterized/Profile";
 
-// import NotifPage from "../../pages/Notif";
-// import AccountPage from "../../pages/Account";
+// import NotifPage from "@/pages/Notif";
+// import AccountPage from "@/pages/Account";
 
 /**
  * @param {{ children: any }} props

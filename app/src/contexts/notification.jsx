@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useState } from "react";
-import Notification from "../components/Notification";
+import Notification from "@/components/Notification";
 
 const NotificationContext = createContext({
   message: /** @type {string} */ (""),

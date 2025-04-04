@@ -1,0 +1,32 @@
+.components-CustomFab {
+  /* Base styling for the floating action button */
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  border-radius: var(--rounded-rad);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  padding: var(--pad-3);
+  transition: all 150ms ease;
+}
+
+@media (hover: hover) {
+  .components-CustomFab:hover {
+    filter: brightness(1.2);
+  }
+}
+
+.components-CustomFab:active {
+  scale: 0.95;
+}
+
+.components-CustomFab .text {
+  font-size: 1rem;
+  font-weight: 500;
+}

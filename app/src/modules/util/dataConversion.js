@@ -24,11 +24,11 @@ export function sizehuman(bytes) {
  * @param {File} file
  * @param {{ w?: number, h?: number }} target
  * @param {string} mimeType
- * @param {number | undefined} quality
+ * @param {number} [quality]
  * @returns {Promise<File>}
  * @throws {Error}
  */
-export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = undefined) {
+export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = void 0) {
   return new Promise((resolve, reject) => {
     const filename = file.name;
     const img = new Image();

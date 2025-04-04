@@ -1,9 +1,9 @@
 import React, { createContext, useCallback, useContext } from "react";
-import useNotification from "../hooks/notification.js";
-import UserContext, { UploadedImage } from "./user.js";
-import { lang } from "../modules/util/language.js";
-import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "../modules/util/api.js";
-import { CachePaths } from "../modules/util/caching.js";
+import useNotification from "@/hooks/notification.js";
+import UserContext, { UploadedImage } from "./user.jsx";
+import { lang } from "@/modules/util/language.js";
+import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
+import { CachePaths } from "@/modules/util/caching.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -41,7 +41,7 @@ export function IdentityProvider({ children }) {
      * @returns {Promise<{ workId?: string, govId?: string }>}
      */
     async ({ workId, govId }) => {
-      if (!workId && !govId) return { workId: undefined, govId: undefined };
+      if (!workId && !govId) return { workId: void 0, govId: void 0 };
 
       let uploadedWorkId;
       let uploadedGovId;

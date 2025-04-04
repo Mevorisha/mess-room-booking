@@ -6,7 +6,7 @@ import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/d
 import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import * as config from "../config.js";
+import * as config from "@/modules/config.js";
 
 // Firebase configuration (replace with your config)
 const firebaseConfig = {

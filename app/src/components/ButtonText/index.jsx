@@ -18,7 +18,7 @@ import "./styles.css";
  *                                                                              Loading is a special kind that shows a spinning animation.
  * @property {"default" | "full" | string} [width]                            - The minimum width of the button in CSS units. To use less width, encapsulate the
  *                                                                              button in a container with the desired width.
- *
+ * @property {string} [bgColor]
  * @param {ButtonTextProps} props
  * @return {React.JSX.Element}
  */
@@ -28,6 +28,7 @@ export default function ButtonText({
   onClick,
   linkToForm,
   disabled,
+  bgColor,
   rounded = "none",
   kind = "primary",
   width = "default",
@@ -75,7 +76,7 @@ export default function ButtonText({
   return (
     <div
       className={classes.join(" ")}
-      style={{ minWidth, borderRadius: borderRadiusStyle[rounded] }}
+      style={{ minWidth, borderRadius: borderRadiusStyle[rounded], backgroundColor: bgColor, borderColor: bgColor }}
       onClick={(event) => {
         if (linkToForm?.current) {
           // if form present, submit with validations

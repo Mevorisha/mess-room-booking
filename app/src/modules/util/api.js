@@ -1,6 +1,6 @@
-import { FirebaseAuth } from "../firebase/init";
-import { lang } from "./language";
-import * as config from "../config.js";
+import { FirebaseAuth } from "@/modules/firebase/init.js";
+import { lang } from "./language.js";
+import * as config from "@/modules/config.js";
 
 /**
  * @typedef {"small"|"medium"|"large"} MultiSizeImageSz

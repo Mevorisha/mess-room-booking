@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { UploadedImage } from "../../../contexts/user";
-import useNotification from "../../../hooks/notification";
-import useCompositeUser from "../../../hooks/compositeUser";
-import useDialogBox from "../../../hooks/dialogbox";
+import { UploadedImage } from "@/contexts/user";
+import useNotification from "@/hooks/notification";
+import useCompositeUser from "@/hooks/compositeUser";
+import useDialogBox from "@/hooks/dialogbox";
 
-import ImageLoader from "../../../components/ImageLoader";
-import DialogImagePreview from "../../../components/DialogImagePreview";
+import ImageLoader from "@/components/ImageLoader";
+import DialogImagePreview from "@/components/DialogImagePreview";
 
-import LoadingPage from "../../unparameterized/Loading";
-import PageNotFound from "../../unparameterized/PageNotFound";
+import LoadingPage from "@/pages/unparameterized/Loading";
+import PageNotFound from "@/pages/unparameterized/PageNotFound";
 
 import "./styles.css";
 
 // @ts-ignore
-import dpGeneric from "../../../assets/images/dpGeneric.png";
-import { apiGetOrDelete, ApiPaths } from "../../../modules/util/api";
+import dpGeneric from "@/assets/images/dpGeneric.png";
+import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 
 /**
  * @returns {React.JSX.Element}
@@ -29,7 +29,7 @@ export default function Profile() {
 
   // null userProfile means profile not found
   let [userProfile, setProfileUser] = useState(
-    /** @type {import("../../../contexts/user").User | null} */ (compUsr.userCtx.user)
+    /** @type {import("@/contexts/user").User | null} */ (compUsr.userCtx.user)
   );
 
   useEffect(() => {
