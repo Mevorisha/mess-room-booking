@@ -10,7 +10,16 @@ import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
 /**
- * @throws {CustomApiError} On joi validation failure
+ * Extracts and validates room creation data from the incoming API request.
+ *
+ * This function uses Joi to validate the request body against the required schema for room creation.
+ * On successful validation, it transforms the arrays for search and tag data into sets for uniqueness,
+ * separates file data from the main room data, and returns both.
+ *
+ * @throws {CustomApiError} If the request body fails validation.
+ *
+ * @returns A tuple where the first element is the validated room creation data (with tag arrays converted to sets and excluding files)
+ *          and the second element is an array of file objects.
  */
 function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: string; name: string; base64: string }>] {
   const roomCreateSchema = Joi.object({

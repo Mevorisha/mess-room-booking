@@ -28,8 +28,41 @@ export default IdentityContext;
 /* ------------------------------------ IDENTITY PROVIDER COMPONENT ----------------------------------- */
 
 /**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
+ * Provides a React context for managing user identity photos.
+ *
+ * Wraps children with a context that supplies functions to update identity photos and their visibility.
+ * It handles file uploads, cache invalidation, user context updates, and dispatches notifications
+ * to inform users of ongoing and successful operations.
+ *
+ * @param {object} props - Component properties.
+ * @param {*} props.children - React elements to render within the provider.
+ * @returns {React.JSX.Element} The identity context provider that encapsulates photo management functionality.
+ */
+
+/**
+ * Uploads and updates the user's identity document images.
+ *
+ * For any provided image file (workId or govId), uploads the file, invalidates cached images,
+ * updates the user context with new image URLs, and notifies the user about the progress
+ * and success of the operation. If neither file is provided, returns an object with undefined values.
+ *
+ * @param {object} images - Object containing image files.
+ * @param {File} [images.workId] - File representing the user's work ID.
+ * @param {File} [images.govId] - File representing the user's government ID.
+ * @returns {Promise<{ workId?: string, govId?: string }>} A promise that resolves to an object containing the medium-size URLs for each updated image.
+ */
+
+/**
+ * Updates the visibility settings of the user's identity document images.
+ *
+ * For each specified visibility setting (either "PUBLIC" or "PRIVATE"), sends a PATCH request
+ * to update the corresponding image on the server, modifies the local image object accordingly,
+ * updates the user context, and notifies the user about the ongoing change.
+ *
+ * @param {object} images - Object containing the desired visibility settings.
+ * @param {"PUBLIC"|"PRIVATE"} [images.workId] - New visibility for the work ID image.
+ * @param {"PUBLIC"|"PRIVATE"} [images.govId] - New visibility for the government ID image.
+ * @returns {Promise<void>} A promise that resolves once visibility updates are complete.
  */
 export function IdentityProvider({ children }) {
   const notify = useNotification();

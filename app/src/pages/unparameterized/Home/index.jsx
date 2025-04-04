@@ -17,8 +17,13 @@ import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoo
 import "./styles.css";
 
 /**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
+ * Renders the tenant-specific home page layout.
+ *
+ * This component displays a navigation bar with "Rooms" and "Booking" buttons and a content area containing a list of items.
+ * It is designed for tenant users, receiving tenant user data via the user prop.
+ *
+ * @param {{ user: import("@/contexts/user.jsx").User }} props - An object containing tenant user information.
+ * @returns {React.JSX.Element} The rendered tenant home page.
  */
 function HomeForTenant({ user }) {
   return (
@@ -43,8 +48,14 @@ function HomeForTenant({ user }) {
 }
 
 /**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
+ * Renders the owner's home page with navigation and room creation features.
+ *
+ * Displays navigation buttons ("Rooms" and "Booking") in a navigation bar,
+ * a list of content placeholders, and a floating action button that opens a dialog
+ * with a room creation form featuring multilingual support.
+ *
+ * @param {{ user: import("@/contexts/user.jsx").User }} props - Contains the owner user context.
+ * @returns {React.JSX.Element} The rendered home page for an owner.
  */
 function HomeForOwner({ user }) {
   const dialog = useDialog();

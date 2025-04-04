@@ -11,7 +11,14 @@ import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
 
 /**
- * @returns {React.JSX.Element}
+ * Renders a form for updating a user's display name.
+ *
+ * This component displays input fields for first and last names, validates that both are provided,
+ * and updates the user's profile upon submission. It shows a loading state during the update process
+ * and navigates to the home page on success. If any error occurs or the input is invalid, an error
+ * notification is displayed.
+ *
+ * @returns {React.JSX.Element} The rendered display name update form.
  */
 export default function SetDisplayName() {
   const compUsr = useCompositeUser();

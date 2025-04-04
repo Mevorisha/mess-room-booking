@@ -6,7 +6,14 @@ import "./styles.css";
 const DIALOG_ANIM_DURATION = 250;
 
 /**
- * @returns {React.JSX.Element | null}
+ * Renders a modal dialog with responsive dimensions and animated transitions.
+ *
+ * The component uses context state to determine visibility, content, and animation styles. It updates its layout
+ * based on the document's dimensions via a window resize listener and dynamically adjusts its maximum width and height
+ * according to the provided size variant ("fullwidth", "large", or "small"). Clicking the overlay starts a closing animation
+ * and clears the dialog content after the animation completes. The component returns null when the dialog is not active.
+ *
+ * @returns {React.JSX.Element | null} The rendered dialog box element if active, or null if hidden.
  */
 export default function DialogBox() {
   const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =
