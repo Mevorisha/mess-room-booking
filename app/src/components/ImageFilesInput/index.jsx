@@ -1,8 +1,9 @@
 import React from "react";
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
 import { sizehuman } from "@/modules/util/dataConversion";
+import { lang } from "@/modules/util/language.js";
 import useNotification from "@/hooks/notification";
-import useDialogBox from "@/hooks/dialogbox";
+// import useDialogBox from "@/hooks/dialogbox";
 import ButtonText from "../ButtonText";
 // import DialogImagePreview from "@/components/DialogImagePreview";
 
@@ -43,10 +44,10 @@ function EmptyFilesInput(props) {
 
   return (
     <div className="empty-files-container">
-      <div className="empty-message">No files added</div>
+      <div className="empty-message">{lang("No files added", "কোন ফাইল নেই", "कोई फ़ाइल नहीं है")}</div>
       <ButtonText
         rounded="all"
-        title="Add File"
+        title={lang("Add File", "ফাইল অ্যাড করুন", "फ़ाइल ऐड करें")}
         kind="secondary"
         disabled={disabled}
         onClick={(e) => handleAdd1stFile(e)}
@@ -67,17 +68,13 @@ function EmptyFilesInput(props) {
 function NotEmptyFilesInput(props) {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
-  const dialog = useDialogBox();
-
-  function handleDataScroll(e) {
-    e.target.scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
-  }
+  // const dialog = useDialogBox();
 
   return (
     <div className="not-empty-files-container">
       <div className="files-header">
         <div className="files-count">
-          {filesSet.size} file{filesSet.size !== 1 ? "s" : ""}
+          {filesSet.size} {lang("file", "ফাইল", "फ़ाइल")}{filesSet.size !== 1 ? "s" : ""}
         </div>
         <div className="files-actions">
           <div className="add-file-container">
@@ -108,7 +105,7 @@ function NotEmptyFilesInput(props) {
       <div className="files-grid">
         {Array.from(filesSet).map((file, idx) => (
           <div key={idx} className="file-item">
-            <div className="file-data" onWheel={(e) => handleDataScroll(e)}>
+            <div className="file-data">
               {file.type.startsWith("image/") ? (
                 <div className="file-preview">
                   <img
@@ -124,7 +121,7 @@ function NotEmptyFilesInput(props) {
                 </div>
               ) : (
                 <div className="no-preview">
-                  <span>No Preview</span>
+                  <span>{lang("No preview available", "কোন প্রিভিউ নেই", "कोई पूर्वावलोकन उपलब्ध नहीं है")}</span>
                 </div>
               )}
             </div>
