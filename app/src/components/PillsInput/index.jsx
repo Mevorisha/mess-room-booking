@@ -35,16 +35,22 @@ export function PillInputTest({ disabled }) {
 }
 
 /**
- * @param {{
- *   type?: React.HTMLInputTypeAttribute,
- *   placeholder?: string,
- *   disabled?: boolean,
- *   required?: boolean,
- *   minRequired?: number,
- *   pillsSet: Set<string>,
- *   setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>
- * }} props
- * @returns {React.JSX.Element}
+ * Renders an interactive pill input interface.
+ *
+ * This component displays a container with pill items derived from the provided set and an input field for adding new items.
+ * It allows users to add pills by pressing the Enter or Tab key, remove individual pills, and clear all pills. The input's
+ * required attribute is dynamically set based on the initial required flag and the current number of pills relative to the
+ * specified minimum required count.
+ *
+ * @param {object} props - The component properties.
+ * @param {React.HTMLInputTypeAttribute} [props.type] - The HTML input type attribute.
+ * @param {string} [props.placeholder] - The placeholder text for the input field when enabled.
+ * @param {boolean} [props.disabled] - If true, disables the input field and pill interactions.
+ * @param {boolean} [props.required] - Indicates if the input should initially be required.
+ * @param {number} [props.minRequired=1] - The minimum number of pills required for the input to no longer be marked as required.
+ * @param {Set<string>} props.pillsSet - A set containing the current pill items.
+ * @param {React.Dispatch<React.SetStateAction<Set<string>>>} props.setPillsSet - State updater for modifying the pills set.
+ * @returns {React.JSX.Element} The rendered pill input component.
  */
 export default function PillInput({ type, placeholder, disabled, required, minRequired = 1, pillsSet, setPillsSet }) {
   const [inputValue, setInputValue] = useState("");
