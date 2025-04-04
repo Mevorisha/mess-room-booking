@@ -18,7 +18,7 @@ import { lang } from "@/modules/util/language.js";
  *
  * @returns {React.JSX.Element} The rendered UI for language selection.
  */
-export default function SetProfileType() {
+export default function SetLanguage() {
   const langCtx = useContext(LanguageContext);
   const notify = useNotification();
   const navigate = useNavigate();
