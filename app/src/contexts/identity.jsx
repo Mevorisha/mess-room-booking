@@ -28,8 +28,16 @@ export default IdentityContext;
 /* ------------------------------------ IDENTITY PROVIDER COMPONENT ----------------------------------- */
 
 /**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
+ * Provides an identity management context to update identity photos and their visibility.
+ *
+ * This provider wraps its children with context functions that handle:
+ * - Uploading and updating identity photos (work and government IDs) with file processing, cache management, and user context updates.
+ * - Changing the visibility settings for the identity photos.
+ *
+ * Notifications are displayed to inform the user about the progress and success of these operations.
+ *
+ * @param {{ children: any }} props - The child elements rendered within the identity provider.
+ * @returns {React.JSX.Element} A context provider supplying identity photo management functions.
  */
 export function IdentityProvider({ children }) {
   const notify = useNotification();

@@ -19,7 +19,15 @@ import dpGeneric from "@/assets/images/dpGeneric.png";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 
 /**
- * @returns {React.JSX.Element}
+ * Renders a user's profile page.
+ *
+ * This component displays profile details based on the 'id' URL search parameter. It initializes
+ * with the current user's profile and, if an 'id' is provided, attempts to fetch updated profile data
+ * from an API. A missing or empty 'id' or a failed fetch will result in a "Page Not Found" view, while
+ * a mismatch between the loaded profile and the search parameter triggers a loading indicator. Clicking
+ * the profile image opens a dialog with a larger preview.
+ *
+ * @returns {React.JSX.Element} The rendered profile page.
  */
 export default function Profile() {
   const compUsr = useCompositeUser();

@@ -10,7 +10,15 @@ import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
 /**
- * @throws {CustomApiError} On joi validation failure
+ * Validates and structures room creation data from an API request.
+ *
+ * This function uses a Joi schema to validate the request body, ensuring that required fields such as
+ * ownerId, acceptGender, acceptOccupation, searchTags, landmark, address, city, state, majorTags, minorTags,
+ * capacity, pricePerOccupant, and files conform to expected formats. On successful validation, it returns a tuple:
+ * the first element is the room data with array fields (searchTags, majorTags, minorTags) converted to Sets and the
+ * files field removed, and the second element is the array of file objects.
+ *
+ * @throws {CustomApiError} When the request body fails schema validation.
  */
 function createRoomData(req: NextApiRequest): [RoomCreateData, Array<{ type: string; name: string; base64: string }>] {
   const roomCreateSchema = Joi.object({

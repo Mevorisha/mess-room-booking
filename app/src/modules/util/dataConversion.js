@@ -20,13 +20,17 @@ export function sizehuman(bytes) {
 }
 
 /**
- * Resizes an image blob
- * @param {File} file
- * @param {{ w?: number, h?: number }} target
- * @param {string} mimeType
- * @param {number} [quality]
- * @returns {Promise<File>}
- * @throws {Error}
+ * Resizes an image file to the specified dimensions while maintaining its aspect ratio.
+ * <p>
+ * If only one dimension is provided in the target, the other is calculated based on the original image's aspect ratio.
+ * If neither width nor height is specified, the original dimensions are preserved.
+ *
+ * @param {File} file - The image file to be resized.
+ * @param {{ w?: number, h?: number }} target - Desired dimensions; use `w` for width and/or `h` for height.
+ * @param {string} mimeType - The MIME type for the output image.
+ * @param {number} [quality] - Optional quality (from 0 to 1) for image compression.
+ * @returns {Promise<File>} A promise that resolves with the resized image as a new File object.
+ * @throws {Error} If creating the canvas context fails or converting the canvas to a blob fails.
  */
 export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = void 0) {
   return new Promise((resolve, reject) => {

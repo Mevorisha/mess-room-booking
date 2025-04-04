@@ -6,7 +6,16 @@ import "./styles.css";
 const DIALOG_ANIM_DURATION = 250;
 
 /**
- * @returns {React.JSX.Element | null}
+ * Renders an animated dialog overlay that adapts to viewport size and context state.
+ *
+ * This component uses context to determine the content, visibility, animation state, and sizing of the dialog box. It listens for window resize events to update its dimensions and conditionally renders the overlay and dialog based on state values:
+ * - Returns null if the overlay or dialog state is "gone".
+ * - Applies animation styles defined by the current overlay and dialog states.
+ * - Adjusts dialog dimensions responsively based on the provided "size" ("fullwidth", "large", or "small").
+ *
+ * Clicking the overlay initiates fade-out and scale-out animations and eventually clears the dialog content after the animation duration.
+ *
+ * @returns {React.JSX.Element | null} The animated dialog overlay element, or null if it should not be displayed.
  */
 export default function DialogBox() {
   const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =

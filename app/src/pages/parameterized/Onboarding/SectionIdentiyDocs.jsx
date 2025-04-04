@@ -11,8 +11,14 @@ import DialogImagePreview from "@/components/DialogImagePreview";
 import { lang } from "@/modules/util/language.js";
 
 /**
- * Section where the user can upload their identity documents.
- * @return {React.JSX.Element}
+ * Renders an interface for uploading and managing identity documents.
+ *
+ * This component enables users to upload or update their Work ID and Government ID images.
+ * It supports localized labels, image preview dialogs, and toggling between public and private
+ * visibility settings. Notifications are shown for successful operations or error events,
+ * and image reloads are triggered to reflect updates.
+ *
+ * @returns {React.JSX.Element} The rendered identity document upload section.
  */
 export default function SectionIdentiyDocs() {
   const [forceWorkImgReload, setForceWorkImgReload] = useState(0);
@@ -59,9 +65,16 @@ export default function SectionIdentiyDocs() {
   }
 
   /**
-   * @param {React.ChangeEvent<HTMLInputElement>} e
-   * @param {"WORK_ID" | "GOV_ID"} type
-   * @param {"PUBLIC" | "PRIVATE"} value
+   * Updates the visibility of a specified identity document and refreshes the corresponding image.
+   *
+   * This function prevents the default event behavior and uses the user's identity context to update
+   * the visibility of either the Work ID or Government ID. On success, it displays a localized notification
+   * indicating the new visibility status and triggers a re-render of the affected image. If the update fails,
+   * an error notification is displayed.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The event triggered by the input change.
+   * @param {"WORK_ID" | "GOV_ID"} type - The type of identity document to update.
+   * @param {"PUBLIC" | "PRIVATE"} value - The new visibility setting for the identity document.
    */
   function handleVisibilityChange(e, type, value) {
     e.preventDefault();
