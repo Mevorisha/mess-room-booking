@@ -12,7 +12,7 @@ import "./styles.css";
  */
 export default function CustomFab({ marginBottom, title, onClick }) {
   const buttonStyle = {
-    bottom: "" + marginBottom + "px" || "20p",
+    bottom: marginBottom ? `${marginBottom}px` : "20px",
   };
 
   return (
