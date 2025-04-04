@@ -67,7 +67,7 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
   function handleItemAdd(item) {
     setPillsSet((oldSet) => {
       const newSet = new Set(oldSet);
-      newSet.add(item);
+      item.split(",").forEach((it) => it && newSet.add(it.trim()));
       return newSet;
     });
   }
