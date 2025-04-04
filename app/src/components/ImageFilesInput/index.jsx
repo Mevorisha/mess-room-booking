@@ -1,7 +1,10 @@
 import React from "react";
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
+import { sizehuman } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
+import useDialogBox from "@/hooks/dialogbox";
 import ButtonText from "../ButtonText";
+// import DialogImagePreview from "@/components/DialogImagePreview";
 
 import "./styles.css";
 
@@ -64,6 +67,7 @@ function EmptyFilesInput(props) {
 function NotEmptyFilesInput(props) {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
+  const dialog = useDialogBox();
 
   function handleDataScroll(e) {
     e.target.scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
@@ -105,8 +109,29 @@ function NotEmptyFilesInput(props) {
         {Array.from(filesSet).map((file, idx) => (
           <div key={idx} className="file-item">
             <div className="file-data" onWheel={(e) => handleDataScroll(e)}>
+              {file.type.startsWith("image/") ? (
+                <div className="file-preview">
+                  <img
+                    // Not showing preview for now coz dialog is busy
+                    // onClick={() =>
+                    //   dialog.show(<DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />, "large")
+                    // }
+                    // Instead, open image in new tab
+                    onClick={() => window.open(URL.createObjectURL(file), "_blank")}
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                  />
+                </div>
+              ) : (
+                <div className="no-preview">
+                  <span>No Preview</span>
+                </div>
+              )}
+            </div>
+
+            <div className="file-info">
               <div className="file-name">{file.name}</div>
-              <div className="file-size">{(file.size / 1024).toFixed(1)} KB</div>
+              <div className="file-size">{sizehuman(file.size)}</div>
             </div>
 
             <div className="clearfile-container clearbtn-container">

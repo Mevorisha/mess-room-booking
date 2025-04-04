@@ -37,7 +37,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--pad-2);
+  padding: var(--pad-1) var(--pad-2);
   border-bottom: 1px solid #eee;
 }
 
@@ -62,7 +62,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  padding: calc(var(--pad-2) + 0.5px);
+  padding: calc(1.25 * var(--pad-1)) calc(1.5 * var(--pad-1));
   border-radius: 100%;
   color: #696767;
   font-size: 0.8rem;
@@ -94,7 +94,7 @@
   text-align: center;
 
   margin: 0;
-  padding: calc(var(--pad-2) + 0.5px) calc(var(--pad-2) + 1px);
+  padding: calc(1.25 * var(--pad-1)) calc(1.5 * var(--pad-1));
 
   border-radius: 100%;
 
@@ -126,34 +126,59 @@
 
 .components-ImageFilesInput .files-grid .file-item {
   position: relative;
-  height: 100px;
+  height: 120px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   background-color: #f5f5f5;
   border-radius: var(--rounded-rad);
   border: 1.5px solid #ddd;
-  padding: var(--pad-2);
   overflow: hidden;
 }
 
 .components-ImageFilesInput .files-grid .file-data {
   width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.components-ImageFilesInput .files-grid .file-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.components-ImageFilesInput .files-grid .file-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.components-ImageFilesInput .files-grid .no-preview {
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: scroll;
-  cursor: e-resize;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 0.9rem;
 }
 
-.components-ImageFilesInput .files-grid .file-data {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
+.components-ImageFilesInput .files-grid .no-preview span {
+  margin-bottom: 15%;
 }
 
-.components-ImageFilesInput .files-grid .file-data::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+.components-ImageFilesInput .files-grid .file-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.884);
+  padding: var(--pad-2);
+  z-index: 1;
 }
 
 .components-ImageFilesInput .files-grid .file-item .file-name {
@@ -162,18 +187,19 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #525252;
 }
 
 .components-ImageFilesInput .files-grid .file-item .file-size {
   font-size: 0.75rem;
-  color: #777;
-  margin-top: auto;
+  color: #595959;
 }
 
 .components-ImageFilesInput .files-grid .file-item .clearfile-container {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(216, 216, 216, 0.8);
   border-radius: 50%;
+  z-index: 2;
 }
