@@ -308,7 +308,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         </div>
 
         <div className="filedit-container">
-          <ImageFilesInput required filesSet={filesSet} setFilesSet={setFilesSet} />
+          <ImageFilesInput required minRequired={2} filesSet={filesSet} setFilesSet={setFilesSet} />
         </div>
       </div>
 

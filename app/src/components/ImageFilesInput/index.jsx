@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
 import { sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
@@ -47,14 +47,28 @@ function EmptyFilesInput(props) {
 
   return (
     <div className="empty-files-container">
-      <div className="empty-message">{lang("No files added", "কোন ফাইল নেই", "कोई फ़ाइल नहीं है")}</div>
-      <ButtonText
-        rounded="all"
-        title={lang("Add File", "ফাইল অ্যাড করুন", "फ़ाइल ऐड करें")}
-        kind="secondary"
-        disabled={disabled}
-        onClick={(e) => handleAdd1stFile(e)}
-      />
+      <div className="empty-message">
+        {lang("No files added", "কোন ফাইল নেই", "कोई फ़ाइल नहीं है")}
+        <br />
+        {!disabled &&
+          lang(
+            `Minimum ${props.minRequired ?? "1"} file(s) required`,
+            `ন্যূনতম ${props.minRequired ?? "1"} ফাইল প্রয়োজন`,
+            `न्यूनतम ${props.minRequired ?? "1"} फ़ाइलें आवश्यक हैं`
+          )}
+      </div>
+
+      <input className="hidden-input" type="text" required={props.isRequired} />
+
+      {!disabled && (
+        <ButtonText
+          rounded="all"
+          title={lang("Add File", "ফাইল অ্যাড করুন", "फ़ाइल ऐड करें")}
+          kind="secondary"
+          disabled={disabled}
+          onClick={(e) => handleAdd1stFile(e)}
+        />
+      )}
     </div>
   );
 }
@@ -73,35 +87,59 @@ function NotEmptyFilesInput(props) {
   const notify = useNotification();
   // const dialog = useDialogBox();
 
+  const refInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+
+  useEffect(() => {
+    // Set the input's custom validity msg attribute based on the number of files
+    if (!refInput.current) return;
+    if (filesSet.size >= props.minRequired) refInput.current.setCustomValidity("");
+    else {
+      refInput.current.setCustomValidity(
+        lang(
+          `Minimum ${props.minRequired} file(s) required`,
+          `ন্যূনতম ${props.minRequired} ফাইল প্রয়োজন`,
+          `न्यूनतम ${props.minRequired} फ़ाइलें आवश्यक हैं`
+        )
+      );
+    }
+  }, [filesSet, props.isRequired, props.minRequired]);
+
   return (
     <div className="not-empty-files-container">
       <div className="files-header">
         <div className="files-count">
           {filesSet.size} {lang("file(s)", "ফাইল", "फ़ाइल")}
         </div>
+
+        <input ref={refInput} required={props.isRequired} className="hidden-input" type="text" />
+
         <div className="files-actions">
-          <div className="add-file-container">
-            <button
-              className={`btn-add ${disabled ? "disabled" : ""}`}
-              onClick={(e) =>
-                !disabled &&
-                Promise.resolve(e)
-                  .then(() => e.preventDefault())
-                  .then(() => loadFileFromFilePicker("image/*", MAX_SIZE_IN_BYTES))
-                  .then((file) => handleItemAdd(file))
-                  .catch((e) => notify(e, "error"))
-              }
-              disabled={disabled}
-            >
-              <i className="fa fa-plus" />
-            </button>
-          </div>
-          <div className="clearall-container clearbtn-container">
-            <i
-              onClick={!disabled ? handleClearAll : undefined}
-              className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
-            />
-          </div>
+          {!disabled && (
+            <div className="add-file-container">
+              <button
+                className={`btn-add ${disabled ? "disabled" : ""}`}
+                onClick={(e) =>
+                  !disabled &&
+                  Promise.resolve(e)
+                    .then(() => e.preventDefault())
+                    .then(() => loadFileFromFilePicker("image/*", MAX_SIZE_IN_BYTES))
+                    .then((file) => handleItemAdd(file))
+                    .catch((e) => notify(e, "error"))
+                }
+                disabled={disabled}
+              >
+                <i className="fa fa-plus" />
+              </button>
+            </div>
+          )}
+          {!disabled && (
+            <div className="clearall-container clearbtn-container">
+              <i
+                onClick={!disabled ? handleClearAll : undefined}
+                className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -134,12 +172,14 @@ function NotEmptyFilesInput(props) {
               <div className="file-size">{sizehuman(file.size)}</div>
             </div>
 
-            <div className="clearfile-container clearbtn-container">
-              <i
-                onClick={!disabled ? () => handleItemRemove(file) : undefined}
-                className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
-              />
-            </div>
+            {!disabled && (
+              <div className="clearfile-container clearbtn-container">
+                <i
+                  onClick={!disabled ? () => handleItemRemove(file) : undefined}
+                  className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -152,14 +192,11 @@ function NotEmptyFilesInput(props) {
  * @returns {React.JSX.Element} The rendered image files input component.
  */
 export default function ImageFilesInput(props) {
-  const {
-    required,
-    minRequired = 1,
-    maxTotalSizeBytes = MAX_TOTAL_SIZE_IN_BYTES,
-    maxOneFileSizeBytes = MAX_SIZE_IN_BYTES,
-    filesSet,
-    setFilesSet,
-  } = props;
+  const { required, filesSet, setFilesSet } = props;
+
+  const minRequired = props.minRequired ?? 1;
+  const maxTotalSizeBytes = props.maxTotalSizeBytes ?? MAX_TOTAL_SIZE_IN_BYTES;
+  const maxOneFileSizeBytes = props.maxOneFileSizeBytes ?? MAX_SIZE_IN_BYTES;
 
   const notify = useNotification();
 
@@ -234,6 +271,9 @@ export default function ImageFilesInput(props) {
       {filesSet.size === 0 && (
         <EmptyFilesInput
           {...props}
+          minRequired={minRequired}
+          maxTotalSizeBytes={maxTotalSizeBytes}
+          maxOneFileSizeBytes={maxOneFileSizeBytes}
           isRequired={isRequired}
           handleItemAdd={handleItemAdd}
           handleItemRemove={handleItemRemove}
@@ -245,6 +285,9 @@ export default function ImageFilesInput(props) {
       {filesSet.size > 0 && (
         <NotEmptyFilesInput
           {...props}
+          minRequired={minRequired}
+          maxTotalSizeBytes={maxTotalSizeBytes}
+          maxOneFileSizeBytes={maxOneFileSizeBytes}
           isRequired={isRequired}
           handleItemAdd={handleItemAdd}
           handleItemRemove={handleItemRemove}
