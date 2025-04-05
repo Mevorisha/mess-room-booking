@@ -22,20 +22,14 @@
   padding: var(--pad-3);
 }
 
-.pages-OwnerRooms-SectionRoomForm
-  .editable-container
-  .textedit-container
-  input:not([type="submit"]) {
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container input:not([type="submit"]) {
   padding: var(--pad-3);
   background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm
-  .editable-container
-  .textedit-container
-  .pashapashi-container {
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .pashapashi-container {
   display: flex;
   flex-direction: row;
   gap: var(--pad-2);
