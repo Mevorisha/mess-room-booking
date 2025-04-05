@@ -171,7 +171,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         .then((cache) => cache.delete(internalCacheUrl))
         .then(() => setSubmitButtonKind("primary"))
         .then(() => notify(lang("Created new room", "নতুন রুম তৈরি হয়েছে", "नया रूम बनाया गया"), "success"))
-        // .then(() => dialog.hide())
+        .then(() => dialog.hide())
         .catch((e) => {
           notify(e, "error");
           setSubmitButtonKind("primary");
