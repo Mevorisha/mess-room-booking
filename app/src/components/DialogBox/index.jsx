@@ -33,10 +33,12 @@ export default function DialogBox() {
 
   const overlayAnimStyle = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
+    cursor: size === "fullwidth" ? "not-allowed" : "default",
   };
 
   const dialogAnimStyle = {
     animation: `${dialogState} ${DIALOG_ANIM_DURATION}ms forwards`,
+    cursor: "default",
   };
 
   if (size === "fullwidth") {
@@ -59,6 +61,7 @@ export default function DialogBox() {
       className="components-DialogBox"
       style={overlayAnimStyle}
       onClick={() => {
+        if (size === "fullwidth") return;
         setOverlayState("fadeOut");
         setDialogState("scaleOut");
         setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
