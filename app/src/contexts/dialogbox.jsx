@@ -1,18 +1,14 @@
 import React, { createContext, useState } from "react";
-import DialogBox from "@/components/DialogBox";
+import DialogBox from  "@/components/DialogBox";
 
 const DialogBoxContext = createContext({
-  children: /** @type {React.JSX.Element | null} */ (null),
-  setChildren: /** @type {(val: React.JSX.Element | null) => void} */ (() => {}),
-
-  overlayState: /** @type {"fadeIn" | "fadeOut" | "gone"} */ ("gone"),
-  setOverlayState: /** @type {(val: "fadeIn" | "fadeOut" | "gone") => void} */ (() => {}),
-
-  size: /** @type {"small" | "large" | "fullwidth"} */ ("small"),
-  setSize: /** @type {(val: "small" | "large" | "fullwidth") => void} */ (() => {}),
-
-  dialogState: /** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone"),
-  setDialogState: /** @type {(val: "scaleIn" | "scaleOut" | "gone") => void} */ (() => {}),
+  modalStack:
+    /** @type {Array<{id: string, children: React.JSX.Element, size: "small" | "large" | "fullwidth"}>} */ ([]),
+  addModal: /** @type {(id: string, children: React.JSX.Element, size: "small" | "large" | "fullwidth") => void} */ (
+    () => {}
+  ),
+  removeModal: /** @type {(id: string) => void} */ (() => {}),
+  removeTopModal: /** @type {() => void} */ (() => {}),
 });
 
 export default DialogBoxContext;
@@ -22,32 +18,82 @@ export default DialogBoxContext;
  * @returns {React.JSX.Element}
  */
 export function DialogBoxProvider({ children }) {
-  const [overlayState, setOverlayState] = useState(/** @type {"fadeIn" | "fadeOut" | "gone"} */ ("gone"));
+  const [modalStack, setModalStack] = useState(
+    /** @type {Array<{
+    id: string,
+    children: React.JSX.Element, 
+    size: "small" | "large" | "fullwidth",
+    overlayState: "fadeIn" | "fadeOut" | "gone",
+    dialogState: "scaleIn" | "scaleOut" | "gone"
+  }>} */ ([])
+  );
 
-  const [dialogState, setDialogState] = useState(/** @type {"scaleIn" | "scaleOut" | "gone"} */ ("gone"));
+  /**
+   * Add a new modal to the stack
+   * @param {string} id - Unique identifier for the modal
+   * @param {React.JSX.Element} modalChildren - Content of the modal
+   * @param {"small" | "large" | "fullwidth"} size - Size of the modal
+   */
+  const addModal = (id, modalChildren, size = "small") => {
+    setModalStack((prevStack) => [
+      ...prevStack,
+      {
+        id,
+        children: modalChildren,
+        size,
+        overlayState: "fadeIn",
+        dialogState: "scaleIn",
+      },
+    ]);
+  };
 
-  const [size, setSize] = useState(/** @type {"small" | "large" | "fullwidth"} */ ("small"));
+  /**
+   * Remove a specific modal from the stack by ID
+   * @param {string} id - ID of the modal to remove
+   */
+  const removeModal = (id) => {
+    const modalIndex = modalStack.findIndex((modal) => modal.id === id);
 
-  const [children_, setChildren_] = useState(/** @type {React.JSX.Element | null} */ (null));
+    if (modalIndex !== -1) {
+      const newStack = [...modalStack];
+      newStack[modalIndex] = {
+        ...newStack[modalIndex],
+        overlayState: "fadeOut",
+        dialogState: "scaleOut",
+      };
+
+      setModalStack(newStack);
+
+      // Remove the modal from the stack after animation completes
+      setTimeout(() => {
+        setModalStack((prevStack) => prevStack.filter((modal) => modal.id !== id));
+      }, 250);
+    }
+  };
+
+  /**
+   * Remove the topmost modal from the stack
+   */
+  const removeTopModal = () => {
+    if (modalStack.length > 0) {
+      const topModalId = modalStack[modalStack.length - 1].id;
+      removeModal(topModalId);
+    }
+  };
 
   return (
     <DialogBoxContext.Provider
       value={{
-        children: children_,
-        setChildren: setChildren_,
-
-        overlayState,
-        setOverlayState,
-
-        size,
-        setSize,
-
-        dialogState,
-        setDialogState,
+        modalStack,
+        addModal,
+        removeModal,
+        removeTopModal,
       }}
     >
       {children}
-      <DialogBox />
+      {modalStack.map((modal, index) => (
+        <DialogBox key={modal.id} modal={modal} zIndex={1000 + index} onClose={() => removeModal(modal.id)} />
+      ))}
     </DialogBoxContext.Provider>
   );
 }

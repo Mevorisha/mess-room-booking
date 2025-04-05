@@ -1,16 +1,24 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
-import DialogBoxContext from "@/contexts/dialogbox.jsx";
-
+import React, { useLayoutEffect, useState } from "react";
 import "./styles.css";
 
 const DIALOG_ANIM_DURATION = 250;
 
 /**
+ * @param {{
+ *   modal: {
+ *     id: string,
+ *     children: React.JSX.Element,
+ *     size: "small" | "large" | "fullwidth",
+ *     overlayState: "fadeIn" | "fadeOut" | "gone",
+ *     dialogState: "scaleIn" | "scaleOut" | "gone"
+ *   },
+ *   zIndex: number,
+ *   onClose: () => void
+ * }} props
  * @returns {React.JSX.Element | null}
  */
-export default function DialogBox() {
-  const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =
-    useContext(DialogBoxContext);
+export default function DialogBox({ modal, zIndex, onClose }) {
+  const { children, size, overlayState, dialogState } = modal;
 
   const [clientDims, setClientDims] = useState({
     w: document.body.clientWidth,
@@ -21,19 +29,19 @@ export default function DialogBox() {
     const updateClientDims = () =>
       setClientDims({
         w: document.body.clientWidth,
-        h: document.body.clientHeight, // no change in height on resize - redundant
+        h: document.body.clientHeight,
       });
 
     window.addEventListener("resize", updateClientDims);
     return () => window.removeEventListener("resize", updateClientDims);
   }, []);
 
-  if (overlayState === "gone") return null;
-  if (dialogState === "gone") return null;
+  if (overlayState === "gone" || dialogState === "gone") return null;
 
   const overlayAnimStyle = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
     cursor: size === "fullwidth" ? "not-allowed" : "default",
+    zIndex: zIndex,
   };
 
   const dialogAnimStyle = {
@@ -62,9 +70,7 @@ export default function DialogBox() {
       style={overlayAnimStyle}
       onClick={() => {
         if (size === "fullwidth") return;
-        setOverlayState("fadeOut");
-        setDialogState("scaleOut");
-        setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
+        onClose();
       }}
     >
       <div className="dialog-box" style={dialogAnimStyle} onClick={(e) => e.stopPropagation()}>
