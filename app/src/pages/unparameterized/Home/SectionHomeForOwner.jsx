@@ -1,0 +1,195 @@
+import ButtonText from "@/components/ButtonText";
+import CustomFab from "@/components/CustomFab";
+import NavBars from "@/components/NavBars";
+import useDialogBox from "@/hooks/dialogbox";
+import { CachePaths } from "@/modules/util/caching";
+import { base64FileDataToFile } from "@/modules/util/dataConversion";
+import { lang } from "@/modules/util/language";
+import { useState, useCallback, useEffect } from "react";
+import SectionRoomCreateForm from "../OwnerRooms/SectionRoomCreateForm";
+
+/**
+ * @param {{ user: import("@/contexts/user.jsx").User }} props
+ * @returns {React.JSX.Element}
+ */
+export default function HomeForOwner({ user }) {
+  const dialog = useDialogBox();
+  const [drafts, setDrafts] = useState([]);
+  const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
+
+  const loadDrafts = useCallback(async () => {
+    try {
+      setIsLoadingDrafts(true);
+      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
+      const cacheKeys = await cache.keys();
+
+      const draftPromises = cacheKeys.map(async (request) => {
+        const url = request.url;
+
+        if (url.endsWith("/last-id")) {
+          return null; // Skip the last-id entry
+        }
+
+        const response = await cache.match(request);
+        const data = await response.json();
+
+        // Extract the first image if available
+        let firstImage = null;
+        if (data.files && data.files.length > 0) {
+          firstImage = data.files[0];
+        }
+
+        return {
+          url,
+          landmark: data.landmark || "",
+          searchTags: data.searchTags || [],
+          majorTags: data.majorTags || [],
+          city: data.city || "",
+          state: data.state || "",
+          firstImage,
+        };
+      });
+
+      const loadedDrafts = await Promise.all(draftPromises);
+      setDrafts(loadedDrafts.filter(Boolean));
+    } catch (error) {
+      console.error("Error loading drafts:", error);
+    } finally {
+      setIsLoadingDrafts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDrafts();
+  }, [loadDrafts]);
+
+  const handleOpenDraft = (draftUrl) => {
+    dialog.show(<SectionRoomCreateForm draftCacheUrl={draftUrl} />, "fullwidth");
+  };
+
+  const handleAddNewRoom = () => {
+    dialog.show(<SectionRoomCreateForm />, "fullwidth");
+  };
+
+  const handleDeleteDraft = async (draftUrl) => {
+    try {
+      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
+      await cache.delete(draftUrl);
+      // Refresh the drafts list
+      loadDrafts();
+    } catch (error) {
+      console.error("Error deleting draft:", error);
+    }
+  };
+
+  return (
+    <div className="pages-Home">
+      <NavBars>
+        <>
+          <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
+          <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
+        </>
+      </NavBars>
+      <div className="content-container">
+        <div className="contents">
+          {/* Drafts Section */}
+          <div className="section-container">
+            <div className="section-header">
+              <h2>{lang("Drafts", "খসড়া", "ड्राफ्ट")}</h2>
+              <button className="reload-button" onClick={loadDrafts} disabled={isLoadingDrafts}>
+                <i className="fa fa-refresh" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            {isLoadingDrafts ? (
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+              </div>
+            ) : drafts.length > 0 ? (
+              <ul className="content-list">
+                {drafts.map((draft, index) => (
+                  <li key={index} className="content-item draft-item">
+                    <div className="draft-preview">
+                      {draft.firstImage && (
+                        <div className="draft-image">
+                          <img
+                            src={URL.createObjectURL(base64FileDataToFile(draft.firstImage))}
+                            alt={draft.landmark}
+                            onLoad={(e) => {
+                              // Properly type the event target as HTMLImageElement
+                              const img = e.target;
+                              if (img instanceof HTMLImageElement) {
+                                URL.revokeObjectURL(img.src);
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="draft-info">
+                        <div className="draft-landmark" title={draft.landmark}>
+                          {draft.landmark}
+                        </div>
+                        <div className="draft-location">
+                          {draft.city}, {draft.state}
+                        </div>
+                        <div className="draft-tags">
+                          {/* Show only 2 search tags and 1 major tag */}
+                          {draft.searchTags.slice(0, 2).map((tag, idx) => (
+                            <span key={idx} className="tag search-tag">
+                              {tag}
+                            </span>
+                          ))}
+                          {draft.majorTags.slice(0, 1).map((tag, idx) => (
+                            <span key={idx} className="tag major-tag">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="draft-actions">
+                        <button className="edit-draft-button" onClick={() => handleOpenDraft(draft.url)}>
+                          {lang("Edit", "সম্পাদনা", "संपादित करें")}
+                        </button>
+                        <button
+                          className="delete-draft-button"
+                          onClick={() => handleDeleteDraft(draft.url)}
+                          title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="no-drafts-message">
+                <p>{lang("No drafts found", "কোন খসড়া পাওয়া যায়নি", "कोई ड्राफ्ट नहीं मिला")}</p>
+                <ButtonText
+                  width="50%"
+                  rounded="all"
+                  title={lang("Add Room", "রুম যোগ করুন", "रूम जोड़ें")}
+                  kind="secondary"
+                  onClick={handleAddNewRoom}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Rooms Section */}
+          <div className="section-container">
+            <div className="section-header">
+              <h2>{lang("Rooms", "রুম", "रूम")}</h2>
+            </div>
+            <ul className="content-list">
+              <li className="content-item"></li>
+              <li className="content-item"></li>
+              <li className="content-item"></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <CustomFab marginBottom={70} title={lang("New Room", "নতুন রুম", "नया रूम")} onClick={handleAddNewRoom} />
+    </div>
+  );
+}

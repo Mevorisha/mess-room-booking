@@ -3,18 +3,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { isEmpty } from "@/modules/util/validations.js";
 import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
-import { lang } from "@/modules/util/language.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
-import useDialog from "@/hooks/dialogbox.js";
 
 import ButtonText from "@/components/ButtonText";
-import CustomFab from "@/components/CustomFab";
 import NavBars from "@/components/NavBars";
 import LoadingPage from "@/pages/unparameterized/Loading";
-import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm/index.jsx";
 
 import "./styles.css";
+import HomeForOwner from "./SectionHomeForOwner";
 
 /**
  * @param {{ user: import("@/contexts/user.jsx").User }} props
@@ -38,38 +35,6 @@ function HomeForTenant({ user }) {
           </ul>
         </div>
       </div>
-    </div>
-  );
-}
-
-/**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
- */
-function HomeForOwner({ user }) {
-  const dialog = useDialog();
-  return (
-    <div className="pages-Home">
-      <NavBars>
-        <>
-          <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-          <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
-        </>
-      </NavBars>
-      <div className="content-container">
-        <div className="contents">
-          <ul className="content-list">
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-          </ul>
-        </div>
-      </div>
-      <CustomFab
-        marginBottom={70}
-        title={lang("New Room", "নতুন রুম", "नया रूम")}
-        onClick={() => dialog.show(<SectionRoomCreateForm />, "fullwidth")}
-      />
     </div>
   );
 }
