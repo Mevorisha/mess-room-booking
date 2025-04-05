@@ -134,6 +134,12 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
       const cacheUrl = internalCacheUrl || (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
       await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));
+
+      // DEBUG: duplicate same response 10 times with different urls
+      // for (let i = 0; i < 10; i++) {
+      //   await cache.put(`${cacheUrl}-${i}`, new Response(jsonString, { status: 200 }));
+      // }
+
       if (internalCacheUrl !== cacheUrl) {
         // update last cache url if createNewCacheUrl called
         await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, cacheUrl);

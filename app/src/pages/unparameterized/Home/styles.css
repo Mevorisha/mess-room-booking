@@ -23,12 +23,15 @@
 
 .pages-Home .content-container {
   width: calc(100% - 4 * var(--pad-2));
+  max-width: 800px;
+  padding: var(--pad-2);
   /* WARNING: this margin adjustment is a hack to center the content, which
      appears to have shifted by var(--pad-2) to the right without this.
      Reason is unknown, need to investigate. [TODO] */
   margin-right: var(--pad-2);
-  max-width: 800px;
-  padding: var(--pad-2);
+  /* this is coz of the top and bottom navigation bars */
+  margin-top: 60px;
+  margin-bottom: 60px;
 }
 
 .pages-Home .contents {
