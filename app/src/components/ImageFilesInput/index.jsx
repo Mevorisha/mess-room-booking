@@ -3,9 +3,9 @@ import { loadFileFromFilePicker } from "@/modules/util/dom.js";
 import { sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
 import useNotification from "@/hooks/notification";
-// import useDialogBox from "@/hooks/dialogbox";
+import useDialogBox from "@/hooks/dialogbox";
 import ButtonText from "../ButtonText";
-// import DialogImagePreview from "@/components/DialogImagePreview";
+import DialogImagePreview from "@/components/DialogImagePreview";
 
 import "./styles.css";
 
@@ -85,7 +85,7 @@ function EmptyFilesInput(props) {
 function NotEmptyFilesInput(props) {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
-  // const dialog = useDialogBox();
+  const dialog = useDialogBox();
 
   const refInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
@@ -151,11 +151,15 @@ function NotEmptyFilesInput(props) {
                 <div className="file-preview">
                   <img
                     // Not showing preview for now coz dialog is busy
-                    // onClick={() =>
-                    //   dialog.show(<DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />, "large")
-                    // }
+                    onClick={() => {
+                      dialog.showStacked(
+                        dialog.createNewModalId(),
+                        <DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />,
+                        "large"
+                      );
+                    }}
                     // Instead, open image in new tab
-                    onClick={() => window.open(URL.createObjectURL(file), "_blank")}
+                    // onClick={() => window.open(URL.createObjectURL(file), "_blank")}
                     src={URL.createObjectURL(file)}
                     alt={file.name}
                   />
