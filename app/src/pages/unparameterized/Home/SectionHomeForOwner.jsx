@@ -1,3 +1,4 @@
+import React, { useState, useCallback, useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import CustomFab from "@/components/CustomFab";
 import NavBars from "@/components/NavBars";
@@ -5,14 +6,15 @@ import useDialogBox from "@/hooks/dialogbox";
 import { CachePaths } from "@/modules/util/caching";
 import { base64FileDataToFile } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language";
-import { useState, useCallback, useEffect } from "react";
 import SectionRoomCreateForm from "../OwnerRooms/SectionRoomCreateForm";
+import useNotification from "@/hooks/notification";
 
 /**
  * @param {{ user: import("@/contexts/user.jsx").User }} props
  * @returns {React.JSX.Element}
  */
-export default function HomeForOwner({ user }) {
+export default function HomeForOwner({ user: _ }) {
+  const notify = useNotification();
   const dialog = useDialogBox();
   const [drafts, setDrafts] = useState([]);
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
@@ -53,25 +55,34 @@ export default function HomeForOwner({ user }) {
       const loadedDrafts = await Promise.all(draftPromises);
       setDrafts(loadedDrafts.filter(Boolean));
     } catch (error) {
-      console.error("Error loading drafts:", error);
+      console.error(error);
+      notify(
+        lang("Error loading drafts", "ড্রাফট লোড করতে সমস্যা হয়েছে", "ड्राफ्ट लोड करने में त्रुटि हुई है"),
+        "error"
+      );
     } finally {
       setIsLoadingDrafts(false);
     }
   }, []);
 
-  useEffect(() => {
-    loadDrafts();
-  }, [loadDrafts]);
+  useEffect(() => loadDrafts() && void 0, [loadDrafts]);
 
-  const handleOpenDraft = (draftUrl) => {
+  /**
+   * @param {string} draftUrl
+   */
+  function handleOpenDraft(draftUrl) {
     dialog.show(<SectionRoomCreateForm draftCacheUrl={draftUrl} />, "fullwidth");
-  };
+  }
 
-  const handleAddNewRoom = () => {
+  function handleAddNewRoom() {
     dialog.show(<SectionRoomCreateForm />, "fullwidth");
-  };
+  }
 
-  const handleDeleteDraft = async (draftUrl) => {
+  /**
+   * @param {string} draftUrl
+   * @returns {Promise<void>}
+   */
+  async function handleDeleteDraft(draftUrl) {
     try {
       const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
       await cache.delete(draftUrl);
@@ -80,7 +91,7 @@ export default function HomeForOwner({ user }) {
     } catch (error) {
       console.error("Error deleting draft:", error);
     }
-  };
+  }
 
   return (
     <div className="pages-Home">
