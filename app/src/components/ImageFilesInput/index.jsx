@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
 import { sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
@@ -147,6 +147,17 @@ function EmptyFilesInput(props) {
 }
 
 /**
+ * @typedef {Object} RenderableImgData
+ * @property {() => boolean} isFile
+ * @property {() => boolean} isUri
+ * @property {string} [type]
+ * @property {string} [name]
+ * @property {number} [size]
+ * @property {string} url
+ * @property {FileRepr} fr
+ */
+
+/**
  * @param {ImageFilesInputProps & {
  *   isRequired: boolean;
  *   handleItemAdd: (item: File) => void;
@@ -159,6 +170,45 @@ function NotEmptyFilesInput(props) {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
   const dialog = useDialogBox();
+
+  const [renderableFilesSet, setRenderableFilesSet] = useState(/** @type {RenderableImgData[]} */ ([]));
+
+  /* Optimization that cleans up object urls before reallocating them for the new set */
+  useEffect(
+    () =>
+      setRenderableFilesSet((oldSet) => {
+        // cleanup
+        oldSet.filter((it) => it.isFile()).forEach((it) => URL.revokeObjectURL(it.url));
+        // new alloc of renderable data
+        return filesSet.toArray().map((fr) => {
+          if (fr.isFile()) {
+            const file = fr.getFile();
+            const url = URL.createObjectURL(file);
+            return {
+              isFile: () => true,
+              isUri: () => false,
+              type: file.type,
+              name: file.name,
+              size: file.size,
+              url,
+              fr,
+            };
+          } else if (fr.isUri()) {
+            const url = fr.getUri();
+            return {
+              isFile: () => false,
+              isUri: () => true,
+              type: void 0,
+              name: void 0,
+              size: void 0,
+              url,
+              fr,
+            };
+          }
+        });
+      }),
+    [filesSet]
+  );
 
   const refInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
@@ -217,24 +267,23 @@ function NotEmptyFilesInput(props) {
       </div>
 
       <div className="files-grid">
-        {Array.from(filesSet).map((fileRepr, idx) => {
-          if (fileRepr.isFile()) {
-            const file = fileRepr.getFile();
+        {renderableFilesSet.map((imgData, idx) => {
+          if (imgData.isFile()) {
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
-                  {file.type.startsWith("image/") ? (
+                  {imgData.type.startsWith("image/") ? (
                     <div className="file-preview">
                       <img
                         onClick={() => {
                           dialog.showStacked(
                             dialog.createNewModalId(),
-                            <DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />,
+                            <DialogImagePreview largeImageUrl={imgData.url} />,
                             "large"
                           );
                         }}
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
+                        src={imgData.url}
+                        alt={imgData.name}
                       />
                     </div>
                   ) : (
@@ -245,22 +294,21 @@ function NotEmptyFilesInput(props) {
                 </div>
 
                 <div className="file-info">
-                  <div className="file-name">{file.name}</div>
-                  <div className="file-size">{sizehuman(file.size)}</div>
+                  <div className="file-name">{imgData.name}</div>
+                  <div className="file-size">{sizehuman(imgData.size)}</div>
                 </div>
 
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container">
                     <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
                 )}
               </div>
             );
-          } else if (fileRepr.isUri()) {
-            const uri = fileRepr.getUri();
+          } else if (imgData.isUri()) {
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
@@ -269,24 +317,24 @@ function NotEmptyFilesInput(props) {
                       onClick={() => {
                         dialog.showStacked(
                           dialog.createNewModalId(),
-                          <DialogImagePreview largeImageUrl={uri} />,
+                          <DialogImagePreview largeImageUrl={imgData.url} />,
                           "large"
                         );
                       }}
-                      src={uri}
+                      src={imgData.url}
                       alt={lang("Preview image", "প্রিভিউ ইমেজ", "पूर्वावलोकन छवि")}
                     />
                   </div>
                 </div>
 
                 <div className="file-info">
-                  <div className="file-name">{uri.split("/").pop() || lang("Image", "ইমেজ", "छवि")}</div>
+                  <div className="file-name">{imgData.url.split("/").pop() || lang("Image", "ইমেজ", "छवि")}</div>
                 </div>
 
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container">
                     <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
