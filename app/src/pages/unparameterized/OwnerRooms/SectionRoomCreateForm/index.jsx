@@ -5,6 +5,7 @@ import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import StringySet from "@/modules/util/StringySet";
 import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
@@ -62,7 +63,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
   const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
-  const [filesSet, setFilesSet] = useState(/** @type {Set<FileRepr>} */ (new Set()));
+  const [filesSet, setFilesSet] = useState(/** @type {StringySet<FileRepr>} */ (new StringySet()));
 
   const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
@@ -101,7 +102,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
         if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
 
-        setFilesSet(new Set(data.files.map(base64FileDataToFile).map(FileRepr.from)));
+        setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map(FileRepr.from)));
       })
       .catch((e) => notify(e, "error"));
   }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);

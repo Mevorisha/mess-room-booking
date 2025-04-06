@@ -4,6 +4,7 @@ import { sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
 import useNotification from "@/hooks/notification";
 import useDialogBox from "@/hooks/dialogbox";
+import StringySet from "@/modules/util/StringySet";
 import ButtonText from "../ButtonText";
 import DialogImagePreview from "@/components/DialogImagePreview";
 
@@ -75,7 +76,7 @@ export class FileRepr {
   /**
    * This method is called when the object is converted to a primitive value.
    * It is used to provide a string representation of the object.
-   * Used (hopefully) by Set<FileRepr> to compare objects.
+   * Used (for some reason) by StringySet<T> to compare objects.
    * @param {"number" | "string" | "default"} hint
    * @returns {string} The string representation of the object.
    */
@@ -92,8 +93,8 @@ export class FileRepr {
  * @property {number} [maxTotalSizeBytes] - The maximum total size of all files in bytes.
  * @property {number} [maxOneFileSizeBytes=MAX_SIZE_IN_BYTES] - The maximum size of a single file in bytes.
  * @property {number} [minRequired=1] - The minimum number of files required for the input to no longer be marked as required.
- * @property {Set<FileRepr>} filesSet - A set containing the current files.
- * @property {React.Dispatch<React.SetStateAction<Set<FileRepr>>>} setFilesSet - State updater for modifying the files set.
+ * @property {StringySet<FileRepr>} filesSet - A set containing the current files.
+ * @property {React.Dispatch<React.SetStateAction<StringySet<FileRepr>>>} setFilesSet - State updater for modifying the files set.
  */
 
 /**
@@ -355,7 +356,7 @@ export default function ImageFilesInput(props) {
         );
         return oldSet;
       }
-      const newSet = new Set(oldSet);
+      const newSet = new StringySet(oldSet);
       newSet.add(FileRepr.from(item));
       return newSet;
     });
@@ -366,7 +367,7 @@ export default function ImageFilesInput(props) {
    */
   function handleItemRemove(fileRepr) {
     setFilesSet((oldSet) => {
-      const newSet = new Set(oldSet);
+      const newSet = new StringySet(oldSet);
       newSet.delete(fileRepr);
       return newSet;
     });
@@ -374,7 +375,7 @@ export default function ImageFilesInput(props) {
 
   function handleClearAll() {
     setFilesSet((oldSet) => {
-      const newSet = new Set(oldSet);
+      const newSet = new StringySet(oldSet);
       newSet.clear();
       return newSet;
     });
