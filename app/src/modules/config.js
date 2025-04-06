@@ -10,11 +10,11 @@ const IS_PREVIEW =
   window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com";
 
 const API_SERVER_URL = IS_DEV ? import.meta.env.VITE_API_SERVER_URL : prodApiServerUrl;
-/* eslint-disable-next-line no-restricted-globals */
+// /* eslint-disable-next-line no-restricted-globals */
 self["API_SERVER_URL"] = API_SERVER_URL; // just coz
 
 const FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN;
-/* eslint-disable-next-line no-restricted-globals */
+// /* eslint-disable-next-line no-restricted-globals */
 self["FIREBASE_APPCHECK_DEBUG_TOKEN"] = FIREBASE_APPCHECK_DEBUG_TOKEN;
 
 export { API_SERVER_URL, FIREBASE_APPCHECK_DEBUG_TOKEN, IS_DEV, IS_PREVIEW };
