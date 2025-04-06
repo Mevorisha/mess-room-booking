@@ -12,6 +12,78 @@ import "./styles.css";
 const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_TOTAL_SIZE_IN_BYTES = 6 * MAX_SIZE_IN_BYTES; // 6MB
 
+export class FileRepr {
+  /**
+   * @param {File | string} fileRepr
+   */
+  constructor(fileRepr) {
+    if (fileRepr instanceof File) {
+      this.file = fileRepr;
+      this.uri = null;
+    }
+    if (typeof fileRepr === "string") {
+      this.uri = fileRepr;
+      this.file = null;
+    }
+  }
+
+  /**
+   * @param {File | string} fileRepr
+   * @returns {FileRepr}
+   */
+  static from(fileRepr) {
+    return new FileRepr(fileRepr);
+  }
+
+  isUri() {
+    return this.uri !== null;
+  }
+
+  isFile() {
+    return this.file !== null;
+  }
+
+  /**
+   * @throws {Error} if not a file
+   * @returns {File} The file object.
+   */
+  getFile() {
+    if (this.isFile()) {
+      return this.file;
+    }
+    throw new Error("FileRepr is not a File");
+  }
+
+  /**
+   * @throws {Error} if not a uri
+   * @returns {string} The URI string.
+   */
+  getUri() {
+    if (this.isUri()) {
+      return this.uri;
+    }
+    throw new Error("FileRepr is not a URI");
+  }
+
+  toString() {
+    if (this.isFile()) {
+      return `[object File <"${this.file.name}">]`;
+    }
+    return this.uri;
+  }
+
+  /**
+   * This method is called when the object is converted to a primitive value.
+   * It is used to provide a string representation of the object.
+   * Used (hopefully) by Set<FileRepr> to compare objects.
+   * @param {"number" | "string" | "default"} hint
+   * @returns {string} The string representation of the object.
+   */
+  [Symbol.toPrimitive](hint) {
+    return this.toString();
+  }
+}
+
 /**
  * @typedef {object} ImageFilesInputProps
  * @property {string} [placeholder] - The placeholder text for the input field when enabled.
@@ -20,15 +92,15 @@ const MAX_TOTAL_SIZE_IN_BYTES = 6 * MAX_SIZE_IN_BYTES; // 6MB
  * @property {number} [maxTotalSizeBytes] - The maximum total size of all files in bytes.
  * @property {number} [maxOneFileSizeBytes=MAX_SIZE_IN_BYTES] - The maximum size of a single file in bytes.
  * @property {number} [minRequired=1] - The minimum number of files required for the input to no longer be marked as required.
- * @property {Set<File>} filesSet - A set containing the current files.
- * @property {React.Dispatch<React.SetStateAction<Set<File>>>} setFilesSet - State updater for modifying the files set.
+ * @property {Set<FileRepr>} filesSet - A set containing the current files.
+ * @property {React.Dispatch<React.SetStateAction<Set<FileRepr>>>} setFilesSet - State updater for modifying the files set.
  */
 
 /**
  * @param {ImageFilesInputProps & {
  *   isRequired: boolean;
  *   handleItemAdd: (item: File) => void;
- *   handleItemRemove: (item: File) => void;
+ *   handleItemRemove: (item: FileRepr) => void;
  *   handleClearAll: () => void;
  * }} props - The component properties.
  * @returns {React.JSX.Element}
@@ -77,7 +149,7 @@ function EmptyFilesInput(props) {
  * @param {ImageFilesInputProps & {
  *   isRequired: boolean;
  *   handleItemAdd: (item: File) => void;
- *   handleItemRemove: (item: File) => void;
+ *   handleItemRemove: (item: FileRepr) => void;
  *   handleClearAll: () => void;
  * }} props - The component properties.
  * @returns {React.JSX.Element}
@@ -144,48 +216,85 @@ function NotEmptyFilesInput(props) {
       </div>
 
       <div className="files-grid">
-        {Array.from(filesSet).map((file, idx) => (
-          <div key={idx} className="file-item">
-            <div className="file-data">
-              {file.type.startsWith("image/") ? (
-                <div className="file-preview">
-                  <img
-                    // Not showing preview for now coz dialog is busy
-                    onClick={() => {
-                      dialog.showStacked(
-                        dialog.createNewModalId(),
-                        <DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />,
-                        "large"
-                      );
-                    }}
-                    // Instead, open image in new tab
-                    // onClick={() => window.open(URL.createObjectURL(file), "_blank")}
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                  />
+        {Array.from(filesSet).map((fileRepr, idx) => {
+          if (fileRepr.isFile()) {
+            const file = fileRepr.getFile();
+            return (
+              <div key={idx} className="file-item">
+                <div className="file-data">
+                  {file.type.startsWith("image/") ? (
+                    <div className="file-preview">
+                      <img
+                        onClick={() => {
+                          dialog.showStacked(
+                            dialog.createNewModalId(),
+                            <DialogImagePreview largeImageUrl={URL.createObjectURL(file)} />,
+                            "large"
+                          );
+                        }}
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                      />
+                    </div>
+                  ) : (
+                    <div className="no-preview">
+                      <span>{lang("No preview available", "কোন প্রিভিউ নেই", "कोई पूर्वावलोकन उपलब्ध नहीं है")}</span>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="no-preview">
-                  <span>{lang("No preview available", "কোন প্রিভিউ নেই", "कोई पूर्वावलोकन उपलब्ध नहीं है")}</span>
+
+                <div className="file-info">
+                  <div className="file-name">{file.name}</div>
+                  <div className="file-size">{sizehuman(file.size)}</div>
                 </div>
-              )}
-            </div>
 
-            <div className="file-info">
-              <div className="file-name">{file.name}</div>
-              <div className="file-size">{sizehuman(file.size)}</div>
-            </div>
-
-            {!disabled && (
-              <div className="clearfile-container clearbtn-container">
-                <i
-                  onClick={!disabled ? () => handleItemRemove(file) : undefined}
-                  className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
-                />
+                {!disabled && (
+                  <div className="clearfile-container clearbtn-container">
+                    <i
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            );
+          } else if (fileRepr.isUri()) {
+            const uri = fileRepr.getUri();
+            return (
+              <div key={idx} className="file-item">
+                <div className="file-data">
+                  <div className="file-preview">
+                    <img
+                      onClick={() => {
+                        dialog.showStacked(
+                          dialog.createNewModalId(),
+                          <DialogImagePreview largeImageUrl={uri} />,
+                          "large"
+                        );
+                      }}
+                      src={uri}
+                      alt={lang("Preview image", "প্রিভিউ ইমেজ", "पूर्वावलोकन छवि")}
+                    />
+                  </div>
+                </div>
+
+                <div className="file-info">
+                  <div className="file-name">{uri.split("/").pop() || lang("Image", "ইমেজ", "छवि")}</div>
+                </div>
+
+                {!disabled && (
+                  <div className="clearfile-container clearbtn-container">
+                    <i
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })}
       </div>
     </div>
   );
@@ -233,7 +342,9 @@ export default function ImageFilesInput(props) {
         );
         return oldSet;
       }
-      if (item.size + Array.from(oldSet).reduce((acc, file) => acc + file.size, 0) > maxTotalSizeBytes) {
+      // This only controls upload size, not total size in backend
+      const sizeTillNow = Array.from(oldSet).reduce((acc, file) => (file.isFile() ? acc + file.getFile().size : 0), 0);
+      if (item.size + sizeTillNow > maxTotalSizeBytes) {
         notify(
           lang(
             `Total size exceeds limit ${sizehuman(maxTotalSizeBytes)}`,
@@ -245,18 +356,18 @@ export default function ImageFilesInput(props) {
         return oldSet;
       }
       const newSet = new Set(oldSet);
-      newSet.add(item);
+      newSet.add(FileRepr.from(item));
       return newSet;
     });
   }
 
   /**
-   * @param {File} item
+   * @param {FileRepr} fileRepr
    */
-  function handleItemRemove(item) {
+  function handleItemRemove(fileRepr) {
     setFilesSet((oldSet) => {
       const newSet = new Set(oldSet);
-      newSet.delete(item);
+      newSet.delete(fileRepr);
       return newSet;
     });
   }

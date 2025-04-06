@@ -9,7 +9,7 @@ import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
 import ButtonText from "@/components/ButtonText/index.jsx";
-import ImageFilesInput from "@/components/ImageFilesInput";
+import ImageFilesInput, { FileRepr } from "@/components/ImageFilesInput";
 
 import "./styles.css";
 
@@ -62,7 +62,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
   const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
-  const [filesSet, setFilesSet] = useState(/** @type {Set<File>} */ (new Set()));
+  const [filesSet, setFilesSet] = useState(/** @type {Set<FileRepr>} */ (new Set()));
 
   const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
@@ -101,14 +101,19 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
         if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
 
-        setFilesSet(new Set(data.files.map(base64FileDataToFile)));
+        setFilesSet(new Set(data.files.map(base64FileDataToFile).map(FileRepr.from)));
       })
       .catch((e) => notify(e, "error"));
   }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
 
   async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
-    const base64Files = await Promise.all(Array.from(filesSet).map(fileToBase64FileData));
+
+    const filesArray = Array.from(filesSet)
+      .filter((fr) => fr.isFile())
+      .map((fr) => fr.getFile());
+
+    const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
     /**
      * @type {CachableDraftFormData}
      */
@@ -159,10 +164,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
     // submit to backend
     else if (submitAction === "submit") {
       setSubmitButtonKind("loading");
-      let totalSize = 0;
-      for (const f of filesSet) {
-        totalSize += f.size;
-      }
+      let totalSize = filesArray.reduce((acc, f) => acc + f.size, 0);
       notify(
         lang(
           `Uploading ${sizehuman(totalSize)}. This may take a long time. Please be patient.`,
