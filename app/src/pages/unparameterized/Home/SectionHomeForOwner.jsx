@@ -63,7 +63,7 @@ export default function HomeForOwner({ user: _ }) {
     } finally {
       setIsLoadingDrafts(false);
     }
-  }, []);
+  }, [notify]);
 
   useEffect(() => loadDrafts() && void 0, [loadDrafts]);
 
