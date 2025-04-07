@@ -5,7 +5,7 @@ import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
-import StringySet from "@/modules/util/StringySet";
+import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
