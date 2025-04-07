@@ -70,7 +70,7 @@ export enum SchemaFields {
   TTL = "ttl",
 }
 
-function imgConvertGsPathToApiUri(dataToBeUpdated: RoomData, roomId: string) {
+function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string) {
   if (dataToBeUpdated.images) {
     dataToBeUpdated.images = Array.from(dataToBeUpdated.images as Array<string>).map((imgGsPath: string) =>
       StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPath))
@@ -121,7 +121,7 @@ class Room {
     await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
-  static async queryAll(params: RoomQueryParams): Promise<RoomReadDataWithId[]> {
+  static async queryAll(params: RoomQueryParams, extUrls: ApiResponseUrlType): Promise<RoomReadDataWithId[]> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     let query: FirebaseFirestore.Query;
@@ -204,6 +204,7 @@ class Room {
       results.push({ ...data, id: doc.id });
     }
 
+    if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
     return results;
   }
 
