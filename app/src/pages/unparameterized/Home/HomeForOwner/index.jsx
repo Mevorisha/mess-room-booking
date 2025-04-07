@@ -24,7 +24,7 @@ function TabRooms() {
       <div className="content-container">
         <div className="contents">
           <SectionRoomDrafts handleAddNewRoom={handleAddNewRoom} />
-          <SectionRoomList />
+          <SectionRoomList handleAddNewRoom={handleAddNewRoom} />
           <CustomFab marginBottom={70} title={lang("New Room", "নতুন রুম", "नया रूम")} onClick={handleAddNewRoom} />
         </div>
       </div>

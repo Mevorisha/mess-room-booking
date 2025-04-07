@@ -10,6 +10,7 @@ import ButtonText from "../ButtonText";
 import DialogImagePreview from "@/components/DialogImagePreview";
 
 import "./styles.css";
+import ImageLoader from "../ImageLoader";
 
 const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_TOTAL_SIZE_IN_BYTES = 6 * MAX_SIZE_IN_BYTES; // 6MB
@@ -246,7 +247,7 @@ function NotEmptyFilesInput(props) {
               <div key={idx} className="file-item">
                 <div className="file-data">
                   <div className="file-preview">
-                    <img
+                    <ImageLoader
                       onClick={() => {
                         dialog.showStacked(
                           dialog.createNewModalId(),
@@ -258,10 +259,6 @@ function NotEmptyFilesInput(props) {
                       alt={lang("Preview image", "প্রিভিউ ইমেজ", "पूर्वावलोकन छवि")}
                     />
                   </div>
-                </div>
-
-                <div className="file-info">
-                  <div className="file-name">{imgData.url.split("/").pop() || lang("Image", "ইমেজ", "छवि")}</div>
                 </div>
 
                 {!disabled && (
