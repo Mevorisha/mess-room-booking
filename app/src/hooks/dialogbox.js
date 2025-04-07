@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 /**
@@ -37,6 +37,7 @@ export default function useDialogBox() {
      */
     (id, children, size = "small") => {
       addModal(id, children, size);
+      setIsVisible(true);
     },
     [addModal]
   );
@@ -46,9 +47,12 @@ export default function useDialogBox() {
     /**
      * Hide a specific modal by ID
      * @param {string} id - ID of the modal to hide
+     * @param {() => void} [onHide]
      */
-    (id) => {
+    (id, onHide) => {
       removeModal(id);
+      setIsVisible(false);
+      if (onHide) onHide();
     },
     [removeModal]
   );
@@ -71,15 +75,30 @@ export default function useDialogBox() {
   );
 
   // New simplified hide function
-  const hide = useCallback(() => {
-    removeTopModal();
-    setIsVisible(false);
-  }, [removeTopModal]);
+  const hide = useCallback(
+    /**
+     * @param {() => void} [onHide]
+     */
+    (onHide) => {
+      removeTopModal();
+      setIsVisible(false);
+      if (onHide) onHide();
+    },
+    [removeTopModal]
+  );
 
   // Keep the existing hideTopModal for backwards compatibility
-  const hideTopModal = useCallback(() => {
-    removeTopModal();
-  }, [removeTopModal]);
+  const hideTopModal = useCallback(
+    /**
+     * @param {() => void} [onHide]
+     */
+    (onHide) => {
+      removeTopModal();
+      setIsVisible(false);
+      if (onHide) onHide();
+    },
+    [removeTopModal]
+  );
 
   return {
     // New API for stacked modals
