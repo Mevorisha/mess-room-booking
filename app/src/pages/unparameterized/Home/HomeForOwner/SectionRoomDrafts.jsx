@@ -145,14 +145,14 @@ export default function SectionDrafts({ handleAddNewRoom }) {
                 </div>
                 <div className="draft-actions">
                   <button
-                    className="edit-draft-button"
+                    className="edit-item-button"
                     onClick={() => handleOpenDraft(draft.url)}
                     title={lang("Edit", "এডিট করুন", "एडिट करें")}
                   >
                     <i className="fa fa-pencil" aria-hidden="true"></i>
                   </button>
                   <button
-                    className="delete-draft-button"
+                    className="delete-item-button"
                     onClick={() => handleDeleteDraft(draft.url)}
                     title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
                   >
@@ -164,7 +164,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
           ))}
         </ul>
       ) : (
-        <div className="no-drafts-message">
+        <div className="no-item-message">
           <p>{lang("No drafts found", "কোন খসড়া পাওয়া যায়নি", "कोई ड्राफ्ट नहीं मिला")}</p>
           <ButtonText
             width="50%"

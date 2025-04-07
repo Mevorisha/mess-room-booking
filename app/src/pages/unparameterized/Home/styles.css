@@ -182,7 +182,7 @@
   gap: var(--pad-1);
 }
 
-.pages-Home .edit-draft-button {
+.pages-Home .edit-item-button {
   background-color: #e0e0e0;
   color: #333;
   border: none;
@@ -196,11 +196,11 @@
   font-weight: 500;
 }
 
-.pages-Home .edit-draft-button:hover {
+.pages-Home .edit-item-button:hover {
   background-color: #d0d0d0;
 }
 
-.pages-Home .delete-draft-button {
+.pages-Home .delete-item-button {
   background-color: #ffeeee;
   color: #d32f2f;
   border: none;
@@ -214,7 +214,7 @@
   font-weight: 500;
 }
 
-.pages-Home .delete-draft-button:hover {
+.pages-Home .delete-item-button:hover {
   background-color: #ffdbdb;
 }
 
@@ -244,14 +244,14 @@
   }
 }
 
-.pages-Home .no-drafts-message {
+.pages-Home .no-item-message {
   width: fit-content;
-  margin: 0 auto;
+  margin: var(--pad-4) auto;
   text-align: center;
   padding: var(--pad-3);
   color: #666;
 }
 
-.pages-Home .no-drafts-message p {
-  margin-bottom: var(--pad-2);
+.pages-Home .no-item-message p {
+  margin: var(--pad-2);
 }
