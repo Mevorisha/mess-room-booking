@@ -60,7 +60,8 @@ export default function SectionDrafts({ handleAddNewRoom }) {
         "error"
       );
     } finally {
-      setIsLoadingDrafts(false);
+      // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
+      setTimeout(() => setIsLoadingDrafts(false), 2000);
     }
   }, [notify]);
 

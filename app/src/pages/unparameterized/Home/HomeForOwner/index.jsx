@@ -10,13 +10,9 @@ import SectionBookingList from "./SectionBookingList";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 
 /**
- * @param {{
- *   page: "rooms"|"bookings",
- *   setPage: React.Dispatch<React.SetStateAction<"rooms" | "bookings">>
- * }} props
  * @returns {React.JSX.Element}
  */
-function TabRooms({ page, setPage }) {
+function TabRooms() {
   const dialog = useDialogBox();
 
   function handleAddNewRoom() {
@@ -25,24 +21,6 @@ function TabRooms({ page, setPage }) {
 
   return (
     <div className="pages-Home">
-      <NavBars>
-        <>
-          <ButtonText
-            rounded="all"
-            title="Rooms"
-            kind={page === "rooms" ? "primary" : "cannibalized"}
-            width="50%"
-            onClick={() => setPage("rooms")}
-          />
-          <ButtonText
-            rounded="all"
-            title="Booking"
-            kind={page === "bookings" ? "primary" : "cannibalized"}
-            width="50%"
-            onClick={() => setPage("bookings")}
-          />
-        </>
-      </NavBars>
       <div className="content-container">
         <div className="contents">
           <SectionRoomDrafts handleAddNewRoom={handleAddNewRoom} />
@@ -55,33 +33,11 @@ function TabRooms({ page, setPage }) {
 }
 
 /**
- * @param {{
- *   page: "rooms"|"bookings",
- *   setPage: React.Dispatch<React.SetStateAction<"rooms" | "bookings">>
- * }} props
  * @returns {React.JSX.Element}
  */
-function TabBookings({ page, setPage }) {
+function TabBookings() {
   return (
     <div className="pages-Home">
-      <NavBars>
-        <>
-          <ButtonText
-            rounded="all"
-            title="Rooms"
-            kind={page === "rooms" ? "primary" : "cannibalized"}
-            width="50%"
-            onClick={() => setPage("rooms")}
-          />
-          <ButtonText
-            rounded="all"
-            title="Booking"
-            kind={page === "bookings" ? "primary" : "cannibalized"}
-            width="50%"
-            onClick={() => setPage("bookings")}
-          />
-        </>
-      </NavBars>
       <SectionBookingList />
     </div>
   );
@@ -95,6 +51,26 @@ export default function SectionHomeForOwner({ user: _ }) {
   const [page, setPage] = useState(/** @type {"rooms"|"bookings"} */ ("rooms"));
 
   return (
-    <>{page === "rooms" ? <TabRooms page={page} setPage={setPage} /> : <TabBookings page={page} setPage={setPage} />}</>
+    <>
+      <NavBars>
+        <>
+          <ButtonText
+            rounded="all"
+            title="Rooms"
+            kind={page === "rooms" ? "primary" : "cannibalized"}
+            width="50%"
+            onClick={() => setPage("rooms")}
+          />
+          <ButtonText
+            rounded="all"
+            title="Booking"
+            kind={page === "bookings" ? "primary" : "cannibalized"}
+            width="50%"
+            onClick={() => setPage("bookings")}
+          />
+        </>
+      </NavBars>
+      {page === "rooms" ? <TabRooms /> : <TabBookings />}
+    </>
   );
 }
