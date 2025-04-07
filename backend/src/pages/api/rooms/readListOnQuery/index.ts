@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Room, { AcceptGender, AcceptOccupation } from "@/models/Room";
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp } from "firebase-admin/firestore";
 import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { getLoggedInUser } from "@/middlewares/auth";
@@ -62,9 +62,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     const uid = authResult.getUid();
 
     // Query all rooms owned by this user
-    const roomsData = await Room.queryAll({
-      ownerId: uid,
-    });
+    const roomsData = await Room.queryAll({ ownerId: uid }, "API_URI");
 
     // Format the response
     const formattedRooms = roomsData.map((room, index) => ({
@@ -128,7 +126,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     }
 
     // Execute the query
-    const roomsData = await Room.queryAll(queryParams);
+    const roomsData = await Room.queryAll(queryParams, "API_URI");
 
     // Format the response
     const formattedRooms = roomsData.map((room, index) => {
