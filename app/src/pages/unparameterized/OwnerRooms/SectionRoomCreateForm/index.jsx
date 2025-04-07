@@ -10,7 +10,8 @@ import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
 import ButtonText from "@/components/ButtonText/index.jsx";
-import ImageFilesInput, { FileRepr } from "@/components/ImageFilesInput";
+import ImageFilesInput from "@/components/ImageFilesInput";
+import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
