@@ -94,6 +94,9 @@ export class ApiPaths {
   static Rooms = {
     create: () => `${ApiPaths.ROOMS}/create`,
 
+    /** @param {string} roomId */
+    delete: (roomId) => `${ApiPaths.ROOMS}/${roomId}/delete`,
+
     /**
      * @param {Object} query
      * @param {boolean} [query.self]
