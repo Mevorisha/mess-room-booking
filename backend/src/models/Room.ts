@@ -36,6 +36,7 @@ type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "accept
 type RoomReadData = Partial<RoomData>;
 // Params to query a room by
 type RoomQueryParams = Partial<{
+  ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
   landmark: string;
@@ -79,6 +80,8 @@ function imgConvertGsPathToApiUri(dataToBeUpdated: RoomData, roomId: string) {
   return dataToBeUpdated;
 }
 
+type RoomReadDataWithId = RoomReadData & { id: string };
+
 class Room {
   /**
    * Create a new room document
@@ -118,13 +121,16 @@ class Room {
     await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
-  static async queryAll(params: RoomQueryParams): Promise<RoomReadData[]> {
+  static async queryAll(params: RoomQueryParams): Promise<RoomReadDataWithId[]> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     let query: FirebaseFirestore.Query;
     const queryOrRef = () => (query ? query : ref);
 
     // Apply filters for exact matches
+    if (params.ownerId) {
+      query = queryOrRef().where(SchemaFields.OWNER_ID, "==", params.ownerId);
+    }
     if (params.acceptGender) {
       query = queryOrRef().where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
     }
@@ -162,7 +168,7 @@ class Room {
 
     // Execute query
     const snapshot = await queryOrRef().get();
-    const results: RoomReadData[] = [];
+    const results: RoomReadDataWithId[] = [];
 
     // Process results and apply any tag filters in code
     // (since we can't query array containment for multiple arrays effectively)
@@ -195,7 +201,7 @@ class Room {
       if (data.majorTags) data.majorTags = new Set(data.majorTags);
       if (data.minorTags) data.minorTags = new Set(data.minorTags);
 
-      results.push(data);
+      results.push({ ...data, id: doc.id });
     }
 
     return results;
