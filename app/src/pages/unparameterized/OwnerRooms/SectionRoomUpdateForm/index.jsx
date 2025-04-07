@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
-import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
+import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
@@ -15,16 +14,17 @@ import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
-const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
-
 /**
  * @typedef {import("@/modules/util/dataConversion.js").Base64FileData} Base64FileData
- * @typedef {"MALE" | "FEMALE" | "OTHER" | ""} GenderOptions
+ * @typedef {"MALE" | "FEMALE" | "OTHER"} GenderOptions
  * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | ""} OccupationOptions
  */
 
 /**
- * @typedef {Object} CachableDraftFormData
+ * This is the data received from backend and used to populate the room form.
+ * @typedef {Object} RoomData
+ * @property {string} id
+ * @property {Array<string>} images
  * @property {GenderOptions} acceptGender
  * @property {OccupationOptions} acceptOccupation
  * @property {string[]} searchTags
@@ -36,157 +36,117 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  * @property {string[]} minorTags
  * @property {number} capacity
  * @property {number} pricePerOccupant
- * @property {Base64FileData[]} files
  */
 
 /**
- * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
- * @param {{ draftCacheUrl?: string }} props
+ * This is the data to be sent to backend.
+ * Fields absent in update data:
+ * - `acceptGender`
+ *
+ *  Additional fields in update data:
+ * - `isUnavailable` - Hide room from search results
+ * - `keepFiles` - Keep images after update, delete others
+ * - `addFiles` - Upload new images
+ * @typedef {Object} RoomUpdateData
+ * @property {boolean} isUnavailable
+ * @property {OccupationOptions} acceptOccupation
+ * @property {string[]} searchTags
+ * @property {string} landmark
+ * @property {string} address
+ * @property {string} city
+ * @property {string} state
+ * @property {string[]} majorTags
+ * @property {string[]} minorTags
+ * @property {number} capacity
+ * @property {number} pricePerOccupant
+ * @property {string[]} keepFiles
+ * @property {Base64FileData[]} addFiles
+ */
+
+/**
+ * @param {{ roomData: RoomData }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionRoomCreateForm({ draftCacheUrl }) {
+export default function SectionRoomUpdateForm({ roomData }) {
   const viewOnly = false;
 
   const notify = useNotification();
   const dialog = useDialog();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState(draftCacheUrl ?? "");
+  // Replace all useRefs with state variables
+  const [acceptGender, _] = useState(roomData.acceptGender);
+  const [acceptOccupation, setAcceptOccupation] = useState(roomData.acceptOccupation);
+  const [searchTagsSet, setSearchTagsSet] = useState(new Set(roomData.searchTags));
+  const [landmark, setLandmark] = useState(roomData.landmark);
+  const [address, setAddress] = useState(roomData.address);
+  const [city, setCity] = useState(roomData.city);
+  const [state, setState] = useState(roomData.state);
+  const [majorTagsSet, setMajorTagsSet] = useState(new Set(roomData.majorTags));
+  const [minorTagsSet, setMinorTagsSet] = useState(new Set(roomData.minorTags));
+  const [capacity, setCapacity] = useState(roomData.capacity);
+  const [pricePerOccupant, setPricePerOccupant] = useState(roomData.pricePerOccupant);
+  const [isUnavailable, setIsUnavailable] = useState(false);
 
-  const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ (""));
-  const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ (""));
-  const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const landmarkInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const addressInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const cityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const stateInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-
-  const [filesSet, setFilesSet] = useState(/** @type {StringySet<FileRepr>} */ (new StringySet()));
-
-  const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
+  // Initialize filesSet with images from roomData
+  const [filesSet, setFilesSet] = useState(new StringySet(roomData.images.map((url) => FileRepr.from(url))));
 
   const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 
-  /* useEffect to load cache data */
-  useEffect(() => {
-    // if draftCacheUrl not defined
-    if (!draftCacheUrl) return;
-    // if input elements not initialized
-    if (
-      !landmarkInput.current ||
-      !addressInput.current ||
-      !cityInput.current ||
-      !stateInput.current ||
-      !capacityInput.current ||
-      !pricePerOccupantInput.current
-    )
-      return;
-
-    caches
-      .open(SECTION_ROOM_FORM_CACHE_PATH)
-      .then((cache) => cache.match(draftCacheUrl))
-      .then((response) => response?.json())
-      .then((/** @type {CachableDraftFormData} */ data) => {
-        if (!data) return;
-        setAcceptGender(data.acceptGender);
-        setAcceptOccupation(data.acceptOccupation);
-        setSearchTagsSet(new Set(data.searchTags));
-        if (landmarkInput.current) landmarkInput.current.value = data.landmark;
-        if (addressInput.current) addressInput.current.value = data.address;
-        if (cityInput.current) cityInput.current.value = data.city;
-        if (stateInput.current) stateInput.current.value = data.state;
-        setMajorTagsSet(new Set(data.majorTags));
-        setMinorTagsSet(new Set(data.minorTags));
-        if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
-        if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
-
-        setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map(FileRepr.from)));
-      })
-      .catch((e) => notify(e, "error"));
-  }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
-
   async function handleSubmitAsync() {
-    // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
-
-    const filesArray = Array.from(filesSet)
+    // add new files
+    const addFilesArr = Array.from(filesSet)
       .filter((fr) => fr.isFile())
       .map((fr) => fr.getFile());
 
-    const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
+    // keep URLs, and delete all others
+    const keepFilesArr = Array.from(filesSet)
+      .filter((fr) => fr.getUri())
+      .map((fr) => fr.getUri());
+
+    const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
+
     /**
-     * @type {CachableDraftFormData}
+     * @type {RoomUpdateData}
      */
     const formData = {
-      acceptGender,
+      isUnavailable,
       acceptOccupation,
       searchTags: Array.from(searchTagsSet),
-      landmark: landmarkInput.current.value,
-      address: addressInput.current.value,
-      city: cityInput.current.value,
-      state: stateInput.current.value,
+      landmark,
+      address,
+      city,
+      state,
       majorTags: Array.from(majorTagsSet),
       minorTags: Array.from(minorTagsSet),
-      capacity: Number(capacityInput.current.value),
-      pricePerOccupant: Number(pricePerOccupantInput.current.value),
+      capacity: Number(capacity),
+      pricePerOccupant: Number(pricePerOccupant),
 
-      files: base64Files,
+      keepFiles: keepFilesArr,
+      addFiles: base64Images,
     };
 
-    // save form data draft in cache
-    if (submitAction === "save-draft") {
-      const jsonString = JSON.stringify(formData);
-      const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
-      const cacheUrl = internalCacheUrl || (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
-      await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));
-
-      // DEBUG: duplicate same response 10 times with different urls
-      // for (let i = 0; i < 10; i++) {
-      //   await cache.put(`${cacheUrl}-${i}`, new Response(jsonString, { status: 200 }));
-      // }
-
-      if (internalCacheUrl !== cacheUrl) {
-        // update last cache url if createNewCacheUrl called
-        await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, cacheUrl);
-        // also update the internalCacheUrl
-        setInternalCacheUrl(cacheUrl);
-      }
-      notify(
-        lang(
-          "Form draft saved to this computer",
-          "ফর্মের ড্রাফ্ট এই কম্পিউটারে সেভ করা হলো",
-          "फॉर्म ड्राफ्ट इस कंप्यूटर में सेव किया गया है"
-        ),
-        "success"
-      );
-    }
-
     // submit to backend
-    else if (submitAction === "submit") {
-      setSubmitButtonKind("loading");
-      let totalSize = filesArray.reduce((acc, f) => acc + f.size, 0);
-      notify(
-        lang(
-          `Uploading ${sizehuman(totalSize)}. This may take a long time. Please be patient.`,
-          `${sizehuman(totalSize)} আপলোড হচ্ছে। এটি অনেক সময় নিতে পারে। দয়া করে ধৈর্য ধরুন।`,
-          `${sizehuman(totalSize)} अपलोड हो रहा है। इसमें बहुत समय लग सकता है। कृपया धैर्य रखें।`
-        ),
-        "info"
-      );
-      apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
-        .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
-        .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
-        .then((cache) => cache.delete(internalCacheUrl))
-        .then(() => setSubmitButtonKind("primary"))
-        .then(() => notify(lang("Created new room", "নতুন রুম তৈরি হয়েছে", "नया रूम बनाया गया"), "success"))
-        .then(() => dialog.hide())
-        .catch((e) => {
-          notify(e, "error");
-          setSubmitButtonKind("primary");
-        });
-    }
+    setSubmitButtonKind("loading");
+    let totalSize = addFilesArr.reduce((acc, f) => acc + f.size, 0);
+
+    notify(
+      lang(
+        `Uploading ${sizehuman(totalSize)}. This may take a long time. Please be patient.`,
+        `${sizehuman(totalSize)} আপলোড হচ্ছে। এটি অনেক সময় নিতে পারে। দয়া করে ধৈর্য ধরুন।`,
+        `${sizehuman(totalSize)} अपलोड हो रहा है। इसमें बहुत समय लग सकता है। कृपया धैर्य रखें।`
+      ),
+      "info"
+    );
+
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
+      .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
+      .then(() => setSubmitButtonKind("primary"))
+      .then(() => notify(lang("Room updated", "রুম আপডেট হয়েছে", "रूम अपडेट हो गया है"), "success"))
+      .then(() => dialog.hide())
+      .catch((e) => {
+        notify(e, "error");
+        setSubmitButtonKind("primary");
+      });
   }
 
   /**
@@ -194,65 +154,52 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
    * @returns {void}
    */
   function handleSubmitSync(e) {
-    e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
-
-    if (
-      !landmarkInput.current ||
-      !addressInput.current ||
-      !cityInput.current ||
-      !stateInput.current ||
-      !capacityInput.current ||
-      !pricePerOccupantInput.current
-    ) {
-      console.error("undefined input refs");
-      notify(
-        lang("Input error, please try again", "ইনপুট ত্রুটি, আবার চেষ্টা করুন", "इनपुट त्रुटि, कृपया पुनः प्रयास करें"),
-        "error"
-      );
-      return;
-    }
-
+    e.preventDefault();
     handleSubmitAsync().catch((e) => notify(e, "error"));
   }
 
   return (
     <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
-      <h1 className="heading">{lang("Create New Room", "নতুন রুম তৈরি করুন", "नया रूम बनाएं")}</h1>
+      <h1 className="heading">{lang("Update Room", "রুম আপডেট করুন", "रूम अपडेट करें")}</h1>
 
       <div className="editable-container">
         <div className="textedit-container">
           <input
             required
             disabled={viewOnly}
-            ref={landmarkInput}
             type="text"
             placeholder={lang("Landmark", "ল্যান্ডমার্ক", "लैंडमार्क")}
             name="landmark"
+            value={landmark}
+            onChange={(e) => setLandmark(e.target.value)}
           />
           <input
             required
             disabled={viewOnly}
-            ref={addressInput}
             type="text"
             placeholder={lang("Address", "ঠিকানা", "पता")}
             name="address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
           <div className="pashapashi-container">
             <input
               required
               disabled={viewOnly}
-              ref={cityInput}
               type="text"
               placeholder={lang("City", "শহর", "शहर")}
               name="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
             />
             <input
               required
               disabled={viewOnly}
-              ref={stateInput}
               type="text"
               placeholder={lang("State", "রাজ্য", "राज्य")}
               name="state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
             />
           </div>
           <PillsInput
@@ -279,27 +226,24 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
             <input
               required
               disabled={viewOnly}
-              ref={capacityInput}
               type="number"
               placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
               name="capacity"
+              value={capacity}
+              onChange={(e) => setCapacity(Number(e.target.value))}
             />
             <input
               required
               disabled={viewOnly}
-              ref={pricePerOccupantInput}
               type="number"
               placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
               name="pricePerOccupant"
+              value={pricePerOccupant}
+              onChange={(e) => setPricePerOccupant(Number(e.target.value))}
             />
           </div>
 
-          <select
-            required
-            value={acceptGender}
-            onChange={(e) => setAcceptGender(/** @type {GenderOptions} */ (e.target.value))}
-          >
-            <option value="">{lang("Choose gender", "লিঙ্গ নির্বাচন করুন", "लिंग चुनें")}</option>
+          <select disabled value={acceptGender}>
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
@@ -315,6 +259,23 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
             <option value="PROFESSIONAL">{lang("Professional", "পেশাদার", "प्रोफेशनल")}</option>
             <option value="ANY">{lang("Any", "যেকোনো", "कोई भी")}</option>
           </select>
+
+          {/* Added unavailable checkbox with styling */}
+          <div className="checkbox-container">
+            <label htmlFor="isUnavailable" className="checkbox-label">
+              <input
+                type="checkbox"
+                id="isUnavailable"
+                name="isUnavailable"
+                checked={isUnavailable}
+                onChange={(e) => setIsUnavailable(e.target.checked)}
+                disabled={viewOnly}
+              />
+              <span className="checkbox-text">
+                {lang("Mark as unavailable", "অনুপলব্ধ হিসাবে চিহ্নিত করুন", "अनुपलब्ध के रूप में चिह्नित करें")}
+              </span>
+            </label>
+          </div>
         </div>
 
         <div className="filedit-container">
@@ -325,20 +286,11 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       <div className="submit-container">
         <ButtonText
           disabled={viewOnly}
-          name="save-draft"
-          title={lang("Save Draft", "ড্রাফ্ট সংরক্ষণ করুন", "ड्राफ्ट सेव करें")}
-          rounded="all"
-          kind="secondary"
-          onClick={() => setSubmitAction("save-draft")}
-        />
-        <ButtonText
-          disabled={viewOnly}
           width="15%"
           name="submit"
-          title={lang("New Room", "নতুন রুম", "नया रूम")}
+          title={lang("Update Room", "রুম আপডেট করুন", "रूम अपडेट करें")}
           rounded="all"
           kind={submitButtonKind}
-          onClick={() => setSubmitAction("submit")}
         />
       </div>
 
