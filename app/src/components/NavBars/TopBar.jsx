@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
 import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
+import { CachePaths } from "@/modules/util/caching";
 import ImageLoader from "@/components/ImageLoader";
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
@@ -124,7 +125,8 @@ export default function TopBar({ children }) {
         // prettier-ignore
         compUsr.authCtx
           .logOut()
-          .then(() => caches.delete("custom-ImageLoader-cache-v1"))
+          .then(() => caches.delete(CachePaths.IMAGE_LOADER))
+          .then(() => caches.delete(CachePaths.SECTION_ROOM_FORM))
           .then((status) => status && notify(lang("Image cache cleared", "ইমেজ ক্যাশ সাফ করা হয়েছে", "इमेज कैश साफ किया गया है"), "warning"))
           .catch((e) => notify(e, "error"));
         searchParams.delete("action");

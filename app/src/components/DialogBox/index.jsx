@@ -1,22 +1,24 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
-import DialogBoxContext from "@/contexts/dialogbox.jsx";
-
+import React, { useLayoutEffect, useState } from "react";
 import "./styles.css";
 
 const DIALOG_ANIM_DURATION = 250;
 
 /**
- * Renders the dialog box with an animated overlay.
- *
- * This component uses context to manage its state, including the dialog's content, animation states, and size settings.
- * It listens for window resize events to update its dimensions and adjusts the dialog's maximum width based on the current "size" setting.
- * When the overlay is clicked, it initiates closing animations and clears the content after the animation duration.
- *
- * @returns {React.JSX.Element | null} The dialog box element with overlay animations, or null if the dialog is inactive.
+ * @param {{
+ *   modal: {
+ *     id: string,
+ *     children: React.JSX.Element,
+ *     size: "small" | "large" | "fullwidth",
+ *     overlayState: "fadeIn" | "fadeOut" | "gone",
+ *     dialogState: "scaleIn" | "scaleOut" | "gone"
+ *   },
+ *   zIndex: number,
+ *   onClose: () => void
+ * }} props
+ * @returns {React.JSX.Element | null}
  */
-export default function DialogBox() {
-  const { children, setChildren, overlayState, dialogState, size, setOverlayState, setDialogState } =
-    useContext(DialogBoxContext);
+export default function DialogBox({ modal, zIndex, onClose }) {
+  const { children, size, overlayState, dialogState } = modal;
 
   const [clientDims, setClientDims] = useState({
     w: document.body.clientWidth,
@@ -27,22 +29,24 @@ export default function DialogBox() {
     const updateClientDims = () =>
       setClientDims({
         w: document.body.clientWidth,
-        h: document.body.clientHeight, // no change in height on resize - redundant
+        h: document.body.clientHeight,
       });
 
     window.addEventListener("resize", updateClientDims);
     return () => window.removeEventListener("resize", updateClientDims);
   }, []);
 
-  if (overlayState === "gone") return null;
-  if (dialogState === "gone") return null;
+  if (overlayState === "gone" || dialogState === "gone") return null;
 
   const overlayAnimStyle = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
+    cursor: size === "fullwidth" ? "not-allowed" : "default",
+    zIndex: zIndex,
   };
 
   const dialogAnimStyle = {
     animation: `${dialogState} ${DIALOG_ANIM_DURATION}ms forwards`,
+    cursor: "default",
   };
 
   if (size === "fullwidth") {
@@ -65,9 +69,8 @@ export default function DialogBox() {
       className="components-DialogBox"
       style={overlayAnimStyle}
       onClick={() => {
-        setOverlayState("fadeOut");
-        setDialogState("scaleOut");
-        setTimeout(() => setChildren(null), DIALOG_ANIM_DURATION);
+        if (size === "fullwidth") return;
+        onClose();
       }}
     >
       <div className="dialog-box" style={dialogAnimStyle} onClick={(e) => e.stopPropagation()}>

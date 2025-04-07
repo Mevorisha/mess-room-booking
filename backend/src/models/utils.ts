@@ -15,17 +15,6 @@ interface UrlCacheData {
 
 const UrlCache = new Map<string, UrlCacheData>();
 
-/**
- * Retrieves a signed URL for a given Google Cloud Storage path, utilizing caching to optimize repeated access.
- *
- * The function first checks if a valid cached URL exists for the provided path. A URL is considered valid if
- * its expiration time remains at least 2 minutes ahead of the current time. If such a cached URL is found,
- * its last-used timestamp is updated before it is returned. Otherwise, the function generates a new signed URL
- * using Firebase Storage with a 15-minute validity period, caches the result, and schedules a cache cleanup.
- *
- * @param path - The file path in Google Cloud Storage.
- * @returns A promise that resolves to the signed URL string.
- */
 export async function gsPathToUrl(path: string): Promise<string> {
   const accessDelay = /* 2 min */ 2 * 60 * 1000;
   if (UrlCache.has(path) && UrlCache.get(path)) {
@@ -62,14 +51,7 @@ const MAX_CACHE_SIZE = 100;
 let lastCleanupTime = 0;
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-/**
- * Cleans up the URL cache by removing expired entries and limiting its size.
- *
- * This function first checks if the time elapsed since the last cleanup is greater than CLEANUP_INTERVAL.
- * If so, it removes all cache entries that have expired. Additionally, if the cache size still exceeds
- * MAX_CACHE_SIZE after removing expired entries, it deletes the least recently used entries until the
- * cache size is within the allowed limit.
- */
+// Function to clean up the cache
 function cleanupCache() {
   const now = Date.now();
   

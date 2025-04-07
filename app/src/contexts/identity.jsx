@@ -28,38 +28,8 @@ export default IdentityContext;
 /* ------------------------------------ IDENTITY PROVIDER COMPONENT ----------------------------------- */
 
 /**
- * Provides identity management functionalities via React context.
- *
- * This component wraps its children with an IdentityContext.Provider that exposes asynchronous functions for
- * uploading identity photos and updating their visibility. It integrates with the user context to update state,
- * clear cached images, and notify the user when changes occur.
- *
- * @param {Object} props - Component properties.
- * @param {*} props.children - Child components that will have access to identity management functions.
- * @returns {React.JSX.Element} The provider element supplying identity management context.
- */
-
-/**
- * Uploads identity documents and updates the user identity photo data.
- *
- * Processes the provided work and/or government ID files by uploading them, purging cached image versions, and
- * refreshing the user context with new image data. If neither file is provided, it returns early with undefined values.
- *
- * @param {Object} images - The identity document files to update.
- * @param {File} [images.workId] - Optional file for the work identification document.
- * @param {File} [images.govId] - Optional file for the government identification document.
- * @returns {Promise<Object>} Resolves with an object containing the medium image URLs for the updated documents.
- */
-
-/**
- * Updates the visibility settings of identity documents.
- *
- * Sends requests to adjust the visibility (PUBLIC or PRIVATE) of specified identity photos and updates the user context accordingly.
- * The operation notifies the user throughout the process.
- *
- * @param {Object} images - Visibility settings for identity documents.
- * @param {"PUBLIC"|"PRIVATE"} [images.workId] - New visibility for the work ID document.
- * @param {"PUBLIC"|"PRIVATE"} [images.govId] - New visibility for the government ID document.
+ * @param {{ children: any }} props
+ * @returns {React.JSX.Element}
  */
 export function IdentityProvider({ children }) {
   const notify = useNotification();

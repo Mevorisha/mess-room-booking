@@ -69,7 +69,7 @@ export function AccountProvider({ children }) {
             "success"
           )
         ),
-    [notify, dispatchUser]
+    [dispatchUser, notify]
   );
 
   const verifyPhoneVerificationCode = useCallback(

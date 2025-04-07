@@ -4,6 +4,15 @@
   flex-direction: column;
 }
 
+.pages-OwnerRooms-SectionRoomForm .heading {
+  padding: var(--pad-3);
+  padding-top: var(--pad-4);
+  padding-bottom: var(--pad-1);
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
 .pages-OwnerRooms-SectionRoomForm .editable-container {
   display: flex;
   flex-direction: row;
@@ -69,6 +78,14 @@
   width: calc(50% - var(--pad-3));
   padding: var(--pad-3);
   padding-left: var(--pad-0);
+}
+
+@media (max-width: 500px) {
+  .pages-OwnerRooms-SectionRoomForm .editable-container .filedit-container {
+    width: calc(100% - 2 * var(--pad-3));
+    padding: var(--pad-3);
+    padding-top: var(--pad-0);
+  }
 }
 
 .pages-OwnerRooms-SectionRoomForm .submit-container {

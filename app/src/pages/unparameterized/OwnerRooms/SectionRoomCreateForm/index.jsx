@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData } from "@/modules/util/dataConversion.js";
+import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
+import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
 import ButtonText from "@/components/ButtonText/index.jsx";
-import { lang } from "@/modules/util/language.js";
+import ImageFilesInput from "@/components/ImageFilesInput";
+import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
@@ -37,14 +40,9 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  */
 
 /**
- * Renders a room creation form that supports draft caching and submission.
- *
- * The form allows users to input room details such as location, capacity, and tags. If a cache URL
- * is provided via the `draftCacheUrl` prop, the form is pre-populated with saved draft data.
- *
- * @param {Object} props - Component properties.
- * @param {string} [props.draftCacheUrl] - Optional URL to retrieve cached form data.
- * @returns {JSX.Element} The rendered room creation form.
+ * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
+ * @param {{ draftCacheUrl?: string }} props
+ * @returns {React.JSX.Element}
  */
 export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const viewOnly = false;
@@ -57,16 +55,16 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const [acceptGender, setAcceptGender] = useState(/** @type {GenderOptions} */ (""));
   const [acceptOccupation, setAcceptOccupation] = useState(/** @type {OccupationOptions} */ (""));
   const [searchTagsSet, setSearchTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const landmarkInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const addressInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const cityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const stateInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const landmarkInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const addressInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const cityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const stateInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
   const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const capacityInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
-  const pricePerOccupantInput = /** @type {React.MutableRefObject<HTMLInputElement>} */ (useRef());
+  const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
-  const [filesSet, setFilesSet] = useState(/** @type {Set<File>} */ (new Set()));
+  const [filesSet, setFilesSet] = useState(/** @type {StringySet<FileRepr>} */ (new StringySet()));
 
   const [submitAction, setSubmitAction] = useState(/** @type {"save-draft" | "submit"} */ ("save-draft"));
 
@@ -105,21 +103,19 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
         if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
 
-        setFilesSet(new Set(data.files.map(base64FileDataToFile)));
+        setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map(FileRepr.from)));
       })
       .catch((e) => notify(e, "error"));
   }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
 
-  /**
-   * Asynchronously processes and submits the room form data.
-   *
-   * This function gathers values from input fields and converts attached files to base64 format to build a form data object. Depending on the current submit action, it either saves the form data as a draft in a client-side cache (updating the cache URL as needed) or submits the data to a backend API. On a draft save, it caches the JSON stringified form data and notifies the user of success; on submission, it updates the UI state, calls the API, clears the cached entry, and notifies the user based on the outcome.
-   *
-   * @remark Ensure that event default prevention (e.g., e.preventDefault()) is handled in the synchronous submit function before invoking this asynchronous function.
-   */
   async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
-    const base64Files = await Promise.all(Array.from(filesSet).map(fileToBase64FileData));
+
+    const filesArray = Array.from(filesSet)
+      .filter((fr) => fr.isFile())
+      .map((fr) => fr.getFile());
+
+    const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
     /**
      * @type {CachableDraftFormData}
      */
@@ -145,6 +141,12 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
       const cacheUrl = internalCacheUrl || (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
       await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));
+
+      // DEBUG: duplicate same response 10 times with different urls
+      // for (let i = 0; i < 10; i++) {
+      //   await cache.put(`${cacheUrl}-${i}`, new Response(jsonString, { status: 200 }));
+      // }
+
       if (internalCacheUrl !== cacheUrl) {
         // update last cache url if createNewCacheUrl called
         await putLastCacheUrl(SECTION_ROOM_FORM_CACHE_PATH, cacheUrl);
@@ -164,13 +166,22 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
     // submit to backend
     else if (submitAction === "submit") {
       setSubmitButtonKind("loading");
+      let totalSize = filesArray.reduce((acc, f) => acc + f.size, 0);
+      notify(
+        lang(
+          `Uploading ${sizehuman(totalSize)}. This may take a long time. Please be patient.`,
+          `${sizehuman(totalSize)} আপলোড হচ্ছে। এটি অনেক সময় নিতে পারে। দয়া করে ধৈর্য ধরুন।`,
+          `${sizehuman(totalSize)} अपलोड हो रहा है। इसमें बहुत समय लग सकता है। कृपया धैर्य रखें।`
+        ),
+        "info"
+      );
       apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))
         .then((cache) => cache.delete(internalCacheUrl))
         .then(() => setSubmitButtonKind("primary"))
         .then(() => notify(lang("Created new room", "নতুন রুম তৈরি হয়েছে", "नया रूम बनाया गया"), "success"))
-        // .then(() => dialog.hide())
+        .then(() => dialog.hide())
         .catch((e) => {
           notify(e, "error");
           setSubmitButtonKind("primary");
@@ -179,14 +190,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   }
 
   /**
-   * Synchronously handles the form submission event.
-   *
-   * Prevents the browser's default behavior to ensure that any cached modifications are applied before submission.
-   * It verifies that all required input references are available; if any are missing, it logs an error and notifies the user.
-   * Upon successful validation, it initiates asynchronous form submission via {@link handleSubmitAsync},
-   * catching and notifying any errors that occur during the process.
-   *
-   * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+   * @param {React.FormEvent<HTMLFormElement>} e
+   * @returns {void}
    */
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
@@ -212,6 +217,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
 
   return (
     <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
+      <h1 className="heading">{lang("Create New Room", "নতুন রুম তৈরি করুন", "नया रूम बनाएं")}</h1>
+
       <div className="editable-container">
         <div className="textedit-container">
           <input
@@ -310,7 +317,9 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
           </select>
         </div>
 
-        <div className="filedit-container">{/* TODO: Add multi-file input */}</div>
+        <div className="filedit-container">
+          <ImageFilesInput required minRequired={2} filesSet={filesSet} setFilesSet={setFilesSet} />
+        </div>
       </div>
 
       <div className="submit-container">

@@ -16,14 +16,8 @@ export async function createNewCacheUrl(cacheName) {
 }
 
 /**
- * Updates the stored "last-id" in the specified cache using a numeric identifier extracted from a URL.
- *
- * The function extracts the identifier by splitting the provided URL by hyphens, reversing the resulting array,
- * and converting the last element to a number. It then opens the cache with the given name and stores the identifier
- * as a JSON string under the key "last-id".
- *
- * @param {string} cacheName - The name of the cache to update.
- * @param {string} newUrl - The URL from which to extract the numeric identifier.
+ * @param {string} cacheName
+ * @param {string} newUrl
  */
 export async function putLastCacheUrl(cacheName, newUrl) {
   const lastId = Number(newUrl.split("-").reverse()[0]);
