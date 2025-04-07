@@ -102,7 +102,7 @@ export default function SectionRoomUpdateForm({ roomData }) {
 
     // keep URLs, and delete all others
     const keepFilesArr = Array.from(filesSet)
-      .filter((fr) => fr.getUri())
+      .filter((fr) => fr.isUri())
       .map((fr) => fr.getUri());
 
     const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
