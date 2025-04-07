@@ -11,6 +11,7 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  *
  * response = {
  *   id: string
+ *   ownerId: string
  *   images: Array<string>
  *   acceptGender: "MALE" | "FEMALE" | "OTHER"
  *   acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
@@ -57,11 +58,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     SchemaFields.CAPACITY,
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.OWNER_ID,
+    SchemaFields.IS_UNAVAILABLE,
   ];
-
-  // Check if user is logged in and is the room owner
-  const authResult = await getLoggedInUser(req);
-  let isOwner = false;
 
   // Get room data
   const roomData = await Room.get(roomId, "API_URI", fields);
@@ -69,32 +67,19 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     throw CustomApiError.create(404, "Room not found");
   }
 
-  // If user is authenticated, check if they are the room owner
+  // If user is authenticated, check if they are the room owner, and if not, delete sensitive room data
+  // Additionally, if the room is marked isUnavailable, return 404
+  const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
-    const loggedInUid = authResult.getUid();
-    if (loggedInUid === roomData.ownerId) {
-      isOwner = true;
-      // Fetch additional owner-only field
-      const ownerRoomData = await Room.get(roomId, "API_URI", [...fields, SchemaFields.IS_UNAVAILABLE]);
-
-      // Format response
-      const response = {
-        id: roomId,
-        ...ownerRoomData,
-        // Convert Sets back to arrays if they aren't already
-        searchTags: Array.from(ownerRoomData.searchTags || []),
-        majorTags: Array.from(ownerRoomData.majorTags || []),
-        minorTags: Array.from(ownerRoomData.minorTags || []),
-      };
-
-      // Remove ownerId from the response
-      delete response.ownerId;
-
-      return respond(res, { status: 200, json: response });
+    if (authResult.getUid() !== roomData.ownerId) {
+      if (roomData.isUnavailable) {
+        throw CustomApiError.create(404, "Room not found");
+      }
+      delete roomData.isUnavailable;
     }
   }
 
-  // Format response for non-owners
+  // Format response
   const response = {
     id: roomId,
     ...roomData,
@@ -103,9 +88,6 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     majorTags: Array.from(roomData.majorTags || []),
     minorTags: Array.from(roomData.minorTags || []),
   };
-
-  // Remove ownerId from the response
-  delete response.ownerId;
 
   return respond(res, { status: 200, json: response });
 });
