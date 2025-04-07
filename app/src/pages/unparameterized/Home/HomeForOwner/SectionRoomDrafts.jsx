@@ -74,17 +74,13 @@ export default function SectionDrafts({ handleAddNewRoom }) {
 
   /**
    * @param {string} draftUrl
-   * @returns {Promise<void>}
    */
-  async function handleDeleteDraft(draftUrl) {
-    try {
-      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
-      await cache.delete(draftUrl);
-      // Refresh the drafts list
-      loadDrafts();
-    } catch (error) {
-      console.error("Error deleting draft:", error);
-    }
+  function handleDeleteDraft(draftUrl) {
+    caches
+      .open(CachePaths.SECTION_ROOM_FORM)
+      .then((cache) => cache.delete(draftUrl))
+      .then(() => loadDrafts())
+      .catch((e) => notify(e, "error"));
   }
 
   useEffect(() => loadDrafts() && void 0, [loadDrafts]);
