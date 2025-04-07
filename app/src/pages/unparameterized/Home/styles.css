@@ -179,7 +179,7 @@
 
 .pages-Home .draft-actions {
   display: flex;
-  gap: var(--pad-2);
+  gap: var(--pad-1);
 }
 
 .pages-Home .edit-draft-button {
@@ -187,7 +187,8 @@
   color: #333;
   border: none;
   border-radius: var(--rounded-rad);
-  padding: var(--pad-1) var(--pad-2);
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   white-space: nowrap;
   font-size: 0.9rem;
@@ -203,15 +204,14 @@
   background-color: #ffeeee;
   color: #d32f2f;
   border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: var(--rounded-rad);
+  width: 30px;
+  height: 30px;
   cursor: pointer;
+  white-space: nowrap;
   font-size: 0.9rem;
   transition: background-color 0.15s;
+  font-weight: 500;
 }
 
 .pages-Home .delete-draft-button:hover {

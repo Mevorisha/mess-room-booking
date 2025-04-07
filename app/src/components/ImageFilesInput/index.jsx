@@ -241,6 +241,7 @@ function NotEmptyFilesInput(props) {
             <div className="add-file-container">
               <button
                 className={`btn-add ${disabled ? "disabled" : ""}`}
+                title={lang("Add file", "ফাইল অ্যাড করুন", "फ़ाइल ऐड करें")}
                 onClick={(e) =>
                   !disabled &&
                   Promise.resolve(e)
@@ -256,10 +257,13 @@ function NotEmptyFilesInput(props) {
             </div>
           )}
           {!disabled && (
-            <div className="clearall-container clearbtn-container">
+            <div
+              className="clearall-container clearbtn-container"
+              title={lang("Delete", "সব ফাইল ডিলিট করুন", "सभी फ़ाइलें डिलीट करें")}
+            >
               <i
                 onClick={!disabled ? handleClearAll : undefined}
-                className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
+                className={`btn-clear ${disabled ? "disabled" : ""} fa fa-trash`}
               />
             </div>
           )}
@@ -299,7 +303,7 @@ function NotEmptyFilesInput(props) {
                 </div>
 
                 {!disabled && (
-                  <div className="clearfile-container clearbtn-container">
+                  <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
                       onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
@@ -332,7 +336,7 @@ function NotEmptyFilesInput(props) {
                 </div>
 
                 {!disabled && (
-                  <div className="clearfile-container clearbtn-container">
+                  <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
                       onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}

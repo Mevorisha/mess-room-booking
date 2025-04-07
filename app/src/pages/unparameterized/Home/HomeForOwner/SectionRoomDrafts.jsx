@@ -144,15 +144,19 @@ export default function SectionDrafts({ handleAddNewRoom }) {
                   </div>
                 </div>
                 <div className="draft-actions">
-                  <button className="edit-draft-button" onClick={() => handleOpenDraft(draft.url)}>
-                    {lang("Edit", "সম্পাদনা", "संपादित करें")}
+                  <button
+                    className="edit-draft-button"
+                    onClick={() => handleOpenDraft(draft.url)}
+                    title={lang("Edit", "এডিট করুন", "एडिट करें")}
+                  >
+                    <i className="fa fa-pencil" aria-hidden="true"></i>
                   </button>
                   <button
                     className="delete-draft-button"
                     onClick={() => handleDeleteDraft(draft.url)}
                     title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
                   >
-                    ×
+                    <i className="fa fa-trash" aria-hidden="true"></i>
                   </button>
                 </div>
               </div>

@@ -215,11 +215,15 @@
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: rgba(216, 216, 216, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   z-index: 2;
 }
 
-.components-ImageFilesInput .files-grid .file-item .clearfile-container .btn-clear:hover {
-  background-color: #f4f4f45c;
+.components-ImageFilesInput .files-grid .file-item .clearfile-container:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.components-ImageFilesInput .files-grid .file-item .clearfile-container:hover .btn-clear {
+  color: #555;
 }
