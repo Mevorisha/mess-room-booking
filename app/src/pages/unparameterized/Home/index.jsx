@@ -6,38 +6,11 @@ import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
-import ButtonText from "@/components/ButtonText";
-import NavBars from "@/components/NavBars";
 import LoadingPage from "@/pages/unparameterized/Loading";
+import HomeForOwner from "./HomeForOwner";
+import HomeForTenant from "./HomeForTenant";
 
 import "./styles.css";
-import HomeForOwner from "./SectionHomeForOwner";
-
-/**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
- */
-function HomeForTenant({ user }) {
-  return (
-    <div className="pages-Home">
-      <NavBars>
-        <>
-          <ButtonText rounded="all" title="Rooms" kind="primary" width="50%" />
-          <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
-        </>
-      </NavBars>
-      <div className="content-container">
-        <div className="contents">
-          <ul className="content-list">
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /**
  * @returns {React.JSX.Element}
