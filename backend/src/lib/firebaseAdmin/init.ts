@@ -100,7 +100,7 @@ class StoragePaths {
     getImageIdFromGsPath: (gsPath: string) => gsPath.split("/").reverse()[0],
 
     apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz = "large"): string =>
-      `${config.ApiPaths.ROOMS}${roomId}/${imageId}/readImage?size=${size}`,
+      `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
   };
 
   static FeedbackPhotos = (uid: string, code: string): string => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
