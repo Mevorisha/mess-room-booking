@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 /**
@@ -7,14 +7,17 @@ import DialogBoxContext from "@/contexts/dialogbox.jsx";
  *   createNewModalId: () => string,
  *   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "fullwidth") => void,
  *   hideStacked: (id: string) => void,
+ *   hideTopModal: () => void
+ *   isVisible: boolean,
  *   show: (children: React.JSX.Element, size?: "small" | "large" | "fullwidth") => string,
  *   hide: () => void,
- *   hideTopModal: () => void
  * }}
  */
 export default function useDialogBox() {
   const { addModal, removeModal, removeTopModal } = useContext(DialogBoxContext);
   const idCounterRef = useRef(0);
+
+  const [isVisible, setIsVisible] = useState(false);
 
   // Generate a unique ID for auto-generated modals
   const __mkAutoId = useCallback(() => {
@@ -61,13 +64,17 @@ export default function useDialogBox() {
     (children, size = "small") => {
       const id = __mkAutoId();
       addModal(id, children, size);
+      setIsVisible(true);
       return id;
     },
     [addModal, __mkAutoId]
   );
 
   // New simplified hide function
-  const hide = useCallback(() => removeTopModal(), [removeTopModal]);
+  const hide = useCallback(() => {
+    removeTopModal();
+    setIsVisible(false);
+  }, [removeTopModal]);
 
   // Keep the existing hideTopModal for backwards compatibility
   const hideTopModal = useCallback(() => {
@@ -81,6 +88,7 @@ export default function useDialogBox() {
     hideStacked,
     hideTopModal,
     // Legacy API
+    isVisible,
     show,
     hide,
   };
