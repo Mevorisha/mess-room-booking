@@ -12,12 +12,11 @@ const DIALOG_ANIM_DURATION = 250;
  *     overlayState: "fadeIn" | "fadeOut" | "gone",
  *     dialogState: "scaleIn" | "scaleOut" | "gone"
  *   },
- *   zIndex: number,
  *   onClose: () => void
  * }} props
  * @returns {React.JSX.Element | null}
  */
-export default function DialogBox({ modal, zIndex, onClose }) {
+export default function DialogBox({ modal, onClose }) {
   const { children, size, overlayState, dialogState } = modal;
 
   const [clientDims, setClientDims] = useState({
@@ -41,7 +40,6 @@ export default function DialogBox({ modal, zIndex, onClose }) {
   const overlayAnimStyle = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
     cursor: size === "fullwidth" ? "not-allowed" : "default",
-    zIndex: zIndex,
   };
 
   const dialogAnimStyle = {
