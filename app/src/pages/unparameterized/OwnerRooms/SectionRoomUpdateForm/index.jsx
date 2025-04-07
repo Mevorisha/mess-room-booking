@@ -25,6 +25,7 @@ import "./styles.css";
  * NOTE: `isUnavailable` is only set if room owner fetchig room details.
  * @typedef {Object} RoomData
  * @property {string} id
+ * @property {string} ownerId
  * @property {Array<string>} images
  * @property {boolean} isUnavailable
  * @property {GenderOptions} acceptGender
