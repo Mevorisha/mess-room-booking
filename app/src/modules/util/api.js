@@ -94,7 +94,37 @@ export class ApiPaths {
   static Rooms = {
     create: () => `${ApiPaths.ROOMS}/create`,
 
-    readListOnQuery: () => `${ApiPaths.ROOMS}/readListOnQuery`,
+    /**
+     * @param {Object} query
+     * @param {boolean} [query.self]
+     * @param {'MALE'|'FEMALE'|'OTHER'} [query.acceptGender]
+     * @param {'STUDENT'|'PROFESSIONAL'|'ANY'} [query.acceptOccupation]
+     * @param {string} [query.landmark]
+     * @param {string} [query.city]
+     * @param {string} [query.state]
+     * @param {number} [query.capacity]
+     * @param {number} [query.lowPrice]
+     * @param {number} [query.highPrice]
+     * @param {string[]} [query.searchTags]
+     * @returns {string}
+     */
+    readListOnQuery: (query = {}) => {
+      const params = new URLSearchParams();
+
+      if (query.self !== undefined) params.append("self", "" + query.self);
+      if (query.acceptGender) params.append("acceptGender", query.acceptGender);
+      if (query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
+      if (query.landmark) params.append("landmark", query.landmark);
+      if (query.city) params.append("city", query.city);
+      if (query.state) params.append("state", query.state);
+      if (query.capacity) params.append("capacity", "" + query.capacity);
+      if (query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
+      if (query.highPrice) params.append("highPrice", "" + query.highPrice);
+      if (query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
+
+      const queryString = params.toString();
+      return `${ApiPaths.ROOMS}/readListOnQuery${queryString ? "?" + queryString : ""}`;
+    },
 
     /** @param {string} roomId */
     createImage: (roomId) => `${ApiPaths.ROOMS}/${roomId}/createImage`,
