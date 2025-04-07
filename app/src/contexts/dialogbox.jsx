@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import DialogBox from  "@/components/DialogBox";
+import DialogBox from "@/components/DialogBox";
 
 const DialogBoxContext = createContext({
   modalStack:
@@ -92,7 +92,7 @@ export function DialogBoxProvider({ children }) {
     >
       {children}
       {modalStack.map((modal, index) => (
-        <DialogBox key={modal.id} modal={modal} zIndex={1000 + index} onClose={() => removeModal(modal.id)} />
+        <DialogBox key={modal.id} modal={modal} onClose={() => removeModal(modal.id)} />
       ))}
     </DialogBoxContext.Provider>
   );
