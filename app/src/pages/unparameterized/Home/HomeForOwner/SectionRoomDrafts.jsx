@@ -105,10 +105,10 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       ) : drafts.length > 0 ? (
         <ul className="content-list">
           {drafts.map((draft, index) => (
-            <li key={index} className="content-item draft-item">
-              <div className="draft-preview">
+            <li key={index} className="content-item item-item">
+              <div className="item-preview">
                 {draft.firstImage && (
-                  <div className="draft-image">
+                  <div className="item-image">
                     <img
                       src={URL.createObjectURL(base64FileDataToFile(draft.firstImage))}
                       alt={draft.landmark}
@@ -122,14 +122,14 @@ export default function SectionDrafts({ handleAddNewRoom }) {
                     />
                   </div>
                 )}
-                <div className="draft-info">
-                  <div className="draft-landmark" title={draft.landmark}>
+                <div className="item-info">
+                  <div className="item-landmark" title={draft.landmark}>
                     {draft.landmark}
                   </div>
-                  <div className="draft-location">
+                  <div className="item-location">
                     {draft.city}, {draft.state}
                   </div>
-                  <div className="draft-tags">
+                  <div className="item-tags">
                     {/* Show only 2 search tags and 1 major tag */}
                     {draft.searchTags.slice(0, 2).map((tag, idx) => (
                       <span key={idx} className="tag search-tag">
@@ -143,7 +143,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
                     ))}
                   </div>
                 </div>
-                <div className="draft-actions">
+                <div className="item-actions">
                   <button
                     className="edit-item-button"
                     onClick={() => handleOpenDraft(draft.url)}
