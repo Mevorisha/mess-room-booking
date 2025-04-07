@@ -22,9 +22,11 @@ import "./styles.css";
 
 /**
  * This is the data received from backend and used to populate the room form.
+ * NOTE: `isUnavailable` is only set if room owner fetchig room details.
  * @typedef {Object} RoomData
  * @property {string} id
  * @property {Array<string>} images
+ * @property {boolean} isUnavailable
  * @property {GenderOptions} acceptGender
  * @property {OccupationOptions} acceptOccupation
  * @property {string[]} searchTags
@@ -44,7 +46,6 @@ import "./styles.css";
  * - `acceptGender`
  *
  *  Additional fields in update data:
- * - `isUnavailable` - Hide room from search results
  * - `keepFiles` - Keep images after update, delete others
  * - `addFiles` - Upload new images
  * @typedef {Object} RoomUpdateData
@@ -85,7 +86,7 @@ export default function SectionRoomUpdateForm({ roomData }) {
   const [minorTagsSet, setMinorTagsSet] = useState(new Set(roomData.minorTags));
   const [capacity, setCapacity] = useState(roomData.capacity);
   const [pricePerOccupant, setPricePerOccupant] = useState(roomData.pricePerOccupant);
-  const [isUnavailable, setIsUnavailable] = useState(false);
+  const [isUnavailable, setIsUnavailable] = useState(roomData.isUnavailable);
 
   // Initialize filesSet with images from roomData
   const [filesSet, setFilesSet] = useState(new StringySet(roomData.images.map((url) => FileRepr.from(url))));
