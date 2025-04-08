@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 import ImageLoader from "@/components/ImageLoader";
 
@@ -10,15 +10,16 @@ import "./styles.css";
  */
 export default function DialogImagePreview({ largeImageUrl }) {
   const dialog = useDialog();
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <div className="components-DialogImagePreview">
       {largeImageUrl.startsWith("blob:") ? (
         <img src={largeImageUrl} alt="preview" />
       ) : (
-        <ImageLoader src={largeImageUrl} alt="preview" requireAuth />
+        <ImageLoader src={largeImageUrl} alt="preview" requireAuth onLoad={() => setLoaded(true)} />
       )}
-      <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />
+      {loaded && <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />}
     </div>
   );
 }

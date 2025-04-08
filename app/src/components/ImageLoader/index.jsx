@@ -456,6 +456,9 @@ export default function ImageLoader(props) {
    */
   const animationStyles = {
     objectFit: "scale-down",
+    minWidth: "200px",
+    maxWidth: "500px",
+    width: "calc(100vw - 2 * var(--pad-8))",
   };
 
   const newProps = { ...props };
