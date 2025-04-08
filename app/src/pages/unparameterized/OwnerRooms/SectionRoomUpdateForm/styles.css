@@ -49,6 +49,32 @@
   border: 1px solid var(--color-light);
 }
 
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  gap: var(--pad-1);
+  width: calc(100% - 2 * var(--pad-2) - 100px);
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span .text {
+  color: #424242;
+}
+
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span input:not([type="submit"]) {
+  width: 100%;
+  padding: unset;
+  background-color: unset;
+  border-radius: unset;
+  border: unset;
+  margin: unset;
+}
+
 .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select {
   width: calc(100%);
   padding: var(--pad-3) var(--pad-2);

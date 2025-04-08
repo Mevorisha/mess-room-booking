@@ -85,8 +85,8 @@ export default function SectionRoomUpdateForm({ roomData }) {
   const [state, setState] = useState(roomData.state);
   const [majorTagsSet, setMajorTagsSet] = useState(new Set(roomData.majorTags));
   const [minorTagsSet, setMinorTagsSet] = useState(new Set(roomData.minorTags));
-  const [capacity, setCapacity] = useState(roomData.capacity);
-  const [pricePerOccupant, setPricePerOccupant] = useState(roomData.pricePerOccupant);
+  const [capacity, setCapacity] = useState("" + roomData.capacity);
+  const [pricePerOccupant, setPricePerOccupant] = useState("" + roomData.pricePerOccupant);
   const [isUnavailable, setIsUnavailable] = useState(roomData.isUnavailable);
 
   // Initialize filesSet with images from roomData
@@ -225,24 +225,30 @@ export default function SectionRoomUpdateForm({ roomData }) {
             setPillsSet={setMinorTagsSet}
           />
           <div className="pashapashi-container">
-            <input
-              required
-              disabled={viewOnly}
-              type="number"
-              placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
-              name="capacity"
-              value={capacity}
-              onChange={(e) => setCapacity(Number(e.target.value))}
-            />
-            <input
-              required
-              disabled={viewOnly}
-              type="number"
-              placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
-              name="pricePerOccupant"
-              value={pricePerOccupant}
-              onChange={(e) => setPricePerOccupant(Number(e.target.value))}
-            />
+            <span className="input-span">
+              <span className="text">{lang("No.", "নং", "सं.")}</span>
+              <input
+                required
+                disabled={viewOnly}
+                type="number"
+                placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
+                name="capacity"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </span>
+            <span className="input-span">
+              <span className="text">₹</span>
+              <input
+                required
+                disabled={viewOnly}
+                type="number"
+                placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
+                name="pricePerOccupant"
+                value={pricePerOccupant}
+                onChange={(e) => setPricePerOccupant(e.target.value)}
+              />
+            </span>
           </div>
 
           <select disabled value={acceptGender}>

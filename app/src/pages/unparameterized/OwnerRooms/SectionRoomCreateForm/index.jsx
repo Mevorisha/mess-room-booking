@@ -61,8 +61,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   const stateInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
   const [majorTagsSet, setMajorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
   const [minorTagsSet, setMinorTagsSet] = useState(/** @type {Set<string>} */ (new Set()));
-  const capacityInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
-  const pricePerOccupantInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const [capacity, setCapacity] = useState("");
+  const [pricePerOccupant, setPricePerOccupant] = useState("");
 
   const [filesSet, setFilesSet] = useState(/** @type {StringySet<FileRepr>} */ (new StringySet()));
 
@@ -75,15 +75,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
     // if draftCacheUrl not defined
     if (!draftCacheUrl) return;
     // if input elements not initialized
-    if (
-      !landmarkInput.current ||
-      !addressInput.current ||
-      !cityInput.current ||
-      !stateInput.current ||
-      !capacityInput.current ||
-      !pricePerOccupantInput.current
-    )
-      return;
+    if (!landmarkInput.current || !addressInput.current || !cityInput.current || !stateInput.current) return;
 
     caches
       .open(SECTION_ROOM_FORM_CACHE_PATH)
@@ -100,13 +92,13 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
         if (stateInput.current) stateInput.current.value = data.state;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
-        if (capacityInput.current) capacityInput.current.value = "" + data.capacity;
-        if (pricePerOccupantInput.current) pricePerOccupantInput.current.value = "" + data.pricePerOccupant;
+        setCapacity("" + data.capacity);
+        setPricePerOccupant("" + data.pricePerOccupant);
 
         setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map(FileRepr.from)));
       })
       .catch((e) => notify(e, "error"));
-  }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, capacityInput, pricePerOccupantInput, notify]);
+  }, [draftCacheUrl, landmarkInput, addressInput, cityInput, stateInput, notify]);
 
   async function handleSubmitAsync() {
     // e.preventDefault(); // <-- HAS to be done in handleSubmitSync synchronously
@@ -129,8 +121,8 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
       state: stateInput.current.value,
       majorTags: Array.from(majorTagsSet),
       minorTags: Array.from(minorTagsSet),
-      capacity: Number(capacityInput.current.value),
-      pricePerOccupant: Number(pricePerOccupantInput.current.value),
+      capacity: Number(capacity),
+      pricePerOccupant: Number(pricePerOccupant),
 
       files: base64Files,
     };
@@ -196,14 +188,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
   function handleSubmitSync(e) {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
 
-    if (
-      !landmarkInput.current ||
-      !addressInput.current ||
-      !cityInput.current ||
-      !stateInput.current ||
-      !capacityInput.current ||
-      !pricePerOccupantInput.current
-    ) {
+    if (!landmarkInput.current || !addressInput.current || !cityInput.current || !stateInput.current) {
       console.error("undefined input refs");
       notify(
         lang("Input error, please try again", "ইনপুট ত্রুটি, আবার চেষ্টা করুন", "इनपुट त्रुटि, कृपया पुनः प्रयास करें"),
@@ -276,22 +261,30 @@ export default function SectionRoomCreateForm({ draftCacheUrl }) {
             setPillsSet={setMinorTagsSet}
           />
           <div className="pashapashi-container">
-            <input
-              required
-              disabled={viewOnly}
-              ref={capacityInput}
-              type="number"
-              placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
-              name="capacity"
-            />
-            <input
-              required
-              disabled={viewOnly}
-              ref={pricePerOccupantInput}
-              type="number"
-              placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
-              name="pricePerOccupant"
-            />
+            <span className="input-span">
+              <span className="text">{lang("No.", "নং", "सं.")}</span>
+              <input
+                required
+                disabled={viewOnly}
+                type="number"
+                placeholder={lang("Capacity", "ক্ষমতা", "क्षमता")}
+                name="capacity"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </span>
+            <span className="input-span">
+              <span className="text">₹</span>
+              <input
+                required
+                disabled={viewOnly}
+                type="number"
+                placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
+                name="pricePerOccupant"
+                value={pricePerOccupant}
+                onChange={(e) => setPricePerOccupant(e.target.value)}
+              />
+            </span>
           </div>
 
           <select
