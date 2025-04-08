@@ -6,6 +6,7 @@ import { base64FileDataToFile } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 /**
  * @param {{ handleAddNewRoom: () => void }} props
@@ -149,7 +150,23 @@ export default function SectionDrafts({ handleAddNewRoom }) {
                   </button>
                   <button
                     className="delete-item-button"
-                    onClick={() => handleDeleteDraft(draft.url)}
+                    onClick={() =>
+                      dialog.show(
+                        <ConfirmDialog
+                          title={lang(
+                            "Confirm Delete Draft",
+                            "ড্রাফট মুছে ফেলতে নিশ্চিত করুন",
+                            "ड्राफ्ट हटाने के लिए कन्फर्म करें"
+                          )}
+                          text={lang(
+                            "Click confirm to delete draft. This action cannot be undone and your data will be deleted.",
+                            "ড্রাফট মুছে ফেলতে কনফার্ম চাপুন। এই কাজটি বাতিল করা যাবে না এবং আপনার ডেটা মুছে যাবে।",
+                            "ड्राफ्ट हटाने के लिए कन्फर्म पर क्लिक करें। यह क्रिया पूर्ववत नहीं की जा सकती और आपका डेटा हट जाएगा।"
+                          )}
+                          onConfirm={() => handleDeleteDraft(draft.url)}
+                        />
+                      )
+                    }
                     title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
                   >
                     <i className="fa fa-trash" aria-hidden="true"></i>

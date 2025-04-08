@@ -1,18 +1,29 @@
 import React, { useState } from "react";
+import { lang } from "@/modules/util/language";
 import "./styles.css";
 
 /**
  * @param {{
  *   disabled: boolean
- *   onClick: React.MouseEventHandler<HTMLElement>
+ *   onClearClick: React.MouseEventHandler<HTMLElement>
+ *   onAddClick: React.MouseEventHandler<HTMLElement>
  * }} props
  * @returns {React.JSX.Element}
  */
-function CrossButton({ disabled, onClick }) {
-  if (disabled) {
-    return <i className="btn-clear disabled fa fa-close" />;
-  }
-  return <i onClick={(e) => onClick(e)} className="btn-clear fa fa-close" />;
+function ControlButtons({ disabled, onClearClick, onAddClick }) {
+  if (disabled) return;
+  return (
+    <>
+      <i
+        onClick={(e) => (!disabled ? onAddClick(e) : () => {})}
+        className={`btn-control fa fa-plus ${disabled ? "disabled" : ""}`}
+      />
+      <i
+        onClick={(e) => (!disabled ? onClearClick(e) : () => {})}
+        className={`btn-control fa fa-close ${disabled ? "disabled" : ""}`}
+      />
+    </>
+  );
 }
 
 /**
@@ -47,6 +58,8 @@ export function PillInputTest({ disabled }) {
  * @returns {React.JSX.Element}
  */
 export default function PillInput({ type, placeholder, disabled, required, minRequired = 1, pillsSet, setPillsSet }) {
+  minRequired = minRequired ?? 1;
+
   const [inputValue, setInputValue] = useState("");
 
   // Use rewuired property of input element
@@ -89,11 +102,17 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
    * @param {React.KeyboardEvent<HTMLInputElement>} e
    */
   function handleKeyDown(e) {
-    if ((e.key === "Enter" || e.key === "Tab") && inputValue.trim()) {
+    // Enter or Tab not registerd in Mobile (Android/Chrome) 
+    if ((e.key === "Enter" || e.key === "Tab" || e.keyCode === 13) && inputValue.trim()) {
       e.preventDefault();
       handleItemAdd(inputValue.trim());
       setInputValue("");
     }
+  }
+
+  function handleAddCurrent() {
+    handleItemAdd(inputValue.trim());
+    setInputValue("");
   }
 
   function handleDataScroll(e) {
@@ -106,14 +125,19 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
     <div className="components-PillsSelect">
       <div className="pills-container" style={additionalPillContainerStyle}>
         {Array.from(pillsSet).map((item, idx) => (
-          <div key={idx} className="pill">
+          <div key={idx} className={`pill ${disabled ? "disabled" : ""}`} title={item}>
             <div className="pill-data" onWheel={(e) => handleDataScroll(e)}>
               {item.toString()}
             </div>
 
-            <div className="clearpill-container clearbtn-container">
-              <CrossButton disabled={!!disabled} onClick={() => handleItemRemove(item)} />
-            </div>
+            {!disabled && (
+              <div className="clearpill-container">
+                <i
+                  onClick={() => (!disabled ? handleItemRemove(item) : () => {})}
+                  className={`btn-control ${disabled ? "disabled" : "fa fa-close"}`}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -128,7 +152,7 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
           tabIndex={0}
           type={type}
           disabled={disabled}
-          placeholder={!disabled ? placeholder : "View only"}
+          placeholder={!disabled ? placeholder : lang("View only", "শুধু দেখার জন্য", "सिर्फ़ देखने के लिए")}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => handleKeyDown(e)}
@@ -136,7 +160,7 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
         />
 
         <div className="clearall-container clearbtn-container">
-          <CrossButton disabled={!!disabled} onClick={handleClearAll} />
+          <ControlButtons disabled={!!disabled} onAddClick={handleAddCurrent} onClearClick={handleClearAll} />
         </div>
       </div>
     </div>

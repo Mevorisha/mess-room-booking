@@ -7,20 +7,20 @@
   flex-direction: column;
 }
 
-.components-PillsSelect .clearbtn-container {
+.components-PillsSelect .clearpill-container {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.components-PillsSelect .clearbtn-container .btn-clear {
+.components-PillsSelect .clearpill-container .btn-control {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
 
   margin: 0;
-  padding: calc(var(--pad-2) + 0.5px) calc(var(--pad-2) + 1px);
+  padding: calc(var(--pad-2) + 0.5px) calc(var(--pad-2) + 1.2px);
 
   border-radius: 100%;
 
@@ -29,15 +29,41 @@
   color: #696767;
 }
 
-.components-PillsSelect .clearbtn-container .btn-clear:hover {
+.components-PillsSelect .clearall-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 var(--pad-1);
+}
+
+.components-PillsSelect .clearall-container .btn-control  {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  margin: 0;
+  padding: calc(var(--pad-2) + 0.5px) calc(var(--pad-2) + 1.2px);
+
+  border-radius: 100%;
+
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #696767;
+}
+
+.components-PillsSelect .clearpill-container .btn-control:hover,
+.components-PillsSelect .clearall-container .btn-control:hover {
   background-color: #bababa5c;
 }
 
-.components-PillsSelect .clearbtn-container .btn-clear.disabled {
+.components-PillsSelect .clearpill-container .btn-control.disabled,
+.components-PillsSelect .clearall-container .btn-control.disabled {
   cursor: not-allowed;
 }
 
-.components-PillsSelect .clearbtn-container .btn-clear.disabled:hover {
+.components-PillsSelect .clearpill-container .btn-control.disabled:hover,
+.components-PillsSelect .clearall-container .btn-control.disabled:hover {
   background-color: unset;
 }
 
@@ -52,6 +78,7 @@
 .components-PillsSelect .pills-container .pill {
   width: calc(100% - 2 * var(--pad-1));
   height: fit-content;
+  min-height: 30px;
   display: flex;
   flex-direction: row;
   background-color: #eee;
@@ -60,6 +87,11 @@
   border-radius: var(--rounded-rad);
   border: 1.5px solid #bbb;
   padding-left: var(--pad-2);
+}
+
+.components-PillsSelect .pills-container .pill.disabled {
+  width: calc(100% - 2 * var(--pad-1));
+  padding: 0 var(--pad-1);
 }
 
 .components-PillsSelect .pills-container .pill-data {
@@ -101,7 +133,7 @@
   cursor: not-allowed;
 }
 
-.components-PillsSelect .editing-container .clearbtn-container {
+.components-PillsSelect .editing-container .clearpill-container {
   height: 100%;
   padding: 0 var(--pad-3);
   width: 20px;

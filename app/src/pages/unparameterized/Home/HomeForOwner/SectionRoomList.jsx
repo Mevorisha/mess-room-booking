@@ -6,6 +6,7 @@ import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
 import SectionRoomUpdateForm from "../../OwnerRooms/SectionRoomUpdateForm";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 /**
  * @param {{ handleAddNewRoom: () => void }} props
@@ -105,7 +106,23 @@ export default function SectionRooms({ handleAddNewRoom }) {
                   </button>
                   <button
                     className="delete-item-button"
-                    onClick={() => handleDeleteRoom(roomItem.id)}
+                    onClick={() =>
+                      dialog.show(
+                        <ConfirmDialog
+                          title={lang(
+                            "Confirm Delete Room",
+                            "রুম মুছে ফেলতে নিশ্চিত করুন",
+                            "रूम हटाने के लिए कन्फर्म करें"
+                          )}
+                          text={lang(
+                            "Click confirm to delete room. This action cannot be undone and your data will be deleted.",
+                            "রুম মুছে ফেলতে কনফার্ম চাপুন। এই কাজটি বাতিল করা যাবে না এবং আপনার ডেটা মুছে যাবে।",
+                            "रूम हटाने के लिए कन्फर्म पर क्लिक करें। यह क्रिया पूर्ववत नहीं की जा सकती और आपका डेटा हट जाएगा।"
+                          )}
+                          onConfirm={() => handleDeleteRoom(roomItem.id)}
+                        />
+                      )
+                    }
                     title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
                   >
                     <i className="fa fa-trash" aria-hidden="true"></i>
