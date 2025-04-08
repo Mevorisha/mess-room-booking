@@ -62,6 +62,10 @@ export default ErrorMessages;
  * @param {any} error
  */
 export function getCleanFirebaseErrMsg(error) {
+  if (!error.code) {
+    return error;
+  }
+
   if (error.code === "auth/popup-closed-by-user") {
     return lang(
       "Popup closed by user. Please try again.",
