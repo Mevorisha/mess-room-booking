@@ -102,7 +102,8 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
    * @param {React.KeyboardEvent<HTMLInputElement>} e
    */
   function handleKeyDown(e) {
-    if ((e.key === "Enter" || e.key === "Tab") && inputValue.trim()) {
+    // Enter or Tab not registerd in Mobile (Android/Chrome) 
+    if ((e.key === "Enter" || e.key === "Tab" || e.keyCode === 13) && inputValue.trim()) {
       e.preventDefault();
       handleItemAdd(inputValue.trim());
       setInputValue("");
