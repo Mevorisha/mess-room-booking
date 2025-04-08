@@ -1,14 +1,30 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { cors } from "./cors";
 import { catchAll } from "./catchAll";
+import JobScheduler from "@/lib/utils/JobScheduler";
+import { scheduleJobs } from "./scheduleJobs";
 
 export function withmiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
 ) {
-  return async (req: NextApiRequest, res: NextApiResponse) =>
+  // wrap API handler in catchAll
+  const res = async (req: NextApiRequest, res: NextApiResponse) =>
     catchAll(req, res, async (req: NextApiRequest, res: NextApiResponse) => {
       const continueRes = await cors(req, res);
       if (!continueRes) return;
       return handler(req, res);
     });
+
+  // Schedule all jobs
+  scheduleJobs();
+
+  // Run scheduled jobs on each API call
+  // This ensures jobs get checked regularly without needing a separate process
+  JobScheduler.getInstance()
+    .run()
+    .then(() => console.log("[WithMiddleware] [I] Invoked JobScheduler"))
+    .catch((err) => console.error("[WithMiddleware] [E] JobScheduler:", err));
+
+  // return API handler wrapped in catchAll
+  return res;
 }

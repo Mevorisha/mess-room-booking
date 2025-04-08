@@ -59,6 +59,7 @@ class FirestorePaths {
   static FEEDBACK = !config.IS_DEV ? "/fstr_Feedback" : "/preview_fstr_Feedback";
   static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
   static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
+  static SCHEDULER_TIMES = !config.IS_DEV ? "/fstr_SchedulerTimes" : "/preview_fstr_SchedulerTimes";
 
   static Identity = (uid: string) => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
 
@@ -69,6 +70,8 @@ class FirestorePaths {
   static Rooms = (roomId: string) => FirebaseFirestore.collection(FirestorePaths.ROOMS).doc(roomId);
 
   static Bookings = (bookingId: string) => FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
+
+  static SchedulerTimes = () => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
 }
 
 /**
