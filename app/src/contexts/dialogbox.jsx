@@ -2,9 +2,8 @@ import React, { createContext, useState } from "react";
 import DialogBox from "@/components/DialogBox";
 
 const DialogBoxContext = createContext({
-  modalStack:
-    /** @type {Array<{id: string, children: React.JSX.Element, size: "small" | "large" | "fullwidth"}>} */ ([]),
-  addModal: /** @type {(id: string, children: React.JSX.Element, size: "small" | "large" | "fullwidth") => void} */ (
+  modalStack: /** @type {Array<{id: string, children: React.JSX.Element, size: "small" | "large" | "uibox"}>} */ ([]),
+  addModal: /** @type {(id: string, children: React.JSX.Element, size: "small" | "large" | "uibox") => void} */ (
     () => {}
   ),
   removeModal: /** @type {(id: string) => void} */ (() => {}),
@@ -22,7 +21,7 @@ export function DialogBoxProvider({ children }) {
     /** @type {Array<{
     id: string,
     children: React.JSX.Element, 
-    size: "small" | "large" | "fullwidth",
+    size: "small" | "large" | "uibox",
     overlayState: "fadeIn" | "fadeOut" | "gone",
     dialogState: "scaleIn" | "scaleOut" | "gone"
   }>} */ ([])
@@ -32,7 +31,7 @@ export function DialogBoxProvider({ children }) {
    * Add a new modal to the stack
    * @param {string} id - Unique identifier for the modal
    * @param {React.JSX.Element} modalChildren - Content of the modal
-   * @param {"small" | "large" | "fullwidth"} size - Size of the modal
+   * @param {"small" | "large" | "uibox"} size - Size of the modal
    */
   const addModal = (id, modalChildren, size = "small") => {
     setModalStack((prevStack) => [

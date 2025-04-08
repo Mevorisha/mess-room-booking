@@ -5,11 +5,11 @@ import DialogBoxContext from "@/contexts/dialogbox.jsx";
  * Hook for using the dialog box system
  * @returns {{
  *   createNewModalId: () => string,
- *   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "fullwidth") => void,
+ *   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "uibox") => void,
  *   hideStacked: (id: string) => void,
  *   hideTopModal: () => void
  *   isVisible: boolean,
- *   show: (children: React.JSX.Element, size?: "small" | "large" | "fullwidth") => string,
+ *   show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string,
  *   hide: () => void,
  * }}
  */
@@ -33,7 +33,7 @@ export default function useDialogBox() {
      * Show a modal with the given content and explicit ID
      * @param {string} id - Unique identifier for the modal
      * @param {React.JSX.Element} children - Content of the modal
-     * @param {"small" | "large" | "fullwidth"} size - Size of the modal
+     * @param {"small" | "large" | "uibox"} size - Size of the modal
      */
     (id, children, size = "small") => {
       addModal(id, children, size);
@@ -62,7 +62,7 @@ export default function useDialogBox() {
     /**
      * Show a modal with auto-generated ID
      * @param {React.JSX.Element} children - Content of the modal
-     * @param {"small" | "large" | "fullwidth"} size - Size of the modal
+     * @param {"small" | "large" | "uibox"} size - Size of the modal
      * @returns {string} - The generated ID for the modal
      */
     (children, size = "small") => {

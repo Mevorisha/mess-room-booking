@@ -16,7 +16,7 @@ function TabRooms() {
   const dialog = useDialogBox();
 
   function handleAddNewRoom() {
-    dialog.show(<SectionRoomCreateForm />, "fullwidth");
+    dialog.show(<SectionRoomCreateForm />, "uibox");
   }
 
   return (
