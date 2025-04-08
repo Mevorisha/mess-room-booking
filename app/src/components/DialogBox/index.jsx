@@ -57,6 +57,7 @@ export default function DialogBox({ modal, onClose }) {
   if (size === "large") {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1500) - 20}px`;
     dialogAnimStyle.maxHeight = `calc(100vh - ${clientDims.w <= 500 ? 100 : 40}px)`;
+    dialogAnimStyle.width = "fit-content";
   }
 
   if (size === "small") {

@@ -6,7 +6,7 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import Room, { RoomCreateData } from "@/models/Room";
 import Joi from "joi";
-import { resizeImageOneSz } from "@/lib/utils/dataConversion";
+// import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 
 export const config = {
@@ -125,7 +125,9 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
       return respond(res, { status: 400, error: `Invalid file type '${type}'` });
     }
     // Convert from b64 and resize to 500
-    const { img: fileBuffer, sz: _ } = await resizeImageOneSz<500>(Buffer.from(base64, "base64"), 500);
+    // const { img: fileBuffer, sz: _ } = await resizeImageOneSz<500>(Buffer.from(base64, "base64"), 500);
+    // Don't resize
+    const fileBuffer = Buffer.from(base64, "base64");
     const imageId = "" + Date.now();
     const filePath = StoragePaths.RoomPhotos.gsBucket(roomId, imageId);
     // Save gs file path
