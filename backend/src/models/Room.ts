@@ -22,6 +22,8 @@ export interface RoomData {
   // Set later on
   images?: Array<string>;
   isUnavailable?: boolean;
+  // 0 to 5
+  rating?: number;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
@@ -65,6 +67,7 @@ export enum SchemaFields {
   CAPACITY = "capacity",
   PRICE_PER_OCCUPANT = "pricePerOccupant",
   IS_UNAVAILABLE = "isUnavailable",
+  RATING = "rating",
   CREATED_ON = "createdOn",
   LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
@@ -94,6 +97,8 @@ class Room {
       searchTags: Array.from(roomData.searchTags ?? []),
       majorTags: Array.from(roomData.majorTags ?? []),
       minorTags: Array.from(roomData.minorTags ?? []),
+      // Intialise
+      rating: 0,
       // Add auto fields
       createdOn: FieldValue.serverTimestamp(),
       lastModifiedOn: FieldValue.serverTimestamp(),
