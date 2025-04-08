@@ -1,9 +1,6 @@
 .components-DialogBox {
   position: fixed;
   inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
   min-height: 100vh;
   background-color: rgba(40, 40, 40, 0.752);
@@ -19,6 +16,9 @@
   height: -moz-fit-content; /* mozilla doesn't support fit-content */
   background-color: #fff;
   border-radius: var(--rounded-rad);
+  margin: auto;
+  position: fixed;
+  inset: 0;
 }
 
 .components-DialogBox .dialog-box {
