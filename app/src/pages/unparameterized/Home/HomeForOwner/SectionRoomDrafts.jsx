@@ -70,7 +70,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
    * @param {string} draftUrl
    */
   function handleOpenDraft(draftUrl) {
-    dialog.show(<SectionRoomCreateForm draftCacheUrl={draftUrl} />, "fullwidth");
+    dialog.show(<SectionRoomCreateForm draftCacheUrl={draftUrl} />, "uibox");
   }
 
   /**

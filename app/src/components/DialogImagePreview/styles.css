@@ -3,6 +3,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: fit-content;
 }
 
 .components-DialogImagePreview i {
@@ -34,4 +35,5 @@
   max-height: calc(100vh - 100px);
   border-radius: var(--rounded-rad);
   border: 1px solid var(--color-light);
+  object-fit: contain;
 }

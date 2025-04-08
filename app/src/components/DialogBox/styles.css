@@ -19,6 +19,7 @@
   margin: auto;
   position: fixed;
   inset: 0;
+  width: fit-content;
 }
 
 .components-DialogBox .dialog-box {

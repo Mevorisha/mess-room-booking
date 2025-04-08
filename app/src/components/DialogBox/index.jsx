@@ -8,7 +8,7 @@ const DIALOG_ANIM_DURATION = 250;
  *   modal: {
  *     id: string,
  *     children: React.JSX.Element,
- *     size: "small" | "large" | "fullwidth",
+ *     size: "small" | "large" | "uibox",
  *     overlayState: "fadeIn" | "fadeOut" | "gone",
  *     dialogState: "scaleIn" | "scaleOut" | "gone"
  *   },
@@ -39,7 +39,7 @@ export default function DialogBox({ modal, onClose }) {
 
   const overlayAnimStyle = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
-    cursor: size === "fullwidth" ? "not-allowed" : "default",
+    cursor: size === "uibox" ? "not-allowed" : "default",
   };
 
   const dialogAnimStyle = {
@@ -47,7 +47,7 @@ export default function DialogBox({ modal, onClose }) {
     cursor: "default",
   };
 
-  if (size === "fullwidth") {
+  if (size === "uibox") {
     dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1000) - 10}px`;
     dialogAnimStyle.maxHeight = `calc(100vh - ${clientDims.w <= 500 ? 100 : 40}px)`;
     dialogAnimStyle.overflowX = "hidden";
@@ -55,7 +55,7 @@ export default function DialogBox({ modal, onClose }) {
   }
 
   if (size === "large") {
-    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 500) - 40}px`;
+    dialogAnimStyle.maxWidth = `${Math.min(clientDims.w, 1500) - 20}px`;
     dialogAnimStyle.maxHeight = `calc(100vh - ${clientDims.w <= 500 ? 100 : 40}px)`;
   }
 
@@ -68,7 +68,7 @@ export default function DialogBox({ modal, onClose }) {
       className="components-DialogBox"
       style={overlayAnimStyle}
       onClick={() => {
-        if (size === "fullwidth") return;
+        if (size === "uibox") return;
         onClose();
       }}
     >

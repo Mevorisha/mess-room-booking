@@ -37,7 +37,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
    * @param {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData} roomData
    */
   function handleOpenRoom(roomData) {
-    dialog.show(<SectionRoomUpdateForm roomData={roomData} />, "fullwidth");
+    dialog.show(<SectionRoomUpdateForm roomData={roomData} />, "uibox");
   }
 
   /**
