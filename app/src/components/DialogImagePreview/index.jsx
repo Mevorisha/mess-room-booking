@@ -15,7 +15,7 @@ export default function DialogImagePreview({ largeImageUrl }) {
   return (
     <div className="components-DialogImagePreview">
       {largeImageUrl.startsWith("blob:") ? (
-        <img src={largeImageUrl} alt="preview" />
+        <img src={largeImageUrl} alt="preview" onLoad={() => setLoaded(true)} />
       ) : (
         <ImageLoader src={largeImageUrl} alt="preview" requireAuth onLoad={() => setLoaded(true)} />
       )}
