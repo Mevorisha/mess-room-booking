@@ -1,13 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import eslint from "vite-plugin-eslint";
-import basicSsl from "@vitejs/plugin-basic-ssl";
 import path from "path";
+import fs from "fs";
 
 export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
+    },
+  },
+  server: {
+    https: {
+      key: fs.readFileSync("../backend/certificates/localhost-key.pem"),
+      cert: fs.readFileSync("../backend/certificates/localhost.pem"),
     },
   },
   build: {
@@ -21,5 +27,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), eslint(), basicSsl()],
+  plugins: [react(), eslint()],
 });
