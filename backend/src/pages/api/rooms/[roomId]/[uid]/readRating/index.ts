@@ -8,10 +8,8 @@ import Room, { SchemaFields } from "@/models/Room";
 
 /**
  * ```
- * request = "PATCH /api/rooms/[roomId]/updateRating" {
- *   rating: 1|2|3|4|5
- * }
- * response = { message: string }
+ * request = "GET /api/rooms/[roomId]/[uid]/readRating"
+ * response = { rating: 1|2|3|4|5 }
  * ```
  */
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
@@ -31,18 +29,13 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   const { ownerId } = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
   if (ownerId === uid) {
-    throw CustomApiError.create(403, "Owner cannot rate their own room");
+    throw CustomApiError.create(403, "Owner never rates their own room");
   }
 
-  let rating = req.body["rating"];
-  if (!rating) {
-    throw CustomApiError.create(400, "Missing field 'rating: 1 | 2 | 3 | 4 | 5'");
+  if (uid !== (req.query["uid"] as string)) {
+    throw CustomApiError.create(401, "Unauthorized");
   }
-  if (rating < 1 || rating > 5) {
-    throw CustomApiError.create(400, "Invalid field 'rating: 1 | 2 | 3 | 4 | 5'");
-  }
-  rating = Math.floor(Number(rating));
 
-  await RoomRatings.set(uid, roomId, rating);
-  return respond(res, { status: 200, message: `Rating for room ${roomId} updated` });
+  const rating = (await RoomRatings.get(uid, roomId)) ?? 0;
+  return respond(res, { status: 200, json: { rating } });
 });

@@ -59,7 +59,7 @@ class RoomRatings {
     const forRoom = await RoomRatings.getAllForRoom(roomId);
     const len = forRoom.size;
     return Array.from(forRoom.values())
-      .filter((v) => 0 <= v && v <= 5)
+      .filter((v) => 1 <= v && v <= 5) // ignore 0 i.e. unrated
       .reduce((acc, r) => acc + r / len, 0);
   }
 }
