@@ -4,6 +4,8 @@ import useNotification from "@/hooks/notification.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
+import { FirebaseAuth } from "@/modules/firebase/init.js";
+import { updateProfile } from "firebase/auth";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -96,6 +98,7 @@ export function ProfileProvider({ children }) {
      */
     async (firstName, lastName) =>
       apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateName(user.uid), { firstName, lastName })
+        .then(() => updateProfile(FirebaseAuth.currentUser, { displayName: `${firstName} ${lastName}` }))
         .then(() => dispatchUser({ firstName, lastName }))
         .then(() =>
           notify(
