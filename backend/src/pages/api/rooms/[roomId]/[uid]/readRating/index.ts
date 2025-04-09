@@ -9,7 +9,7 @@ import Room, { SchemaFields } from "@/models/Room";
 /**
  * ```
  * request = "GET /api/rooms/[roomId]/[uid]/readRating"
- * response = { rating: 1|2|3|4|5 }
+ * response = { rating: 0|1|2|3|4|5 }
  * ```
  */
 export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
