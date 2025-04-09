@@ -12,9 +12,9 @@ import Room, { SchemaFields } from "@/models/Room";
  * response = { rating: 0|1|2|3|4|5 }
  * ```
  */
-export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
+export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  // Only allow GET method
+  if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");
   }
 
@@ -27,8 +27,8 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const authResult = await getLoggedInUser(req);
   const uid = authResult.getUid();
 
-  const { ownerId } = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (ownerId === uid) {
+  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
+  if (roomData.ownerId ?? "" === uid) {
     throw CustomApiError.create(403, "Owner never rates their own room");
   }
 
