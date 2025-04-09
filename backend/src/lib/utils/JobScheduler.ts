@@ -83,9 +83,9 @@ export default class JobScheduler {
               await job.jobFunction();
               // Update last run time in DB
               await SchedulerTimes.set(jobId, currentTime);
-              console.log(`[JobScheduler] [I] ran Job[${jobId}]`);
+              console.log(`[I] [JobScheduler] ran Job[${jobId}]`);
             } catch (error) {
-              console.error(`[JobScheduler] [E] Job[${jobId}]:`, error);
+              console.error(`[E] [JobScheduler] falied Job[${jobId}]:`, error);
             }
           };
           jobPromises.push(mkJobPromise());
@@ -94,7 +94,7 @@ export default class JobScheduler {
       // Execute all due jobs in parallel
       await Promise.all(jobPromises);
     } catch (error) {
-      console.error("[JobScheduler] [E] run cycle:", error);
+      console.error("[E] [JobScheduler] run cycle:", error);
     }
   }
 
