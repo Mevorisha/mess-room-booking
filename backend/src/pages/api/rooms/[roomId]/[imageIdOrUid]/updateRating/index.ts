@@ -8,7 +8,7 @@ import Room, { SchemaFields } from "@/models/Room";
 
 /**
  * ```
- * request = "PATCH /api/rooms/[roomId]/[uid]/updateRating" {
+ * request = "PATCH /api/rooms/[roomId]/[imageIdOrUid]/updateRating" {
  *   rating: 1|2|3|4|5
  * }
  * response = { message: string }
@@ -34,7 +34,12 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(403, "Owner cannot rate their own room");
   }
 
-  if (uid !== req.query["uid"] as string) {
+  const uidFromQuery = req.query["imageIdOrUid"] as string;
+  if (!uidFromQuery) {
+    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
+  }
+
+  if (uid !== uidFromQuery) {
     throw CustomApiError.create(401, "Unauthorized");
   }
 

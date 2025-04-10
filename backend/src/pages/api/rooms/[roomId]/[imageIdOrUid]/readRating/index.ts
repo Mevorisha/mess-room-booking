@@ -8,7 +8,7 @@ import Room, { SchemaFields } from "@/models/Room";
 
 /**
  * ```
- * request = "GET /api/rooms/[roomId]/[uid]/readRating"
+ * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readRating"
  * response = { rating: 0|1|2|3|4|5 }
  * ```
  */
@@ -32,7 +32,12 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     throw CustomApiError.create(403, "Owner never rates their own room");
   }
 
-  if (uid !== (req.query["uid"] as string)) {
+  const uidFromQuery = req.query["imageIdOrUid"] as string;
+  if (!uidFromQuery) {
+    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
+  }
+
+  if (uid !== uidFromQuery) {
     throw CustomApiError.create(401, "Unauthorized");
   }
 
