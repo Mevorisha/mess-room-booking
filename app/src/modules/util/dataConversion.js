@@ -1,4 +1,5 @@
 import { lang } from "./language.js";
+import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "./trackedFunctions.js";
 
 /**
  * Converts bytes to human readable format
@@ -32,11 +33,11 @@ export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType 
   return new Promise((resolve, reject) => {
     const filename = file.name;
     const img = new Image();
-    const url = URL.createObjectURL(file);
+    const url = urlObjectCreateWrapper(file);
 
     img.onload = () => {
       // Clean up URL object
-      URL.revokeObjectURL(url);
+      urlObjectRevokeWrapper(url);
 
       // Get image aspect ratio
       const aspectRatio = img.width / img.height;
@@ -102,7 +103,7 @@ export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType 
 
     img.onerror = (err) => {
       // Clean up URL object
-      URL.revokeObjectURL(url);
+      urlObjectRevokeWrapper(url);
       reject(err);
     };
 
