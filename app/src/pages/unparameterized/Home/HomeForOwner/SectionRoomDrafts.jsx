@@ -7,6 +7,18 @@ import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "@/modules/util/trackedFunctions";
+
+/**
+ * @typedef {Object} DraftData
+ * @property {string} url,
+ * @property {string} landmark
+ * @property {string[]} searchTags
+ * @property {string[]} majorTags
+ * @property {string} city
+ * @property {string} state
+ * @property {string} firstImage
+ */
 
 /**
  * @param {{ handleAddNewRoom: () => void }} props
@@ -16,44 +28,69 @@ export default function SectionDrafts({ handleAddNewRoom }) {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [drafts, setDrafts] = useState([]);
+  const [drafts, setDrafts] = useState(/**@type {Record<string, DraftData>}*/ ({}));
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
 
-  const loadDrafts = useCallback(async () => {
+  async function loadDrafts() {
+    /**
+     * @param {Cache} cache
+     * @param {string} url
+     * @returns {Promise<DraftData|null>}
+     */
+    async function loadFromCacheByUrl(cache, url) {
+      // Skip the last-id entry
+      if (url.endsWith("/last-id")) return null;
+      const response = await cache.match(url);
+
+      /** @type {import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData} */
+      const data = await response.json();
+
+      // Extract the first image if available
+      let firstImage = /** @type {string | null} */ (null);
+      if (data.files && data.files.length > 0) {
+        firstImage = urlObjectCreateWrapper(base64FileDataToFile(data.files[0]));
+      }
+
+      return {
+        url,
+        landmark: data.landmark || "",
+        searchTags: data.searchTags || [],
+        majorTags: data.majorTags || [],
+        city: data.city || "",
+        state: data.state || "",
+        firstImage,
+      };
+    }
+
     try {
       setIsLoadingDrafts(true);
       const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
-      const cacheKeys = await cache.keys();
-
-      const draftPromises = cacheKeys.map(async (request) => {
-        const url = request.url;
-
-        if (url.endsWith("/last-id")) {
-          return null; // Skip the last-id entry
-        }
-
-        const response = await cache.match(request);
-        const data = await response.json();
-
-        // Extract the first image if available
-        let firstImage = null;
-        if (data.files && data.files.length > 0) {
-          firstImage = data.files[0];
-        }
-
-        return {
-          url,
-          landmark: data.landmark || "",
-          searchTags: data.searchTags || [],
-          majorTags: data.majorTags || [],
-          city: data.city || "",
-          state: data.state || "",
-          firstImage,
-        };
+      // all cache keys
+      const allDraftCacheUrls = new Set((await cache.keys()).map((req) => req.url));
+      // create promises to load the drafts concurrently
+      const newLoadedDrafts = await (async () => {
+        const draftUrlsToBeLoaded = Array.from(allDraftCacheUrls).filter((url) => !drafts[url]);
+        const draftUrlsToBeLoadedPromises = draftUrlsToBeLoaded.map((url) => loadFromCacheByUrl(cache, url));
+        const loadedDrafts = await Promise.all(draftUrlsToBeLoadedPromises);
+        return loadedDrafts.reduce((acc, dr) => {
+          if (!dr) return acc;
+          acc[dr.url] = dr;
+          return acc;
+        }, /** @type {Record<string, DraftData>} */ ({}));
+      })();
+      // find out drafts are in memory but no more in cache
+      const draftUrlsToBeRevoked = Object.keys(drafts).filter((url) => !allDraftCacheUrls.has(url));
+      // set drafts and revoke deleted draft firstImage urls
+      setDrafts((oldDrafts) => {
+        const keepDrafts = { ...oldDrafts };
+        draftUrlsToBeRevoked.forEach((url) => {
+          if (!url) return;
+          if (!keepDrafts[url].firstImage) return;
+          urlObjectRevokeWrapper(keepDrafts[url].firstImage);
+          delete keepDrafts[url];
+        });
+        return { ...keepDrafts, ...newLoadedDrafts };
       });
-
-      const loadedDrafts = await Promise.all(draftPromises);
-      setDrafts(loadedDrafts.filter(Boolean));
     } catch (error) {
       console.error(error);
       notify(
@@ -64,7 +101,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
       setTimeout(() => setIsLoadingDrafts(false), 2000);
     }
-  }, [notify]);
+  }
 
   /**
    * @param {string} draftUrl
@@ -84,7 +121,20 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => loadDrafts() && void 0, [loadDrafts]);
+  // on mount
+  useEffect(
+    () => {
+      loadDrafts();
+      return () =>
+        Object.values(drafts).forEach((it) => {
+          if (it.firstImage) urlObjectRevokeWrapper(it.firstImage);
+          it.firstImage = "";
+        });
+    },
+    // on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   return (
     <div className="section-container">
@@ -99,24 +149,14 @@ export default function SectionDrafts({ handleAddNewRoom }) {
         <div className="loading-container">
           <div className="loading-spinner"></div>
         </div>
-      ) : drafts.length > 0 ? (
+      ) : Object.keys(drafts).length > 0 ? (
         <ul className="content-list">
-          {drafts.map((draft, index) => (
+          {Object.values(drafts).map((draft, index) => (
             <li key={index} className="content-item item-item">
               <div className="item-preview">
                 {draft.firstImage && (
                   <div className="item-image">
-                    <img
-                      src={URL.createObjectURL(base64FileDataToFile(draft.firstImage))}
-                      alt={draft.landmark}
-                      onLoad={(e) => {
-                        // Properly type the event target as HTMLImageElement
-                        const img = e.target;
-                        if (img instanceof HTMLImageElement) {
-                          URL.revokeObjectURL(img.src);
-                        }
-                      }}
-                    />
+                    <img src={draft.firstImage} alt={draft.landmark} />
                   </div>
                 )}
                 <div className="item-info">
