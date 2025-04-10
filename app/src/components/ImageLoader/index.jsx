@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "@/hooks/notification.js";
 import { lang } from "@/modules/util/language.js";
-import { fileToBase64FileData } from "@/modules/util/dataConversion.js";
 import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
+import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "@/modules/util/trackedFunctions";
 
 const IMAGE_LOADER_CACHE_PATH = CachePaths.IMAGE_LOADER;
 
@@ -372,15 +372,21 @@ const LOADING_GIF_DATA =
 /**
  * @param {string} url
  * @param {boolean} [requireAuth]
- * @returns {Promise<string>} - Base64 image data
+ * @returns {Promise<string>} - Object URL for the image
  */
-async function fetchImageAsBase64(url, requireAuth = false) {
+async function fetchImgToObjectUrl(url, requireAuth = false) {
+  // do not fetch if blob or data url, saves fetch and caching
+  if (url.startsWith("blob:") || url.startsWith("data:")) {
+    return url;
+  }
+
   const cache = await caches.open(IMAGE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
+
   if (cachedRes) {
-    const result = await cachedRes.text();
-    // console.warn("ImageLoader: found", url, ": size:", result.length);
-    return result;
+    // Get the cached blob and create a new object URL from it
+    const cachedBlob = await cachedRes.blob();
+    return urlObjectCreateWrapper(cachedBlob);
   }
 
   const headers = /** @type {Record<String, string>} */ ({});
@@ -394,27 +400,19 @@ async function fetchImageAsBase64(url, requireAuth = false) {
   if (!response.ok) {
     throw new Error(
       lang(
-        `HTTP error! status: ${response.status}`,
-        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
-        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
+        `Error loading image. HTTP status: ${response.status}`,
+        `ছবি লোড করতে সমস্যা হয়েছে। এইচ-টি-টি-পি স্ট্যাটাস: ${response.status}`,
+        `इमेज लोड करने में समस्या हुई। एच-टी-टी-पी स्टेटस: ${response.status}`
       )
     );
   }
 
-  // Convert the image to a Blob
+  // Get the response as a blob
   const blob = await response.blob();
-  // Determine the image type (e.g., jpeg, png)
-  const imageType = blob.type.split("/")[1];
-  // convert blob to a file
-  const file = new File([blob], "unknown.bin", { type: blob.type });
-  // get the base64 string of the file
-  const { base64: base64string } = await fileToBase64FileData(file);
-  // create the img src
-  const result = `data:image/${imageType};base64,${base64string}`;
-  // cache the result
-  await cache.put(url, new Response(result, { status: 200 }));
-
-  return result;
+  // Cache the blob
+  await cache.put(url, new Response(blob.slice(), { status: 200 }));
+  // Create and return an object URL from the blob
+  return urlObjectCreateWrapper(blob);
 }
 
 /**
@@ -428,15 +426,30 @@ async function fetchImageAsBase64(url, requireAuth = false) {
  * @returns {React.JSX.Element}
  */
 export default function ImageLoader(props) {
-  const [imageData, setImageData] = useState(/** @type {string | null} */ (null));
+  const [imageObjUrl, setImageObjUrl] = useState(/** @type {string | null} */ (null));
 
   const notify = useNotification();
 
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
+  /**
+   * @param {string} imageUrl
+   */
+  function theRevokerXXX(imageUrl) {
+    if (!imageUrl) return;
+    if (imageUrl.startsWith("blob:")) {
+      urlObjectRevokeWrapper(imageUrl);
+    }
+  }
+
   function onImageElementLoaded() {
-    fetchImageAsBase64(props.src, props.requireAuth)
-      .then((data) => setImageData(data))
+    fetchImgToObjectUrl(props.src, props.requireAuth)
+      .then((objectUrl) =>
+        setImageObjUrl((oldUrl) => {
+          theRevokerXXX(oldUrl);
+          return objectUrl;
+        })
+      )
       .catch((e) => notify(e, "error"));
   }
 
@@ -449,7 +462,14 @@ export default function ImageLoader(props) {
    * Hence, we reset imageData when props.src changes using a useEffect. This creates a
    * dependency from props.src to imageData.
    */
-  useEffect(() => setImageData(null), [props.src, props.forceReloadState]);
+  useEffect(() => setImageObjUrl(null), [props.src, props.forceReloadState]);
+
+  /* On unmount */
+  useEffect(
+    () => () => theRevokerXXX(imageObjUrl),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   /**
    * @type {React.CSSProperties}
@@ -463,11 +483,11 @@ export default function ImageLoader(props) {
   delete newProps.loadingAnimation;
   delete newProps.forceReloadState;
 
-  if (!imageData) {
+  if (!imageObjUrl) {
     return (
       <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
     );
   }
 
-  return <img {...newProps} src={imageData} alt={props.alt} />;
+  return <img {...newProps} src={imageObjUrl} alt={props.alt} />;
 }
