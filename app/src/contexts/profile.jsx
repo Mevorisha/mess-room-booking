@@ -73,7 +73,7 @@ export function ProfileProvider({ children }) {
         medium: ApiPaths.Profile.readImage(user.uid, "medium"),
         large: ApiPaths.Profile.readImage(user.uid, "large"),
       };
-      const cache = await caches.open(CachePaths.IMAGE_LOADER);
+      const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
       dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, false) });
       notify(
