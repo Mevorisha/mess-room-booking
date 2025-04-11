@@ -175,7 +175,7 @@ function NotEmptyFilesInput(props) {
               title={lang("Delete", "সব ফাইল ডিলিট করুন", "सभी फ़ाइलें डिलीट करें")}
             >
               <i
-                onClick={!disabled ? handleClearAll : undefined}
+                onClick={!disabled ? handleClearAll : void 0}
                 className={`btn-clear ${disabled ? "disabled" : ""} fa fa-trash`}
               />
             </div>
@@ -219,7 +219,7 @@ function NotEmptyFilesInput(props) {
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : void 0}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
@@ -249,7 +249,7 @@ function NotEmptyFilesInput(props) {
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : void 0}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
