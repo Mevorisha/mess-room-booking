@@ -1,8 +1,13 @@
+import { LRUCache } from "lru-cache";
 import { NextApiRequest, NextApiResponse } from "next";
-import Redis from "ioredis";
 
-// Initialize Redis client (adjust connection options as needed)
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+// Initialize LRU cache instead of Redis
+const rateCache = new LRUCache({
+  // Max number of items to store in cache
+  max: 5000,
+  // TTL for each entry in milliseconds (60 seconds/1 minute)
+  ttl: 60 * 1000,
+});
 
 /**
  * Rate limiter function for Next.js API routes that incorporates URL path
@@ -26,12 +31,12 @@ export async function rateLimiter(
   const pathId = path || req.url || req.query.path || "/";
   // Create a unique identifier for rate limiting that includes both user/IP and path
   const identifier = uid || String(clientIp);
-  // Create a key for Redis with a prefix and path
+  // Create a key with a prefix and path
   const key = `ratelimit:${identifier}:${pathId}`;
   // Get current count for this identifier and path combination
-  const currentCount = await redis.get(key);
+  const currentCount = Number(rateCache.get(key)) || 0;
   // If count exists and exceeds frequency, reject the request
-  if (currentCount && parseInt(currentCount) >= frequency) {
+  if (currentCount && currentCount >= frequency) {
     res.status(429).json({
       error: "Too many requests, please try again later.",
     });
@@ -39,11 +44,7 @@ export async function rateLimiter(
     return false;
   }
   // Increment the counter (or create if doesn't exist)
-  await redis.incr(key);
-  // Set expiry of 1 minute if this is a new key
-  if (!currentCount) {
-    await redis.expire(key, 60); // 60 seconds window
-  }
+  rateCache.set(key, (currentCount as number) + 1);
   // Request is allowed
   return true;
 }
