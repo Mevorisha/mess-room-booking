@@ -19,6 +19,8 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  *   &lowPrice=number
  *   &highPrice=number
  *   &searchTags=tag1,tag2,tag3
+ *   &sortOn=capacity|rating|pricePerOccupant
+ *   &sortOrder=asc|desc
  * "
  *
  * response = {
@@ -52,6 +54,10 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   const selfParam = req.query["self"];
   const isSelfQuery = selfParam === "true";
 
+  // Parse sorting parameters
+  const sortOn = req.query["sortOn"] as "capacity" | "rating" | "pricePerOccupant" | undefined;
+  const sortOrder = req.query.sortOrder as "asc" | "desc" | undefined;
+
   if (isSelfQuery) {
     // Auth is required for self queries
     const authResult = await getLoggedInUser(req);
@@ -61,8 +67,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
 
     const uid = authResult.getUid();
 
-    // Query all rooms owned by this user
-    const roomsData = await Room.queryAll({ ownerId: uid }, "API_URI");
+    // Query all rooms owned by this user with sorting
+    const roomsData = await Room.queryAll({ ownerId: uid }, "API_URI", sortOn, sortOrder);
 
     // Format the response
     const formattedRooms = roomsData.map((room, index) => ({
@@ -125,8 +131,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
       queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query.modifiedAfter as string));
     }
 
-    // Execute the query
-    const roomsData = await Room.queryAll(queryParams, "API_URI");
+    // Execute the query with sorting
+    const roomsData = await Room.queryAll(queryParams, "API_URI", sortOn, sortOrder);
 
     // Format the response
     const formattedRooms = roomsData.map((room, index) => {

@@ -126,7 +126,12 @@ class Room {
     await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
-  static async queryAll(params: RoomQueryParams, extUrls: ApiResponseUrlType): Promise<RoomReadDataWithId[]> {
+  static async queryAll(
+    params: RoomQueryParams,
+    extUrls: ApiResponseUrlType,
+    sortOn?: "capacity" | "rating" | "pricePerOccupant",
+    sortOrder?: "asc" | "desc"
+  ): Promise<RoomReadDataWithId[]> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     let query: FirebaseFirestore.Query;
@@ -169,6 +174,23 @@ class Room {
     }
     if (params.lastModifiedOn) {
       query = queryOrRef().where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+    }
+
+    // Apply sorting if specified
+    if (sortOn) {
+      const fieldToSort =
+        sortOn === "pricePerOccupant"
+          ? SchemaFields.PRICE_PER_OCCUPANT
+          : sortOn === "capacity"
+          ? SchemaFields.CAPACITY
+          : sortOn === "rating"
+          ? SchemaFields.RATING
+          : null;
+
+      if (fieldToSort) {
+        const direction = sortOrder === "desc" ? "desc" : "asc";
+        query = queryOrRef().orderBy(fieldToSort, direction);
+      }
     }
 
     // Execute query
