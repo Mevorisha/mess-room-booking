@@ -192,7 +192,7 @@ function NotEmptyFilesInput(props) {
                 <div className="file-data">
                   {fileRepr.getFile().type.startsWith("image/") ? (
                     <div className="file-preview">
-                      {imgDataUrl && <img
+                      <ImageLoader
                         onClick={() => {
                           dialog.showStacked(
                             dialog.createNewModalId(),
@@ -202,7 +202,7 @@ function NotEmptyFilesInput(props) {
                         }}
                         src={imgDataUrl}
                         alt={fileRepr.getFile().name}
-                      />}
+                      />
                     </div>
                   ) : (
                     <div className="no-preview">

@@ -7,6 +7,7 @@ import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoo
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
+import ImageLoader from "@/components/ImageLoader";
 
 /**
  * @typedef {Object} DraftData
@@ -108,7 +109,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
               <div className="item-preview">
                 {draft.firstImage && (
                   <div className="item-image">
-                    <img src={draft.firstImage} alt={draft.landmark} />
+                    <ImageLoader src={draft.firstImage} alt={draft.landmark} />
                   </div>
                 )}
                 <div className="item-info">
