@@ -46,9 +46,7 @@ class RoomRatings {
       if (data && typeof data.ratingOn5 === "number") {
         // Extract uid from the composite key
         const compositeKey = doc.id;
-        // Assuming mkCompositeKey creates keys like "uid_roomId"
-        const uid = compositeKey.split("_")[0];
-
+        const uid = compositeKey.split(":")[0];
         result.set(uid, data.ratingOn5);
       }
     });
