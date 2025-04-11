@@ -125,7 +125,7 @@ export default function TopBar({ children }) {
         // prettier-ignore
         compUsr.authCtx
           .logOut()
-          .then(() => caches.delete(CachePaths.IMAGE_LOADER))
+          .then(() => caches.delete(CachePaths.FILE_LOADER))
           .then(() => caches.delete(CachePaths.SECTION_ROOM_FORM))
           .then((status) => status && notify(lang("Image cache cleared", "ইমেজ ক্যাশ সাফ করা হয়েছে", "इमेज कैश साफ किया गया है"), "warning"))
           .catch((e) => notify(e, "error"));

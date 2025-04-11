@@ -2,11 +2,23 @@ import React, { useState, useCallback, useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import { CachePaths } from "@/modules/util/caching";
-import { base64FileDataToFile } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
+import ImageLoader from "@/components/ImageLoader";
+
+/**
+ * @typedef {Object} DraftData
+ * @property {string} url
+ * @property {string} landmark
+ * @property {string[]} searchTags
+ * @property {string[]} majorTags
+ * @property {string} city
+ * @property {string} state
+ * @property {string} firstImage
+ */
 
 /**
  * @param {{ handleAddNewRoom: () => void }} props
@@ -16,7 +28,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [drafts, setDrafts] = useState([]);
+  const [drafts, setDrafts] = useState(/**@type {Array<DraftData>}*/ ([]));
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
 
   const loadDrafts = useCallback(async () => {
@@ -25,34 +37,25 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
       const cacheKeys = await cache.keys();
 
-      const draftPromises = cacheKeys.map(async (request) => {
-        const url = request.url;
+      /** @type {Array<{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}>} */
+      const draftPromises = cacheKeys
+        .filter((req) => !req.url.endsWith("/last-id")) // do not take the one that counts last-id
+        .map((req) => ({ url: req.url, res: cache.match(req.url) })) // get a response and return both url and response
+        .map(({ url, res }) => res && { url, data: res.then((res) => res.json()) }); // for valid reponses, return url and Promise<data> of response
 
-        if (url.endsWith("/last-id")) {
-          return null; // Skip the last-id entry
-        }
+      // await all promises
+      const results = await Promise.all(draftPromises.map(async ({ url, data }) => ({ url, data: await data })));
 
-        const response = await cache.match(request);
-        const data = await response.json();
+      const loadedDrafts = results.map(({ url, data }) => ({
+        url,
+        landmark: data.landmark || "",
+        searchTags: data.searchTags || [],
+        majorTags: data.majorTags || [],
+        city: data.city || "",
+        state: data.state || "",
+        firstImage: data.files?.length > 0 ? base64FileDataToDataUrl(data.files[0]) : "",
+      }));
 
-        // Extract the first image if available
-        let firstImage = null;
-        if (data.files && data.files.length > 0) {
-          firstImage = data.files[0];
-        }
-
-        return {
-          url,
-          landmark: data.landmark || "",
-          searchTags: data.searchTags || [],
-          majorTags: data.majorTags || [],
-          city: data.city || "",
-          state: data.state || "",
-          firstImage,
-        };
-      });
-
-      const loadedDrafts = await Promise.all(draftPromises);
       setDrafts(loadedDrafts.filter(Boolean));
     } catch (error) {
       console.error(error);
@@ -62,7 +65,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       );
     } finally {
       // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
-      setTimeout(() => setIsLoadingDrafts(false), 2000);
+      setTimeout(() => setIsLoadingDrafts(false), 0);
     }
   }, [notify]);
 
@@ -106,17 +109,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
               <div className="item-preview">
                 {draft.firstImage && (
                   <div className="item-image">
-                    <img
-                      src={URL.createObjectURL(base64FileDataToFile(draft.firstImage))}
-                      alt={draft.landmark}
-                      onLoad={(e) => {
-                        // Properly type the event target as HTMLImageElement
-                        const img = e.target;
-                        if (img instanceof HTMLImageElement) {
-                          URL.revokeObjectURL(img.src);
-                        }
-                      }}
-                    />
+                    <ImageLoader src={draft.firstImage} alt={draft.landmark} />
                   </div>
                 )}
                 <div className="item-info">

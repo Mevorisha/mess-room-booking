@@ -30,19 +30,15 @@ class SchedulerTimes {
    */
   static async getAll(): Promise<Map<string, number>> {
     const result = new Map<string, number>();
-    try {
-      const collRef = FirestorePaths.SchedulerTimes();
-      const snapshot = await collRef.get();
-      if (snapshot.empty) return result;
-      snapshot.forEach((doc) => {
-        const data = doc.data() as SchedulerTimesData;
-        if (data && typeof data.lastRunTime === "number") {
-          result.set(doc.id, data.lastRunTime);
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching scheduler times:", error);
-    }
+    const collRef = FirestorePaths.SchedulerTimes();
+    const snapshot = await collRef.get();
+    if (snapshot.empty) return result;
+    snapshot.forEach((doc) => {
+      const data = doc.data() as SchedulerTimesData;
+      if (data && typeof data.lastRunTime === "number") {
+        result.set(doc.id, data.lastRunTime);
+      }
+    });
     return result;
   }
 }

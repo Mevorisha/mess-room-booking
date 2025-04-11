@@ -114,7 +114,7 @@ export class ApiPaths {
     readListOnQuery: (query = {}) => {
       const params = new URLSearchParams();
 
-      if (query.self !== undefined) params.append("self", "" + query.self);
+      if (query.self !== void 0) params.append("self", "" + query.self);
       if (query.acceptGender) params.append("acceptGender", query.acceptGender);
       if (query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
       if (query.landmark) params.append("landmark", query.landmark);

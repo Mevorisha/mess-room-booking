@@ -7,7 +7,7 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 
 /**
  * ```
- * request = "GET /api/rooms/[roomId]/[imageId]/readImage"
+ * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readImage"
  * response = "Content-Type: image/(jpeg|png)"
  * ```
  */
@@ -19,14 +19,14 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
 
   // Extract room ID and image ID from request
   const roomId = req.query["roomId"] as string;
-  const imageId = req.query["imageId"] as string;
+  const imageId = req.query["imageIdOrUid"] as string;
 
   if (!roomId) {
     throw CustomApiError.create(400, "Missing field 'roomId: string'");
   }
 
   if (!imageId) {
-    throw CustomApiError.create(400, "Missing field 'imageId: string'");
+    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
   }
 
   // Build the GS path for the requested room image

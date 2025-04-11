@@ -28,16 +28,19 @@ export function sizehuman(bytes) {
  * @returns {Promise<File>}
  * @throws {Error}
  */
-export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = void 0) {
+export async function resizeImage(
+  file,
+  { w: targetWidth, h: targetHeight },
+  mimeType = "image/jpeg",
+  quality = void 0
+) {
+  const imgDataUrl = await fileToDataUrl(file);
+
   return new Promise((resolve, reject) => {
     const filename = file.name;
     const img = new Image();
-    const url = URL.createObjectURL(file);
 
     img.onload = () => {
-      // Clean up URL object
-      URL.revokeObjectURL(url);
-
       // Get image aspect ratio
       const aspectRatio = img.width / img.height;
       let resultWidth = 0;
@@ -100,14 +103,10 @@ export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType 
       );
     };
 
-    img.onerror = (err) => {
-      // Clean up URL object
-      URL.revokeObjectURL(url);
-      reject(err);
-    };
+    img.onerror = (err) => reject(err);
 
     // Start loading the image
-    img.src = url;
+    img.src = imgDataUrl;
   });
 }
 
@@ -176,4 +175,21 @@ export function base64FileDataToFile(fileData) {
     u8arr[i] = byteStr.charCodeAt(i);
   }
   return new File([u8arr], fileData.name, { type: fileData.type });
+}
+
+/**
+ * @param {Base64FileData} fileData
+ * @returns {string}
+ */
+export function base64FileDataToDataUrl(fileData) {
+  return `data:${fileData.type};base64,${fileData.base64}`;
+}
+
+/**
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
+export async function fileToDataUrl(file) {
+  const b64data = await fileToBase64FileData(file);
+  return base64FileDataToDataUrl(b64data);
 }

@@ -22,6 +22,8 @@ export interface RoomData {
   // Set later on
   images?: Array<string>;
   isUnavailable?: boolean;
+  // 0 to 5
+  rating?: number;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
@@ -65,6 +67,7 @@ export enum SchemaFields {
   CAPACITY = "capacity",
   PRICE_PER_OCCUPANT = "pricePerOccupant",
   IS_UNAVAILABLE = "isUnavailable",
+  RATING = "rating",
   CREATED_ON = "createdOn",
   LAST_MODIFIED_ON = "lastModifiedOn",
   TTL = "ttl",
@@ -94,6 +97,8 @@ class Room {
       searchTags: Array.from(roomData.searchTags ?? []),
       majorTags: Array.from(roomData.majorTags ?? []),
       minorTags: Array.from(roomData.minorTags ?? []),
+      // Intialise
+      rating: 0,
       // Add auto fields
       createdOn: FieldValue.serverTimestamp(),
       lastModifiedOn: FieldValue.serverTimestamp(),
@@ -121,7 +126,12 @@ class Room {
     await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
-  static async queryAll(params: RoomQueryParams, extUrls: ApiResponseUrlType): Promise<RoomReadDataWithId[]> {
+  static async queryAll(
+    params: RoomQueryParams,
+    extUrls: ApiResponseUrlType,
+    sortOn?: "capacity" | "rating" | "pricePerOccupant",
+    sortOrder?: "asc" | "desc"
+  ): Promise<RoomReadDataWithId[]> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     let query: FirebaseFirestore.Query;
@@ -164,6 +174,23 @@ class Room {
     }
     if (params.lastModifiedOn) {
       query = queryOrRef().where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+    }
+
+    // Apply sorting if specified
+    if (sortOn) {
+      const fieldToSort =
+        sortOn === "pricePerOccupant"
+          ? SchemaFields.PRICE_PER_OCCUPANT
+          : sortOn === "capacity"
+          ? SchemaFields.CAPACITY
+          : sortOn === "rating"
+          ? SchemaFields.RATING
+          : null;
+
+      if (fieldToSort) {
+        const direction = sortOrder === "desc" ? "desc" : "asc";
+        query = queryOrRef().orderBy(fieldToSort, direction);
+      }
     }
 
     // Execute query

@@ -22,8 +22,8 @@ export function withmiddleware(
   // This ensures jobs get checked regularly without needing a separate process
   JobScheduler.getInstance()
     .run()
-    .then(() => console.log("[WithMiddleware] [I] Invoked JobScheduler"))
-    .catch((err) => console.error("[WithMiddleware] [E] JobScheduler:", err));
+    .then(() => console.log("[I] [WithMiddleware] Invoked JobScheduler"))
+    .catch((err) => console.error("[E] [WithMiddleware] JobScheduler:", err));
 
   // return API handler wrapped in catchAll
   return res;
