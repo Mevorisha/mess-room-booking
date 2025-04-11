@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useNotification from "@/hooks/notification.js";
 import { fetchAsDataUrl } from "@/modules/util/dataConversion.js";
 
-const LOADING_GIF_DATA =
+export const LOADING_GIF_DATA =
   "data:image/gif;base64," +
   "R0lGODlhQABAANUAAAQCBISGhMTGxERCROTm5KSmpCQiJGRiZNTW1LS2tPT29BQSFJSWlFRSVDQy" +
   "NHR2dMzOzOzu7KyurGxqbNze3Ly+vFxaXAwKDIyOjCwqLPz+/BweHKSipDw6PMzKzExKTOzq7Kyq" +
