@@ -1,6 +1,7 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { FieldValue } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
+import { MultiSizePhoto } from "./Identity";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -20,7 +21,7 @@ export interface RoomData {
   capacity: number;
   pricePerOccupant: number;
   // Set later on
-  images?: Array<string>;
+  images?: Array<MultiSizePhoto>;
   isUnavailable?: boolean;
   // 0 to 5
   rating?: number;
@@ -75,11 +76,13 @@ export enum SchemaFields {
 
 function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string) {
   if (dataToBeUpdated.images) {
-    dataToBeUpdated.images = Array.from(dataToBeUpdated.images as Array<string>).map((imgGsPath: string) =>
-      StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPath))
-    );
+    // prettier-ignore
+    dataToBeUpdated.images = dataToBeUpdated.images.map((imgGsPaths: MultiSizePhoto) => ({
+      small: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.small), "small"),
+      medium: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.medium), "medium"),
+      large: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.large), "large"),
+    }));
   }
-
   return dataToBeUpdated;
 }
 

@@ -228,6 +228,8 @@ function NotEmptyFilesInput(props) {
             );
           } else if (fileRepr.isUri()) {
             const imgDirectUrl = fileRepr.getUri();
+            const urlWithSizeOriginal = new URL(imgDirectUrl);
+            urlWithSizeOriginal.searchParams.set("size", "large");
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
@@ -236,7 +238,7 @@ function NotEmptyFilesInput(props) {
                       onClick={() => {
                         dialog.showStacked(
                           dialog.createNewModalId(),
-                          <DialogImagePreview largeImageUrl={imgDirectUrl} />,
+                          <DialogImagePreview largeImageUrl={urlWithSizeOriginal.toString()} />,
                           "large"
                         );
                       }}

@@ -26,7 +26,7 @@ import "./styles.css";
  * @typedef {Object} RoomData
  * @property {string} id
  * @property {string} ownerId
- * @property {Array<string>} images
+ * @property {Array<{ small: string, medium: string, large: string }>} images
  * @property {boolean} isUnavailable
  * @property {GenderOptions} acceptGender
  * @property {OccupationOptions} acceptOccupation
@@ -90,7 +90,7 @@ export default function SectionRoomUpdateForm({ roomData }) {
   const [isUnavailable, setIsUnavailable] = useState(roomData.isUnavailable);
 
   // Initialize filesSet with images from roomData
-  const [filesSet, setFilesSet] = useState(new StringySet(roomData.images.map((url) => FileRepr.from(url))));
+  const [filesSet, setFilesSet] = useState(new StringySet(roomData.images.map((img) => FileRepr.from(img.medium))));
 
   const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
 

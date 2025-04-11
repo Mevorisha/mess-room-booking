@@ -1,13 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { getLoggedInUser } from "@/middlewares/auth";
-import Identity, { SchemaFields } from "@/models/Identity";
+import Identity, { MultiSizePhoto, SchemaFields } from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import Room, { RoomCreateData } from "@/models/Room";
 import Joi from "joi";
 // import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
+import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 
 export const config = {
   api: {
@@ -117,24 +118,30 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   // Array for all images, each entry is for a single imageId (1 size only, 500px)
   const uploadPromises: Promise<void>[] = [];
   // Array of respective image gs bucket paths
-  const imagePaths = new Array<string>(images.length);
+  const imagePaths = new Array<MultiSizePhoto>(images.length);
   // For each image from request
   for (let i = 0; i < images.length; ++i) {
     const { type, base64 } = images[i];
     if (!/^image\/(jpeg|png|jpg)$/.test(type)) {
       return respond(res, { status: 400, error: `Invalid file type '${type}'` });
     }
-    // Convert from b64 and resize to 500
-    // const { img: fileBuffer, sz: _ } = await resizeImageOneSz<500>(Buffer.from(base64, "base64"), 500);
-    // Don't resize
-    const fileBuffer = Buffer.from(base64, "base64");
+    // Convert from b64 and resize to 50px for small and large sizes
+    const largeImgBuff = Buffer.from(base64, "base64");
+    const mediumImgBuff = (await resizeImageOneSz<200>(largeImgBuff, 200)).img;
+    const smallImgBuff = (await resizeImageOneSz<70>(largeImgBuff, 70)).img;
+    // upload image to storage
     const imageId = "" + Date.now();
-    const filePath = StoragePaths.RoomPhotos.gsBucket(roomId, imageId);
+    const filePaths = {
+      small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "small"),
+      medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "medium"),
+      large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "large"),
+    };
     // Save gs file path
-    imagePaths[i] = filePath;
-    const fileRef = bucket.file(filePath);
+    imagePaths[i] = filePaths;
     // Push promise for async upload
-    uploadPromises.push(fileRef.save(fileBuffer, { contentType: "image/jpeg" }));
+    uploadPromises.push(bucket.file(filePaths.small).save(smallImgBuff, { contentType: type }));
+    uploadPromises.push(bucket.file(filePaths.medium).save(mediumImgBuff, { contentType: type }));
+    uploadPromises.push(bucket.file(filePaths.large).save(largeImgBuff, { contentType: type }));
   }
   // Upload all to gs bucket
   await Promise.all(uploadPromises);

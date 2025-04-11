@@ -12,7 +12,7 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  * response = {
  *   id: string
  *   ownerId: string
- *   images: Array<string>
+ *   images: Array<{ small: string, medium: string, large: string }>
  *   acceptGender: "MALE" | "FEMALE" | "OTHER"
  *   acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
  *   searchTags: string[]

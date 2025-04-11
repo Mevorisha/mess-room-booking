@@ -101,11 +101,12 @@ class StoragePaths {
   };
 
   static RoomPhotos = {
-    gsBucket: (roomId: string, imageId: string): string => `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}`,
+    gsBucket: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
+      `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
 
-    getImageIdFromGsPath: (gsPath: string) => gsPath.split("/").reverse()[0],
+    getImageIdFromGsPath: (gsPath: string) => gsPath.split("/").reverse()[1],
 
-    apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz = "large"): string =>
+    apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
       `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
   };
 

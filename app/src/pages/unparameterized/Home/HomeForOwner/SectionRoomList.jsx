@@ -72,7 +72,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
               <div className="item-preview">
                 {roomItem.images?.length > 0 && (
                   <div className="item-image">
-                    <ImageLoader src={roomItem.images[0]} alt={roomItem.landmark} />
+                    <ImageLoader src={roomItem.images[0].small} alt={roomItem.landmark} />
                   </div>
                 )}
                 <div className="item-info">
