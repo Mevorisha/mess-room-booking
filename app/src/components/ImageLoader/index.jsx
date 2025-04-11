@@ -371,6 +371,7 @@ export const LOADING_GIF_DATA =
  *   alt: string;
  *   requireAuth?: boolean;
  *   forceReloadState?: number;
+ *   onLoad?: () => void
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -405,7 +406,7 @@ export default function ImageLoader(props) {
   };
 
   if (isLoading || !imageUrl) {
-    return <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} />;
+    return <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={void 0} />;
   }
 
   return <img {...newProps} src={imageUrl} alt={props.alt} />;
