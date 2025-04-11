@@ -1,7 +1,6 @@
 import { FirebaseAuth } from "../firebase/init.js";
 import { CachePaths } from "./caching.js";
 import { lang } from "./language.js";
-import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "./trackedFunctions.js";
 
 /**
  * Converts bytes to human readable format
@@ -31,16 +30,19 @@ export function sizehuman(bytes) {
  * @returns {Promise<File>}
  * @throws {Error}
  */
-export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType = "image/jpeg", quality = void 0) {
+export async function resizeImage(
+  file,
+  { w: targetWidth, h: targetHeight },
+  mimeType = "image/jpeg",
+  quality = void 0
+) {
+  const imgDataUrl = await fileToDataUrl(file);
+
   return new Promise((resolve, reject) => {
     const filename = file.name;
     const img = new Image();
-    const url = urlObjectCreateWrapper(file);
 
     img.onload = () => {
-      // Clean up URL object
-      urlObjectRevokeWrapper(url);
-
       // Get image aspect ratio
       const aspectRatio = img.width / img.height;
       let resultWidth = 0;
@@ -103,14 +105,10 @@ export function resizeImage(file, { w: targetWidth, h: targetHeight }, mimeType 
       );
     };
 
-    img.onerror = (err) => {
-      // Clean up URL object
-      urlObjectRevokeWrapper(url);
-      reject(err);
-    };
+    img.onerror = (err) => reject(err);
 
     // Start loading the image
-    img.src = url;
+    img.src = imgDataUrl;
   });
 }
 
@@ -186,7 +184,7 @@ export function base64FileDataToFile(fileData) {
  * @returns {string}
  */
 export function base64FileDataToDataUrl(fileData) {
-  return `data:${fileData.base64};base64,${fileData.base64}`;
+  return `data:${fileData.type};base64,${fileData.base64}`;
 }
 
 /**
@@ -208,7 +206,7 @@ const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
 export async function fetchAsDataUrl(url, requireAuth = false) {
   // keep blob and data urls as is
   // will add more if needed
-  // we only want network urls to befetched and cached
+  // we only want network urls to be fetched and cached
   if (url.startsWith("blob:") || url.startsWith("data:")) {
     return url;
   }
