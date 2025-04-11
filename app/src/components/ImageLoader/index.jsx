@@ -395,10 +395,7 @@ export default function ImageLoader(props) {
       });
   }, [props.src, props.forceReloadState, props.requireAuth, notify]);
 
-  const newProps = { ...props };
-  delete newProps.requireAuth;
-  delete newProps.loadingAnimation;
-  delete newProps.forceReloadState;
+  const { requireAuth: _1, loadingAnimation: _2, forceReloadState: _3, ...newProps } = props;
 
   /**
    * @type {React.CSSProperties}
