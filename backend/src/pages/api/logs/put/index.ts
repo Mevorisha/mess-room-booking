@@ -4,6 +4,7 @@ import { getLoggedInUser } from "@/middlewares/auth";
 import Logs, { LogType } from "@/models/Logs";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -12,6 +13,8 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  * ```
  */
 export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
+  if (!(await RateLimits.LOG_WRITE(req, res))) return;
+
   // Only allow POST method
   if (req.method !== "POST") {
     throw CustomApiError.create(405, "Method Not Allowed");

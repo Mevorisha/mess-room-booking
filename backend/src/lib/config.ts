@@ -11,6 +11,7 @@ if (!process.env.FIREBASE_DATABASE_URL) throw Error(".env FIREBASE_DATABASE_URL 
 if (!process.env.FIREBASE_STORAGE_BUCKET) throw Error(".env FIREBASE_STORAGE_BUCKET undefined");
 if (!process.env.FIREBASE_EMULATOR_DATABASE_URL) throw Error(".env FIREBASE_EMULATOR_DATABASE_URL undefined");
 if (!process.env.FIREBASE_EMULATOR_STORAGE_BUCKET) throw Error(".env FIREBASE_EMULATOR_STORAGE_BUCKET undefined");
+if (!process.env.REDIS_URL) throw Error(".env REDIS_URL undefined");
 
 // if (!process.env.FIREBASE_STORAGE_EMULATOR_HOST) throw new Error(".env FIREBASE_STORAGE_EMULATOR_HOST undefined");
 // if (!process.env.FIREBASE_FIRESTORE_EMULATOR_HOST) throw new Error(".env FIREBASE_FIRESTORE_EMULATOR_HOST undefined");
@@ -42,6 +43,8 @@ export const FIREBASE_EMULATOR_STORAGE_BUCKET = process.env.FIREBASE_EMULATOR_ST
 
 export const FIREBASE_STORAGE_EMULATOR_HOST = process.env.FIREBASE_STORAGE_EMULATOR_HOST;
 export const FIREBASE_FIRESTORE_EMULATOR_HOST = process.env.FIREBASE_FIRESTORE_EMULATOR_HOST;
+
+export const REDIS_URL = process.env.REDIS_URL;
 
 export class ApiPaths {
   static ACCOUNTS = `${API_SERVER_ORIGIN}/api/accounts`;

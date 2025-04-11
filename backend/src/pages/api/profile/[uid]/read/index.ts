@@ -4,6 +4,7 @@ import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { getLoggedInUser } from "@/middlewares/auth";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -53,6 +54,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!uid) {
     throw CustomApiError.create(400, "Missing field 'uid: string'");
   }
+
+  if (!(await RateLimits.PROFILE_READ(req, res))) return;
 
   const fields = [
     PsudoFields.DISPLAY_NAME,

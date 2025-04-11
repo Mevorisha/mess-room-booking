@@ -5,6 +5,7 @@ import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { getLoggedInUser } from "@/middlewares/auth";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -67,6 +68,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
 
     const uid = authResult.getUid();
 
+    if (!(await RateLimits.ROOM_SEARCH_READ(uid, req, res))) return;
+
     // Query all rooms owned by this user with sorting
     const roomsData = await Room.queryAll({ ownerId: uid }, "API_URI", sortOn, sortOrder);
 
@@ -91,6 +94,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
 
     return respond(res, { status: 200, json: { rooms: formattedRooms } });
   } else {
+    if (!(await RateLimits.ROOM_SEARCH_READ(null, req, res))) return;
+
     // Parse query parameters
     const queryParams: any = {};
 

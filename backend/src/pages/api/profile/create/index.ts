@@ -5,6 +5,7 @@ import Identity from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { FirebaseAuth } from "@/lib/firebaseAdmin/init";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -23,6 +24,8 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   // Automatically throws ApiError and is caught by catchAll (middleware)
   const uid = authResult.getUid();
   const user = await FirebaseAuth.getUser(uid);
+
+  if (!(await RateLimits.PROFILE_CREATE(uid, req, res))) return;
 
   const mobile = user.phoneNumber;
   const [firstName, lastName] = user.displayName?.split(" ") ?? [void 0, void 0];

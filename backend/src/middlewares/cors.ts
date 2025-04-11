@@ -13,7 +13,7 @@ const AllowedHeaders = ["Content-Type", "X-Firebase-Token"];
  * @throws {CustomApiError} If CORS checks fail
  */
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const origin = req.headers.origin as string;
+  const origin = req.headers.origin || "" as string;
   if (
     config.CORS_ALLOW_EVERYTHING ||
     AllowedOrigins.includes(origin) ||

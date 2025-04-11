@@ -5,6 +5,7 @@ import { CustomApiError } from "@/lib/utils/ApiError";
 import RoomRatings from "@/models/RoomRatings";
 import { getLoggedInUser } from "@/middlewares/auth";
 import Room, { SchemaFields } from "@/models/Room";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -26,6 +27,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   // Require authentication middleware
   const authResult = await getLoggedInUser(req);
   const uid = authResult.getUid();
+
+  if (!(await RateLimits.ROOM_CLIENT_RATING_READ(uid, req, res))) return;
 
   const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
   if (roomData.ownerId ?? "" === uid) {

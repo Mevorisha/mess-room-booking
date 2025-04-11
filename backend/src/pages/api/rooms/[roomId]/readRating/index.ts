@@ -3,6 +3,7 @@ import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import Room, { SchemaFields } from "@/models/Room";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -11,6 +12,8 @@ import Room, { SchemaFields } from "@/models/Room";
  * ```
  */
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  if (!(await RateLimits.ROOM_RATING_READ(req, res))) return;
+
   // Only allow GET method
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");

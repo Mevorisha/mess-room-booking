@@ -4,6 +4,7 @@ import { authenticate } from "@/middlewares/auth";
 import Identity from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -23,6 +24,8 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   // Require authentication middleware
   await authenticate(req, uid);
+
+  if (!(await RateLimits.PROFILE_MOBILE_UPDATE(uid, req, res))) return;
 
   const mobile = req.body["mobile"] as string;
   if (!mobile) {
