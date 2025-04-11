@@ -2,16 +2,15 @@ import React, { useState, useCallback, useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import { CachePaths } from "@/modules/util/caching";
-import { base64FileDataToFile } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "@/modules/util/trackedFunctions";
+import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
 
 /**
  * @typedef {Object} DraftData
- * @property {string} url,
+ * @property {string} url
  * @property {string} landmark
  * @property {string[]} searchTags
  * @property {string[]} majorTags
@@ -28,69 +27,35 @@ export default function SectionDrafts({ handleAddNewRoom }) {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [drafts, setDrafts] = useState(/**@type {Record<string, DraftData>}*/ ({}));
+  const [drafts, setDrafts] = useState(/**@type {Array<DraftData>}*/ ([]));
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
 
-  async function loadDrafts() {
-    /**
-     * @param {Cache} cache
-     * @param {string} url
-     * @returns {Promise<DraftData|null>}
-     */
-    async function loadFromCacheByUrl(cache, url) {
-      // Skip the last-id entry
-      if (url.endsWith("/last-id")) return null;
-      const response = await cache.match(url);
+  const loadDrafts = useCallback(async () => {
+    try {
+      setIsLoadingDrafts(true);
+      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
+      const cacheKeys = await cache.keys();
 
-      /** @type {import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData} */
-      const data = await response.json();
+      /** @type {Array<{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}>} */
+      const draftPromises = cacheKeys
+        .filter((req) => !req.url.endsWith("/last-id")) // do not take the one that counts last-id
+        .map((req) => ({ url: req.url, res: cache.match(req.url) })) // get a response and return both url and response
+        .map(({ url, res }) => res && { url, data: res.then((res) => res.json()) }); // for valid reponses, return url and Promise<data> of response
 
-      // Extract the first image if available
-      let firstImage = /** @type {string | null} */ (null);
-      if (data.files && data.files.length > 0) {
-        firstImage = urlObjectCreateWrapper(base64FileDataToFile(data.files[0]));
-      }
+      // await all promises
+      const results = await Promise.all(draftPromises.map(async ({ url, data }) => ({ url, data: await data })));
 
-      return {
+      const loadedDrafts = results.map(({ url, data }) => ({
         url,
         landmark: data.landmark || "",
         searchTags: data.searchTags || [],
         majorTags: data.majorTags || [],
         city: data.city || "",
         state: data.state || "",
-        firstImage,
-      };
-    }
+        firstImage: data.files?.length > 0 ? base64FileDataToDataUrl(data.files[0]) : "",
+      }));
 
-    try {
-      setIsLoadingDrafts(true);
-      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
-      // all cache keys
-      const allDraftCacheUrls = new Set((await cache.keys()).map((req) => req.url));
-      // create promises to load the drafts concurrently
-      const newLoadedDrafts = await (async () => {
-        const draftUrlsToBeLoaded = Array.from(allDraftCacheUrls).filter((url) => !drafts[url]);
-        const draftUrlsToBeLoadedPromises = draftUrlsToBeLoaded.map((url) => loadFromCacheByUrl(cache, url));
-        const loadedDrafts = await Promise.all(draftUrlsToBeLoadedPromises);
-        return loadedDrafts.reduce((acc, dr) => {
-          if (!dr) return acc;
-          acc[dr.url] = dr;
-          return acc;
-        }, /** @type {Record<string, DraftData>} */ ({}));
-      })();
-      // find out drafts are in memory but no more in cache
-      const draftUrlsToBeRevoked = Object.keys(drafts).filter((url) => !allDraftCacheUrls.has(url));
-      // set drafts and revoke deleted draft firstImage urls
-      setDrafts((oldDrafts) => {
-        const keepDrafts = { ...oldDrafts };
-        draftUrlsToBeRevoked.forEach((url) => {
-          if (!url) return;
-          if (!keepDrafts[url].firstImage) return;
-          urlObjectRevokeWrapper(keepDrafts[url].firstImage);
-          delete keepDrafts[url];
-        });
-        return { ...keepDrafts, ...newLoadedDrafts };
-      });
+      setDrafts(loadedDrafts.filter(Boolean));
     } catch (error) {
       console.error(error);
       notify(
@@ -99,9 +64,9 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       );
     } finally {
       // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
-      setTimeout(() => setIsLoadingDrafts(false), 2000);
+      setTimeout(() => setIsLoadingDrafts(false), 0);
     }
-  }
+  }, [notify]);
 
   /**
    * @param {string} draftUrl
@@ -121,20 +86,7 @@ export default function SectionDrafts({ handleAddNewRoom }) {
       .catch((e) => notify(e, "error"));
   }
 
-  // on mount
-  useEffect(
-    () => {
-      loadDrafts();
-      return () =>
-        Object.values(drafts).forEach((it) => {
-          if (it.firstImage) urlObjectRevokeWrapper(it.firstImage);
-          it.firstImage = "";
-        });
-    },
-    // on unmount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  useEffect(() => loadDrafts() && void 0, [loadDrafts]);
 
   return (
     <div className="section-container">
@@ -149,9 +101,9 @@ export default function SectionDrafts({ handleAddNewRoom }) {
         <div className="loading-container">
           <div className="loading-spinner"></div>
         </div>
-      ) : Object.keys(drafts).length > 0 ? (
+      ) : drafts.length > 0 ? (
         <ul className="content-list">
-          {Object.values(drafts).map((draft, index) => (
+          {drafts.map((draft, index) => (
             <li key={index} className="content-item item-item">
               <div className="item-preview">
                 {draft.firstImage && (
