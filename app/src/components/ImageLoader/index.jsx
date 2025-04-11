@@ -376,27 +376,30 @@ export const LOADING_GIF_DATA =
  */
 export default function ImageLoader(props) {
   const [imageUrl, setImageUrl] = useState(/** @type {string | null} */ (null));
+  const [isLoading, setIsLoading] = useState(true);
 
   const notify = useNotification();
-
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
-  function onImageElementLoaded() {
+  useEffect(() => {
+    if (!props.src) return;
+    setIsLoading(true);
+    setImageUrl(null);
     fetchAsDataUrl(props.src, props.requireAuth)
-      .then((url) => setImageUrl(url))
-      .catch((e) => notify(e, "error"));
-  }
+      .then((url) => {
+        setImageUrl(url);
+        setIsLoading(false);
+      })
+      .catch((e) => {
+        notify(e, "error");
+        setIsLoading(false);
+      });
+  }, [props.src, props.forceReloadState, props.requireAuth, notify]);
 
-  /* The <img> which shows the loading animation needs to call onLoad to set the imageData
-   * for the actual <img> below. But this animation <img> does not get rendered unless
-   * the imageData is null.
-   * This is a problem if we change the props.src. The imageData is still valid and non-null,
-   * and onLoad is not called again. This means the imageData is not updated according to
-   * the new props.src.
-   * Hence, we reset imageData when props.src changes using a useEffect. This creates a
-   * dependency from props.src to imageData.
-   */
-  useEffect(() => setImageUrl(null), [props.src, props.forceReloadState]);
+  const newProps = { ...props };
+  delete newProps.requireAuth;
+  delete newProps.loadingAnimation;
+  delete newProps.forceReloadState;
 
   /**
    * @type {React.CSSProperties}
@@ -405,15 +408,8 @@ export default function ImageLoader(props) {
     objectFit: "scale-down",
   };
 
-  const newProps = { ...props };
-  delete newProps.requireAuth;
-  delete newProps.loadingAnimation;
-  delete newProps.forceReloadState;
-
-  if (!imageUrl) {
-    return (
-      <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
-    );
+  if (isLoading || !imageUrl) {
+    return <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} />;
   }
 
   return <img {...newProps} src={imageUrl} alt={props.alt} />;
