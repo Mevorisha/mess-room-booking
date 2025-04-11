@@ -227,3 +227,21 @@ ttl?: timestamp
 ### Update Room Image
 `PATCH /api/rooms/{roomId}/{imageId}/updateImage`
 - Updates a specific room image.
+
+## Rate Limits
+| Has Type   | Action  | Rate |
+|------------|---------|------|
+| Image      | Read    | 20   |
+| Image      | Upload  | 5    |
+| Params     | Read    | 60   |
+| Params     | Update  | 20   |
+| Params     | Search  | 60   |
+| Any        | Create  | 5    |
+| Any        | Delete  | 5    |
+| Logging    | Logging | 60   |
+
+Where:
+- Has Type refers to one of the several types of data a single request has.
+  For e.g. A request can have both images and params, but images have lower rates, the rate limiter will take the lower rate.
+- Action refers to the kind of response
+- Rate refers to number of that request allowed in a minute
