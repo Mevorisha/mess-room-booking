@@ -29,7 +29,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
       notify(lang("Error loading rooms", "রুম লোড করতে সমস্যা হয়েছে", "रूम लोड करने में त्रुटि हुई है"), "error");
     } finally {
       // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
-      setTimeout(() => setIsLoadingRooms(false), 2000);
+      setTimeout(() => setIsLoadingRooms(false), 0);
     }
   }, [notify]);
 
