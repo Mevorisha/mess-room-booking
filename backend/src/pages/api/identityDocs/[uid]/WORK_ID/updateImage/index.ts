@@ -9,6 +9,7 @@ import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import FormParseResult from "@/lib/types/IFormParseResult";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 export const config = {
   api: {
@@ -35,6 +36,8 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   // Require authentication middleware
   await authenticate(req, uid);
+
+  if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
   // Parse form data
   const form = formidable({ multiples: true });

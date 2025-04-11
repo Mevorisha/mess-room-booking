@@ -4,6 +4,7 @@ import { authenticate } from "@/middlewares/auth";
 import Identity, { Language } from "@/models/Identity";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -25,6 +26,8 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   // Require authentication middleware
   await authenticate(req, uid);
+
+  if (!(await RateLimits.PROFILE_LANG_UPDATE(uid, req, res))) return;
 
   const language = req.body["language"] as Language;
   if (!language) {

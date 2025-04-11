@@ -4,6 +4,7 @@ import { respond } from "@/lib/utils/respond";
 import { withmiddleware } from "@/middlewares/withMiddleware";
 import { getLoggedInUser } from "@/middlewares/auth";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -32,6 +33,8 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  * ```
  */
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  if (!(await RateLimits.ROOM_READ(req, res))) return;
+
   // Allow only GET requests
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");

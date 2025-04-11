@@ -9,6 +9,7 @@ import Joi from "joi";
 // import { resizeImageOneSz } from "@/lib/utils/dataConversion";
 import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { resizeImageOneSz } from "@/lib/utils/dataConversion";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 export const config = {
   api: {
@@ -96,6 +97,8 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   const authResult = await getLoggedInUser(req);
   // Automatically throws ApiError and is caught by catchAll (middleware)
   const uid = authResult.getUid();
+
+  if (!(await RateLimits.ROOM_CREATE(uid, req, res))) return;
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.TYPE]);
   if (!profile) {

@@ -4,6 +4,7 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
 import { gsPathToUrl } from "@/models/utils";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -28,6 +29,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!["small", "medium", "large"].includes(size)) {
     throw CustomApiError.create(400, "Invalid query 'size: small | medium | large'");
   }
+
+  if (!(await RateLimits.PROFILE_PHOTO_READ(req, res))) return;
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.PROFILE_PHOTOS]);
   if (!profile?.profilePhotos || !profile?.profilePhotos[size]) {

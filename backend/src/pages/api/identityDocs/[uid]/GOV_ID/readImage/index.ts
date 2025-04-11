@@ -5,6 +5,7 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
 import { gsPathToUrl } from "@/models/utils";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { RateLimits } from "@/middlewares/rateLimit";
 
 /**
  * ```
@@ -13,6 +14,8 @@ import { CustomApiError } from "@/lib/utils/ApiError";
  * ```
  */
 export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  if (!(await RateLimits.ID_DOC_READ(req, res))) return;
+
   // Only allow GET method
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");
