@@ -85,7 +85,7 @@ export default class JobScheduler {
               await SchedulerTimes.set(jobId, currentTime);
               console.log(`[I] [JobScheduler] ran Job[${jobId}]`);
             } catch (error) {
-              console.error(`[E] [JobScheduler] falied Job[${jobId}]:`, error);
+              console.error(`[E] [JobScheduler] failed Job[${jobId}]:`, error);
             }
           };
           jobPromises.push(mkJobPromise());
