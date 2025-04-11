@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "@/hooks/notification.js";
-import { fetchAsDataUrl } from "@/modules/util/dataConversion.js";
+import { serialFetchAsDataUrl } from "@/modules/util/fetch.js";
 
 export const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -383,13 +383,12 @@ export default function ImageLoader(props) {
 
   useEffect(() => {
     if (!props.src) return;
-    setIsLoading(true);
-    setImageUrl(null);
-    fetchAsDataUrl(props.src, props.requireAuth)
-      .then((url) => {
-        setImageUrl(url);
-        setIsLoading(false);
-      })
+    Promise.resolve()
+      .then(() => setIsLoading(true))
+      .then(() => setImageUrl(null))
+      .then(() => serialFetchAsDataUrl(props.src, props.requireAuth))
+      .then((url) => setImageUrl(url))
+      .then(() => setIsLoading(false))
       .catch((e) => {
         notify(e, "error");
         setIsLoading(false);
