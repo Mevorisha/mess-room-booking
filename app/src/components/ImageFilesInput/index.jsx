@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
-import { sizehuman } from "@/modules/util/dataConversion";
+import { fileToDataUrl, sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
 import FileRepr from "@/modules/classes/FileRepr";
 import useNotification from "@/hooks/notification";
@@ -8,9 +8,9 @@ import useDialogBox from "@/hooks/dialogbox";
 import StringySet from "@/modules/classes/StringySet";
 import ButtonText from "../ButtonText";
 import DialogImagePreview from "@/components/DialogImagePreview";
+import ImageLoader from "../ImageLoader";
 
 import "./styles.css";
-import ImageLoader from "../ImageLoader";
 
 const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_TOTAL_SIZE_IN_BYTES = 6 * MAX_SIZE_IN_BYTES; // 6MB
@@ -101,44 +101,27 @@ function NotEmptyFilesInput(props) {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [renderableFilesSet, setRenderableFilesSet] = useState(/** @type {RenderableImgData[]} */ ([]));
+  const [fileReprToDataUrl, setFileReprToDataUrl] = useState(/** @type {Record<string, string>} */ ({}));
+  // const [renderableFilesSet, setRenderableFilesSet] = useState(/** @type {Record<string, RenderableImgData>} */ ({}));
 
   /* Optimization that cleans up object urls before reallocating them for the new set */
-  useEffect(
-    () =>
-      setRenderableFilesSet((oldSet) => {
-        // cleanup
-        oldSet.filter((it) => it.isFile()).forEach((it) => URL.revokeObjectURL(it.url));
-        // new alloc of renderable data
-        return filesSet.toArray().map((fr) => {
-          if (fr.isFile()) {
-            const file = fr.getFile();
-            const url = URL.createObjectURL(file);
-            return {
-              isFile: () => true,
-              isUri: () => false,
-              type: file.type,
-              name: file.name,
-              size: file.size,
-              url,
-              fr,
-            };
-          } else if (fr.isUri()) {
-            const url = fr.getUri();
-            return {
-              isFile: () => false,
-              isUri: () => true,
-              type: void 0,
-              name: void 0,
-              size: void 0,
-              url,
-              fr,
-            };
-          }
-        });
-      }),
-    [filesSet]
-  );
+  useEffect(() => {
+    async function getUrls() {
+      const entries = /** @type {Array<[string, string]>} */ ([]);
+      const urlsDirect = filesSet.filter((fr) => fr.isUri()).toArray();
+      for (const fr of urlsDirect) {
+        entries.push([fr.toString(), fr.getUri()]);
+      }
+      const urlsData = filesSet.filter((fr) => fr.isFile()).toArray();
+      for (const fr of urlsData) {
+        entries.push([fr.toString(), await fileToDataUrl(fr.getFile())]);
+      }
+      return Object.fromEntries(entries);
+    }
+    getUrls()
+      .then((urls) => setFileReprToDataUrl(urls))
+      .catch((e) => notify(e, "error"));
+  }, [filesSet, notify]);
 
   const refInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
 
@@ -201,24 +184,25 @@ function NotEmptyFilesInput(props) {
       </div>
 
       <div className="files-grid">
-        {renderableFilesSet.map((imgData, idx) => {
-          if (imgData.isFile()) {
+        {filesSet.toArray().map((fileRepr, idx) => {
+          if (fileRepr.isFile()) {
+            const imgDataUrl = fileReprToDataUrl[String(fileRepr)];
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
-                  {imgData.type.startsWith("image/") ? (
+                  {fileRepr.getFile().type.startsWith("image/") ? (
                     <div className="file-preview">
-                      <img
+                      {imgDataUrl && <img
                         onClick={() => {
                           dialog.showStacked(
                             dialog.createNewModalId(),
-                            <DialogImagePreview largeImageUrl={imgData.url} />,
+                            <DialogImagePreview largeImageUrl={imgDataUrl} />,
                             "large"
                           );
                         }}
-                        src={imgData.url}
-                        alt={imgData.name}
-                      />
+                        src={imgDataUrl}
+                        alt={fileRepr.getFile().name}
+                      />}
                     </div>
                   ) : (
                     <div className="no-preview">
@@ -228,21 +212,22 @@ function NotEmptyFilesInput(props) {
                 </div>
 
                 <div className="file-info">
-                  <div className="file-name">{imgData.name}</div>
-                  <div className="file-size">{sizehuman(imgData.size)}</div>
+                  <div className="file-name">{fileRepr.getFile().name}</div>
+                  <div className="file-size">{sizehuman(fileRepr.getFile().size)}</div>
                 </div>
 
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
-                      onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
                 )}
               </div>
             );
-          } else if (imgData.isUri()) {
+          } else if (fileRepr.isUri()) {
+            const imgDirectUrl = fileRepr.getUri();
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
@@ -251,11 +236,11 @@ function NotEmptyFilesInput(props) {
                       onClick={() => {
                         dialog.showStacked(
                           dialog.createNewModalId(),
-                          <DialogImagePreview largeImageUrl={imgData.url} />,
+                          <DialogImagePreview largeImageUrl={imgDirectUrl} />,
                           "large"
                         );
                       }}
-                      src={imgData.url}
+                      src={imgDirectUrl}
                       alt={lang("Preview image", "প্রিভিউ ইমেজ", "पूर्वावलोकन छवि")}
                     />
                   </div>
@@ -264,7 +249,7 @@ function NotEmptyFilesInput(props) {
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
                     <i
-                      onClick={!disabled ? () => handleItemRemove(imgData.fr) : undefined}
+                      onClick={!disabled ? () => handleItemRemove(fileRepr) : undefined}
                       className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
                     />
                   </div>
