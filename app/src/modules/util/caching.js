@@ -1,5 +1,5 @@
 export const CachePaths = {
-  IMAGE_LOADER: "custom-ImageLoader-cache-v1",
+  FILE_LOADER: "custom-FileLoader-cache-v1",
   SECTION_ROOM_FORM: "custom-SectionRoomForm-cache-v1",
 };
 

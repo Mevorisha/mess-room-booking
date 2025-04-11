@@ -1,3 +1,5 @@
+import { FirebaseAuth } from "../firebase/init.js";
+import { CachePaths } from "./caching.js";
 import { lang } from "./language.js";
 import { urlObjectCreateWrapper, urlObjectRevokeWrapper } from "./trackedFunctions.js";
 
@@ -177,4 +179,74 @@ export function base64FileDataToFile(fileData) {
     u8arr[i] = byteStr.charCodeAt(i);
   }
   return new File([u8arr], fileData.name, { type: fileData.type });
+}
+
+/**
+ * @param {Base64FileData} fileData
+ * @returns {string}
+ */
+export function base64FileDataToDataUrl(fileData) {
+  return `data:${fileData.base64};base64,${fileData.base64}`;
+}
+
+/**
+ * @param {File} file
+ * @returns {Promise<string>}
+ */
+export async function fileToDataUrl(file) {
+  const b64data = await fileToBase64FileData(file);
+  return base64FileDataToDataUrl(b64data);
+}
+
+const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
+
+/**
+ * @param {string} url
+ * @param {boolean} [requireAuth]
+ * @returns {Promise<string>}
+ */
+export async function fetchAsDataUrl(url, requireAuth = false) {
+  // keep blob and data urls as is
+  // will add more if needed
+  // we only want network urls to befetched and cached
+  if (url.startsWith("blob:") || url.startsWith("data:")) {
+    return url;
+  }
+
+  const cache = await caches.open(FILE_LOADER_CACHE_PATH);
+  const cachedRes = await cache.match(url);
+  if (cachedRes) {
+    const result = await cachedRes.text();
+    // console.warn("ImageLoader: found", url, ": size:", result.length);
+    return result;
+  }
+
+  const headers = /** @type {Record<String, string>} */ ({});
+  if (requireAuth) {
+    headers["X-Firebase-Token"] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
+  }
+
+  // Fetch the image from the URL
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(
+      lang(
+        `HTTP error! status: ${response.status}`,
+        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
+        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
+      )
+    );
+  }
+
+  // Convert the image to a Blob
+  const blob = await response.blob();
+  // convert blob to a file
+  const file = new File([blob], "unknown.bin", { type: blob.type });
+  // get the data url of the file
+  const result = await fileToDataUrl(file);
+  // cache the result
+  await cache.put(url, new Response(result, { status: 200 }));
+
+  return result;
 }

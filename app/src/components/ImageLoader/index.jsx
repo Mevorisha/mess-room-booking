@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "@/hooks/notification.js";
-import { lang } from "@/modules/util/language.js";
-import { fileToBase64FileData } from "@/modules/util/dataConversion.js";
-import { CachePaths } from "@/modules/util/caching.js";
-import { FirebaseAuth } from "@/modules/firebase/init.js";
-
-const IMAGE_LOADER_CACHE_PATH = CachePaths.IMAGE_LOADER;
+import { fetchAsDataUrl } from "@/modules/util/dataConversion.js";
 
 const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -370,54 +365,6 @@ const LOADING_GIF_DATA =
   "FAQAOw==";
 
 /**
- * @param {string} url
- * @param {boolean} [requireAuth]
- * @returns {Promise<string>} - Base64 image data
- */
-async function fetchImageAsBase64(url, requireAuth = false) {
-  const cache = await caches.open(IMAGE_LOADER_CACHE_PATH);
-  const cachedRes = await cache.match(url);
-  if (cachedRes) {
-    const result = await cachedRes.text();
-    // console.warn("ImageLoader: found", url, ": size:", result.length);
-    return result;
-  }
-
-  const headers = /** @type {Record<String, string>} */ ({});
-  if (requireAuth) {
-    headers["X-Firebase-Token"] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
-  }
-
-  // Fetch the image from the URL
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      lang(
-        `HTTP error! status: ${response.status}`,
-        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
-        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
-      )
-    );
-  }
-
-  // Convert the image to a Blob
-  const blob = await response.blob();
-  // Determine the image type (e.g., jpeg, png)
-  const imageType = blob.type.split("/")[1];
-  // convert blob to a file
-  const file = new File([blob], "unknown.bin", { type: blob.type });
-  // get the base64 string of the file
-  const { base64: base64string } = await fileToBase64FileData(file);
-  // create the img src
-  const result = `data:image/${imageType};base64,${base64string}`;
-  // cache the result
-  await cache.put(url, new Response(result, { status: 200 }));
-
-  return result;
-}
-
-/**
  * @param {React.ImgHTMLAttributes<HTMLImageElement> & {
  *   loadingAnimation?: string;
  *   src: string;
@@ -428,15 +375,15 @@ async function fetchImageAsBase64(url, requireAuth = false) {
  * @returns {React.JSX.Element}
  */
 export default function ImageLoader(props) {
-  const [imageData, setImageData] = useState(/** @type {string | null} */ (null));
+  const [imageUrl, setImageUrl] = useState(/** @type {string | null} */ (null));
 
   const notify = useNotification();
 
   const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
 
   function onImageElementLoaded() {
-    fetchImageAsBase64(props.src, props.requireAuth)
-      .then((data) => setImageData(data))
+    fetchAsDataUrl(props.src, props.requireAuth)
+      .then((url) => setImageUrl(url))
       .catch((e) => notify(e, "error"));
   }
 
@@ -449,7 +396,7 @@ export default function ImageLoader(props) {
    * Hence, we reset imageData when props.src changes using a useEffect. This creates a
    * dependency from props.src to imageData.
    */
-  useEffect(() => setImageData(null), [props.src, props.forceReloadState]);
+  useEffect(() => setImageUrl(null), [props.src, props.forceReloadState]);
 
   /**
    * @type {React.CSSProperties}
@@ -463,11 +410,11 @@ export default function ImageLoader(props) {
   delete newProps.loadingAnimation;
   delete newProps.forceReloadState;
 
-  if (!imageData) {
+  if (!imageUrl) {
     return (
       <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={onImageElementLoaded} />
     );
   }
 
-  return <img {...newProps} src={imageData} alt={props.alt} />;
+  return <img {...newProps} src={imageUrl} alt={props.alt} />;
 }
