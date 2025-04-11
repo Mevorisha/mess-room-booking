@@ -54,8 +54,10 @@ class RoomRatings {
   }
 
   static async getAvgForRoom(roomId: string): Promise<number> {
+    // Only include valid ratings (1-5)
     const ratings = Array.from((await RoomRatings.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
-    return Array.from(ratings.values()).reduce((acc, r) => acc + r / ratings.length, 0);
+    if (ratings.length === 0) return 0;
+    return ratings.reduce((acc, r) => acc + r, 0) / ratings.length;
   }
 }
 
