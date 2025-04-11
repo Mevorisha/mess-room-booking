@@ -33,7 +33,7 @@ export interface RoomData {
 // During create, apart from AutoSetFields, isUnavailable MUST not be set
 export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
-type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "rating" | "ownerId" | "acceptGender">>;
+type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
 // During read, all data may be read
 type RoomReadData = Partial<RoomData>;
 // Params to query a room by
