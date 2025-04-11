@@ -54,11 +54,8 @@ class RoomRatings {
   }
 
   static async getAvgForRoom(roomId: string): Promise<number> {
-    const forRoom = await RoomRatings.getAllForRoom(roomId);
-    const len = forRoom.size;           // all including 0 (unrated)
-    return Array.from(forRoom.values())
-      .filter((v) => 0 <= v && v <= 5)  // take 0 i.e. unrated as well
-      .reduce((acc, r) => acc + r / len, 0);
+    const ratings = Array.from((await RoomRatings.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
+    return Array.from(ratings.values()).reduce((acc, r) => acc + r / ratings.length, 0);
   }
 }
 
