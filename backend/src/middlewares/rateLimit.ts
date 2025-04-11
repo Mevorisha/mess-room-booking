@@ -35,6 +35,7 @@ export async function rateLimiter(
     res.status(429).json({
       error: "Too many requests, please try again later.",
     });
+    console.log(`[W] [RateLimiter] blocked ${frequency} ${identifier} ${path}`);
     return false;
   }
   // Increment the counter (or create if doesn't exist)
@@ -51,8 +52,7 @@ export const RateLimits = {
   // Profile operations
   PROFILE_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "PROFILE_CREATE", req, res),
-  PROFILE_READ: (req: NextApiRequest, res: NextApiResponse) =>
-    rateLimiter(60, null, "PROFILE_READ", req, res),
+  PROFILE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "PROFILE_READ", req, res),
   PROFILE_PHOTO_READ: (req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(20, null, "PROFILE_PHOTO_READ", req, res),
   PROFILE_LANG_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
@@ -67,8 +67,7 @@ export const RateLimits = {
     rateLimiter(20, uid, "PROFILE_TYPE_UPDATE", req, res),
 
   // ID document operations
-  ID_DOC_READ: (req: NextApiRequest, res: NextApiResponse) =>
-    rateLimiter(20, null, "ID_DOC_READ", req, res),
+  ID_DOC_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(20, null, "ID_DOC_READ", req, res),
   ID_DOC_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "ID_DOC_UPDATE", req, res),
   ID_DOC_VIS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
@@ -80,10 +79,8 @@ export const RateLimits = {
   ROOM_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_READ", req, res),
   ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(60, uid, "ROOM_SEARCH_READ", req, res),
-  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) =>
-    rateLimiter(20, null, "ROOM_IMAGE_READ", req, res),
-  ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) =>
-    rateLimiter(60, null, "ROOM_RATING_READ", req, res),
+  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(20, null, "ROOM_IMAGE_READ", req, res),
+  ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_RATING_READ", req, res),
   ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "ROOM_PARAMS_UPDATE", req, res),
   ROOM_CLIENT_RATING_READ: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
