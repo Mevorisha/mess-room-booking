@@ -3,6 +3,7 @@ import { cors } from "./cors";
 import { catchAll } from "./catchAll";
 import JobScheduler from "@/lib/utils/JobScheduler";
 import { scheduleJobs } from "./scheduleJobs";
+// import { rateLimiter } from "./rateLimit";
 
 export function withmiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
@@ -10,8 +11,8 @@ export function withmiddleware(
   // wrap API handler in catchAll
   const res = async (req: NextApiRequest, res: NextApiResponse) =>
     catchAll(req, res, async (req: NextApiRequest, res: NextApiResponse) => {
-      const continueRes = await cors(req, res);
-      if (!continueRes) return;
+      if (!(await cors(req, res))) return;
+      // if (!(await rateLimiter(50, null, req, res))) return;
       return handler(req, res);
     });
 

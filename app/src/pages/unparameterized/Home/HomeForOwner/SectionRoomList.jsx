@@ -20,18 +20,11 @@ export default function SectionRooms({ handleAddNewRoom }) {
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
 
   const loadRoomsFromAPI = useCallback(async () => {
-    try {
-      setIsLoadingRooms(true);
-      const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery({ self: true }));
-      setRooms(json.rooms);
-    } catch (error) {
-      console.error(error);
-      notify(lang("Error loading rooms", "রুম লোড করতে সমস্যা হয়েছে", "रूम लोड करने में त्रुटि हुई है"), "error");
-    } finally {
-      // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
-      setTimeout(() => setIsLoadingRooms(false), 0);
-    }
-  }, [notify]);
+    setIsLoadingRooms(true);
+    const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery({ self: true }));
+    setRooms(json.rooms);
+    setIsLoadingRooms(false);
+  }, []);
 
   /**
    * @param {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData} roomData
@@ -50,7 +43,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => loadRoomsFromAPI() && void 0, [loadRoomsFromAPI]);
+  useEffect(() => loadRoomsFromAPI().catch((e) => notify(e, "error")) && void 0, [loadRoomsFromAPI, notify]);
 
   return (
     <div className="section-container">
