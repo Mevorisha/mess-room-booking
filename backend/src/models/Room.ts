@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 import { MultiSizePhoto } from "./Identity";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import Booking from "./Booking";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -154,6 +155,9 @@ class Room {
   }
 
   static async markForDelete(roomId: string): Promise<number> {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
     const daysToLive = 30;
     const ref = FirestorePaths.Rooms(roomId);
     const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
@@ -177,6 +181,9 @@ class Room {
   }
 
   static async forceDelete(roomId: string) {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
     const ref = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
@@ -187,6 +194,9 @@ class Room {
   }
 
   static async setUnavailability(roomId: string, isUnavailable: boolean) {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
     const ref = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
@@ -194,6 +204,23 @@ class Room {
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
+  }
+
+  /**
+   * Check if a room has any active bookings
+   * @param roomId The ID of the room to check
+   * @returns Promise<boolean> True if the room has any active bookings
+   */
+  static async hasBooking(roomId: string): Promise<boolean> {
+    // Query for bookings with this roomId that are not cancelled and not cleared
+    const bookings = await Booking.queryAll({
+      roomId: roomId,
+      isCancelled: false,
+      isCleared: false,
+    });
+
+    // If we found any bookings, the room has active bookings
+    return bookings.length > 0;
   }
 
   static async queryAll(
