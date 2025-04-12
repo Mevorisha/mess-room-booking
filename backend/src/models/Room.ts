@@ -2,6 +2,7 @@ import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseA
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 import { MultiSizePhoto } from "./Identity";
+import { CustomApiError } from "@/lib/utils/ApiError";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -34,7 +35,7 @@ export interface RoomData {
 // During create, apart from AutoSetFields, isUnavailable MUST not be set
 export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
-type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "ownerId" | "acceptGender">>;
+type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
 // During read, all data may be read
 type RoomReadData = Partial<RoomData>;
 // Params to query a room by
@@ -94,7 +95,21 @@ class Room {
    */
   static async create(roomData: RoomCreateData): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-    const docRef = await ref.add({
+
+    const querySnapshot = await FirebaseFirestore.collection(FirestorePaths.ROOMS)
+      .where(SchemaFields.OWNER_ID, "==", roomData.ownerId)
+      .where(SchemaFields.ADDRESS, "==", roomData.address)
+      .where(SchemaFields.CITY, "==", roomData.city)
+      .where(SchemaFields.STATE, "==", roomData.state)
+      .where(SchemaFields.CAPACITY, "==", roomData.capacity)
+      .where(SchemaFields.PRICE_PER_OCCUPANT, "==", roomData.pricePerOccupant)
+      .get();
+
+    if (!querySnapshot.empty) {
+      throw CustomApiError.create(409, "Room w/ same address, price and capacity already exists");
+    }
+
+    const createData = {
       ...roomData,
       // Convert sets to array
       searchTags: Array.from(roomData.searchTags ?? []),
@@ -105,7 +120,9 @@ class Room {
       // Add auto fields
       createdOn: FieldValue.serverTimestamp(),
       lastModifiedOn: FieldValue.serverTimestamp(),
-    });
+    };
+
+    const docRef = await ref.add(createData);
     return docRef.id;
   }
 
@@ -126,20 +143,45 @@ class Room {
     if (updateDataFrstrFormat.majorTags) updateDataFrstrFormat.majorTags = Array.from(updateData.majorTags);
     if (updateDataFrstrFormat.minorTags) updateDataFrstrFormat.minorTags = Array.from(updateData.minorTags);
 
-    await ref.set(updateDataFrstrFormat, { merge: true });
+    try {
+      // Throws error if room doesn't exist
+      await ref.update(updateDataFrstrFormat);
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
   }
 
   static async markForDelete(roomId: string): Promise<number> {
     const daysToLive = 30;
     const ref = FirestorePaths.Rooms(roomId);
     const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
-    await ref.set({ ttl }, { merge: true });
+    try {
+      // Throws error if room doesn't exist
+      await ref.update({ ttl });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
     return daysToLive;
   }
 
   static async unmarkForDelete(roomId: string): Promise<void> {
     const ref = FirestorePaths.Rooms(roomId);
-    await ref.update({ ttl: FieldValue.delete() });
+    try {
+      // Throws error if room doesn't exist
+      await ref.update({ ttl: FieldValue.delete() });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
+  }
+
+  static async setUnavailablity(roomId: string, isUnavailable: boolean) {
+    const ref = FirestorePaths.Rooms(roomId);
+    try {
+      // Throws error if room doesn't exist
+      await ref.update({ isUnavailable });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
   }
 
   static async queryAll(
