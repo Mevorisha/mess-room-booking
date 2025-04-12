@@ -8,7 +8,7 @@ import Room, { SchemaFields } from "@/models/Room";
 
 /**
  * ```
- * request = "PATCH /api/rooms/[roomId]/updateUnavailablity" { isUnavailable: boolean }
+ * request = "PATCH /api/rooms/[roomId]/updateUnavailability" { isUnavailable: boolean }
  * response = { message: string }
  * ```
  */
@@ -40,9 +40,9 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(404, "Room not found");
   }
   if (uid !== roomData?.ownerId) {
-    throw CustomApiError.create(403, "Only owner can set room unavailablity");
+    throw CustomApiError.create(403, "Only owner can set room unavailability");
   }
 
-  await Room.setUnavailablity(roomId, isUnavailable);
+  await Room.setUnavailability(roomId, isUnavailable);
   return respond(res, { status: 200, message: `Room ${roomId} marked ${isUnavailable ? "unavailable" : "available"}` });
 });

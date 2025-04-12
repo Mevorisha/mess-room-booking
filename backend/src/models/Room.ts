@@ -175,7 +175,7 @@ class Room {
     }
   }
 
-  static async setUnavailablity(roomId: string, isUnavailable: boolean) {
+  static async setUnavailability(roomId: string, isUnavailable: boolean) {
     const ref = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
