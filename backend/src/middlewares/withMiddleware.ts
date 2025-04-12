@@ -3,6 +3,7 @@ import { cors } from "./cors";
 import { catchAll } from "./catchAll";
 import JobScheduler from "@/lib/utils/JobScheduler";
 import { scheduleJobs } from "./scheduleJobs";
+import { after } from "next/server";
 // import { rateLimiter } from "./rateLimit";
 
 export function withmiddleware(
@@ -16,15 +17,17 @@ export function withmiddleware(
       return handler(req, res);
     });
 
-  // Schedule all jobs
-  scheduleJobs();
+  after(() => {
+    // Schedule all jobs
+    scheduleJobs();
 
-  // Run scheduled jobs on each API call
-  // This ensures jobs get checked regularly without needing a separate process
-  JobScheduler.getInstance()
-    .run()
-    .then(() => console.log("[I] [WithMiddleware] Invoked JobScheduler"))
-    .catch((err) => console.error("[E] [WithMiddleware] JobScheduler:", err));
+    // Run scheduled jobs on each API call
+    // This ensures jobs get checked regularly without needing a separate process
+    JobScheduler.getInstance()
+      .run()
+      .then(() => console.log("[I] [WithMiddleware] Invoked JobScheduler"))
+      .catch((err) => console.error("[E] [WithMiddleware] JobScheduler:", err));
+  });
 
   // return API handler wrapped in catchAll
   return res;

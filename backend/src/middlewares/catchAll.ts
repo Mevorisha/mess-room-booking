@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { logToDb } from "./logToDb";
+import { after } from "next/server";
 
 function handleErr(e: any, res: NextApiResponse) {
   if (e instanceof CustomApiError) {
@@ -11,8 +12,6 @@ function handleErr(e: any, res: NextApiResponse) {
     respond(res, { status: 500, error: "Internal Server Error" });
     console.trace(e);
   }
-  // log to db
-  logToDb(e);
 }
 
 export function catchAll(
@@ -25,5 +24,6 @@ export function catchAll(
     if (prom instanceof Promise) prom.catch((e) => handleErr(e, res));
   } catch (e) {
     handleErr(e, res);
+    after(() => logToDb(e));
   }
 }
