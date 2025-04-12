@@ -26,7 +26,7 @@ export interface RoomData {
   images?: Array<MultiSizePhoto>;
   isUnavailable?: boolean;
   // 0 to 5
-  rating?: number;
+  rating: number;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
