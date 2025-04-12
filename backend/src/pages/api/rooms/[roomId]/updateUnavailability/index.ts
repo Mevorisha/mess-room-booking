@@ -23,8 +23,10 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(400, "Missing field 'roomId: string'");
   }
 
-  const isUnavailable = Boolean(req.body["isUnavailable"]);
-  if (!isUnavailable) {
+  const isUnavailable = req.body.hasOwnProperty("isUnavailable") 
+    ? Boolean(req.body["isUnavailable"]) 
+    : null;
+  if (isUnavailable === null) {
     throw CustomApiError.create(400, "Missing field 'isUnavailable: boolean'");
   }
 
