@@ -11,8 +11,6 @@ function handleErr(e: any, res: NextApiResponse) {
     respond(res, { status: 500, error: "Internal Server Error" });
     console.trace(e);
   }
-  // log to db
-  logToDb(e);
 }
 
 export function catchAll(
@@ -24,6 +22,6 @@ export function catchAll(
     const prom = handlerFn(req, res);
     if (prom instanceof Promise) prom.catch((e) => handleErr(e, res));
   } catch (e) {
-    handleErr(e, res);
+    logToDb(e).then((e) => handleErr(e, res));
   }
 }
