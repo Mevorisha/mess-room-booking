@@ -40,6 +40,7 @@ export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailab
 type RoomReadData = Partial<RoomData>;
 // Params to query a room by
 type RoomQueryParams = Partial<{
+  self?: boolean;
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -233,9 +234,11 @@ class Room {
       query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
     }
 
-    // TTL and isUnavailable filter (unconditional filters)
-    // Only available Rooms that are not to be deleted will appear in search results
-    query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
+    if (!params.self) {
+      // TTL and isUnavailable filter (unconditional filters)
+      // Only available Rooms that are not to be deleted will appear in search results
+      query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
+    }
 
     // Apply sorting if specified
     if (sortOn) {
@@ -293,7 +296,12 @@ class Room {
     }
 
     if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
-    return results.filter(data => !data.ttl);
+
+    if (!params.self) {
+      return results.filter((data) => !data.ttl);
+    } else {
+      return results;
+    }
   }
 
   /**
