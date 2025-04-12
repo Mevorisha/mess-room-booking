@@ -110,6 +110,10 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.pages-Home .content-item .washout {
+  filter: opacity(0.5);
+}
+
 .pages-Home .item-item {
   border: 1px solid var(--color-light);
 }
@@ -177,6 +181,16 @@
   background-color: rgba(40, 167, 69, 0.1);
 }
 
+.pages-Home .hidden-tag {
+  color: #653838;
+  background-color: rgba(210, 5, 5, 0.1);
+}
+
+.pages-Home .deleted-tag {
+  color: #da0000;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
 .pages-Home .item-actions {
   display: flex;
   gap: var(--pad-1);
@@ -201,7 +215,7 @@
 }
 
 .pages-Home .delete-item-button {
-  background-color: #ffeeee;
+  background-color: #ffdbdb;
   color: #d32f2f;
   border: none;
   border-radius: var(--rounded-rad);
@@ -214,8 +228,26 @@
   font-weight: 500;
 }
 
+.pages-Home .restore-item-button {
+  background-color: #d2f5d2;
+  color: #289c37;
+  border: none;
+  border-radius: var(--rounded-rad);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: background-color 0.15s;
+  font-weight: 500;
+}
+
 .pages-Home .delete-item-button:hover {
-  background-color: #ffdbdb;
+  background-color: #e4d2d2;
+}
+
+.pages-Home .restore-item-button:hover {
+  background-color: #c6e8c6;
 }
 
 .pages-Home .loading-container {
