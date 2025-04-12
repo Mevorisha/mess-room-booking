@@ -1,5 +1,5 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 import { MultiSizePhoto } from "./Identity";
 
@@ -129,6 +129,19 @@ class Room {
     await ref.set(updateDataFrstrFormat, { merge: true });
   }
 
+  static async markForDelete(roomId: string): Promise<number> {
+    const daysToLive = 30;
+    const ref = FirestorePaths.Rooms(roomId);
+    const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
+    await ref.set({ ttl }, { merge: true });
+    return daysToLive;
+  }
+
+  static async unmarkForDelete(roomId: string): Promise<void> {
+    const ref = FirestorePaths.Rooms(roomId);
+    await ref.update({ ttl: FieldValue.delete() });
+  }
+
   static async queryAll(
     params: RoomQueryParams,
     extUrls: ApiResponseUrlType,
@@ -136,48 +149,51 @@ class Room {
     sortOrder?: "asc" | "desc"
   ): Promise<RoomReadDataWithId[]> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-
-    let query: FirebaseFirestore.Query;
-    const queryOrRef = () => (query ? query : ref);
+    let query: any = ref;
 
     // Apply filters for exact matches
     if (params.ownerId) {
-      query = queryOrRef().where(SchemaFields.OWNER_ID, "==", params.ownerId);
+      query = query.where(SchemaFields.OWNER_ID, "==", params.ownerId);
     }
     if (params.acceptGender) {
-      query = queryOrRef().where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
+      query = query.where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
     }
     if (params.acceptOccupation) {
-      query = queryOrRef().where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
+      query = query.where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
     }
     if (params.landmark) {
-      query = queryOrRef().where(SchemaFields.LANDMARK, "==", params.landmark);
+      query = query.where(SchemaFields.LANDMARK, "==", params.landmark);
     }
     if (params.city) {
-      query = queryOrRef().where(SchemaFields.CITY, "==", params.city);
+      query = query.where(SchemaFields.CITY, "==", params.city);
     }
     if (params.state) {
-      query = queryOrRef().where(SchemaFields.STATE, "==", params.state);
+      query = query.where(SchemaFields.STATE, "==", params.state);
     }
     if (params.capacity) {
-      query = queryOrRef().where(SchemaFields.CAPACITY, ">=", params.capacity);
+      query = query.where(SchemaFields.CAPACITY, ">=", params.capacity);
     }
 
     // Price range filters
     if (params.lowPrice) {
-      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
+      query = query.where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
     }
     if (params.highPrice) {
-      query = queryOrRef().where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
+      query = query.where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
     }
 
     // Timestamp filters
     if (params.createdOn) {
-      query = queryOrRef().where(SchemaFields.CREATED_ON, ">=", params.createdOn);
+      query = query.where(SchemaFields.CREATED_ON, ">=", params.createdOn);
     }
     if (params.lastModifiedOn) {
-      query = queryOrRef().where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+      query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
     }
+
+    // TTL and isUnavailable filter (unconditional filters)
+    // Only available Rooms that are not to be deleted will appear in search results
+    query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
+    query = query.where(SchemaFields.TTL, "==", null);
 
     // Apply sorting if specified
     if (sortOn) {
@@ -192,12 +208,12 @@ class Room {
 
       if (fieldToSort) {
         const direction = sortOrder === "desc" ? "desc" : "asc";
-        query = queryOrRef().orderBy(fieldToSort, direction);
+        query = query.orderBy(fieldToSort, direction);
       }
     }
 
     // Execute query
-    const snapshot = await queryOrRef().get();
+    const snapshot = await query.get();
     const results: RoomReadDataWithId[] = [];
 
     // Process results and apply any tag filters in code
