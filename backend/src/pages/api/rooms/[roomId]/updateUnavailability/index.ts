@@ -23,12 +23,14 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(400, "Missing field 'roomId: string'");
   }
 
-  const isUnavailable = req.body.hasOwnProperty("isUnavailable") 
-    ? Boolean(req.body["isUnavailable"]) 
-    : null;
-  if (isUnavailable === null) {
+  const _isUnavailable = req.body.isUnavailable;
+  if (_isUnavailable === void 0 || _isUnavailable === null) {
     throw CustomApiError.create(400, "Missing field 'isUnavailable: boolean'");
   }
+  if (!["true", "false", true, false].includes(_isUnavailable)) {
+    throw CustomApiError.create(400, "Invalid field 'isUnavailable: boolean'");
+  }
+  const isUnavailable = _isUnavailable === "true" ? true : false;
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
