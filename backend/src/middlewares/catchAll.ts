@@ -20,7 +20,7 @@ export function catchAll(
 ) {
   try {
     const prom = handlerFn(req, res);
-    if (prom instanceof Promise) prom.catch((e) => handleErr(e, res));
+    if (prom instanceof Promise) prom.catch((e) => logToDb(e).then((e) => handleErr(e, res)));
   } catch (e) {
     logToDb(e).then((e) => handleErr(e, res));
   }
