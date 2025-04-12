@@ -9,13 +9,13 @@ import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 /**
- * @param {{ rating: number}} props
+ * @param {{ rating: number, washout?: string }} props
  * @returns {React.JSX.Element}
  */
-function RatingDisplay({ rating }) {
+function RatingDisplay({ rating, washout }) {
   // if (rating === 0) return <></>;
   return (
-    <div className="item-rating" title={rating.toString()}>
+    <div className={`item-rating ${washout}`} title={rating.toString()}>
       <i className="fa fa-star-o"></i>
       <span>{rating}</span>
     </div>
@@ -191,7 +191,7 @@ export default function SectionRooms({
                       <div className={`item-landmark ${washout}`} title={roomItem.landmark}>
                         {roomItem.landmark}
                       </div>
-                      <RatingDisplay rating={roomItem.rating} />
+                      <RatingDisplay rating={roomItem.rating} washout={washout} />
                     </div>
                     <div className={`item-location ${washout}`}>
                       {roomItem.city}, {roomItem.state}
