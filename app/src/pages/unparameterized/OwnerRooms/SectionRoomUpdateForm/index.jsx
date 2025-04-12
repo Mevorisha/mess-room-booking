@@ -39,6 +39,9 @@ import "./styles.css";
  * @property {string[]} minorTags
  * @property {number} capacity
  * @property {number} pricePerOccupant
+ * @property {boolean} [isUnavailable]
+ * @property {boolean} [isDeleted]
+ * @property {string} [ttl]
  */
 
 /**
