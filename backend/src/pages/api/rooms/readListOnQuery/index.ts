@@ -41,6 +41,8 @@ import { RateLimits } from "@/middlewares/rateLimit";
  *     capacity: number
  *     pricePerOccupant: number
  *     isUnavailable?: boolean (only included when self=true)
+ *     isDeleted?: boolean (only included when self=true)
+ *     ttl?: string (only included when self=true)
  *   }>
  * }
  * ```
@@ -71,7 +73,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     if (!(await RateLimits.ROOM_SEARCH_READ(uid, req, res))) return;
 
     // Query all rooms owned by this user with sorting
-    const roomsData = await Room.queryAll({ ownerId: uid }, "API_URI", sortOn, sortOrder);
+    const roomsData = await Room.queryAll({ self: isSelfQuery, ownerId: uid }, "API_URI", sortOn, sortOrder);
 
     // Format the response
     const formattedRooms = roomsData.map((room, index) => ({
@@ -90,6 +92,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
       capacity: room.capacity,
       pricePerOccupant: room.pricePerOccupant,
       isUnavailable: room.isUnavailable,
+      isDeleted: !!room.ttl,
+      ttl: room.ttl?.toDate().toLocaleDateString("en-US", { month: "short", year: "numeric", day: "2-digit" }),
     }));
 
     return respond(res, { status: 200, json: { rooms: formattedRooms } });

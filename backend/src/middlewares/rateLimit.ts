@@ -77,6 +77,8 @@ export const RateLimits = {
   // Room operations
   ROOM_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) => rateLimiter(5, uid, "ROOM_CREATE", req, res),
   ROOM_DELETE: (uid: string, req: NextApiRequest, res: NextApiResponse) => rateLimiter(5, uid, "ROOM_DELETE", req, res),
+  ROOM_RESTORE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(5, uid, "ROOM_RESTORE", req, res),
   ROOM_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_READ", req, res),
   ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(60, uid, "ROOM_SEARCH_READ", req, res),
@@ -84,6 +86,8 @@ export const RateLimits = {
   ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_RATING_READ", req, res),
   ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "ROOM_PARAMS_UPDATE", req, res),
+  ROOM_UNAVAILABLITY_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(5, uid, "ROOM_UNAVAILABLITY_UPDATE", req, res),
   ROOM_CLIENT_RATING_READ: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(60, uid, "ROOM_CLIENT_RATING_READ", req, res),
   ROOM_CLIENT_RATING_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>

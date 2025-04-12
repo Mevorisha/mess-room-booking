@@ -62,6 +62,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.OWNER_ID,
     SchemaFields.IS_UNAVAILABLE,
+    SchemaFields.TTL,
   ];
 
   // Get room data
@@ -78,7 +79,11 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
       if (roomData.isUnavailable) {
         throw CustomApiError.create(404, "Room not found");
       }
+      if (roomData.ttl) {
+        throw CustomApiError.create(404, "Room not found");
+      }
       delete roomData.isUnavailable;
+      delete roomData.ttl;
     }
   }
 

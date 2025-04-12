@@ -1,12 +1,74 @@
 import React, { useState, useCallback, useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
-import { lang } from "@/modules/util/language";
+import { getLangCode, lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
 import SectionRoomUpdateForm from "../../OwnerRooms/SectionRoomUpdateForm";
-import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
+import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
+
+/**
+ *
+ * @param {{
+ *   dialog: { show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string; },
+ *   roomItem: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData
+ *   handleRestoreRoom: (roomId: string) => void,
+ *   handleDeleteRoom: (roomId: string) => void
+ * }} props
+ * @returns {React.JSX.Element}
+ */
+function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom }) {
+  if (!roomItem.isDeleted) {
+    return (
+      <button
+        className="delete-item-button"
+        onClick={() =>
+          dialog.show(
+            <ConfirmDialog
+              title={lang("Confirm Delete Room", "রুম মুছে ফেলতে নিশ্চিত করুন", "रूम हटाने के लिए कन्फर्म करें")}
+              text={lang(
+                "Click confirm to delete room. Deleted rooms can be restored within 30 days, after which they will be permanently removed.",
+                "রুম মুছে ফেলতে কনফার্ম চাপুন। মুছে ফেলা রুমগুলি ৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে, তারপর সেগুলি স্থায়ীভাবে সরানো হবে।",
+                "रूम हटाने के लिए कन्फर्म पर क्लिक करें। हटाए गए रूम 30 दिनों के भीतर रीस्टोर किए जा सकते हैं, उसके बाद वे स्थायी रूप से हटा दिए जाएंगे।"
+              )}
+              onConfirm={() => handleDeleteRoom(roomItem.id)}
+            />
+          )
+        }
+        title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
+      >
+        <i className="fa fa-trash" aria-hidden="true"></i>
+      </button>
+    );
+  } else {
+    return (
+      <button
+        className="restore-item-button"
+        onClick={() =>
+          dialog.show(
+            <ConfirmDialog
+              title={lang(
+                "Confirm Restore Room",
+                "রুম পুনরুদ্ধার করতে নিশ্চিত করুন",
+                "रूम रीस्टोर करने के लिए कन्फर्म करें"
+              )}
+              text={lang(
+                "Click confirm to restore room. Your room data will be recovered.",
+                "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
+                "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
+              )}
+              onConfirm={() => handleRestoreRoom(roomItem.id)}
+            />
+          )
+        }
+        title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
+      >
+        <i className="fa fa-refresh" aria-hidden="true"></i>
+      </button>
+    );
+  }
+}
 
 /**
  * @param {{ handleAddNewRoom: () => void }} props
@@ -43,6 +105,16 @@ export default function SectionRooms({ handleAddNewRoom }) {
       .catch((e) => notify(e, "error"));
   }
 
+  /**
+   * @param {string} roomId
+   */
+  function handleRestoreRoom(roomId) {
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
+      .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
+      .then(() => loadRoomsFromAPI())
+      .catch((e) => notify(e, "error"));
+  }
+
   useEffect(() => loadRoomsFromAPI().catch((e) => notify(e, "error")) && void 0, [loadRoomsFromAPI, notify]);
 
   return (
@@ -60,70 +132,88 @@ export default function SectionRooms({ handleAddNewRoom }) {
         </div>
       ) : rooms.length > 0 ? (
         <ul className="content-list">
-          {rooms.map((roomItem, index) => (
-            <li key={index} className="content-item item-item">
-              <div className="item-preview">
-                {roomItem.images?.length > 0 && (
-                  <div className="item-image">
-                    <ImageLoader src={roomItem.images[0].small} alt={roomItem.landmark} />
+          {rooms.map((roomItem, index) => {
+            const washout = roomItem.isDeleted || roomItem.isUnavailable ? "washout" : "";
+            return (
+              <li key={index} className="content-item item-item">
+                <div className="item-preview">
+                  {roomItem.images?.length > 0 && (
+                    <div className={`item-image ${washout}`}>
+                      <ImageLoader src={roomItem.images[0].small} alt={roomItem.landmark} />
+                    </div>
+                  )}
+                  <div className="item-info">
+                    <div className={`item-landmark ${washout}`} title={roomItem.landmark}>
+                      {roomItem.landmark}
+                    </div>
+                    <div className={`item-location ${washout}`}>
+                      {roomItem.city}, {roomItem.state}
+                    </div>
+                    <div className="item-tags">
+                      {/* Show only 2 search tags and 1 major tag */}
+                      {!roomItem.isUnavailable &&
+                        !roomItem.isDeleted &&
+                        roomItem.searchTags.slice(0, 2).map((tag, idx) => (
+                          <span key={idx} className="tag search-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      {!roomItem.isUnavailable &&
+                        !roomItem.isDeleted &&
+                        roomItem.majorTags.slice(0, 1).map((tag, idx) => (
+                          <span key={idx} className="tag major-tag">
+                            {tag}
+                          </span>
+                        ))}
+                      {!roomItem.isDeleted && roomItem.isUnavailable && (
+                        <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
+                      )}
+                      {roomItem.isDeleted && (
+                        <span className="tag deleted-tag">
+                          {roomItem.ttl
+                            ? lang(
+                                `Delete on ${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}`,
+                                `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })} তারিখে মোছা হবে`,
+                                `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })} को मिटाया जायेगा`
+                              )
+                            : lang("Deleted", "মুছে ফেলা", "हटाया गया")}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-                <div className="item-info">
-                  <div className="item-landmark" title={roomItem.landmark}>
-                    {roomItem.landmark}
-                  </div>
-                  <div className="item-location">
-                    {roomItem.city}, {roomItem.state}
-                  </div>
-                  <div className="item-tags">
-                    {/* Show only 2 search tags and 1 major tag */}
-                    {roomItem.searchTags.slice(0, 2).map((tag, idx) => (
-                      <span key={idx} className="tag search-tag">
-                        {tag}
-                      </span>
-                    ))}
-                    {roomItem.majorTags.slice(0, 1).map((tag, idx) => (
-                      <span key={idx} className="tag major-tag">
-                        {tag}
-                      </span>
-                    ))}
+                  <div className="item-actions">
+                    {!roomItem.isDeleted && (
+                      <button
+                        className="edit-item-button"
+                        onClick={() => handleOpenRoom(roomItem)}
+                        title={lang("Edit", "এডিট করুন", "एडिट करें")}
+                      >
+                        <i className="fa fa-pencil" aria-hidden="true"></i>
+                      </button>
+                    )}
+                    <RestoreOrDelete
+                      dialog={dialog}
+                      roomItem={roomItem}
+                      handleRestoreRoom={handleRestoreRoom}
+                      handleDeleteRoom={handleDeleteRoom}
+                    />
                   </div>
                 </div>
-                <div className="item-actions">
-                  <button
-                    className="edit-item-button"
-                    onClick={() => handleOpenRoom(roomItem)}
-                    title={lang("Edit", "এডিট করুন", "एडिट करें")}
-                  >
-                    <i className="fa fa-pencil" aria-hidden="true"></i>
-                  </button>
-                  <button
-                    className="delete-item-button"
-                    onClick={() =>
-                      dialog.show(
-                        <ConfirmDialog
-                          title={lang(
-                            "Confirm Delete Room",
-                            "রুম মুছে ফেলতে নিশ্চিত করুন",
-                            "रूम हटाने के लिए कन्फर्म करें"
-                          )}
-                          text={lang(
-                            "Click confirm to delete room. This action cannot be undone and your data will be deleted.",
-                            "রুম মুছে ফেলতে কনফার্ম চাপুন। এই কাজটি বাতিল করা যাবে না এবং আপনার ডেটা মুছে যাবে।",
-                            "रूम हटाने के लिए कन्फर्म पर क्लिक करें। यह क्रिया पूर्ववत नहीं की जा सकती और आपका डेटा हट जाएगा।"
-                          )}
-                          onConfirm={() => handleDeleteRoom(roomItem.id)}
-                        />
-                      )
-                    }
-                    title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
-                  >
-                    <i className="fa fa-trash" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="no-item-message">

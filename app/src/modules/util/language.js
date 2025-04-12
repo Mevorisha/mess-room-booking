@@ -16,3 +16,12 @@ export function lang(englishTxt, banglaTxt, hindiTxt) {
 export function getLang() {
   return window.localStorage.getItem("lang") || "ENGLISH";
 }
+
+export function getLangCode() {
+  const lang = window.localStorage.getItem("lang");
+  if (!lang) return "en-US";
+  if (lang === "ENGLISH") return "en-US";
+  if (lang === "BANGLA") return "bn-IN";
+  if (lang === "HINDI") return "hi-IN";
+  return "en-US";
+}

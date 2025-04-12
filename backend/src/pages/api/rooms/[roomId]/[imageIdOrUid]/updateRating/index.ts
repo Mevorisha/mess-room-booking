@@ -32,8 +32,11 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ROOM_CLIENT_RATING_UPDATE(uid, req, res))) return;
 
-  const { ownerId } = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (ownerId === uid) {
+  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
+  if (!roomData) {
+    throw CustomApiError.create(404, "Room not found");
+  }
+  if (roomData.ownerId === uid) {
     throw CustomApiError.create(403, "Owner cannot rate their own room");
   }
 
