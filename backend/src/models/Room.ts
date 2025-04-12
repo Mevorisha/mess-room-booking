@@ -176,6 +176,16 @@ class Room {
     }
   }
 
+  static async forceDelete(roomId: string) {
+    const ref = FirestorePaths.Rooms(roomId);
+    try {
+      // Throws error if room doesn't exist
+      await ref.delete();
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
+  }
+
   static async setUnavailability(roomId: string, isUnavailable: boolean) {
     const ref = FirestorePaths.Rooms(roomId);
     try {
