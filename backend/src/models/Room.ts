@@ -236,7 +236,6 @@ class Room {
     // TTL and isUnavailable filter (unconditional filters)
     // Only available Rooms that are not to be deleted will appear in search results
     query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
-    query = query.where(SchemaFields.TTL, "==", null);
 
     // Apply sorting if specified
     if (sortOn) {
@@ -294,7 +293,7 @@ class Room {
     }
 
     if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
-    return results;
+    return results.filter(data => !data.ttl);
   }
 
   /**
