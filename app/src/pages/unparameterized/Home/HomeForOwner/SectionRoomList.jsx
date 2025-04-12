@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
@@ -71,28 +71,32 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
 }
 
 /**
- * @param {{ handleAddNewRoom: () => void }} props
+ * @param {{
+ *   handleAddNewRoom: () => void,
+ *   reloadDraft: () => Promise<void>,
+ *   reloadApi: () => Promise<void>,
+ *   isLoadingDrafts: boolean,
+ *   isLoadingRooms: boolean,
+ *   rooms: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]
+ * }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionRooms({ handleAddNewRoom }) {
+export default function SectionRooms({
+  handleAddNewRoom,
+  reloadDraft,
+  reloadApi,
+  isLoadingDrafts,
+  isLoadingRooms,
+  rooms,
+}) {
   const notify = useNotification();
   const dialog = useDialogBox();
-
-  const [rooms, setRooms] = useState(/** @type {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]} */ ([]));
-  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
-
-  const loadRoomsFromAPI = useCallback(async () => {
-    setIsLoadingRooms(true);
-    const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery({ self: true }));
-    setRooms(json.rooms);
-    setIsLoadingRooms(false);
-  }, []);
 
   /**
    * @param {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData} roomData
    */
   function handleOpenRoom(roomData) {
-    dialog.show(<SectionRoomUpdateForm roomData={roomData} />, "uibox");
+    dialog.show(<SectionRoomUpdateForm roomData={roomData} reloadApi={reloadApi} />, "uibox");
   }
 
   /**
@@ -101,7 +105,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
   function handleDeleteRoom(roomId) {
     apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
-      .then(() => loadRoomsFromAPI())
+      .then(() => reloadApi())
       .catch((e) => notify(e, "error"));
   }
 
@@ -111,17 +115,17 @@ export default function SectionRooms({ handleAddNewRoom }) {
   function handleRestoreRoom(roomId) {
     apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
       .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
-      .then(() => loadRoomsFromAPI())
+      .then(() => reloadApi())
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => loadRoomsFromAPI().catch((e) => notify(e, "error")) && void 0, [loadRoomsFromAPI, notify]);
+  useEffect(() => reloadApi().catch((e) => notify(e, "error")) && void 0, [reloadApi, notify]);
 
   return (
     <div className="section-container">
       <div className="section-header">
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
-        <button className="reload-button" onClick={loadRoomsFromAPI} disabled={isLoadingRooms}>
+        <button className="reload-button" onClick={reloadApi} disabled={isLoadingRooms}>
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>

@@ -6,74 +6,38 @@ import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
 import ImageLoader from "@/components/ImageLoader";
 
 /**
- * @typedef {Object} DraftData
- * @property {string} url
- * @property {string} landmark
- * @property {string[]} searchTags
- * @property {string[]} majorTags
- * @property {string} city
- * @property {string} state
- * @property {string} firstImage
- */
-
-/**
- * @param {{ handleAddNewRoom: () => void }} props
+ * @param {{
+ *   handleAddNewRoom: () => void,
+ *   reloadDraft: () => Promise<void>,
+ *   reloadApi: () => Promise<void>,
+ *   isLoadingDrafts: boolean,
+ *   isLoadingRooms: boolean,
+ *   drafts: import(".").DraftData[]
+ * }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionDrafts({ handleAddNewRoom }) {
+export default function SectionDrafts({
+  handleAddNewRoom,
+  reloadDraft,
+  reloadApi,
+  isLoadingDrafts,
+  isLoadingRooms,
+  drafts,
+}) {
   const notify = useNotification();
   const dialog = useDialogBox();
-
-  const [drafts, setDrafts] = useState(/**@type {Array<DraftData>}*/ ([]));
-  const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
-
-  const loadDrafts = useCallback(async () => {
-    try {
-      setIsLoadingDrafts(true);
-      const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
-      const cacheKeys = await cache.keys();
-
-      /** @type {Array<{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}>} */
-      const draftPromises = cacheKeys
-        .filter((req) => !req.url.endsWith("/last-id")) // do not take the one that counts last-id
-        .map((req) => ({ url: req.url, res: cache.match(req.url) })) // get a response and return both url and response
-        .map(({ url, res }) => res && { url, data: res.then((res) => res.json()) }); // for valid reponses, return url and Promise<data> of response
-
-      // await all promises
-      const results = await Promise.all(draftPromises.map(async ({ url, data }) => ({ url, data: await data })));
-
-      const loadedDrafts = results.map(({ url, data }) => ({
-        url,
-        landmark: data.landmark || "",
-        searchTags: data.searchTags || [],
-        majorTags: data.majorTags || [],
-        city: data.city || "",
-        state: data.state || "",
-        firstImage: data.files?.length > 0 ? base64FileDataToDataUrl(data.files[0]) : "",
-      }));
-
-      setDrafts(loadedDrafts.filter(Boolean));
-    } catch (error) {
-      console.error(error);
-      notify(
-        lang("Error loading drafts", "ড্রাফট লোড করতে সমস্যা হয়েছে", "ड्राफ्ट लोड करने में त्रुटि हुई है"),
-        "error"
-      );
-    } finally {
-      // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
-      setTimeout(() => setIsLoadingDrafts(false), 0);
-    }
-  }, [notify]);
 
   /**
    * @param {string} draftUrl
    */
   function handleOpenDraft(draftUrl) {
-    dialog.show(<SectionRoomCreateForm draftCacheUrl={draftUrl} />, "uibox");
+    dialog.show(
+      <SectionRoomCreateForm draftCacheUrl={draftUrl} reloadApi={reloadApi} reloadDraft={reloadDraft} />,
+      "uibox"
+    );
   }
 
   /**
@@ -83,17 +47,17 @@ export default function SectionDrafts({ handleAddNewRoom }) {
     caches
       .open(CachePaths.SECTION_ROOM_FORM)
       .then((cache) => cache.delete(draftUrl))
-      .then(() => loadDrafts())
+      .then(() => reloadDraft())
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => loadDrafts() && void 0, [loadDrafts]);
+  useEffect(() => reloadDraft() && void 0, [reloadDraft]);
 
   return (
     <div className="section-container">
       <div className="section-header">
         <h2>{lang("Drafts", "খসড়া", "ड्राफ्ट")}</h2>
-        <button className="reload-button" onClick={loadDrafts} disabled={isLoadingDrafts}>
+        <button className="reload-button" onClick={reloadDraft} disabled={isLoadingDrafts}>
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>
