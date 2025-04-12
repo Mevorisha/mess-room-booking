@@ -79,7 +79,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
           }
           title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
         >
-          <i className="fa fa-refresh" aria-hidden="true"></i>
+          <i className="fa fa-undo" aria-hidden="true"></i>
         </button>
         <button
           className="delete-item-button"
