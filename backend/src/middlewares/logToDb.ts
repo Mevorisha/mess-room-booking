@@ -5,6 +5,7 @@ export async function logToDb(e: Error) {
   if (e instanceof CustomApiError && 400 <= e.status && e.status <= 499) {
     return;
   }
+  console.log("[I] [LogToDb] writing log")
   return Logs.put("[InternalServerError]", {
     timestamp: new Date().toUTCString(),
     message: String(e),
