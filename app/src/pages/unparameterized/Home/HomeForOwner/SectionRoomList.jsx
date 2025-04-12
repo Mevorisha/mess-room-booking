@@ -14,7 +14,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
  *   dialog: { show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string; },
  *   roomItem: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData
  *   handleRestoreRoom: (roomId: string) => void,
- *   handleDeleteRoom: (roomId: string) => void
+ *   handleDeleteRoom: (roomId: string, force?: boolean) => void
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -43,29 +43,54 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
     );
   } else {
     return (
-      <button
-        className="restore-item-button"
-        onClick={() =>
-          dialog.show(
-            <ConfirmDialog
-              title={lang(
-                "Confirm Restore Room",
-                "রুম পুনরুদ্ধার করতে নিশ্চিত করুন",
-                "रूम रीस्टोर करने के लिए कन्फर्म करें"
-              )}
-              text={lang(
-                "Click confirm to restore room. Your room data will be recovered.",
-                "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
-                "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
-              )}
-              onConfirm={() => handleRestoreRoom(roomItem.id)}
-            />
-          )
-        }
-        title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
-      >
-        <i className="fa fa-refresh" aria-hidden="true"></i>
-      </button>
+      <>
+        <button
+          className="restore-item-button"
+          onClick={() =>
+            dialog.show(
+              <ConfirmDialog
+                title={lang(
+                  "Confirm Restore Room",
+                  "রুম পুনরুদ্ধার করতে নিশ্চিত করুন",
+                  "रूम रीस्टोर करने के लिए कन्फर्म करें"
+                )}
+                text={lang(
+                  "Click confirm to restore room. Your room data will be recovered.",
+                  "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
+                  "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
+                )}
+                onConfirm={() => handleRestoreRoom(roomItem.id)}
+              />
+            )
+          }
+          title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
+        >
+          <i className="fa fa-refresh" aria-hidden="true"></i>
+        </button>
+        <button
+          className="delete-item-button"
+          onClick={() =>
+            dialog.show(
+              <ConfirmDialog
+                title={lang(
+                  "Confirm Permanent Deletion",
+                  "স্থায়ী ভাবে মুছে ফেলতে নিশ্চিত করুন",
+                  "स्थायी रूप से हटाने की पुष्टि करें"
+                )}
+                text={lang(
+                  "WARNING: This will permanently delete the room immediately. This action CANNOT be undone and all data will be lost forever.",
+                  "সতর্কতা: এটি অবিলম্বে রুমটি স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না এবং সমস্ত ডেটা চিরতরে হারিয়ে যাবে।",
+                  "चेतावनी: यह रूम को तुरंत स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती है और सभी डेटा हमेशा के लिए खो जाएगा।"
+                )}
+                onConfirm={() => handleDeleteRoom(roomItem.id, true)}
+              />
+            )
+          }
+          title={lang("Permanently Delete", "স্থায়ীভাবে মুছুন", "स्थायी रूप से हटाएं")}
+        >
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+        </button>
+      </>
     );
   }
 }
@@ -101,9 +126,10 @@ export default function SectionRooms({
 
   /**
    * @param {string} roomId
+   * @param {boolean} [force]
    */
-  function handleDeleteRoom(roomId) {
-    apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId))
+  function handleDeleteRoom(roomId, force) {
+    apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId, force))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
       .then(() => reloadApi())
       .catch((e) => notify(e, "error"));
