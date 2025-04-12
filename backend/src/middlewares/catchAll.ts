@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { logToDb } from "./logToDb";
 
 function handleErr(e: any, res: NextApiResponse) {
   if (e instanceof CustomApiError) {
@@ -10,6 +11,8 @@ function handleErr(e: any, res: NextApiResponse) {
     respond(res, { status: 500, error: "Internal Server Error" });
     console.trace(e);
   }
+  // log to db
+  logToDb(e);
 }
 
 export function catchAll(
