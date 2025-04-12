@@ -97,6 +97,9 @@ export class ApiPaths {
     /** @param {string} roomId */
     delete: (roomId) => `${ApiPaths.ROOMS}/${roomId}/delete`,
 
+    /** @param {string} roomId */
+    restore: (roomId) => `${ApiPaths.ROOMS}/${roomId}/restore`,
+
     /**
      * @param {Object} query
      * @param {boolean} [query.self]
@@ -109,6 +112,8 @@ export class ApiPaths {
      * @param {number} [query.lowPrice]
      * @param {number} [query.highPrice]
      * @param {string[]} [query.searchTags]
+     * @param {"capacity"|"rating"|"pricePerOccupant"} [query.sortOn]
+     * @param {"asc" | "desc"} [query.sortOrder]
      * @returns {string}
      */
     readListOnQuery: (query = {}) => {
@@ -124,42 +129,46 @@ export class ApiPaths {
       if (query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
       if (query.highPrice) params.append("highPrice", "" + query.highPrice);
       if (query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
+      if (query.sortOn) params.append("sortOn", query.sortOn);
+      if (query.sortOrder) params.append("sortOn", query.sortOrder);
 
       const queryString = params.toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${queryString ? "?" + queryString : ""}`;
     },
 
     /** @param {string} roomId */
-    createImage: (roomId) => `${ApiPaths.ROOMS}/${roomId}/createImage`,
-
-    /** @param {string} roomId */
     read: (roomId) => `${ApiPaths.ROOMS}/${roomId}/read`,
 
     /** @param {string} roomId */
-    updateAvailability: (roomId) => `${ApiPaths.ROOMS}/${roomId}/updateAvailability`,
+    readRating: (roomId) => `${ApiPaths.ROOMS}/${roomId}/readRating`,
+
+    /** @param {string} roomId */
+    updateUnavailability: (roomId) => `${ApiPaths.ROOMS}/${roomId}/updateUnavailability`,
 
     /** @param {string} roomId */
     updateParams: (roomId) => `${ApiPaths.ROOMS}/${roomId}/updateParams`,
 
-    Images: {
+    Clients: {
       /**
        * @param {string} roomId
-       * @param {string} imageId
+       * @param {string} uid
        */
-      delete: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/delete`,
+      readRating: (roomId, uid) => `${ApiPaths.ROOMS}/${roomId}/${uid}/readRating`,
 
+      /**
+       * @param {string} roomId
+       * @param {string} uid
+       */
+      updateRating: (roomId, uid) => `${ApiPaths.ROOMS}/${roomId}/${uid}/updateRating`,
+    },
+
+    Images: {
       /**
        * @param {string} roomId
        * @param {string} imageId
        * @param {MultiSizeImageSz} size
        */
       readImage: (roomId, imageId, size) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
-
-      /**
-       * @param {string} roomId
-       * @param {string} imageId
-       */
-      updateImage: (roomId, imageId) => `${ApiPaths.ROOMS}/${roomId}/${imageId}/updateImage`,
     },
   };
 
