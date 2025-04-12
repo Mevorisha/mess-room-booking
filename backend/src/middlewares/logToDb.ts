@@ -1,11 +1,11 @@
 import { CustomApiError } from "@/lib/utils/ApiError";
 import Logs from "@/models/Logs";
 
-export async function logToDb(e: Error) {
+export function logToDb(e: Error) {
   if (e instanceof CustomApiError && 400 <= e.status && e.status <= 499) {
     return;
   }
-  return Logs.put("[InternalServerError]", {
+  Logs.put("[InternalServerError]", {
     timestamp: new Date().toUTCString(),
     message: String(e),
     type: "error",
