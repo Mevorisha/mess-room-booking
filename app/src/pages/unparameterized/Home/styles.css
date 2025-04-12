@@ -144,17 +144,39 @@
   overflow: hidden;
 }
 
+.pages-Home .items-landmark-rating {
+  display: flex;
+  gap: var(--pad-2);
+  margin-bottom: var(--pad-1);
+}
+
 .pages-Home .item-landmark {
   font-weight: bold;
-  margin-bottom: var(--pad-1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.pages-Home .items-landmark-rating {
+
+.pages-Home .item-rating {
   display: flex;
-  gap: var(--pad-2);
+  align-items: center;
+  color: #6b7280; /* gray-500 equivalent */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: center;
+}
+
+/* If using Font Awesome */
+.pages-Home .item-rating .fa-star-o {
+  margin: auto;
+  margin-right: 0.125rem;
+  font-size: 0.8rem;
+}
+
+.pages-Home .item-rating span {
+  font-size: 0.9rem;
 }
 
 .pages-Home .item-location {
