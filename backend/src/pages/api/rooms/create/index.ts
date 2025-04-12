@@ -149,7 +149,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   // Upload all to gs bucket
   await Promise.all(uploadPromises);
 
-  await Room.update(roomId, { images: imagePaths, isUnavailable: false });
+  await Room.update(roomId, { images: imagePaths });
 
   return respond(res, { status: 200, json: { roomId } });
 });

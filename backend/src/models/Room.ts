@@ -117,6 +117,7 @@ class Room {
       minorTags: Array.from(roomData.minorTags ?? []),
       // Intialise
       rating: 0,
+      isUnavailable: false,
       // Add auto fields
       createdOn: FieldValue.serverTimestamp(),
       lastModifiedOn: FieldValue.serverTimestamp(),
