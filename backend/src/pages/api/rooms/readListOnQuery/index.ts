@@ -91,6 +91,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
       minorTags: Array.from(room.minorTags || []),
       capacity: room.capacity,
       pricePerOccupant: room.pricePerOccupant,
+      rating: room.rating,
       isUnavailable: room.isUnavailable,
       isDeleted: !!room.ttl,
       ttl: room.ttl?.toDate().toLocaleDateString("en-US", { month: "short", year: "numeric", day: "2-digit" }),
@@ -160,6 +161,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
         minorTags: Array.from(room.minorTags || []),
         capacity: room.capacity,
         pricePerOccupant: room.pricePerOccupant,
+        rating: room.rating,
       };
     });
 

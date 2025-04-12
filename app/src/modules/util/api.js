@@ -94,8 +94,11 @@ export class ApiPaths {
   static Rooms = {
     create: () => `${ApiPaths.ROOMS}/create`,
 
-    /** @param {string} roomId */
-    delete: (roomId) => `${ApiPaths.ROOMS}/${roomId}/delete`,
+    /**
+     * @param {string} roomId
+     * @param {boolean} [force]
+     */
+    delete: (roomId, force) => `${ApiPaths.ROOMS}/${roomId}/delete?force=${force ?? "false"}`,
 
     /** @param {string} roomId */
     restore: (roomId) => `${ApiPaths.ROOMS}/${roomId}/restore`,

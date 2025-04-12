@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/lib/utils/respond";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import { logToDb } from "./logToDb";
 
 function handleErr(e: any, res: NextApiResponse) {
   if (e instanceof CustomApiError) {
@@ -19,8 +20,8 @@ export function catchAll(
 ) {
   try {
     const prom = handlerFn(req, res);
-    if (prom instanceof Promise) prom.catch((e) => handleErr(e, res));
+    if (prom instanceof Promise) prom.catch((e) => logToDb(e).then((e) => handleErr(e, res)));
   } catch (e) {
-    handleErr(e, res);
+    logToDb(e).then((e) => handleErr(e, res));
   }
 }

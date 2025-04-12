@@ -39,6 +39,7 @@ import "./styles.css";
  * @property {string[]} minorTags
  * @property {number} capacity
  * @property {number} pricePerOccupant
+ * @property {number} rating
  * @property {boolean} [isUnavailable]
  * @property {boolean} [isDeleted]
  * @property {string} [ttl]
@@ -69,10 +70,10 @@ import "./styles.css";
  */
 
 /**
- * @param {{ roomData: RoomData }} props
+ * @param {{ roomData: RoomData, reloadApi: () => Promise<void> }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionRoomUpdateForm({ roomData }) {
+export default function SectionRoomUpdateForm({ roomData, reloadApi: reloadRooms }) {
   const viewOnly = false;
 
   const notify = useNotification();
@@ -148,6 +149,7 @@ export default function SectionRoomUpdateForm({ roomData }) {
       .then(() => setSubmitButtonKind("primary"))
       .then(() => notify(lang("Room updated", "রুম আপডেট হয়েছে", "रूम अपडेट हो गया है"), "success"))
       .then(() => dialog.hide())
+      .then(() => reloadRooms && reloadRooms())
       .catch((e) => {
         notify(e, "error");
         setSubmitButtonKind("primary");

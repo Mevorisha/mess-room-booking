@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
@@ -9,12 +9,26 @@ import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 /**
+ * @param {{ rating: number, washout?: string }} props
+ * @returns {React.JSX.Element}
+ */
+function RatingDisplay({ rating, washout }) {
+  // if (rating === 0) return <></>;
+  return (
+    <div className={`item-rating ${washout}`} title={rating.toString()}>
+      <i className="fa fa-star-o"></i>
+      <span>{rating}</span>
+    </div>
+  );
+}
+
+/**
  *
  * @param {{
  *   dialog: { show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string; },
  *   roomItem: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData
  *   handleRestoreRoom: (roomId: string) => void,
- *   handleDeleteRoom: (roomId: string) => void
+ *   handleDeleteRoom: (roomId: string, force?: boolean) => void
  * }} props
  * @returns {React.JSX.Element}
  */
@@ -43,65 +57,95 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
     );
   } else {
     return (
-      <button
-        className="restore-item-button"
-        onClick={() =>
-          dialog.show(
-            <ConfirmDialog
-              title={lang(
-                "Confirm Restore Room",
-                "রুম পুনরুদ্ধার করতে নিশ্চিত করুন",
-                "रूम रीस्टोर करने के लिए कन्फर्म करें"
-              )}
-              text={lang(
-                "Click confirm to restore room. Your room data will be recovered.",
-                "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
-                "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
-              )}
-              onConfirm={() => handleRestoreRoom(roomItem.id)}
-            />
-          )
-        }
-        title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
-      >
-        <i className="fa fa-refresh" aria-hidden="true"></i>
-      </button>
+      <>
+        <button
+          className="restore-item-button"
+          onClick={() =>
+            dialog.show(
+              <ConfirmDialog
+                title={lang(
+                  "Confirm Restore Room",
+                  "রুম পুনরুদ্ধার করতে নিশ্চিত করুন",
+                  "रूम रीस्टोर करने के लिए कन्फर्म करें"
+                )}
+                text={lang(
+                  "Click confirm to restore room. Your room data will be recovered.",
+                  "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
+                  "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
+                )}
+                onConfirm={() => handleRestoreRoom(roomItem.id)}
+              />
+            )
+          }
+          title={lang("Restore", "পুনরুদ্ধার করুন", "रीस्टोर करें")}
+        >
+          <i className="fa fa-undo" aria-hidden="true"></i>
+        </button>
+        <button
+          className="delete-item-button"
+          onClick={() =>
+            dialog.show(
+              <ConfirmDialog
+                title={lang(
+                  "Confirm Permanent Deletion",
+                  "স্থায়ী ভাবে মুছে ফেলতে নিশ্চিত করুন",
+                  "स्थायी रूप से हटाने की पुष्टि करें"
+                )}
+                text={lang(
+                  "WARNING: This will permanently delete the room immediately. This action CANNOT be undone and all data will be lost forever.",
+                  "সতর্কতা: এটি অবিলম্বে রুমটি স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না এবং সমস্ত ডেটা চিরতরে হারিয়ে যাবে।",
+                  "चेतावनी: यह रूम को तुरंत स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती है और सभी डेटा हमेशा के लिए खो जाएगा।"
+                )}
+                onConfirm={() => handleDeleteRoom(roomItem.id, true)}
+              />
+            )
+          }
+          title={lang("Permanently Delete", "স্থায়ীভাবে মুছুন", "स्थायी रूप से हटाएं")}
+        >
+          <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
+        </button>
+      </>
     );
   }
 }
 
 /**
- * @param {{ handleAddNewRoom: () => void }} props
+ * @param {{
+ *   handleAddNewRoom: () => void,
+ *   reloadDraft: () => Promise<void>,
+ *   reloadApi: () => Promise<void>,
+ *   isLoadingDrafts: boolean,
+ *   isLoadingRooms: boolean,
+ *   rooms: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]
+ * }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionRooms({ handleAddNewRoom }) {
+export default function SectionRooms({
+  handleAddNewRoom,
+  reloadDraft,
+  reloadApi,
+  isLoadingDrafts,
+  isLoadingRooms,
+  rooms,
+}) {
   const notify = useNotification();
   const dialog = useDialogBox();
-
-  const [rooms, setRooms] = useState(/** @type {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]} */ ([]));
-  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
-
-  const loadRoomsFromAPI = useCallback(async () => {
-    setIsLoadingRooms(true);
-    const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery({ self: true }));
-    setRooms(json.rooms);
-    setIsLoadingRooms(false);
-  }, []);
 
   /**
    * @param {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData} roomData
    */
   function handleOpenRoom(roomData) {
-    dialog.show(<SectionRoomUpdateForm roomData={roomData} />, "uibox");
+    dialog.show(<SectionRoomUpdateForm roomData={roomData} reloadApi={reloadApi} />, "uibox");
   }
 
   /**
    * @param {string} roomId
+   * @param {boolean} [force]
    */
-  function handleDeleteRoom(roomId) {
-    apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId))
+  function handleDeleteRoom(roomId, force) {
+    apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId, force))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
-      .then(() => loadRoomsFromAPI())
+      .then(() => reloadApi())
       .catch((e) => notify(e, "error"));
   }
 
@@ -111,17 +155,17 @@ export default function SectionRooms({ handleAddNewRoom }) {
   function handleRestoreRoom(roomId) {
     apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
       .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
-      .then(() => loadRoomsFromAPI())
+      .then(() => reloadApi())
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => loadRoomsFromAPI().catch((e) => notify(e, "error")) && void 0, [loadRoomsFromAPI, notify]);
+  useEffect(() => reloadApi().catch((e) => notify(e, "error")) && void 0, [reloadApi, notify]);
 
   return (
     <div className="section-container">
       <div className="section-header">
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
-        <button className="reload-button" onClick={loadRoomsFromAPI} disabled={isLoadingRooms}>
+        <button className="reload-button" onClick={reloadApi} disabled={isLoadingRooms}>
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>
@@ -143,8 +187,11 @@ export default function SectionRooms({ handleAddNewRoom }) {
                     </div>
                   )}
                   <div className="item-info">
-                    <div className={`item-landmark ${washout}`} title={roomItem.landmark}>
-                      {roomItem.landmark}
+                    <div className="items-landmark-rating">
+                      <div className={`item-landmark ${washout}`} title={roomItem.landmark}>
+                        {roomItem.landmark}
+                      </div>
+                      <RatingDisplay rating={roomItem.rating} washout={washout} />
                     </div>
                     <div className={`item-location ${washout}`}>
                       {roomItem.city}, {roomItem.state}

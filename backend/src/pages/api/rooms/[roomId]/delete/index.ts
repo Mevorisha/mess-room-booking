@@ -8,7 +8,7 @@ import Room, { SchemaFields } from "@/models/Room";
 
 /**
  * ```
- * request = "DELETE /api/rooms/[roomId]/delete"
+ * request = "DELETE /api/rooms/[roomId]/delete?force=true|false"
  * response = { message: string }
  * ```
  */
@@ -22,6 +22,8 @@ export default withmiddleware(async function DELETE(req: NextApiRequest, res: Ne
   if (!roomId) {
     throw CustomApiError.create(400, "Missing field 'roomId: string'");
   }
+
+  const forceDelete = req.query["force"] === "true" ? true : false;
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
@@ -38,6 +40,11 @@ export default withmiddleware(async function DELETE(req: NextApiRequest, res: Ne
     throw CustomApiError.create(403, "Only owner can delete room");
   }
 
-  const delInDays = await Room.markForDelete(roomId);
-  return respond(res, { status: 200, message: `Room ${roomId} will be deleted in ${delInDays} days` });
+  if (forceDelete) {
+    await Room.forceDelete(roomId);
+    return respond(res, { status: 200, message: `Room ${roomId} frocefully deleted` });
+  } else {
+    const delInDays = await Room.markForDelete(roomId);
+    return respond(res, { status: 200, message: `Room ${roomId} will be deleted in ${delInDays} days` });
+  }
 });

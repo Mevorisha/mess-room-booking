@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { ApiResponseUrlType, AutoSetFields } from "./utils";
 import { MultiSizePhoto } from "./Identity";
 import { CustomApiError } from "@/lib/utils/ApiError";
+import Booking from "./Booking";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -25,7 +26,7 @@ export interface RoomData {
   images?: Array<MultiSizePhoto>;
   isUnavailable?: boolean;
   // 0 to 5
-  rating?: number;
+  rating: number;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
@@ -154,12 +155,15 @@ class Room {
   }
 
   static async markForDelete(roomId: string): Promise<number> {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
     const daysToLive = 30;
     const ref = FirestorePaths.Rooms(roomId);
     const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
     try {
       // Throws error if room doesn't exist
-      await ref.update({ ttl });
+      await ref.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
@@ -170,20 +174,53 @@ class Room {
     const ref = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
-      await ref.update({ ttl: FieldValue.delete() });
+      await ref.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found");
+    }
+  }
+
+  static async forceDelete(roomId: string) {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
+    const ref = FirestorePaths.Rooms(roomId);
+    try {
+      // Throws error if room doesn't exist
+      await ref.delete();
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
   }
 
   static async setUnavailability(roomId: string, isUnavailable: boolean) {
+    if (await Room.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
     const ref = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
-      await ref.update({ isUnavailable });
+      await ref.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
+  }
+
+  /**
+   * Check if a room has any active bookings
+   * @param roomId The ID of the room to check
+   * @returns Promise<boolean> True if the room has any active bookings
+   */
+  static async hasBooking(roomId: string): Promise<boolean> {
+    // Query for bookings with this roomId that are not cancelled and not cleared
+    const bookings = await Booking.queryAll({
+      roomId: roomId,
+      isCancelled: false,
+      isCleared: false,
+    });
+
+    // If we found any bookings, the room has active bookings
+    return bookings.length > 0;
   }
 
   static async queryAll(
@@ -240,7 +277,7 @@ class Room {
       query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
     }
 
-    // Apply sorting if specified
+    // Apply sorting if specified by user
     if (sortOn) {
       const fieldToSort =
         sortOn === "pricePerOccupant"
@@ -255,6 +292,9 @@ class Room {
         const direction = sortOrder === "desc" ? "desc" : "asc";
         query = query.orderBy(fieldToSort, direction);
       }
+    } else {
+      // Default sorting by lastModifiedOn if no sortOn specified
+      query = query.orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
     }
 
     // Execute query
@@ -297,10 +337,28 @@ class Room {
 
     if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
 
+    // For the "self" parameter, instead of filtering out TTL records completely,
+    // we now need to sort them to appear at the bottom
     if (!params.self) {
+      // Filter out rooms with TTL for non-self queries
       return results.filter((data) => !data.ttl);
     } else {
-      return results;
+      // For self queries, sort rooms with TTL to appear at the bottom
+      // Within each group (with TTL and without TTL), maintain the lastModifiedOn ordering
+      return results.sort((a, b) => {
+        // If one has TTL and the other doesn't, the one without TTL comes first
+        if (a.ttl && !b.ttl) return 1;
+        if (!a.ttl && b.ttl) return -1;
+
+        // Within the same group (both have TTL or both don't have TTL),
+        // sort by lastModifiedOn in descending order (newest first)
+        if (a.lastModifiedOn && b.lastModifiedOn) {
+          return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
+        }
+
+        // If lastModifiedOn is missing on either, maintain original order
+        return 0;
+      });
     }
   }
 
