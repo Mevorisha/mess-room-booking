@@ -130,7 +130,7 @@ export class ApiPaths {
       if (query.highPrice) params.append("highPrice", "" + query.highPrice);
       if (query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
       if (query.sortOn) params.append("sortOn", query.sortOn);
-      if (query.sortOrder) params.append("sortOn", query.sortOrder);
+      if (query.sortOrder) params.append("sortOrder", query.sortOrder);
 
       const queryString = params.toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${queryString ? "?" + queryString : ""}`;
