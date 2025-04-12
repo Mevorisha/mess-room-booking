@@ -25,5 +25,8 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   }
 
   const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.RATING]);
+  if (!roomData) {
+    throw CustomApiError.create(404, "Room not found");
+  }
   return respond(res, { status: 200, json: { rating: roomData.rating ?? 0 } });
 });

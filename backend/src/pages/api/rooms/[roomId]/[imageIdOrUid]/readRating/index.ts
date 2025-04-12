@@ -31,7 +31,10 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!(await RateLimits.ROOM_CLIENT_RATING_READ(uid, req, res))) return;
 
   const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (roomData.ownerId ?? "" === uid) {
+  if (!roomData) {
+    throw CustomApiError.create(404, "Room not found");
+  }
+  if (roomData.ownerId === uid) {
     throw CustomApiError.create(403, "Owner never rates their own room");
   }
 
