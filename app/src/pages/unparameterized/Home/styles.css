@@ -157,7 +157,6 @@
   text-overflow: ellipsis;
 }
 
-
 .pages-Home .item-rating {
   display: flex;
   align-items: center;
@@ -166,6 +165,7 @@
   flex-direction: row;
   align-items: center;
   text-align: center;
+  margin-top: calc(0.25 * var(--pad-1));
 }
 
 /* If using Font Awesome */
@@ -177,6 +177,7 @@
 
 .pages-Home .item-rating span {
   font-size: 0.9rem;
+  margin-bottom: calc(0.5 * var(--pad-1));
 }
 
 .pages-Home .item-location {
