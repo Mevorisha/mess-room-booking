@@ -110,7 +110,7 @@ export default function SectionRooms({ handleAddNewRoom }) {
    */
   function handleRestoreRoom(roomId) {
     apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
-      .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
+      .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
       .then(() => loadRoomsFromAPI())
       .catch((e) => notify(e, "error"));
   }
