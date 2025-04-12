@@ -152,6 +152,11 @@
   text-overflow: ellipsis;
 }
 
+.pages-Home .items-landmark-rating {
+  display: flex;
+  gap: var(--pad-2);
+}
+
 .pages-Home .item-location {
   font-size: 0.9rem;
   color: #666;
