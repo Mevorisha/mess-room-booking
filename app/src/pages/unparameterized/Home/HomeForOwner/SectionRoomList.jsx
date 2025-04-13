@@ -173,7 +173,8 @@ export default function SectionRooms({
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => reloadApi({ invalidateCache: true }).catch((e) => notify(e, "error")) && void 0, [reloadApi, notify]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => reloadApi({ invalidateCache: true }).catch((e) => notify(e, "error")) && void 0, [notify]);
 
   return (
     <div className="section-container">
