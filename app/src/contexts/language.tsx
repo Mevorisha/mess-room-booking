@@ -3,40 +3,33 @@ import UserContext from "./user.jsx";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
 
-const LangContext = createContext({
-  lang: /** @type {"ENGLISH" | "BANGLA" | "HINDI"} */ (window.localStorage.getItem("lang") || "ENGLISH"),
-  setLang: /** @type {(val: "ENGLISH" | "BANGLA" | "HINDI", updateRemote?: boolean) => void} */ (() => {}),
+export interface LanguageContextType {
+  lang: "ENGLISH" | "BANGLA" | "HINDI";
+  setLang: (val: "ENGLISH" | "BANGLA" | "HINDI", updateRemote?: boolean) => void;
+}
+
+const LangContext = createContext<LanguageContextType>({
+  lang: (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI",
+  setLang: () => void 0,
 });
 
 export default LangContext;
 
 /* ------------------------------------ LANG PROVIDER COMPONENT ----------------------------------- */
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function LanguageProvider({ children }) {
+export function LanguageProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const {
     user: { uid },
   } = useContext(UserContext);
   const notify = useNotification();
 
-  const [lang, _setLang] = useState(
-    /** @type {() => "ENGLISH" | "BANGLA" | "HINDI"} */ (
-      () => {
-        const newLangSt = window.localStorage.getItem("lang") || "ENGLISH";
-        return newLangSt;
-      }
-    )
-  );
+  const [lang, _setLang] = useState((): "ENGLISH" | "BANGLA" | "HINDI" => {
+    const newLangSt = (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI";
+    return newLangSt;
+  });
 
   const setLang = useCallback(
-    /**
-     * @param {"ENGLISH" | "BANGLA" | "HINDI"} newVal
-     * @param {boolean} [updateRemote]
-     */
-    (newVal, updateRemote = true) =>
+    (newVal: "ENGLISH" | "BANGLA" | "HINDI", updateRemote = true) =>
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         if (updateRemote) {
@@ -45,7 +38,7 @@ export function LanguageProvider({ children }) {
               // ensure all modules are reloaded with the new language value
               if (oldVal !== newVal) window.location.href = "/";
             })
-            .catch((e) => notify(e, "error"));
+            .catch((e: Error) => notify(e, "error"));
         }
         return newVal;
       }),

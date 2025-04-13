@@ -7,46 +7,44 @@ import { CachePaths } from "@/modules/util/caching.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
-/**
- * @typedef  {Object} IdentityContextType
- * @property {({ workId, govId }: { workId?: File, govId?: File }) =>
- *                                   Promise<{ workId?: string, govId?: string }>} updateIdentityPhotos
- * @property {({ workId, govId }:
- *             { workId?: "PUBLIC" | "PRIVATE"; govId?: "PUBLIC" | "PRIVATE"; })
- *                                                           => Promise<void>}     updateIdentityPhotosVisibility
- */
+export interface IdentityContextType {
+  updateIdentityPhotos: ({
+    workId,
+    govId,
+  }: {
+    workId?: File;
+    govId?: File;
+  }) => Promise<{ workId?: string; govId?: string }>;
+  updateIdentityPhotosVisibility: ({
+    workId,
+    govId,
+  }: {
+    workId?: "PUBLIC" | "PRIVATE";
+    govId?: "PUBLIC" | "PRIVATE";
+  }) => Promise<void>;
+}
 
-const IdentityContext = createContext(
-  /** @type {IdentityContextType} */ ({
-    updateIdentityPhotos: async () => [],
-    updateIdentityPhotosVisibility: async () => {},
-  })
-);
+const IdentityContext = createContext<IdentityContextType>({
+  updateIdentityPhotos: async () => Promise.reject(new Error()),
+  updateIdentityPhotosVisibility: async () => Promise.reject(new Error()),
+});
 
 export default IdentityContext;
 
 /* ------------------------------------ IDENTITY PROVIDER COMPONENT ----------------------------------- */
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function IdentityProvider({ children }) {
+export function IdentityProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const notify = useNotification();
   const { user, dispatchUser } = useContext(UserContext);
 
   const updateIdentityPhotos = useCallback(
-    /**
-     * @param {{ workId?: File, govId?: File }} images
-     * @returns {Promise<{ workId?: string, govId?: string }>}
-     */
-    async ({ workId, govId }) => {
-      if (!workId && !govId) return { workId: void 0, govId: void 0 };
+    async ({ workId, govId }: { workId?: File; govId?: File }): Promise<{ workId?: string; govId?: string }> => {
+      if (workId == null && govId == null) return {};
 
       let uploadedWorkId;
       let uploadedGovId;
 
-      if (workId || govId) {
+      if (workId != null || govId != null) {
         notify(
           lang(
             "Updating document(s), please wait...",
@@ -58,7 +56,7 @@ export function IdentityProvider({ children }) {
       }
 
       // upload id
-      if (workId) {
+      if (workId != null) {
         await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("WORK_ID", user.uid), workId);
         const { small, medium, large } = {
           small: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "small"),
@@ -72,7 +70,7 @@ export function IdentityProvider({ children }) {
       }
 
       // upload govId
-      if (govId) {
+      if (govId != null) {
         await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("GOV_ID", user.uid), govId);
         const { small, medium, large } = {
           small: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "small"),
@@ -94,20 +92,22 @@ export function IdentityProvider({ children }) {
         "success"
       );
 
-      return {
-        workId: uploadedWorkId?.medium,
-        govId: uploadedGovId?.medium,
-      };
+      if (uploadedWorkId?.medium != null && uploadedGovId?.medium != null) {
+        return { workId: uploadedWorkId.medium, govId: uploadedGovId.medium };
+      } else if (uploadedWorkId?.medium != null && uploadedGovId?.medium == null) {
+        return { workId: uploadedWorkId.medium };
+      } else if (uploadedWorkId?.medium == null && uploadedGovId?.medium != null) {
+        return { govId: uploadedGovId.medium };
+      } else {
+        return {};
+      }
     },
     [user.uid, notify, dispatchUser]
   );
 
   const updateIdentityPhotosVisibility = useCallback(
-    /**
-     * @param {{ workId?: "PUBLIC" | "PRIVATE", govId?: "PUBLIC" | "PRIVATE" }} images
-     */
-    async ({ workId, govId }) => {
-      if (workId || govId) {
+    async ({ workId, govId }: { workId?: "PUBLIC" | "PRIVATE"; govId?: "PUBLIC" | "PRIVATE" }) => {
+      if (workId != null || govId != null) {
         notify(
           lang(
             "Changing visibility, please wait...",
@@ -118,17 +118,17 @@ export function IdentityProvider({ children }) {
         );
       }
 
-      if (workId) {
+      if (workId != null) {
         const oldLocalImageObj = user.identityPhotos?.workId?.clone();
         const newLocalImageObj = workId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
         await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("WORK_ID", user.uid), { visibility: workId }); // prettier-ignore
-        dispatchUser({ identityPhotos: { workId: newLocalImageObj } });
+        if (newLocalImageObj != null) dispatchUser({ identityPhotos: { workId: newLocalImageObj } });
       }
-      if (govId) {
+      if (govId != null) {
         const oldLocalImageObj = user.identityPhotos?.govId?.clone();
         const newLocalImageObj = govId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
         await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("GOV_ID", user.uid), { visibility: govId }); // prettier-ignore
-        dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
+        if (newLocalImageObj != null) dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
       }
     },
     [user.uid, dispatchUser, user.identityPhotos?.govId, user.identityPhotos?.workId, notify]

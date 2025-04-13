@@ -2,9 +2,7 @@ import { lang } from "@/modules/util/language.js";
 
 /* -------------------------------------- TYPEDEFS ----------------------------------- */
 
-/**
- * @typedef {(message: string, kind: "info" | "success" | "warning" | "error") => void} FnNotifier
- */
+export type FnNotifier = (message: string, kind: "info" | "success" | "warning" | "error") => void;
 
 /* ---------------------------------- UTILS ----------------------------------- */
 /**
@@ -17,12 +15,12 @@ import { lang } from "@/modules/util/language.js";
  * @param {string} [msg="Uploading"]
  */
 export function notifyProgress(
-  smallPercent,
-  mediumPercent,
-  largePercent,
-  notify,
-  msg = lang("Uploading", "আপলোড হচ্ছে", "अपलोड हो रहा है")
-) {
+  smallPercent: number,
+  mediumPercent: number,
+  largePercent: number,
+  notify: FnNotifier,
+  msg: string = lang("Uploading", "আপলোড হচ্ছে", "अपलोड हो रहा है")
+): void {
   const combinedPercent = (smallPercent + mediumPercent + largePercent) / 3;
   // prettier-ignore
   notify(`${msg}: ${combinedPercent.toFixed(2)}% ${lang("complete", "সম্পূর্ণ", "सम्पूर्ण")}`, "info");

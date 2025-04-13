@@ -3,48 +3,38 @@ import UserContext, { UploadedImage, User } from "./user.jsx";
 import LanguageContext from "./language.jsx";
 import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
-import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
+import IdentityNetworkType from "@/modules/networkTypes/Identity.js";
 
 const MODULE_NAME = "contexts/auth.jsx";
 
 /* -------------------------------------- ENUMS ----------------------------------- */
 
-/**
- * @enum {"STILL_LOADING" | "NOT_LOGGED_IN" | "LOGGED_IN"}
- */
-export const AuthStateEnum = {
-  STILL_LOADING: /** @type {"STILL_LOADING"} */ ("STILL_LOADING"),
-  NOT_LOGGED_IN: /** @type {"NOT_LOGGED_IN"} */ ("NOT_LOGGED_IN"),
-  LOGGED_IN: /**     @type {"LOGGED_IN"}     */ ("LOGGED_IN"),
-};
+export enum AuthStateEnum {
+  STILL_LOADING = "STILL_LOADING",
+  NOT_LOGGED_IN = "NOT_LOGGED_IN",
+  LOGGED_IN = "LOGGED_IN",
+}
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
-/**
- * @typedef  {Object} AuthContextType
- * @property {AuthStateEnum} state
- * @property {() => Promise<void>} logOut
- */
+export interface AuthContextType {
+  state: AuthStateEnum;
+  logOut: () => Promise<void>;
+}
 
-const AuthContext = createContext(
-  /** @type {AuthContextType} */ ({
-    state: AuthStateEnum.STILL_LOADING,
-    logOut: async () => {},
-  })
-);
+const AuthContext = createContext<AuthContextType>({
+  state: AuthStateEnum.STILL_LOADING,
+  logOut: async () => Promise.reject(new Error()),
+});
 
 export default AuthContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState(/** @type {AuthStateEnum} */ (AuthStateEnum.STILL_LOADING));
+export function AuthProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+  const [authState, setAuthState] = useState(/** @type {AuthStateEnum} */ AuthStateEnum.STILL_LOADING);
   const { user, dispatchUser } = useContext(UserContext);
 
   const notify = useNotification();
@@ -77,7 +67,10 @@ export function AuthProvider({ children }) {
         AuthLock.CREATING_USER.onClear(() => setAuthState(AuthStateEnum.STILL_LOADING));
       }
 
-      console.log(`${MODULE_NAME}::onAuthStateChanged: new user =`, user ? User.fromFirebaseAuthUser(user) : null);
+      console.log(
+        `${MODULE_NAME}::onAuthStateChanged: new user =`,
+        user != null ? User.fromFirebaseAuthUser(user) : null
+      );
 
       if (null == user) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
     });
@@ -88,65 +81,65 @@ export function AuthProvider({ children }) {
   /* --------------------------------------- USE EFFECTS GET DATA USING API ----------------------------------- */
 
   useEffect(() => {
-    if (!user.uid) return;
+    if (user.uid.length === 0) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    /**
-     * @param {Object} onlineProfileData
-     */
-    function updateLocalUser(onlineProfileData) {
+    function updateLocalUser(onlineProfileData?: IdentityNetworkType) {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
-      if (!onlineProfileData) {
+      if (onlineProfileData == null) {
         dispatchUser("LOADCURRENT");
         setAuthState(AuthStateEnum.LOGGED_IN);
         return;
       }
 
-      if (!isEmpty(onlineProfileData.type)) {
+      if (onlineProfileData.type != null) {
         dispatchUser({ type: onlineProfileData.type });
       }
 
-      if (!isEmpty(onlineProfileData.email)) {
+      if (onlineProfileData.email != null) {
         dispatchUser({ mobile: onlineProfileData.email });
       }
 
-      if (!isEmpty(onlineProfileData.mobile)) {
+      if (onlineProfileData.mobile != null) {
         dispatchUser({ mobile: onlineProfileData.mobile });
       }
 
-      if (!isEmpty(onlineProfileData.firstName)) {
+      if (onlineProfileData.firstName != null) {
         dispatchUser({ firstName: onlineProfileData.firstName });
       }
 
-      if (!isEmpty(onlineProfileData.lastName)) {
+      if (onlineProfileData.lastName != null) {
         dispatchUser({ lastName: onlineProfileData.lastName });
       }
 
-      if (!isEmpty(onlineProfileData.profilePhotos)) {
+      if (onlineProfileData.profilePhotos != null) {
         dispatchUser({ profilePhotos: UploadedImage.from(user.uid, onlineProfileData.profilePhotos, false) });
       }
 
-      if (!isEmpty(onlineProfileData.identityPhotos)) {
-        let workId, govId;
-        if (!isEmpty(onlineProfileData.identityPhotos.workId)) {
+      if (onlineProfileData.identityPhotos != null) {
+        let workId: UploadedImage | null = null,
+          govId: UploadedImage | null = null;
+        if (onlineProfileData.identityPhotos.workId != null) {
           workId = UploadedImage.from(
             user.uid,
             onlineProfileData.identityPhotos.workId,
-            onlineProfileData.identityPhotos.workIdIsPrivate
+            onlineProfileData.identityPhotos.workIdIsPrivate ?? false
           );
         }
-        if (!isEmpty(onlineProfileData.identityPhotos.govId)) {
+        if (onlineProfileData.identityPhotos.govId != null) {
           govId = UploadedImage.from(
             user.uid,
             onlineProfileData.identityPhotos.govId,
-            onlineProfileData.identityPhotos.govIdIsPrivate
+            onlineProfileData.identityPhotos.govIdIsPrivate ?? false
           );
         }
-        dispatchUser({ identityPhotos: { workId, govId } });
+        if (workId != null && govId != null) dispatchUser({ identityPhotos: { workId, govId } });
+        else if (workId != null && govId == null) dispatchUser({ identityPhotos: { workId } });
+        else if (workId == null && govId != null) dispatchUser({ identityPhotos: { govId } });
       }
 
-      if (onlineProfileData.language) {
+      if (onlineProfileData.language != null) {
         setLang(onlineProfileData.language, false);
       }
     }
@@ -161,16 +154,13 @@ export function AuthProvider({ children }) {
     apiGetOrDelete("GET", ApiPaths.Profile.read(user.uid))
       .then(({ json }) => updateLocalUser(json))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }, [authState, user.uid, dispatchUser, notify, setLang]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const logOut = useCallback(
-    /**
-     * @returns {Promise<void>}
-     */
-    () =>
+    (): Promise<void> =>
       fbAuthLogOut()
         .then(() => notify(lang("Logged out", "লগ আউট করা হয়েছে", "लॉगआउट किया गया है"), "info"))
         .then(() => dispatchUser("RESET")),

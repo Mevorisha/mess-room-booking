@@ -8,41 +8,30 @@ import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
-/**
- * @typedef  {Object} AccountContextType
- * @property {(number: string) => Promise<void>} sendPhoneVerificationCode
- * @property {(otp: string)    => Promise<void>} verifyPhoneVerificationCode
- * @property {()               => Promise<void>} unlinkPhoneNumber
- * @property {()               => Promise<void>} requestPasswordReset
- */
+export interface AccountContextType {
+  sendPhoneVerificationCode: (number: string) => Promise<void>;
+  verifyPhoneVerificationCode: (otp: string) => Promise<void>;
+  unlinkPhoneNumber: () => Promise<void>;
+  requestPasswordReset: () => Promise<void>;
+}
 
-const AccountContext = createContext(
-  /** @type {AccountContextType} */ ({
-    sendPhoneVerificationCode: async () => {},
-    verifyPhoneVerificationCode: async () => {},
-    unlinkPhoneNumber: async () => {},
-    requestPasswordReset: async () => {},
-  })
-);
+const AccountContext = createContext<AccountContextType>({
+  sendPhoneVerificationCode: async () => Promise.reject(new Error()),
+  verifyPhoneVerificationCode: async () => Promise.reject(new Error()),
+  unlinkPhoneNumber: async () => Promise.reject(new Error()),
+  requestPasswordReset: async () => Promise.reject(new Error()),
+});
 
 export default AccountContext;
 
 /* ------------------------------------ ACCOUNT PROVIDER COMPONENT ----------------------------------- */
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function AccountProvider({ children }) {
+export function AccountProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const notify = useNotification();
   const { user, dispatchUser } = useContext(UserContext);
 
   const sendPhoneVerificationCode = useCallback(
-    /**
-     * @param {string} number
-     * @returns {Promise<void>}
-     */
-    async (number) =>
+    async (number: string): Promise<void> =>
       LinkMobileNumber.sendOtp(number).then(() =>
         notify(
           lang("Check your mobile for OTP", "ও-টি-পি এর জন্য আপনার মোবাইল দেখুন", "ओ-टी-पी के लिए आपका मोबाइल देखें"),
@@ -53,10 +42,7 @@ export function AccountProvider({ children }) {
   );
 
   const unlinkPhoneNumber = useCallback(
-    /**
-     * @returns {Promise<void>}
-     */
-    async () =>
+    async (): Promise<void> =>
       LinkMobileNumber.unlinkPhoneNumber()
         .then(() => dispatchUser({ mobile: "" }))
         .then(() =>
@@ -73,20 +59,22 @@ export function AccountProvider({ children }) {
   );
 
   const verifyPhoneVerificationCode = useCallback(
-    /**
-     * @param {string} otp
-     * @returns {Promise<void>}
-     */
-    async (otp) =>
+    async (otp: string): Promise<void> =>
       LinkMobileNumber.verifyOtp(otp)
         .then((phno) =>
           isEmpty(phno)
             ? Promise.reject(
-                lang("Mobile number verification failed", "মোবাইল নম্বর ভেরিফিকেশন ফেইল", "मोबाइल नंबर भेरिफिकेशन फेल")
+                new Error(
+                  lang(
+                    "Mobile number verification failed",
+                    "মোবাইল নম্বর ভেরিফিকেশন ফেইল",
+                    "मोबाइल नंबर भेरिफिकेशन फेल"
+                  )
+                )
               )
             : Promise.resolve(phno)
         )
-        .catch(async (error) => {
+        .catch(async (error: Error) => {
           if (
             !(
               error.toString().toLowerCase().includes("provider") &&
@@ -129,16 +117,13 @@ export function AccountProvider({ children }) {
             "success"
           )
         )
-        .catch((e) => notify(e, "error")),
+        .catch((e: Error) => notify(e, "error")),
 
     [user.uid, notify, dispatchUser, unlinkPhoneNumber]
   );
 
   const requestPasswordReset = useCallback(
-    /**
-     * @returns {Promise<void>}
-     */
-    async () =>
+    async (): Promise<void> =>
       EmailPasswdAuth.requestPasswordReset().then(() =>
         notify(
           lang(
