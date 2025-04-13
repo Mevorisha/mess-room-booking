@@ -136,8 +136,8 @@ export class ApiPaths {
       if (void 0 !== query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
       if (void 0 !== query.sortOn) params.append("sortOn", query.sortOn);
       if (void 0 !== query.sortOrder) params.append("sortOrder", query.sortOrder);
-      if (void 0 !== query.page) params.append("sortOrder", "" + query.page);
-      if (void 0 !== query.invalidateCache) params.append("sortOrder", "" + query.invalidateCache);
+      if (void 0 !== query.page) params.append("page", "" + query.page);
+      if (void 0 !== query.invalidateCache) params.append("invalidateCache", "" + query.invalidateCache);
 
       const queryString = params.toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${queryString ? "?" + queryString : ""}`;
