@@ -17,7 +17,7 @@ const bookingsCache = new LRUCache<string, any[]>({
 });
 
 // Number of items per page
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 /**
  * ```
