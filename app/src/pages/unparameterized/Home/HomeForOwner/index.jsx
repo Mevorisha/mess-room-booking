@@ -33,6 +33,8 @@ function TabRooms() {
 
   const [drafts, setDrafts] = useState(/**@type {Array<DraftData>}*/ ([]));
   const [rooms, setRooms] = useState(/** @type {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]} */ ([]));
+  const [roomPages, setRoomPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
@@ -83,6 +85,8 @@ function TabRooms() {
      * }} [params]
      */
     async (params) => {
+      params = params ?? {};
+      params.page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       const { json } = await apiGetOrDelete(
         "GET",
@@ -93,9 +97,10 @@ function TabRooms() {
         })
       );
       setRooms(json.rooms);
+      setRoomPages(json.totalPages);
       setIsLoadingRooms(false);
     },
-    []
+    [currentPage]
   );
 
   function handleAddNewRoom() {
@@ -121,6 +126,9 @@ function TabRooms() {
             isLoadingDrafts={isLoadingDrafts}
             isLoadingRooms={isLoadingRooms}
             rooms={rooms}
+            roomPages={roomPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
           />
           <CustomFab marginBottom={70} title={lang("New Room", "নতুন রুম", "नया रूम")} onClick={handleAddNewRoom} />
         </div>
