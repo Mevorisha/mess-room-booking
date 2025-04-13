@@ -117,23 +117,27 @@ export class ApiPaths {
      * @param {string[]} [query.searchTags]
      * @param {"capacity"|"rating"|"pricePerOccupant"} [query.sortOn]
      * @param {"asc" | "desc"} [query.sortOrder]
+     * @param {number} [query.page]
+     * @param {boolean} [query.invalidateCache]
      * @returns {string}
      */
     readListOnQuery: (query = {}) => {
       const params = new URLSearchParams();
 
-      if (query.self !== void 0) params.append("self", "" + query.self);
-      if (query.acceptGender) params.append("acceptGender", query.acceptGender);
-      if (query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
-      if (query.landmark) params.append("landmark", query.landmark);
-      if (query.city) params.append("city", query.city);
-      if (query.state) params.append("state", query.state);
-      if (query.capacity) params.append("capacity", "" + query.capacity);
-      if (query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
-      if (query.highPrice) params.append("highPrice", "" + query.highPrice);
-      if (query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
-      if (query.sortOn) params.append("sortOn", query.sortOn);
-      if (query.sortOrder) params.append("sortOrder", query.sortOrder);
+      if (void 0 !== query.self) params.append("self", "" + query.self);
+      if (void 0 !== query.acceptGender) params.append("acceptGender", query.acceptGender);
+      if (void 0 !== query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
+      if (void 0 !== query.landmark) params.append("landmark", query.landmark);
+      if (void 0 !== query.city) params.append("city", query.city);
+      if (void 0 !== query.state) params.append("state", query.state);
+      if (void 0 !== query.capacity) params.append("capacity", "" + query.capacity);
+      if (void 0 !== query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
+      if (void 0 !== query.highPrice) params.append("highPrice", "" + query.highPrice);
+      if (void 0 !== query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
+      if (void 0 !== query.sortOn) params.append("sortOn", query.sortOn);
+      if (void 0 !== query.sortOrder) params.append("sortOrder", query.sortOrder);
+      if (void 0 !== query.page) params.append("sortOrder", "" + query.page);
+      if (void 0 !== query.invalidateCache) params.append("sortOrder", "" + query.invalidateCache);
 
       const queryString = params.toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${queryString ? "?" + queryString : ""}`;
