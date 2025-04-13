@@ -26,7 +26,7 @@ type BookingUpdateData = Partial<Omit<BookingData, AutoSetFields | "tenantId" | 
 // During read, all data may be read
 type BookingReadData = Partial<BookingData & { isAccepted: boolean; isCancelled: boolean; isCleared: boolean }>;
 // Params to query a booking by
-type BookingQueryParams = Partial<{
+export type BookingQueryParams = Partial<{
   tenantId: string;
   roomId: string;
   acceptance: AcceptanceStatus;
