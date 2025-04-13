@@ -1,15 +1,15 @@
 export default class FileRepr {
-  file: File | null = null;
-  uri: string | null = null;
+  #file: File | null = null;
+  #uri: string | null = null;
 
   constructor(fileRepr: File | string) {
     if (fileRepr instanceof File) {
-      this.file = fileRepr;
-      this.uri = null;
+      this.#file = fileRepr;
+      this.#uri = null;
     }
     if (typeof fileRepr === "string") {
-      this.uri = fileRepr;
-      this.file = null;
+      this.#uri = fileRepr;
+      this.#file = null;
     }
   }
 
@@ -18,11 +18,11 @@ export default class FileRepr {
   }
 
   isUri(): boolean {
-    return typeof this.uri === "string";
+    return typeof this.#uri === "string";
   }
 
   isFile(): boolean {
-    return this.file instanceof File;
+    return this.#file instanceof File;
   }
 
   /**
@@ -30,7 +30,7 @@ export default class FileRepr {
    */
   getFile(): File {
     if (this.isFile()) {
-      return this.file as File;
+      return this.#file as File;
     }
     throw new Error("FileRepr is not a File");
   }
@@ -40,17 +40,17 @@ export default class FileRepr {
    */
   getUri(): string {
     if (this.isUri()) {
-      return this.uri as string;
+      return this.#uri as string;
     }
     throw new Error("FileRepr is not a URI");
   }
 
   toString(): string {
     if (this.isFile()) {
-      const file = this.file as File;
+      const file = this.#file as File;
       return `[object File <"${file.name}">]`;
     }
-    return this.uri as string;
+    return this.#uri as string;
   }
 
   /**

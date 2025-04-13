@@ -3,7 +3,7 @@
  * @param {Blob} blob - The blob to hash
  * @returns {Promise<string>} - Promise resolving to hex string of the hash
  */
-export async function calculateSHA256(blob) {
+export async function calculateSHA256(blob: Blob): Promise<string> {
   // Convert the blob to an ArrayBuffer
   const arrayBuffer = await blob.arrayBuffer();
   // Use the subtle crypto API to calculate the hash

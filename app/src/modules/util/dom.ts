@@ -8,9 +8,9 @@ import { lang } from "./language.js";
  * @returns {Promise<File>} - File object
  * @throws {Error} - If file is not selected
  */
-export function loadFileFromFilePicker(accept, size) {
-  const fileInput =
-    /** @type {HTMLInputElement} */ (document.getElementById("default-file-input")) ??
+export function loadFileFromFilePicker(accept: string, size: number): Promise<File> {
+  const fileInput: HTMLInputElement =
+    (document.getElementById("default-file-input") as HTMLInputElement | null) ??
     /* if the input element is not found, create a new one */
     (function () {
       const newFileInput = document.createElement("input");
@@ -24,23 +24,25 @@ export function loadFileFromFilePicker(accept, size) {
   fileInput.accept = accept;
   fileInput.click();
 
-  const result = new Promise((resolve, reject) => {
+  const result = new Promise<File>((resolve, reject) => {
     fileInput.addEventListener("change", () => {
-      if (fileInput.files && fileInput.files.length > 0) {
+      if (fileInput.files != null && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        if (file.size <= size) {
+        if (file != null && file.size <= size) {
           resolve(file);
         } else {
           reject(
-            lang(
-              `File exceeds size limit of ${sizehuman(size)}`,
-              `ফাইলের আকার সীমা ${sizehuman(size)} এর চেয়ে বেশি।`,
-              `फ़ाइल का आकार सीमा ${sizehuman(size)} से अधिक है।`
+            new Error(
+              lang(
+                `File exceeds size limit of ${sizehuman(size)}`,
+                `ফাইলের আকার সীমা ${sizehuman(size)} এর চেয়ে বেশি।`,
+                `फ़ाइल का आकार सीमा ${sizehuman(size)} से अधिक है।`
+              )
             )
           );
         }
       } else {
-        reject(lang("No file selected", "কোনও ফাইল নির্বাচন করা হয়নি", "कोई फ़ाइल चयनित नहीं किया गया है"));
+        reject(new Error(lang("No file selected", "কোনও ফাইল নির্বাচন করা হয়নি", "कोई फ़ाइल चयनित नहीं किया गया है")));
       }
     });
   });

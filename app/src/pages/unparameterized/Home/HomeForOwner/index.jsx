@@ -31,7 +31,7 @@ function TabRooms() {
   const dialog = useDialogBox();
   const notify = useNotification();
 
-  const [drafts, setDrafts] = useState(/**@type {Array<DraftData>}*/ ([]));
+  const [drafts, setDrafts] = useState(/**@type {DraftData[]}*/ ([]));
   const [rooms, setRooms] = useState(/** @type {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]} */ ([]));
   const [roomPages, setRoomPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,7 @@ function TabRooms() {
       const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
       const cacheKeys = await cache.keys();
 
-      /** @type {Array<{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}>} */
+      /** @type {{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}[]} */
       const draftPromises = cacheKeys
         .filter((req) => !req.url.endsWith("/last-id")) // do not take the one that counts last-id
         .map((req) => ({ url: req.url, res: cache.match(req.url) })) // get a response and return both url and response

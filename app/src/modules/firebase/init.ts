@@ -24,17 +24,12 @@ const firebaseConfig = {
 const FirebaseApp = initializeApp(firebaseConfig);
 const FirebaseAnalytics = getAnalytics(FirebaseApp);
 
-// App check
-if (!FirebaseApp) {
-  throw new Error("Firebase app not initialized");
-}
-
 // Don't delete this line
 // This line ensures FIREBASE_APPCHECK_DEBUG_TOKEN is in use in this file
 // Which in turn ensures the config module is loaded
 // Which in turn ensures self["FIREBASE_APPCHECK_DEBUG_TOKEN"] is set
 // Which in turn is needed internally by firebase
-if (!config.FIREBASE_APPCHECK_DEBUG_TOKEN) console.warn("App check token not found");
+if (config.FIREBASE_APPCHECK_DEBUG_TOKEN.length === 0) console.warn("App check token not found");
 
 const FirebaseAppCheck = initializeAppCheck(FirebaseApp, {
   provider: new ReCaptchaV3Provider("6LdQN3QqAAAAAPDv2BdhlmQl1rIa7r6lHbhQpSYM"),
@@ -73,18 +68,10 @@ class RtDbPaths {
   static FEEDBACK = !config.IS_PREVIEW ? "/db_Feedback" : "/preview_db_Feedback";
   static ROOMS = !config.IS_PREVIEW ? "/db_Rooms" : "/preview_db_Rooms";
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @returns {string} Constructed database path for the user's identity.
-   */
-  static Identity = (uid) => `${RtDbPaths.IDENTITY}/${uid}`;
-  static Logs = () => RtDbPaths.LOGS;
-  static Feedback = () => RtDbPaths.FEEDBACK;
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @returns {string} Constructed database path for the user's rooms.
-   */
-  static Rooms = (uid) => `${RtDbPaths.ROOMS}/${uid}`;
+  static Identity = (uid: string): string => `${RtDbPaths.IDENTITY}/${uid}`;
+  static Logs = (): string => RtDbPaths.LOGS;
+  static Feedback = (): string => RtDbPaths.FEEDBACK;
+  static Rooms = (uid: string): string => `${RtDbPaths.ROOMS}/${uid}`;
 }
 
 /**
@@ -96,53 +83,31 @@ class StoragePaths {
   static IDENTITY_DOCUMENTS = !config.IS_PREVIEW ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
   static FEEDBACK_PHOTOS = !config.IS_PREVIEW ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
 
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {number | string} w - Width of the image.
-   * @param {number| string} h - Height of the image.
-   * @returns {string} Constructed storage path for the user's profile photos.
-   */
-  static ProfilePhotos = (uid, w, h) => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @returns {string} Constructed storage path for the user's mess photos.
-   */
-  static RoomPhotos = (uid, code) => `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string | number} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @param {"WORK_ID" | "GOV_ID"} type - Type of the image, either "WORK_ID" or "GOV_ID".
-   * @param {number | string} w - Width of the image.
-   * @param {number| string} h - Height of the image.
-   * @returns {string} Constructed storage path for the user's identity documents.
-   */
-  static IdentityDocuments = (uid, code, type, w, h) =>
-    `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
-  /**
-   * @param {string} uid - Unique identifier for the user.
-   * @param {string} code - Unique identifier for the image. Set to "PUBLIC" if document is set public in app.
-   * @returns {string} Constructed storage path for the user's feedback photos.
-   */
-  static FeedbackPhotos = (uid, code) => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
+  static ProfilePhotos = (uid: string, w: number | string, h: number | string): string =>
+    `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`;
+  static RoomPhotos = (uid: string, code: string): string => `${StoragePaths.ROOM_PHOTOS}/${uid}/${code}`;
+  static IdentityDocuments = (
+    uid: string,
+    code: string | number,
+    type: "WORK_ID" | "GOV_ID",
+    w: number | string,
+    h: number | string
+  ): string => `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;
+  static FeedbackPhotos = (uid: string, code: string): string => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;
 }
 
 /**Path
  * Get a reference to a path in the Realtime Database
- * @param {...string} args - Path segments to join
- * @returns {import("firebase/database").DatabaseReference}
  */
-function fbRtdbGetRef(...args) {
+function fbRtdbGetRef(...args: string[]): import("firebase/database").DatabaseReference {
   const path = Array.from(args).join("/");
   return rtdbRef(FirebaseRtDb, path);
 }
 
 /**
  * Get a reference to a path in Firebase Storage
- * @param {...string} args - Path segments to join
- * @returns {import("firebase/storage").StorageReference}
  */
-function fbStorageGetRef(...args) {
+function fbStorageGetRef(...args: string[]): import("firebase/storage").StorageReference {
   const path = Array.from(args).join("/");
   return storageRef(FirebaseStorage, path);
 }

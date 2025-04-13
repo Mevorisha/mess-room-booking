@@ -2,7 +2,7 @@ import React, { createContext, useState } from "react";
 import DialogBox from "@/components/DialogBox";
 
 const DialogBoxContext = createContext({
-  modalStack: /** @type {Array<{id: string, children: React.JSX.Element, size: "small" | "large" | "uibox"}>} */ ([]),
+  modalStack: /** @type {{id: string, children: React.JSX.Element, size: "small" | "large" | "uibox"}[]} */ ([]),
   addModal: /** @type {(id: string, children: React.JSX.Element, size: "small" | "large" | "uibox") => void} */ (
     () => {}
   ),

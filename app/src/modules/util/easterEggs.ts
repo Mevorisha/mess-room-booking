@@ -9,12 +9,12 @@
  * @param {string} str
  * @returns {string | null}
  */
-export function checkForEasterEgg(str) {
+export function checkForEasterEgg(str: string): string | null {
   // Define the list of mild, humorous cuss words
   const mildCussWords = ["gadha", "ullu ka pattha", "idiot", "moron", "jackass", "asshole"];
 
   // Check for mild cuss words (case insensitive)
-  for (let word of mildCussWords) {
+  for (const word of mildCussWords) {
     const regex = new RegExp(`\\b${word}\\b`, "i");
     if (regex.test(str)) {
       return `Kisko ${word} bolta hai be?`;

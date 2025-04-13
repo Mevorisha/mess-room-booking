@@ -1,13 +1,8 @@
 import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 
-/**
- * @param {string} operation
- * @param {string} descrip
- * @param {string} code
- */
-async function logInfo(operation, descrip, code = "code_unknown") {
-  const uid = localStorage.getItem("uid") || "user_logged_out";
+async function logInfo(operation: string, descrip: string, code = "code_unknown"): Promise<void> {
+  const uid = localStorage.getItem("uid") ?? "user_logged_out";
   const message = `I: ${uid}: ${operation}: ${code}: ${descrip}`;
   console.log(message);
   try {
@@ -18,13 +13,8 @@ async function logInfo(operation, descrip, code = "code_unknown") {
   }
 }
 
-/**
- * @param {string} operation
- * @param {string} descrip
- * @param {string} code
- */
-async function logError(operation, descrip, code = "code_unknown") {
-  const uid = localStorage.getItem("uid") || "user_logged_out";
+async function logError(operation: string, descrip: string, code = "code_unknown"): Promise<void> {
+  const uid = localStorage.getItem("uid") ?? "user_logged_out";
   const message = `E: ${uid}: ${operation}: ${code}: ${descrip}`;
   console.error(message);
   try {

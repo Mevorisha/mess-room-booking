@@ -5,12 +5,7 @@ import { lang } from "./language";
 
 const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
 
-/**
- * @param {string} url
- * @param {boolean} [requireAuth]
- * @returns {Promise<string>}
- */
-export async function fetchAsDataUrl(url, requireAuth = false) {
+export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<string> {
   // keep blob and data urls as is
   // will add more if needed
   // we only want network urls to be fetched and cached
@@ -20,13 +15,13 @@ export async function fetchAsDataUrl(url, requireAuth = false) {
 
   const cache = await caches.open(FILE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
-  if (cachedRes) {
+  if (cachedRes != null) {
     const result = await cachedRes.text();
     // console.warn("ImageLoader: found", url, ": size:", result.length);
     return result;
   }
 
-  const headers = /** @type {Record<String, string>} */ ({});
+  const headers: Record<string, string> = {};
   if (requireAuth) {
     headers["X-Firebase-Token"] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
   }
@@ -62,14 +57,11 @@ let fetchQueue = Promise.resolve();
 /**
  * Wrapper function that serializes fetchAsDataUrl calls
  * Only one request will execute at a time
- * @param {string} url
- * @param {boolean} [requireAuth]
- * @returns {Promise<string>}
  */
-export async function serialFetchAsDataUrl(url, requireAuth = false) {
+export async function serialFetchAsDataUrl(url: string, requireAuth = false): Promise<string> {
   // Create a new promise that will resolve with our result
-  let resolveOuterPromise;
-  const outerPromise = new Promise((resolve) => {
+  let resolveOuterPromise: (value: string | PromiseLike<string>) => void;
+  const outerPromise = new Promise<string>((resolve) => {
     resolveOuterPromise = resolve;
   });
 
@@ -81,7 +73,7 @@ export async function serialFetchAsDataUrl(url, requireAuth = false) {
         const result = await fetchAsDataUrl(url, requireAuth);
         resolveOuterPromise(result);
       } catch (error) {
-        resolveOuterPromise(Promise.reject(error));
+        resolveOuterPromise(Promise.reject(error as Error));
       }
     })
     .catch(() => {

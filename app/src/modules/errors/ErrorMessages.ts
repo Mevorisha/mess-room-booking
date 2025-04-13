@@ -59,11 +59,11 @@ const ErrorMessages = {
 export default ErrorMessages;
 
 /**
- * @param {any} error
+ * @param {Error & { code?: string }} error
  */
-export function getCleanFirebaseErrMsg(error) {
-  if (!error.code) {
-    return error;
+export function getCleanFirebaseErrMsg(error: Error & { code?: string }): string {
+  if (error.code == null) {
+    return String(error);
   }
 
   if (error.code === "auth/popup-closed-by-user") {
@@ -129,7 +129,7 @@ export function getCleanFirebaseErrMsg(error) {
 
   let errmsg = error.toString().replace(/FirebaseError: Firebase: (.+) \(.+\/.+\)./g, "$1");
 
-  if (!errmsg || errmsg === "Error" || error.code.startsWith("storage/")) {
+  if (errmsg.length === 0 || errmsg === "Error" || error.code.startsWith("storage/")) {
     const errcode = error.code;
     /* convert errcode from {service}/{error-code} to {Service} error: {Error code} */
     errmsg = errcode.replace(/(.+)\/(.+)/g, "$2").replace(/-/g, " ");

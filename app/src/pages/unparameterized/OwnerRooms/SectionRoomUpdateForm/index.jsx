@@ -26,7 +26,7 @@ import "./styles.css";
  * @typedef {Object} RoomData
  * @property {string} id
  * @property {string} ownerId
- * @property {Array<{ small: string, medium: string, large: string }>} images
+ * @property {{ small: string, medium: string, large: string }[]} images
  * @property {boolean} isUnavailable
  * @property {GenderOptions} acceptGender
  * @property {OccupationOptions} acceptOccupation

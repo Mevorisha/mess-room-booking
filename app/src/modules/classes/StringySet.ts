@@ -1,22 +1,18 @@
 /**
  * A Set implementation that uses toString() for comparison
- * @template T
- * @implements Iterable<T>
  */
-export default class StringySet {
+export default class StringySet<T> implements Iterable<T> {
+  #map: Map<string, T>;
+
   /**
    * Create a new StringySet
    * @param {Iterable<T>} [iterable] - Optional initial values
    */
-  constructor(iterable = []) {
-    /** @private */
-    this._map = new Map();
-
+  constructor(iterable: Iterable<T> = []) {
+    this.#map = new Map<string, T>();
     // Add initial values if provided
-    if (iterable) {
-      for (const item of iterable) {
-        this.add(item);
-      }
+    for (const item of iterable) {
+      this.add(item);
     }
   }
 
@@ -25,9 +21,9 @@ export default class StringySet {
    * @param {T} item - The item to add
    * @returns {this} - The set instance
    */
-  add(item) {
+  add(item: T): this {
     const key = String(item); // Calls toString() implicitly
-    this._map.set(key, item);
+    this.#map.set(key, item);
     return this;
   }
 
@@ -36,9 +32,9 @@ export default class StringySet {
    * @param {T} item - The item to check
    * @returns {boolean} - True if the item exists in the set
    */
-  has(item) {
+  has(item: T): boolean {
     const key = String(item); // Calls toString() implicitly
-    return this._map.has(key);
+    return this.#map.has(key);
   }
 
   /**
@@ -46,24 +42,24 @@ export default class StringySet {
    * @param {T} item - The item to delete
    * @returns {boolean} - True if an item was deleted
    */
-  delete(item) {
+  delete(item: T): boolean {
     const key = String(item); // Calls toString() implicitly
-    return this._map.delete(key);
+    return this.#map.delete(key);
   }
 
   /**
    * Clear all items from the set
    */
-  clear() {
-    this._map.clear();
+  clear(): void {
+    this.#map.clear();
   }
 
   /**
    * Get the number of items in the set
    * @returns {number} - The number of items
    */
-  get size() {
-    return this._map.size;
+  get size(): number {
+    return this.#map.size;
   }
 
   /**
@@ -71,8 +67,8 @@ export default class StringySet {
    * @param {function(T): boolean} predicate - Function to test each item
    * @returns {StringySet<T>} - A new filtered set
    */
-  filter(predicate) {
-    const result = new StringySet();
+  filter(predicate: (arg0: T) => boolean): StringySet<T> {
+    const result = new StringySet<T>();
     for (const item of this) {
       if (predicate(item)) {
         result.add(item);
@@ -83,10 +79,10 @@ export default class StringySet {
 
   /**
    * Convert the set to an array.
-   * @returns {Array<T>} - An array containing all items
+   * @returns {T[]} - An array containing all items
    * NOTE: This works only coz StringySet class implements the iterator protocol through the [Symbol.iterator]() method.
    */
-  toArray() {
+  toArray(): T[] {
     return Array.from(this);
   }
 
@@ -94,8 +90,8 @@ export default class StringySet {
    * Iterator for the set (enables for...of loops)
    * @returns {Iterator<T>}
    */
-  *[Symbol.iterator]() {
-    for (const value of this._map.values()) {
+  *[Symbol.iterator](): Iterator<T> {
+    for (const value of this.#map.values()) {
       yield value;
     }
   }
@@ -103,10 +99,10 @@ export default class StringySet {
   /**
    * Create a StringySet from an array
    * @template U
-   * @param {Array<U>} array - The array to convert
+   * @param {U[]} array - The array to convert
    * @returns {StringySet<U>} - A new StringySet
    */
-  static from(array) {
+  static from<U>(array: U[]): StringySet<U> {
     return new StringySet(array);
   }
 }
