@@ -70,10 +70,13 @@ import "./styles.css";
  */
 
 /**
- * @param {{ roomData: RoomData, reloadApi: () => Promise<void> }} props
+ * @param {{
+ *   roomData: RoomData,
+ *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
+ * }} props
  * @returns {React.JSX.Element}
  */
-export default function SectionRoomUpdateForm({ roomData, reloadApi: reloadRooms }) {
+export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
   const viewOnly = false;
 
   const notify = useNotification();
@@ -149,7 +152,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi: reloadRooms
       .then(() => setSubmitButtonKind("primary"))
       .then(() => notify(lang("Room updated", "রুম আপডেট হয়েছে", "रूम अपडेट हो गया है"), "success"))
       .then(() => dialog.hide())
-      .then(() => reloadRooms && reloadRooms())
+      .then(() => reloadApi && reloadApi({ invalidateCache: true }))
       .catch((e) => {
         notify(e, "error");
         setSubmitButtonKind("primary");

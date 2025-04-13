@@ -75,12 +75,28 @@ function TabRooms() {
     }
   }, [notify]);
 
-  const reloadApi = useCallback(async () => {
-    setIsLoadingRooms(true);
-    const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery({ self: true }));
-    setRooms(json.rooms);
-    setIsLoadingRooms(false);
-  }, []);
+  const reloadApi = useCallback(
+    /**
+     * @param {{
+     *   page?: number,
+     *   invalidateCache?: boolean
+     * }} [params]
+     */
+    async (params) => {
+      setIsLoadingRooms(true);
+      const { json } = await apiGetOrDelete(
+        "GET",
+        ApiPaths.Rooms.readListOnQuery({
+          self: true,
+          page: params?.page ?? 1,
+          invalidateCache: params?.invalidateCache ?? false,
+        })
+      );
+      setRooms(json.rooms);
+      setIsLoadingRooms(false);
+    },
+    []
+  );
 
   function handleAddNewRoom() {
     dialog.show(<SectionRoomCreateForm reloadApi={reloadApi} reloadDraft={reloadDraft} />, "uibox");

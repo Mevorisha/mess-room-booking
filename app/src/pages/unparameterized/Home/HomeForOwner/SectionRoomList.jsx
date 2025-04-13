@@ -113,7 +113,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
  * @param {{
  *   handleAddNewRoom: () => void,
  *   reloadDraft: () => Promise<void>,
- *   reloadApi: () => Promise<void>,
+ *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
  *   isLoadingDrafts: boolean,
  *   isLoadingRooms: boolean,
  *   rooms: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]
@@ -145,7 +145,7 @@ export default function SectionRooms({
   function handleDeleteRoom(roomId, force) {
     apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId, force))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
-      .then(() => reloadApi())
+      .then(() => reloadApi({ invalidateCache: true }))
       .catch((e) => notify(e, "error"));
   }
 
@@ -155,17 +155,17 @@ export default function SectionRooms({
   function handleRestoreRoom(roomId) {
     apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
       .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
-      .then(() => reloadApi())
+      .then(() => reloadApi({ invalidateCache: true }))
       .catch((e) => notify(e, "error"));
   }
 
-  useEffect(() => reloadApi().catch((e) => notify(e, "error")) && void 0, [reloadApi, notify]);
+  useEffect(() => reloadApi({ invalidateCache: true }).catch((e) => notify(e, "error")) && void 0, [reloadApi, notify]);
 
   return (
     <div className="section-container">
       <div className="section-header">
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
-        <button className="reload-button" onClick={reloadApi} disabled={isLoadingRooms}>
+        <button className="reload-button" onClick={() => reloadApi({ invalidateCache: true })} disabled={isLoadingRooms}>
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>

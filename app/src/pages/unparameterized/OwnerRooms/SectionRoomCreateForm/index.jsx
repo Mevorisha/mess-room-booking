@@ -41,7 +41,11 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
 /**
  * If viewDraftCacheUrl is provided, initial form data will be loaded from cache.
- * @param {{ draftCacheUrl?: string, reloadDraft: () => Promise<void>, reloadApi: () => Promise<void> }} props
+ * @param {{
+ *   draftCacheUrl?: string,
+ *   reloadDraft: () => Promise<void>,
+ *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
+ * }} props
  * @returns {React.JSX.Element}
  */
 export default function SectionRoomCreateForm({ draftCacheUrl, reloadDraft, reloadApi }) {
@@ -176,7 +180,7 @@ export default function SectionRoomCreateForm({ draftCacheUrl, reloadDraft, relo
         .then(() => setSubmitButtonKind("primary"))
         .then(() => notify(lang("Created new room", "নতুন রুম তৈরি হয়েছে", "नया रूम बनाया गया"), "success"))
         .then(() => dialog.hide())
-        .then(() => reloadApi())
+        .then(() => reloadApi({ invalidateCache: true }))
         .then(() => reloadDraft())
         .catch((e) => {
           notify(e, "error");

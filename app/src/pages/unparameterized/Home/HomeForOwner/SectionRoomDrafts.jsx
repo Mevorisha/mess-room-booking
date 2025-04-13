@@ -12,7 +12,7 @@ import ImageLoader from "@/components/ImageLoader";
  * @param {{
  *   handleAddNewRoom: () => void,
  *   reloadDraft: () => Promise<void>,
- *   reloadApi: () => Promise<void>,
+ *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
  *   isLoadingDrafts: boolean,
  *   isLoadingRooms: boolean,
  *   drafts: import(".").DraftData[]
