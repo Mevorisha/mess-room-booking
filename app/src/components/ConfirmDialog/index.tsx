@@ -3,10 +3,13 @@ import useDialogBox from "@/hooks/dialogbox";
 import ButtonText from "../ButtonText";
 import { lang } from "@/modules/util/language";
 
-/**
- * @param {{ title: string, text: string, onConfirm: () => void }} props
- */
-export default function ConfirmDialog({ title, text, onConfirm: handleConfirmClick }) {
+export interface ConfirmDialogProps {
+  title: string;
+  text: string;
+  onConfirm: () => void;
+}
+
+export default function ConfirmDialog({ title, text, onConfirm: handleConfirmClick }: ConfirmDialogProps): React.JSX.Element {
   const dialog = useDialogBox();
 
   return (

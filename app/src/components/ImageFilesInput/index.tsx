@@ -15,37 +15,50 @@ import "./styles.css";
 const MAX_SIZE_IN_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_TOTAL_SIZE_IN_BYTES = 6 * MAX_SIZE_IN_BYTES; // 6MB
 
-/**
- * @typedef {object} ImageFilesInputProps
- * @property {string} [placeholder] - The placeholder text for the input field when enabled.
- * @property {boolean} [disabled] - If true, disables the input field and interactions.
- * @property {boolean} [required] - Indicates if the input should initially be required.
- * @property {number} [maxTotalSizeBytes] - The maximum total size of all files in bytes.
- * @property {number} [maxOneFileSizeBytes=MAX_SIZE_IN_BYTES] - The maximum size of a single file in bytes.
- * @property {number} [minRequired=1] - The minimum number of files required for the input to no longer be marked as required.
- * @property {StringySet<FileRepr>} filesSet - A set containing the current files.
- * @property {React.Dispatch<React.SetStateAction<StringySet<FileRepr>>>} setFilesSet - State updater for modifying the files set.
- */
+export interface RenderableImgData {
+  isFile: () => boolean;
+  isUri: () => boolean;
+  type?: string;
+  name?: string;
+  size?: number;
+  url: string;
+  fr: FileRepr;
+}
 
-/**
- * @param {ImageFilesInputProps & {
- *   isRequired: boolean;
- *   handleItemAdd: (item: File) => void;
- *   handleItemRemove: (item: FileRepr) => void;
- *   handleClearAll: () => void;
- * }} props - The component properties.
- * @returns {React.JSX.Element}
- */
-function EmptyFilesInput(props) {
-  const { disabled, handleItemAdd } = props;
+export interface ImageFilesInputProps {
+  placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
+  maxTotalSizeBytes?: number;
+  maxOneFileSizeBytes?: number;
+  minRequired?: number;
+  filesSet: StringySet<FileRepr>;
+  setFilesSet: React.Dispatch<React.SetStateAction<StringySet<FileRepr>>>;
+}
+
+export interface ImageFilesInputPropsExtended {
+  disabled: boolean;
+  maxTotalSizeBytes: number;
+  maxOneFileSizeBytes: number;
+  minRequired: number;
+  filesSet: StringySet<FileRepr>;
+  setFilesSet: React.Dispatch<React.SetStateAction<StringySet<FileRepr>>>;
+  isRequired: boolean;
+  handleItemAdd: (item: File) => void;
+  handleItemRemove: (item: FileRepr) => void;
+  handleClearAll: () => void;
+}
+
+function EmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Element {
+  const { disabled = false, handleItemAdd } = props;
   const notify = useNotification();
 
-  function handleAdd1stFile(e) {
+  function handleAdd1stFile(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     e.preventDefault();
     // This function will be implemented by you
     loadFileFromFilePicker("image/*", MAX_SIZE_IN_BYTES)
       .then((file) => handleItemAdd(file))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
   return (
@@ -55,9 +68,9 @@ function EmptyFilesInput(props) {
         <br />
         {!disabled &&
           lang(
-            `Minimum ${props.minRequired ?? "1"} file(s) required`,
-            `ন্যূনতম ${props.minRequired ?? "1"} ফাইল প্রয়োজন`,
-            `न्यूनतम ${props.minRequired ?? "1"} फ़ाइलें आवश्यक हैं`
+            `Minimum ${props.minRequired} file(s) required`,
+            `ন্যূনতম ${props.minRequired} ফাইল প্রয়োজন`,
+            `न्यूनतम ${props.minRequired} फ़ाइलें आवश्यक हैं`
           )}
       </div>
 
@@ -76,38 +89,17 @@ function EmptyFilesInput(props) {
   );
 }
 
-/**
- * @typedef {Object} RenderableImgData
- * @property {() => boolean} isFile
- * @property {() => boolean} isUri
- * @property {string} [type]
- * @property {string} [name]
- * @property {number} [size]
- * @property {string} url
- * @property {FileRepr} fr
- */
-
-/**
- * @param {ImageFilesInputProps & {
- *   isRequired: boolean;
- *   handleItemAdd: (item: File) => void;
- *   handleItemRemove: (item: FileRepr) => void;
- *   handleClearAll: () => void;
- * }} props - The component properties.
- * @returns {React.JSX.Element}
- */
-function NotEmptyFilesInput(props) {
+function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Element {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [fileReprToDataUrl, setFileReprToDataUrl] = useState(/** @type {Record<string, string>} */ ({}));
-  // const [renderableFilesSet, setRenderableFilesSet] = useState(/** @type {Record<string, RenderableImgData>} */ ({}));
+  const [fileReprToDataUrl, setFileReprToDataUrl] = useState<Record<string, string>>({});
 
   /* Optimization that cleans up object urls before reallocating them for the new set */
   useEffect(() => {
     async function getUrls() {
-      const entries = /** @type {Array<[string, string]>} */ ([]);
+      const entries: [string, string][] = [];
       const urlsDirect = filesSet.filter((fr) => fr.isUri()).toArray();
       for (const fr of urlsDirect) {
         entries.push([fr.toString(), fr.getUri()]);
@@ -120,14 +112,14 @@ function NotEmptyFilesInput(props) {
     }
     getUrls()
       .then((urls) => setFileReprToDataUrl(urls))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }, [filesSet, notify]);
 
-  const refInput = /** @type {React.RefObject<HTMLInputElement>} */ (useRef(null));
+  const refInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     // Set the input's custom validity msg attribute based on the number of files
-    if (!refInput.current) return;
+    if (refInput.current == null) return;
     if (filesSet.size >= props.minRequired) refInput.current.setCustomValidity("");
     else {
       refInput.current.setCustomValidity(
@@ -153,16 +145,15 @@ function NotEmptyFilesInput(props) {
           {!disabled && (
             <div className="add-file-container">
               <button
-                className={`btn-add ${disabled ? "disabled" : ""}`}
+                className="btn-add"
                 title={lang("Add file", "ফাইল অ্যাড করুন", "फ़ाइल ऐड करें")}
-                onClick={(e) =>
-                  !disabled &&
+                onClick={(e) => {
                   Promise.resolve(e)
                     .then(() => e.preventDefault())
                     .then(() => loadFileFromFilePicker("image/*", MAX_SIZE_IN_BYTES))
                     .then((file) => handleItemAdd(file))
-                    .catch((e) => notify(e, "error"))
-                }
+                    .catch((e: Error) => notify(e, "error"));
+                }}
                 disabled={disabled}
               >
                 <i className="fa fa-plus" />
@@ -174,10 +165,7 @@ function NotEmptyFilesInput(props) {
               className="clearall-container clearbtn-container"
               title={lang("Delete", "সব ফাইল ডিলিট করুন", "सभी फ़ाइलें डिलीट करें")}
             >
-              <i
-                onClick={!disabled ? handleClearAll : void 0}
-                className={`btn-clear ${disabled ? "disabled" : ""} fa fa-trash`}
-              />
+              <i onClick={handleClearAll} className="btn-clear fa fa-trash" />
             </div>
           )}
         </div>
@@ -186,7 +174,7 @@ function NotEmptyFilesInput(props) {
       <div className="files-grid">
         {filesSet.toArray().map((fileRepr, idx) => {
           if (fileRepr.isFile()) {
-            const imgDataUrl = fileReprToDataUrl[String(fileRepr)];
+            const imgDataUrl = fileReprToDataUrl[String(fileRepr)] ?? "";
             return (
               <div key={idx} className="file-item">
                 <div className="file-data">
@@ -218,10 +206,7 @@ function NotEmptyFilesInput(props) {
 
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
-                    <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : void 0}
-                      className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
-                    />
+                    <i onClick={() => handleItemRemove(fileRepr)} className="btn-clear fa fa-close" />
                   </div>
                 )}
               </div>
@@ -250,10 +235,7 @@ function NotEmptyFilesInput(props) {
 
                 {!disabled && (
                   <div className="clearfile-container clearbtn-container" title={lang("Delete", "মুছে ফেলুন", "हटाएं")}>
-                    <i
-                      onClick={!disabled ? () => handleItemRemove(fileRepr) : void 0}
-                      className={`btn-clear ${disabled ? "disabled" : ""} fa fa-close`}
-                    />
+                    <i onClick={() => handleItemRemove(fileRepr)} className="btn-clear fa fa-close" />
                   </div>
                 )}
               </div>
@@ -266,11 +248,7 @@ function NotEmptyFilesInput(props) {
   );
 }
 
-/**
- * @param {ImageFilesInputProps} props - The component properties.
- * @returns {React.JSX.Element} The rendered image files input component.
- */
-export default function ImageFilesInput(props) {
+export default function ImageFilesInput(props: ImageFilesInputProps): React.JSX.Element {
   const { required, filesSet, setFilesSet } = props;
 
   const minRequired = props.minRequired ?? 1;
@@ -282,13 +260,10 @@ export default function ImageFilesInput(props) {
   // Use rewuired property of input element
   // If `required` is set, if pillsSet size > 0, set input.reuquired to false
   // Otherwise, keep it as true (same as `required`)
-  let isRequired = required;
-  if (required && filesSet.size >= minRequired) isRequired = false;
+  let isRequired: boolean = required ?? false;
+  if ((required ?? false) && filesSet.size >= minRequired) isRequired = false;
 
-  /**
-   * @param {File} item
-   */
-  function handleItemAdd(item) {
+  function handleItemAdd(item: File) {
     setFilesSet((oldSet) => {
       if (!item.type.startsWith("image/")) {
         notify(
@@ -327,10 +302,7 @@ export default function ImageFilesInput(props) {
     });
   }
 
-  /**
-   * @param {FileRepr} fileRepr
-   */
-  function handleItemRemove(fileRepr) {
+  function handleItemRemove(fileRepr: FileRepr) {
     setFilesSet((oldSet) => {
       const newSet = new StringySet(oldSet);
       newSet.delete(fileRepr);
@@ -351,7 +323,9 @@ export default function ImageFilesInput(props) {
       {/** Show UI if no files added */}
       {filesSet.size === 0 && (
         <EmptyFilesInput
-          {...props}
+          filesSet={filesSet}
+          setFilesSet={setFilesSet}
+          disabled={props.disabled ?? false}
           minRequired={minRequired}
           maxTotalSizeBytes={maxTotalSizeBytes}
           maxOneFileSizeBytes={maxOneFileSizeBytes}
@@ -365,7 +339,9 @@ export default function ImageFilesInput(props) {
       {/** Show UI when atleast 1 file added */}
       {filesSet.size > 0 && (
         <NotEmptyFilesInput
-          {...props}
+          filesSet={filesSet}
+          setFilesSet={setFilesSet}
+          disabled={props.disabled ?? false}
           minRequired={minRequired}
           maxTotalSizeBytes={maxTotalSizeBytes}
           maxOneFileSizeBytes={maxOneFileSizeBytes}

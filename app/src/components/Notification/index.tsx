@@ -2,10 +2,7 @@ import React, { useContext } from "react";
 import NotificationContext from "@/contexts/notification.jsx";
 import "./styles.css";
 
-/**
- * @returns {React.JSX.Element}
- */
-function Notification() {
+function Notification(): React.JSX.Element {
   const { message, kind, animstate, hideNotification, clearNotifDisplayTimeout } = useContext(NotificationContext);
 
   function dismissNotification() {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
@@ -29,7 +29,7 @@ export default function SetProfileType() {
       .then(() => setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" })))
       .then(() => compUsr.profileCtx.updateProfileType(type))
       .then(() => setButtonKind({ TENANT: "secondary", OWNER: "secondary" }))
-      .then(() => navigate(PageUrls.HOME))
+      .then(() => navigate(PageType.HOME))
       .catch((e) => notify(e, "error"));
   }
 

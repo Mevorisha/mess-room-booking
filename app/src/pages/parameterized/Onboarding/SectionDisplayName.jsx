@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 import { isEmpty } from "@/modules/util/validations.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
@@ -33,7 +33,7 @@ export default function SetDisplayName() {
         .then(() => setButtonKind("loading"))
         .then(() => compUsr.profileCtx.updateProfileName(firstName, lastName))
         .then(() => setButtonKind("primary"))
-        .then(() => navigate(PageUrls.HOME))
+        .then(() => navigate(PageType.HOME))
         .catch((e) => {
           setButtonKind("primary");
           notify(e, "error");

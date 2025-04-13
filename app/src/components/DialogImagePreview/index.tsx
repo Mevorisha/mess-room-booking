@@ -4,11 +4,7 @@ import ImageLoader from "@/components/ImageLoader";
 
 import "./styles.css";
 
-/**
- * @param {{ largeImageUrl: string }} props
- * @returns {React.JSX.Element}
- */
-export default function DialogImagePreview({ largeImageUrl }) {
+export default function DialogImagePreview({ largeImageUrl }: { largeImageUrl: string; }): React.JSX.Element {
   const dialog = useDialog();
   const [loaded, setLoaded] = useState(false);
 

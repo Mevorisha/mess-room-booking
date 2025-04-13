@@ -3,20 +3,18 @@ import "./styles.css";
 
 const DIALOG_ANIM_DURATION = 250;
 
-/**
- * @param {{
- *   modal: {
- *     id: string,
- *     children: React.JSX.Element,
- *     size: "small" | "large" | "uibox",
- *     overlayState: "fadeIn" | "fadeOut" | "gone",
- *     dialogState: "scaleIn" | "scaleOut" | "gone"
- *   },
- *   onClose: () => void
- * }} props
- * @returns {React.JSX.Element | null}
- */
-export default function DialogBox({ modal, onClose }) {
+export interface DialogBoxProps {
+  modal: {
+    id: string;
+    children: React.JSX.Element;
+    size: "small" | "large" | "uibox";
+    overlayState: "fadeIn" | "fadeOut" | "gone";
+    dialogState: "scaleIn" | "scaleOut" | "gone";
+  };
+  onClose: () => void;
+}
+
+export default function DialogBox({ modal, onClose }: DialogBoxProps): React.JSX.Element {
   const { children, size, overlayState, dialogState } = modal;
 
   const [clientDims, setClientDims] = useState({
@@ -35,14 +33,14 @@ export default function DialogBox({ modal, onClose }) {
     return () => window.removeEventListener("resize", updateClientDims);
   }, []);
 
-  if (overlayState === "gone" || dialogState === "gone") return null;
+  if (overlayState === "gone" || dialogState === "gone") return <></>;
 
-  const overlayAnimStyle = {
+  const overlayAnimStyle: React.CSSProperties = {
     animation: `${overlayState} ${DIALOG_ANIM_DURATION}ms forwards`,
     cursor: size === "uibox" ? "not-allowed" : "default",
   };
 
-  const dialogAnimStyle = {
+  const dialogAnimStyle: React.CSSProperties = {
     animation: `${dialogState} ${DIALOG_ANIM_DURATION}ms forwards`,
     cursor: "default",
   };

@@ -2,22 +2,25 @@ import React from "react";
 
 import "./styles.css";
 
-/**
- * @param {{
- *   totalPages: number,
- *   currentPage: number,
- *   setCurrentPage:  React.Dispatch<React.SetStateAction<number>>,
- *   onPageChange: (n: number) => void
- * }} props
- * @returns {React.JSX.Element}
- */
-export default function PagingContainer({ totalPages, currentPage, setCurrentPage, onPageChange }) {
+export interface PagingContainerProps {
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  onPageChange: (n: number) => void;
+}
+
+export default function PagingContainer({
+  totalPages,
+  currentPage,
+  setCurrentPage,
+  onPageChange,
+}: PagingContainerProps): React.JSX.Element {
   if (totalPages <= 1) return <></>;
 
-  function handlePageChange(/** @type {number} */ page) {
+  function handlePageChange(page: number) {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    if (onPageChange) onPageChange(page);
+    onPageChange(page);
   }
 
   function renderPageNumbers() {

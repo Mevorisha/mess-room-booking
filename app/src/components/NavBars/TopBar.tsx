@@ -2,24 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
-import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
+import { ActionType, PagePaths, PageType } from "@/modules/util/pageUrls.js";
 import { CachePaths } from "@/modules/util/caching";
 import ImageLoader from "@/components/ImageLoader";
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
 
-// @ts-ignore
 import dpMevorisha from "@/assets/images/dpMevorisha.png";
 import "./styles.css";
 
-/**
- * @param {{
- *   dropdownState: "init" | "showing" | "visible" | "hiding";
- *   handleDropdownClick: (dropdownState: "init" | "showing" | "visible" | "hiding") => void;
- * }} props
- * @returns {React.JSX.Element}
- */
-function ActionMenu({ dropdownState, handleDropdownClick }) {
+export interface ActionMenuProps {
+  dropdownState: "init" | "showing" | "visible" | "hiding";
+  handleDropdownClick: (dropdownState: "init" | "showing" | "visible" | "hiding") => void;
+}
+
+function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): React.JSX.Element {
   const compUsr = useCompositeUser();
   // prettier-ignore
   let text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
@@ -55,18 +52,14 @@ function ActionMenu({ dropdownState, handleDropdownClick }) {
       <span className="display-name">
         {compUsr.userCtx.user.firstName} {compUsr.userCtx.user.lastName}
       </span>
-      <ImageLoader className="profile-image" src={compUsr.userCtx.user.profilePhotos?.small || ""} alt="profile" />
+      <ImageLoader className="profile-image" src={compUsr.userCtx.user.profilePhotos?.small ?? ""} alt="profile" />
     </span>
   );
 }
 
-/**
- * @param {{ isIncomplete: boolean; }} props
- * @returns {React.JSX.Element | null}
- */
-function MarkOfIncompletion({ isIncomplete }) {
+function MarkOfIncompletion({ isIncomplete }: { isIncomplete: boolean }): React.JSX.Element {
   // returns a red exclamation mark if isIncomplete true
-  if (!isIncomplete) return null;
+  if (!isIncomplete) return <></>;
   return (
     <span className="profile-incomplete">
       <i style={{ marginTop: "1px", fontSize: "1.1rem" }} className="fa fa-exclamation-circle"></i>
@@ -74,61 +67,53 @@ function MarkOfIncompletion({ isIncomplete }) {
   );
 }
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export default function TopBar({ children }) {
+export default function TopBar({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
   const notify = useNotification();
 
-  const [dropdownState, setDropdownState] = useState(/** @type {"init" | "showing" | "visible" | "hiding"} */ ("init"));
+  const [dropdownState, setDropdownState] = useState<"init" | "showing" | "visible" | "hiding">("init");
 
   const [searchParams] = useSearchParams();
 
-  /**
-   * @param {ActionParams} itemClicked
-   */
-  function handleItemClick(itemClicked) {
-    if (!itemClicked) return;
+  function handleItemClick(itemClicked: ActionType) {
     searchParams.set("action", itemClicked);
 
     /* redirect or take action based on the item clicked */
     switch (itemClicked) {
       // view profile action
-      case ActionParams.VIEW_PROFILE:
+      case ActionType.VIEW_PROFILE:
         navigate({
-          pathname: PageUrls.PROFILE,
+          pathname: PagePaths[PageType.PROFILE],
           search: searchParams.toString(),
         });
         break;
       // onboarding actions
-      case ActionParams.CHANGE_NAME:
-      case ActionParams.CHANGE_MOBILE_NUMBER:
-      case ActionParams.CHANGE_LANGUAGE:
-      case ActionParams.SWITCH_PROFILE_TYPE:
-      case ActionParams.UPDATE_PROFILE_PHOTO:
-      case ActionParams.UPDATE_ID_DOCS:
+      case ActionType.CHANGE_NAME:
+      case ActionType.CHANGE_MOBILE_NUMBER:
+      case ActionType.CHANGE_LANGUAGE:
+      case ActionType.SWITCH_PROFILE_TYPE:
+      case ActionType.UPDATE_PROFILE_PHOTO:
+      case ActionType.UPDATE_ID_DOCS:
         navigate({
-          pathname: PageUrls.ONBOARDING,
+          pathname: PagePaths[PageType.ONBOARDING],
           search: searchParams.toString(),
         });
         break;
       // reset password action
-      case ActionParams.RESET_PASSWORD:
-        compUsr.accountCtx.requestPasswordReset().catch((e) => notify(e, "error"));
+      case ActionType.RESET_PASSWORD:
+        compUsr.accountCtx.requestPasswordReset().catch((e: Error) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // log out action
-      case ActionParams.LOGOUT:
+      case ActionType.LOGOUT:
         // prettier-ignore
         compUsr.authCtx
           .logOut()
           .then(() => caches.delete(CachePaths.FILE_LOADER))
           .then(() => caches.delete(CachePaths.SECTION_ROOM_FORM))
           .then((status) => status && notify(lang("Image cache cleared", "ইমেজ ক্যাশ সাফ করা হয়েছে", "इमेज कैश साफ किया गया है"), "warning"))
-          .catch((e) => notify(e, "error"));
+          .catch((e: Error) => notify(e, "error"));
         searchParams.delete("action");
         break;
       // invalid action
@@ -148,15 +133,14 @@ export default function TopBar({ children }) {
       case "hiding":
         setTimeout(() => setDropdownState("init"), 100);
         break;
+      case "init":
+      case "visible":
       default:
         break;
     }
   }, [dropdownState]);
 
-  /**
-   * @param {"init" | "showing" | "visible" | "hiding"} dropdownState
-   */
-  function handleDropdownClick(dropdownState) {
+  function handleDropdownClick(dropdownState: "init" | "showing" | "visible" | "hiding") {
     switch (dropdownState) {
       case "init":
         setDropdownState("showing");
@@ -164,6 +148,8 @@ export default function TopBar({ children }) {
       case "visible":
         setDropdownState("hiding");
         break;
+      case "showing":
+      case "hiding":
       default:
         break;
     }
@@ -181,7 +167,7 @@ export default function TopBar({ children }) {
 
         <div className={`dropdown dropdown-anim-${dropdownState}`}>
           {/* View Profile */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.VIEW_PROFILE)}>
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.VIEW_PROFILE)}>
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
               ? lang("View Owner Profile", "মালিকের প্রোফাইল দেখুন", "मालिक प्रोफ़ाइल देखें")
@@ -189,7 +175,7 @@ export default function TopBar({ children }) {
             }
           </div>
           {/* Switch Profile Type */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.SWITCH_PROFILE_TYPE)}>
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.SWITCH_PROFILE_TYPE)}>
             {
               /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
               ? lang("Switch to Tenant Profile", "ভাড়াটের প্রোফাইলে স্যুইচ করুন", "किरायेदार पर स्विच करें")
@@ -197,36 +183,36 @@ export default function TopBar({ children }) {
             }
           </div>
           {/* Update Profile Photo */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.UPDATE_PROFILE_PHOTO)}>
-            {ActionParams.UPDATE_PROFILE_PHOTO}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.UPDATE_PROFILE_PHOTO)}>
+            {ActionType.UPDATE_PROFILE_PHOTO}
             <MarkOfIncompletion isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)} />
           </div>
           {/* Update ID Documents */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.UPDATE_ID_DOCS)}>
-            {ActionParams.UPDATE_ID_DOCS}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.UPDATE_ID_DOCS)}>
+            {ActionType.UPDATE_ID_DOCS}
           </div>
           {/* Change Name */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_NAME)}>
-            {ActionParams.CHANGE_NAME}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_NAME)}>
+            {ActionType.CHANGE_NAME}
             <MarkOfIncompletion
               isIncomplete={isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName)}
             />
           </div>
           {/* Change Mobile Number */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_MOBILE_NUMBER)}>
-            {ActionParams.CHANGE_MOBILE_NUMBER}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_MOBILE_NUMBER)}>
+            {ActionType.CHANGE_MOBILE_NUMBER}
           </div>
           {/* Request Password Reset */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.RESET_PASSWORD)}>
-            {ActionParams.RESET_PASSWORD}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.RESET_PASSWORD)}>
+            {ActionType.RESET_PASSWORD}
           </div>
           {/* Change Language */}
-          <div className="dropdown-item" onClick={() => handleItemClick(ActionParams.CHANGE_LANGUAGE)}>
-            {ActionParams.CHANGE_LANGUAGE}
+          <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_LANGUAGE)}>
+            {ActionType.CHANGE_LANGUAGE}
           </div>
           {/* Log Out */}
-          <div style={{ color: "red" }} className="dropdown-item" onClick={() => handleItemClick(ActionParams.LOGOUT)}>
-            {ActionParams.LOGOUT}
+          <div style={{ color: "red" }} className="dropdown-item" onClick={() => handleItemClick(ActionType.LOGOUT)}>
+            {ActionType.LOGOUT}
           </div>
         </div>
       </div>

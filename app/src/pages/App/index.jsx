@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 
 import { UserProvider } from "@/contexts/user.jsx";
 import { AuthProvider, AuthStateEnum } from "@/contexts/auth.jsx";
@@ -40,7 +40,7 @@ function AuthCheck({ children }) {
     /* redirect to auth page if user state is loaded
        and user is not logged in */
     if (compUsr.authCtx.state === AuthStateEnum.NOT_LOGGED_IN) {
-      navigate(PageUrls.AUTH);
+      navigate(PageType.AUTH);
     }
   }, [compUsr.authCtx.state, navigate]);
 
@@ -87,16 +87,16 @@ export default function App() {
           <BrowserRouter>               {/* use the browser router to handle routing */}
             <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
               <Routes>
-                <Route path={PageUrls.ROOT} Component={HomePage} />
-                <Route path={PageUrls.ONBOARDING} Component={OnboardingPage} />
-                <Route path={PageUrls.AUTH} Component={AuthPage} />
-                <Route path={PageUrls.HOME} Component={HomePage} />
-                <Route path={PageUrls.PROFILE} Component={ProfilePage} />
+                <Route path={PageType.ROOT} Component={HomePage} />
+                <Route path={PageType.ONBOARDING} Component={OnboardingPage} />
+                <Route path={PageType.AUTH} Component={AuthPage} />
+                <Route path={PageType.HOME} Component={HomePage} />
+                <Route path={PageType.PROFILE} Component={ProfilePage} />
                 {/*
                   <Route path="/notif" component={NotifPage} />
                   <Route path="/account" component={AccountPage} />
                 */}
-                <Route path={PageUrls.PAGE_NOT_FOUND} Component={PageNotFound} />
+                <Route path={PageType.PAGE_NOT_FOUND} Component={PageNotFound} />
                 <Route path="*" Component={PageNotFound} />
               </Routes>
             </AuthCheck>

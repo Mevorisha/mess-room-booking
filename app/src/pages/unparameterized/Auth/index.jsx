@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { AuthStateEnum } from "@/contexts/auth.jsx";
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
@@ -60,7 +60,7 @@ export default function Auth() {
 
   useEffect(() => {
     if (compUsr.authCtx.state === AuthStateEnum.LOGGED_IN) {
-      navigate(PageUrls.ROOT);
+      navigate(PageType.ROOT);
     }
   }, [compUsr.authCtx.state, navigate]);
 

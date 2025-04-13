@@ -1,8 +1,8 @@
 export default class FileRepr {
-  /**
-   * @param {File | string} fileRepr
-   */
-  constructor(fileRepr) {
+  file: File | null = null;
+  uri: string | null = null;
+
+  constructor(fileRepr: File | string) {
     if (fileRepr instanceof File) {
       this.file = fileRepr;
       this.uri = null;
@@ -13,59 +13,52 @@ export default class FileRepr {
     }
   }
 
-  /**
-   * @param {File | string} fileRepr
-   * @returns {FileRepr}
-   */
-  static from(fileRepr) {
+  static from(fileRepr: File | string): FileRepr {
     return new FileRepr(fileRepr);
   }
 
-  isUri() {
-    return this.uri !== null;
+  isUri(): boolean {
+    return typeof this.uri === "string";
   }
 
-  isFile() {
-    return this.file !== null;
+  isFile(): boolean {
+    return this.file instanceof File;
   }
 
   /**
    * @throws {Error} if not a file
-   * @returns {File} The file object.
    */
-  getFile() {
+  getFile(): File {
     if (this.isFile()) {
-      return this.file;
+      return this.file as File;
     }
     throw new Error("FileRepr is not a File");
   }
 
   /**
    * @throws {Error} if not a uri
-   * @returns {string} The URI string.
    */
-  getUri() {
+  getUri(): string {
     if (this.isUri()) {
-      return this.uri;
+      return this.uri as string;
     }
     throw new Error("FileRepr is not a URI");
   }
 
-  toString() {
+  toString(): string {
     if (this.isFile()) {
-      return `[object File <"${this.file.name}">]`;
+      const file = this.file as File;
+      return `[object File <"${file.name}">]`;
     }
-    return this.uri;
+    return this.uri as string;
   }
 
   /**
    * This method is called when the object is converted to a primitive value.
    * It is used to provide a string representation of the object.
    * Used (for some reason) by StringySet<T> to compare objects.
-   * @param {"number" | "string" | "default"} hint
-   * @returns {string} The string representation of the object.
    */
-  [Symbol.toPrimitive](hint) {
+  [Symbol.toPrimitive](_hint: "number" | "string" | "default"): string | number {
     return this.toString();
   }
 }

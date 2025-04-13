@@ -364,33 +364,31 @@ export const LOADING_GIF_DATA =
   "x1RZ0UiyPonaAHYStKI8pD4S8wAkYEcJKjDXH3VJQKACYAL511MRDj44RAUZ1CCGhBLRhuGGHAPi" +
   "FAQAOw==";
 
-/**
- * @param {React.ImgHTMLAttributes<HTMLImageElement> & {
- *   loadingAnimation?: string;
- *   src: string;
- *   alt: string;
- *   requireAuth?: boolean;
- *   forceReloadState?: number;
- *   onLoad?: () => void
- * }} props
- * @returns {React.JSX.Element}
- */
-export default function ImageLoader(props) {
-  const [imageUrl, setImageUrl] = useState(/** @type {string | null} */ (null));
+export interface ImageLoaderProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  src: string;
+  alt: string;
+  requireAuth?: boolean;
+  forceReloadState?: number;
+  loadingAnimation?: string;
+  onLoad?: () => void;
+}
+
+export default function ImageLoader(props: ImageLoaderProps): React.JSX.Element {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const notify = useNotification();
-  const loadingAnimation = props.loadingAnimation || LOADING_GIF_DATA;
+  const loadingAnimation = props.loadingAnimation ?? LOADING_GIF_DATA;
 
   useEffect(() => {
-    if (!props.src) return;
+    if ("" === props.src) return;
     Promise.resolve()
       .then(() => setIsLoading(true))
       .then(() => setImageUrl(null))
       .then(() => serialFetchAsDataUrl(props.src, props.requireAuth))
       .then((url) => setImageUrl(url))
       .then(() => setIsLoading(false))
-      .catch((e) => {
+      .catch((e: Error) => {
         notify(e, "error");
         setIsLoading(false);
       });
@@ -398,14 +396,11 @@ export default function ImageLoader(props) {
 
   const { requireAuth: _1, loadingAnimation: _2, forceReloadState: _3, ...newProps } = props;
 
-  /**
-   * @type {React.CSSProperties}
-   */
-  const animationStyles = {
+  const animationStyles: React.CSSProperties = {
     objectFit: "scale-down",
   };
 
-  if (isLoading || !imageUrl) {
+  if (isLoading || null === imageUrl) {
     return <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={void 0} />;
   }
 

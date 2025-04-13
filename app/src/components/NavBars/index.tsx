@@ -2,11 +2,7 @@ import React from "react";
 import TopBar from "./TopBar";
 import BottomBar from "./BottomBar";
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export default function NavBars({ children }) {
+export default function NavBars({ children = <></> }: { children?: React.JSX.Element }): React.JSX.Element {
   return (
     <>
       <TopBar children={children} />

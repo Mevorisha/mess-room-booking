@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { loadFileFromFilePicker } from "@/modules/util/dom.js";
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
@@ -44,7 +44,7 @@ export default function SetProfilePhoto() {
         return url;
       })
       .then((url) => setPhotoURL(url))
-      .then(() => navigate(PageUrls.HOME))
+      .then(() => navigate(PageType.HOME))
       .catch((e) => {
         setButtonKind("primary");
         notify(e, "error");

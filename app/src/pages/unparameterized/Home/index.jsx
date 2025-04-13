@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { isEmpty } from "@/modules/util/validations.js";
-import { ActionParams, PageUrls } from "@/modules/util/pageUrls.js";
+import { ActionParams, PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
@@ -25,7 +25,7 @@ export default function Home() {
     if (isEmpty(compUsr.userCtx.user.type)) {
       searchParams.set("action", ActionParams.SWITCH_PROFILE_TYPE);
       navigate({
-        pathname: PageUrls.ONBOARDING,
+        pathname: PageType.ONBOARDING,
         search: searchParams.toString(),
       });
     }
@@ -34,7 +34,7 @@ export default function Home() {
     else if (isEmpty(compUsr.userCtx.user.mobile)) {
       searchParams.set("action", ActionParams.CHANGE_MOBILE_NUMBER);
       navigate({
-        pathname: PageUrls.ONBOARDING,
+        pathname: PageType.ONBOARDING,
         search: searchParams.toString(),
       });
     }
@@ -43,7 +43,7 @@ export default function Home() {
     else if (isEmpty(window.localStorage.getItem("lang"))) {
       searchParams.set("action", ActionParams.CHANGE_LANGUAGE);
       navigate({
-        pathname: PageUrls.ONBOARDING,
+        pathname: PageType.ONBOARDING,
         search: searchParams.toString(),
       });
     }

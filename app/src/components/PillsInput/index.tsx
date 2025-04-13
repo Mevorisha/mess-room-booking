@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { lang } from "@/modules/util/language";
 import "./styles.css";
 
+export interface ControlButtonsProps {
+  disabled: boolean;
+  onClearClick: React.MouseEventHandler<HTMLElement>;
+  onAddClick: React.MouseEventHandler<HTMLElement>;
+}
+
 /**
  * @param {{
  *   disabled: boolean
@@ -10,30 +16,18 @@ import "./styles.css";
  * }} props
  * @returns {React.JSX.Element}
  */
-function ControlButtons({ disabled, onClearClick, onAddClick }) {
-  if (disabled) return;
+function ControlButtons({ disabled, onClearClick, onAddClick }: ControlButtonsProps): React.JSX.Element {
+  if (disabled) return <></>;
   return (
     <>
-      <i
-        onClick={(e) => (!disabled ? onAddClick(e) : () => {})}
-        className={`btn-control fa fa-plus ${disabled ? "disabled" : ""}`}
-      />
-      <i
-        onClick={(e) => (!disabled ? onClearClick(e) : () => {})}
-        className={`btn-control fa fa-close ${disabled ? "disabled" : ""}`}
-      />
+      <i onClick={(e) => onAddClick(e)} className="btn-control fa fa-plus" />
+      <i onClick={(e) => onClearClick(e)} className="btn-control fa fa-close" />
     </>
   );
 }
 
-/**
- * @param {{
- *   disabled?: boolean
- * }} props
- * @returns {React.JSX.Element}
- */
-export function PillInputTest({ disabled }) {
-  const [pillsSet, setPillsSet] = useState(new Set());
+export function PillInputTest({ disabled = false }: { disabled?: boolean }): React.JSX.Element {
+  const [pillsSet, setPillsSet] = useState(new Set<string>());
   return (
     <PillInput
       type="text"
@@ -45,21 +39,25 @@ export function PillInputTest({ disabled }) {
   );
 }
 
-/**
- * @param {{
- *   type?: React.HTMLInputTypeAttribute,
- *   placeholder?: string,
- *   disabled?: boolean,
- *   required?: boolean,
- *   minRequired?: number,
- *   pillsSet: Set<string>,
- *   setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>
- * }} props
- * @returns {React.JSX.Element}
- */
-export default function PillInput({ type, placeholder, disabled, required, minRequired = 1, pillsSet, setPillsSet }) {
-  minRequired = minRequired ?? 1;
+export interface PillInputProps {
+  type?: React.HTMLInputTypeAttribute;
+  placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
+  minRequired?: number;
+  pillsSet: Set<string>;
+  setPillsSet: React.Dispatch<React.SetStateAction<Set<string>>>;
+}
 
+export default function PillInput({
+  type,
+  placeholder,
+  disabled = false,
+  required = false,
+  minRequired = 1,
+  pillsSet,
+  setPillsSet,
+}: PillInputProps): React.JSX.Element {
   const [inputValue, setInputValue] = useState("");
 
   // Use rewuired property of input element
@@ -68,21 +66,15 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
   let isRequired = required;
   if (required && pillsSet.size >= minRequired) isRequired = false;
 
-  /**
-   * @param {string} item
-   */
-  function handleItemAdd(item) {
+  function handleItemAdd(item: string) {
     setPillsSet((oldSet) => {
       const newSet = new Set(oldSet);
-      item.split(",").forEach((it) => it && newSet.add(it.trim()));
+      item.split(",").forEach((it) => it !== "" && newSet.add(it.trim()));
       return newSet;
     });
   }
 
-  /**
-   * @param {string} item
-   */
-  function handleItemRemove(item) {
+  function handleItemRemove(item: string) {
     setPillsSet((oldSet) => {
       const newSet = new Set(oldSet);
       newSet.delete(item);
@@ -98,12 +90,9 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
     });
   }
 
-  /**
-   * @param {React.KeyboardEvent<HTMLInputElement>} e
-   */
-  function handleKeyDown(e) {
-    // Enter or Tab not registerd in Mobile (Android/Chrome) 
-    if ((e.key === "Enter" || e.key === "Tab" || e.keyCode === 13) && inputValue.trim()) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    // Enter or Tab not registerd in Mobile (Android/Chrome)
+    if ((e.key === "Enter" || e.key === "Tab" || e.keyCode === 13) && inputValue.trim().length > 0) {
       e.preventDefault();
       handleItemAdd(inputValue.trim());
       setInputValue("");
@@ -115,8 +104,8 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
     setInputValue("");
   }
 
-  function handleDataScroll(e) {
-    e.target.scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
+  function handleDataScroll(e: React.WheelEvent<HTMLDivElement>) {
+    (e.target as HTMLDivElement).scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
   }
 
   const additionalPillContainerStyle = pillsSet.size <= 0 ? { padding: "0" } : {};
@@ -132,10 +121,7 @@ export default function PillInput({ type, placeholder, disabled, required, minRe
 
             {!disabled && (
               <div className="clearpill-container">
-                <i
-                  onClick={() => (!disabled ? handleItemRemove(item) : () => {})}
-                  className={`btn-control ${disabled ? "disabled" : "fa fa-close"}`}
-                />
+                <i onClick={() => handleItemRemove(item)} className="btn-control fa fa-close" />
               </div>
             )}
           </div>

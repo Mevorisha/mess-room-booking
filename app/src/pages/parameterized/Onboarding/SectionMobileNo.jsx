@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { PageUrls } from "@/modules/util/pageUrls.js";
+import { PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
@@ -50,7 +50,7 @@ export default function SetMobileNumber() {
       Promise.resolve()
         .then(() => setButtonKind("loading"))
         .then(() => compUsr.accountCtx.verifyPhoneVerificationCode(otp))
-        .then(() => navigate(PageUrls.HOME))
+        .then(() => navigate(PageType.HOME))
         .catch((e) => {
           setAction("Resend OTP");
           setButtonKind("primary");
