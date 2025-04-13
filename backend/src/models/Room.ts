@@ -40,7 +40,7 @@ export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailab
 // During read, all data may be read
 type RoomReadData = Partial<RoomData>;
 // Params to query a room by
-type RoomQueryParams = Partial<{
+export type RoomQueryParams = Partial<{
   self?: boolean;
   ownerId: string;
   acceptGender: AcceptGender;
@@ -89,7 +89,7 @@ function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string)
   return dataToBeUpdated;
 }
 
-type RoomReadDataWithId = RoomReadData & { id: string };
+export type RoomReadDataWithId = RoomReadData & { id: string };
 
 class Room {
   /**
