@@ -58,9 +58,9 @@ export default class UploadedImage {
 
   /** @enum {30 | 90 | 500} */
   static Sizes = {
-    SMALL: /**  @type {30}  */ 30,
-    MEDIUM: /** @type {90}  */ 90,
-    LARGE: /**  @type {500} */ 500,
+    SMALL: 30,
+    MEDIUM: 90,
+    LARGE: 500,
   };
 
   get small(): string {

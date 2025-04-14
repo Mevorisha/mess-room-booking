@@ -1,20 +1,14 @@
 import React from "react";
-
 import { GoogleAuth } from "@/modules/firebase/auth.js";
-
 import useNotification from "@/hooks/notification.js";
-
 import ImageLoader from "@/components/ImageLoader";
 
-/**
- * @returns {React.ReactNode}
- */
-export default function OAuthSection() {
+export default function OAuthSection(): React.ReactNode {
   const notify = useNotification();
 
   return (
     <div className="oauth-container">
-      <div className="oauth-button" onClick={() => GoogleAuth.login().catch((e) => notify(e, "error"))}>
+      <div className="oauth-button" onClick={() => void GoogleAuth.login().catch((e: Error) => notify(e, "error"))}>
         <ImageLoader
           style={{
             height: "26px",

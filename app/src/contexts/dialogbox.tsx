@@ -22,10 +22,6 @@ const DialogBoxContext = createContext({
 
 export default DialogBoxContext;
 
-/**
- * @param {{ children: any }} props
- * @returns {React.ReactNode}
- */
 export function DialogBoxProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [modalStack, setModalStack] = useState<ModalData[]>([]);
 

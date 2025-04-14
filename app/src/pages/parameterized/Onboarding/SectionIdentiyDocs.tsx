@@ -33,10 +33,6 @@ export default function SectionIdentiyDocs(): React.ReactNode {
     }
   }
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   * @param {"WORK_ID" | "GOV_ID"} type
-   */
   function handleSubmit(e: React.FormEvent<HTMLFormElement>, type: "WORK_ID" | "GOV_ID") {
     e.preventDefault();
     if (type === "WORK_ID") {
@@ -52,11 +48,6 @@ export default function SectionIdentiyDocs(): React.ReactNode {
     }
   }
 
-  /**
-   * @param {React.ChangeEvent<HTMLInputElement>} e
-   * @param {"WORK_ID" | "GOV_ID"} type
-   * @param {"PUBLIC" | "PRIVATE"} value
-   */
   function handleVisibilityChange(
     e: React.ChangeEvent<HTMLInputElement>,
     type: "WORK_ID" | "GOV_ID",

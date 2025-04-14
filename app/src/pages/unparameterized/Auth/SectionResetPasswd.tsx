@@ -8,18 +8,17 @@ import useDialogBox from "@/hooks/dialogbox.js";
 
 import ButtonText from "@/components/ButtonText";
 
-/**
- * @param {{
- *   email: string;
- *   setResetButtonKind: (val: "primary" | "loading") => void;
- * }} props
- * @returns {React.ReactNode}
- */
-function DialogContent({ email, setResetButtonKind }) {
+function DialogContent({
+  email,
+  setResetButtonKind,
+}: {
+  email: string;
+  setResetButtonKind: (val: "primary" | "loading") => void;
+}): React.ReactNode {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [confirmButtonKind, setConfirmButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [confirmButtonKind, setConfirmButtonKind] = useState<"primary" | "loading">("primary");
 
   useEffect(() => {
     // if dialog is gone or is going out, primary reset button, else loading button
@@ -34,7 +33,7 @@ function DialogContent({ email, setResetButtonKind }) {
       .then(() => setConfirmButtonKind("primary"))
       .then(() => dialog.hide())
       .then(() => notify("Check your email for password reset link", "success"))
-      .catch((e) => {
+      .catch((e: Error) => {
         dialog.hide();
         notify(e, "error");
       });
@@ -66,33 +65,27 @@ function DialogContent({ email, setResetButtonKind }) {
   );
 }
 
-/**
- * @returns {React.ReactNode}
- */
-export default function ResetPasswdSection() {
+export default function ResetPasswdSection(): React.ReactNode {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  const [resetButtonKind, setResetButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [resetButtonKind, setResetButtonKind] = useState<"primary" | "loading">("primary");
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   */
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const email = e.target[0].value;
+    const email = (e.target as unknown as { value?: string }[])[0]?.value;
 
     let waitForEasterEggTime = 0;
 
-    const easterEggsInEmail = checkForEasterEgg(email);
-    if (easterEggsInEmail) {
+    const easterEggsInEmail = checkForEasterEgg(email ?? "");
+    if (easterEggsInEmail != null) {
       notify(easterEggsInEmail, "warning");
       waitForEasterEggTime = 4000;
     }
 
     return setTimeout(() => {
-      dialog.show(<DialogContent email={email} setResetButtonKind={setResetButtonKind} />);
+      dialog.show(<DialogContent email={email ?? ""} setResetButtonKind={setResetButtonKind} />);
     }, waitForEasterEggTime);
   }
 

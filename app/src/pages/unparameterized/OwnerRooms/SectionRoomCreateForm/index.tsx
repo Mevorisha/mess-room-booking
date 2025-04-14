@@ -68,7 +68,7 @@ export default function SectionRoomCreateForm({
   const [capacity, setCapacity] = useState<string | null>(null);
   const [pricePerOccupant, setPricePerOccupant] = useState<string | null>(null);
 
-  const [filesSet, setFilesSet] = useState(/** @type {StringySet<FileRepr>} */ new StringySet<FileRepr>());
+  const [filesSet, setFilesSet] = useState<StringySet<FileRepr>>(new StringySet<FileRepr>());
 
   const [submitAction, setSubmitAction] = useState<"save-draft" | "submit">("save-draft");
 
@@ -126,9 +126,7 @@ export default function SectionRoomCreateForm({
       .map((fr) => fr.getFile());
 
     const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
-    /**
-     * @type {CachableDraftFormData}
-     */
+
     const formData: CachableDraftFormData = {
       acceptGender,
       acceptOccupation,
@@ -204,10 +202,6 @@ export default function SectionRoomCreateForm({
     }
   }
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   * @returns {void}
-   */
   function handleSubmitSync(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault(); // <-- this HAS to be synchronously or else the form will submit before the cache is updated
 

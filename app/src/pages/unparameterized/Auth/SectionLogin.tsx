@@ -7,32 +7,29 @@ import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 
-/**
- * @param {{ setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">> }} props
- * @returns {React.ReactNode}
- */
-export default function LoginSection({ setShowSection }) {
+export default function LoginSection({
+  setShowSection,
+}: {
+  setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">>;
+}): React.ReactNode {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   */
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const email = e.target[0].value;
-    const password = e.target[1].value;
+    const target = e.target as unknown as { value: string }[];
+    const email = target[0]?.value;
+    const password = target[1]?.value;
 
     let waitForEasterEggTime = 0;
-    const easterEggsInEmail = checkForEasterEgg(email);
+    const easterEggsInEmail = checkForEasterEgg(email ?? "");
 
-    if (easterEggsInEmail) {
+    if (easterEggsInEmail != null) {
       notify(easterEggsInEmail, "warning");
       waitForEasterEggTime = 4000;
     } else {
-      const easterEggsInPassword = checkForEasterEgg(password);
-      if (easterEggsInPassword) {
+      const easterEggsInPassword = checkForEasterEgg(password ?? "");
+      if (easterEggsInPassword != null) {
         notify(easterEggsInPassword, "warning");
         waitForEasterEggTime = 4000;
       }
@@ -40,11 +37,11 @@ export default function LoginSection({ setShowSection }) {
 
     return setTimeout(
       () =>
-        Promise.resolve()
+        void Promise.resolve()
           .then(() => setButtonKind("loading"))
-          .then(() => EmailPasswdAuth.login(email, password))
+          .then(() => EmailPasswdAuth.login(email ?? "", password ?? ""))
           .then(() => setButtonKind("primary"))
-          .catch((e) => {
+          .catch((e: Error) => {
             notify(e, "error");
             setButtonKind("primary");
           }),

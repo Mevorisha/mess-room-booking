@@ -7,32 +7,26 @@ import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 
-/**
- * @returns {React.ReactNode}
- */
-export default function RegisterSection() {
+export default function RegisterSection(): React.ReactNode {
   const notify = useNotification();
-  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   */
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const email = e.target[0].value;
-    const password = e.target[1].value;
-    const confirmPassword = e.target[2]?.value;
+    const target = e.target as unknown as { value: string }[];
+    const email = target[0]?.value;
+    const password = target[1]?.value;
+    const confirmPassword = target[2]?.value;
 
     let waitForEasterEggTime = 0;
-    const easterEggsInEmail = checkForEasterEgg(email);
+    const easterEggsInEmail = checkForEasterEgg(email ?? "");
 
-    if (easterEggsInEmail) {
+    if (easterEggsInEmail != null) {
       notify(easterEggsInEmail, "warning");
       waitForEasterEggTime = 4000;
     } else {
-      const easterEggsInPassword = checkForEasterEgg(password);
-      if (easterEggsInPassword) {
+      const easterEggsInPassword = checkForEasterEgg(password ?? "");
+      if (easterEggsInPassword != null) {
         notify(easterEggsInPassword, "warning");
         waitForEasterEggTime = 4000;
       }
@@ -46,9 +40,9 @@ export default function RegisterSection() {
 
       Promise.resolve()
         .then(() => setButtonKind("loading"))
-        .then(() => EmailPasswdAuth.register(email, password))
+        .then(() => EmailPasswdAuth.register(email ?? "", password ?? ""))
         .then(() => setButtonKind("primary"))
-        .catch((e) => {
+        .catch((e: Error) => {
           notify(e, "error");
           setButtonKind("primary");
         });

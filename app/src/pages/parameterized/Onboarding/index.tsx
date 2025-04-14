@@ -18,9 +18,6 @@ import PageNotFound from "@/pages/unparameterized/PageNotFound";
 
 import "./styles.css";
 
-/**
- * @returns {React.ReactNode}
- */
 export default function Onboarding(): React.ReactNode {
   const compUsr = useCompositeUser();
   const [searchParams] = useSearchParams();

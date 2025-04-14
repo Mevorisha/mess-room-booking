@@ -18,17 +18,15 @@ import LoadingPage from "@/pages/unparameterized/Loading";
 
 import "./styles.css";
 
-// @ts-ignore
 import dpMevorisha from "@/assets/images/dpMevorisha.png";
 
-/**
- * @param {{
- *   showSection: "login" | "register" | "resetPasswd",
- *   setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">>
- * }} props
- * @returns {React.ReactNode}
- */
-function SectionButtons({ showSection, setShowSection }) {
+function SectionButtons({
+  showSection,
+  setShowSection,
+}: {
+  showSection: "login" | "register" | "resetPasswd";
+  setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">>;
+}): React.ReactNode {
   return (
     <div className="button-container">
       <ButtonText
@@ -49,11 +47,8 @@ function SectionButtons({ showSection, setShowSection }) {
   );
 }
 
-/**
- * @returns {React.ReactNode}
- */
-export default function Auth() {
-  const [showSection, setShowSection] = useState(/** @type {"login" | "register" | "resetPasswd"} */ ("login"));
+export default function Auth(): React.ReactNode {
+  const [showSection, setShowSection] = useState<"login" | "register" | "resetPasswd">("login");
 
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
@@ -64,7 +59,7 @@ export default function Auth() {
     }
   }, [compUsr.authCtx.state, navigate]);
 
-  if (compUsr.authCtx.state === "LOGGED_IN") return <LoadingPage />;
+  if (compUsr.authCtx.state === AuthStateEnum.LOGGED_IN) return <LoadingPage />;
 
   return (
     <div className="pages-Auth">
@@ -85,9 +80,9 @@ export default function Auth() {
             <LoginSection setShowSection={setShowSection} />
           ) : showSection === "register" ? (
             <RegisterSection />
-          ) : showSection === "resetPasswd" ? (
+          ) : (
             <ResetPasswdSection />
-          ) : null
+          )
         }
         {/* implement login with Google, Apple & Microsoft */}
         <OAuthSection />

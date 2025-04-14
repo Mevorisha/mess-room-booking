@@ -36,7 +36,7 @@ export default AuthContext;
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
 export function AuthProvider({ children }: { children: React.ReactNode }): React.ReactNode {
-  const [authState, setAuthState] = useState(/** @type {AuthStateEnum} */ AuthStateEnum.STILL_LOADING);
+  const [authState, setAuthState] = useState<AuthStateEnum>(AuthStateEnum.STILL_LOADING);
   const { user, dispatchUser } = useContext(UserContext);
 
   const notify = useNotification();

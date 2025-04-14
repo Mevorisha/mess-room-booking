@@ -8,14 +8,6 @@ export interface ControlButtonsProps {
   onAddClick: React.MouseEventHandler<HTMLElement>;
 }
 
-/**
- * @param {{
- *   disabled: boolean
- *   onClearClick: React.MouseEventHandler<HTMLElement>
- *   onAddClick: React.MouseEventHandler<HTMLElement>
- * }} props
- * @returns {React.ReactNode}
- */
 function ControlButtons({ disabled, onClearClick, onAddClick }: ControlButtonsProps): React.ReactNode {
   if (disabled) return <></>;
   return (
