@@ -1,7 +1,7 @@
 import { FirebaseAuth } from "../firebase/init";
+import { errorHandlerWrapperOnCallApi } from "./api";
 import { CachePaths } from "./caching";
 import { fileToDataUrl } from "./dataConversion";
-import { lang } from "./language";
 
 const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
 
@@ -27,18 +27,7 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
   }
 
   // Fetch the image from the URL
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      lang(
-        `HTTP error! status: ${response.status}`,
-        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
-        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
-      )
-    );
-  }
-
+  const response = await errorHandlerWrapperOnCallApi(async () => fetch(url, { headers }));
   const isBase64 = response.headers.get("x-content-encoding")?.toUpperCase() === "BASE64";
 
   if (isBase64) {

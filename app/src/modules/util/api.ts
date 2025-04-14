@@ -91,7 +91,7 @@ export class ApiPaths {
   };
 }
 
-async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
+export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
   try {
     const response = await callback();
     if (response.ok) return response;
