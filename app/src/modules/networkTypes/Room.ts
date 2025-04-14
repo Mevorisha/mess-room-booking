@@ -1,4 +1,4 @@
-import { MultiSizePhoto } from "./MultiSizePhoto";
+import MultiSizePhoto from "./MultiSizePhoto";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
@@ -28,3 +28,20 @@ interface RoomData {
 type RoomNetworkType = Partial<RoomData>;
 
 export default RoomNetworkType;
+
+export interface RoomQuery {
+  self?: boolean;
+  acceptGender?: "MALE" | "FEMALE" | "OTHER";
+  acceptOccupation?: "STUDENT" | "PROFESSIONAL" | "ANY";
+  landmark?: string;
+  city?: string;
+  state?: string;
+  capacity?: number;
+  lowPrice?: number;
+  highPrice?: number;
+  searchTags?: string[];
+  sortOn?: "capacity" | "rating" | "pricePerOccupant";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  invalidateCache?: boolean;
+}

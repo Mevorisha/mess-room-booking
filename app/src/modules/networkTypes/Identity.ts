@@ -1,4 +1,4 @@
-import { MultiSizePhoto } from "./MultiSizePhoto";
+import MultiSizePhoto from "./MultiSizePhoto";
 
 export interface IdentityPhotos {
   workId?: MultiSizePhoto;

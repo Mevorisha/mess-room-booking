@@ -1,30 +1,9 @@
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
-
-export type MultiSizeImageSz = "small" | "medium" | "large";
-
-export interface RoomQuery {
-  self?: boolean;
-  acceptGender?: "MALE" | "FEMALE" | "OTHER";
-  acceptOccupation?: "STUDENT" | "PROFESSIONAL" | "ANY";
-  landmark?: string;
-  city?: string;
-  state?: string;
-  capacity?: number;
-  lowPrice?: number;
-  highPrice?: number;
-  searchTags?: string[];
-  sortOn?: "capacity" | "rating" | "pricePerOccupant";
-  sortOrder?: "asc" | "desc";
-  page?: number;
-  invalidateCache?: boolean;
-}
-
-export interface JsonDataType {
-  message?: string;
-  error?: string;
-}
+import { MultiSizeImageSz } from "../networkTypes/MultiSizePhoto.js";
+import { RoomQuery } from "../networkTypes/Room.js";
+import JsonDataType from "../networkTypes/JsonData.js";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
