@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+// @ts-ignore
 import eslint from "vite-plugin-eslint";
 import path from "path";
 import fs from "fs";
@@ -15,7 +16,7 @@ export default defineConfig(({ command }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
+          manualChunks: (id: any) => {
             if (id.includes("node_modules")) {
               return id.toString().split("node_modules/")[1].split("/")[0].toString();
             }
@@ -29,6 +30,7 @@ export default defineConfig(({ command }) => {
   // Only include HTTPS server settings during development, not during build
   if (command === "serve") {
     console.log("Load '../backend/certificates/*.pem'")
+    // @ts-ignore
     config.server = {
       https: {
         key: fs.readFileSync("../backend/certificates/localhost-key.pem"),

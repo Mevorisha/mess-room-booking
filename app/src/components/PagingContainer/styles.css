@@ -1,0 +1,51 @@
+.components-PagingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.5 * var(--pad-1));
+}
+
+.components-PagingContainer .page-button {
+  width: var(--pad-5);
+  text-align: center;
+  border-radius: var(--rounded-rad);
+  padding: var(--pad-0);
+  cursor: pointer;
+  transition: filter 0.2s, scale 0.2s;
+  user-select: none;
+}
+
+.components-PagingContainer .page-button:hover {
+  filter: brightness(1.2);
+  transition: filter 0.2s, scale 0.2s;
+}
+
+.components-PagingContainer .page-button.active {
+  padding: var(--pad-1);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-bg-secondary);
+  font-weight: bold;
+}
+
+.components-PagingContainer .control-button {
+  text-align: center;
+  color: var(--color-gray);
+  padding: var(--pad-1);
+  cursor: pointer;
+  transition: filter 0.2s, scale 0.2s;
+  user-select: none;
+}
+
+.components-PagingContainer .control-button:hover {
+  color: var(--color-primary);
+  transition: filter 0.2s, transform 0.2s;
+}
+
+/* Disabled state for control buttons */
+.components-PagingContainer .control-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}

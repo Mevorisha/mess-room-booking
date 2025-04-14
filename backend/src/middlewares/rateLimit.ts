@@ -93,6 +93,21 @@ export const RateLimits = {
   ROOM_CLIENT_RATING_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(20, uid, "ROOM_CLIENT_RATING_UPDATE", req, res),
 
+  // Booking operations
+  BOOKING_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(5, uid, "BOOKING_CREATE", req, res),
+  BOOKING_CANCEL: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(30, uid, "BOOKING_CANCEL", req, res),
+  BOOKING_CLEAR: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(5, uid, "BOOKING_CLEAR", req, res),
+  BOOKING_ACCEPT: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(30, uid, "BOOKING_ACCEPT", req, res),
+  BOOKING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "BOOKING_READ", req, res),
+  BOOKING_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(60, uid, "BOOKING_SEARCH_READ", req, res),
+  BOOKING_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+    rateLimiter(30, uid, "BOOKING_PARAMS_UPDATE", req, res),
+
   // Logging
   LOG_WRITE: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "LOG_WRITE", req, res),
 };

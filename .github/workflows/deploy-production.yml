@@ -38,7 +38,7 @@ jobs:
       - name: Build
         working-directory: app
         run: |
-          echo Backend API at "$(grep -Eo 'https://.*\.vercel\.app' src/configs/API_SERVER_URL.js | head -1)"
+          echo Backend API at "$(grep -Eo 'https://.*\.vercel\.app' src/configs/API_SERVER_URL.ts | head -1)"
           npm run build
 
       - name: Obfuscate
