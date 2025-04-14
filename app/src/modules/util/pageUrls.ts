@@ -19,15 +19,15 @@ export const PagePaths: Record<PageType, string> = {
 };
 
 export enum ActionType {
-  VIEW_PROFILE = "View Profile",
-  SWITCH_PROFILE_TYPE = "Switch Profile Type",
-  UPDATE_PROFILE_PHOTO = "Update Profile Photo",
-  UPDATE_ID_DOCS = "Update ID Documents",
-  CHANGE_NAME = "Change Display Name",
-  RESET_PASSWORD = "Request Password Reset",
-  CHANGE_MOBILE_NUMBER = "Change Mobile Number",
-  CHANGE_LANGUAGE = "Change Language",
-  LOGOUT = "Log Out",
+  VIEW_PROFILE = "ViewProfile",
+  SWITCH_PROFILE_TYPE = "SwitchProfileType",
+  UPDATE_PROFILE_PHOTO = "UpdateProfilePhoto",
+  UPDATE_ID_DOCS = "UpdateDocuments",
+  CHANGE_NAME = "ChangeDisplayName",
+  RESET_PASSWORD = "RequestPasswordReset",
+  CHANGE_MOBILE_NUMBER = "ChangeMobileNumber",
+  CHANGE_LANGUAGE = "ChangeLanguage",
+  LOGOUT = "LogOut",
 }
 
 // Multi-language support
