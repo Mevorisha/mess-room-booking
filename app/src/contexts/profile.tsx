@@ -1,49 +1,39 @@
 import React, { createContext, useCallback, useContext } from "react";
-import UserContext, { UploadedImage } from "./user.jsx";
+import UserContext from "./user.jsx";
 import useNotification from "@/hooks/notification.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, User as FirebaseUser } from "firebase/auth";
+import UploadedImage from "@/modules/classes/UploadedImage.js";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
-/**
- * @typedef  {Object} ProfileContextType
- * @property {(type: "TENANT" | "OWNER")                     => Promise<void>}     updateProfileType
- * @property {(image: File)                                  => Promise<string>}   updateProfilePhoto
- * @property {(firstName: string, lastName: string)          => Promise<void>}     updateProfileName
- */
+export interface ProfileContextType {
+  updateProfileType: (type: "TENANT" | "OWNER") => Promise<void>;
+  updateProfilePhoto: (image: File) => Promise<string>;
+  updateProfileName: (firstName: string, lastName: string) => Promise<void>;
+}
 
-const ProfileContext = createContext(
-  /** @type {ProfileContextType} */ ({
-    updateProfileType: async () => {},
-    updateProfilePhoto: async () => "",
-    updateProfileName: async () => {},
-  })
-);
+const ProfileContext = createContext<ProfileContextType>({
+  updateProfileType: async () => Promise.reject(new Error()),
+  updateProfilePhoto: async () => Promise.reject(new Error()),
+  updateProfileName: async () => Promise.reject(new Error()),
+});
 
 export default ProfileContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function ProfileProvider({ children }) {
+export function ProfileProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const notify = useNotification();
   const { user, dispatchUser } = useContext(UserContext);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
-    /**
-     * @param {"TENANT" | "OWNER"} type
-     * @returns {Promise<void>}
-     */
-    async (type) =>
+    async (type: "TENANT" | "OWNER"): Promise<void> =>
       apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), { type })
         .then(() => dispatchUser({ type }))
         .then(() =>
@@ -56,16 +46,12 @@ export function ProfileProvider({ children }) {
             "success"
           )
         )
-        .catch((e) => notify(e, "error")),
+        .catch((e: Error) => notify(e, "error")),
     [user.uid, notify, dispatchUser]
   );
 
   const updateProfilePhoto = useCallback(
-    /**
-     * @param {File} image
-     * @returns {Promise<string>}
-     */
-    async (image) => {
+    async (image: File): Promise<string> => {
       // update auth profile
       await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
       const { small, medium, large } = {
@@ -91,14 +77,11 @@ export function ProfileProvider({ children }) {
   );
 
   const updateProfileName = useCallback(
-    /**
-     * @param {string} firstName
-     * @param {string} lastName
-     * @returns {Promise<void>}
-     */
-    async (firstName, lastName) =>
+    async (firstName: string, lastName: string): Promise<void> =>
       apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateName(user.uid), { firstName, lastName })
-        .then(() => updateProfile(FirebaseAuth.currentUser, { displayName: `${firstName} ${lastName}` }))
+        .then(() =>
+          updateProfile(FirebaseAuth.currentUser as FirebaseUser, { displayName: `${firstName} ${lastName}` })
+        )
         .then(() => dispatchUser({ firstName, lastName }))
         .then(() =>
           notify(
@@ -110,7 +93,7 @@ export function ProfileProvider({ children }) {
             "success"
           )
         )
-        .catch((e) => notify(e, "error")),
+        .catch((e: Error) => notify(e, "error")),
     [user.uid, notify, dispatchUser]
   );
 

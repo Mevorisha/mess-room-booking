@@ -1,38 +1,41 @@
 import React, { createContext, useCallback, useState } from "react";
 import Notification from "@/components/Notification";
 
-const NotificationContext = createContext({
-  message: /** @type {string} */ (""),
-  kind: /** @type {"info" | "success" | "warning" | "error"} */ ("error"),
+export interface NotificationContextType {
+  message: string;
+  kind: "info" | "success" | "warning" | "error";
+  setMessage: (val: string) => void;
+  setKind: (val: "info" | "success" | "warning" | "error") => void;
+  animstate: "init" | "visible" | "gone";
+  setAnimState: (val: "init" | "visible" | "gone") => void;
+  showNotification: () => void;
+  hideNotification: () => void;
+  setNotifDisplayTimeout: (val: NodeJS.Timeout) => void;
+  clearNotifDisplayTimeout: () => void;
+}
 
-  setMessage: /** @type {(val: string) => void} */ (() => {}),
-  setKind: /** @type {(val: "info" | "success" | "warning" | "error") => void} */ (() => {}),
-
-  animstate: /** @type {"init" | "visible" | "gone"} */ ("init"),
-  setAnimState: /** @type {(val: "init" | "visible" | "gone") => void} */ (() => {}),
-
-  showNotification: /** @type {() => void} */ (() => {}),
-  hideNotification: /** @type {() => void} */ (() => {}),
-
-  setNotifDisplayTimeout: /** @type {(val: NodeJS.Timeout) => void} */ (() => {}),
-  clearNotifDisplayTimeout: /** @type {() => void} */ (() => {}),
+const NotificationContext = createContext<NotificationContextType>({
+  message: "",
+  kind: "error",
+  setMessage: () => void 0,
+  setKind: () => void 0,
+  animstate: "init",
+  setAnimState: () => void 0,
+  showNotification: () => void 0,
+  hideNotification: () => void 0,
+  setNotifDisplayTimeout: () => void 0,
+  clearNotifDisplayTimeout: () => void 0,
 });
 
 export default NotificationContext;
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-export function NotificationProvider({ children }) {
+export function NotificationProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
   const [message, setMessage] = useState("");
-
-  const [kind, setKind] = useState(/** @type {"info" | "success" | "warning" | "error"} */ ("error"));
-
-  const [animstate, setAnimState] = useState(/** @type {"init" | "visible" | "gone"} */ ("init"));
+  const [kind, setKind] = useState<"info" | "success" | "warning" | "error">("error");
+  const [animstate, setAnimState] = useState<"init" | "visible" | "gone">("init");
 
   /* this state is used to clear the display timeout */
-  const [notifDisplayTimeout, setNotifDisplayTimeout_] = useState(setTimeout(() => {}, 0));
+  const [notifDisplayTimeout, setNotifDisplayTimeout_] = useState(setTimeout(() => void 0, 0));
 
   const showNotification = useCallback(
     () =>
@@ -42,8 +45,7 @@ export function NotificationProvider({ children }) {
   );
 
   const setNotifDisplayTimeout = useCallback(
-    /** @param {NodeJS.Timeout} newVal */
-    (newVal) =>
+    (newVal: NodeJS.Timeout) =>
       setNotifDisplayTimeout_((oldVal) => {
         clearTimeout(oldVal);
         return newVal;

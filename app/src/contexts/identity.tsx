@@ -1,9 +1,10 @@
 import React, { createContext, useCallback, useContext } from "react";
 import useNotification from "@/hooks/notification.js";
-import UserContext, { UploadedImage } from "./user.jsx";
+import UserContext from "./user.jsx";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
+import UploadedImage from "@/modules/classes/UploadedImage.js";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 

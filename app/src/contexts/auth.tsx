@@ -1,11 +1,13 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from "react";
-import UserContext, { UploadedImage, User } from "./user.jsx";
+import UserContext from "./user.jsx";
 import LanguageContext from "./language.jsx";
 import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
 import IdentityNetworkType from "@/modules/networkTypes/Identity.js";
+import User from "@/modules/classes/User.js";
+import UploadedImage from "@/modules/classes/UploadedImage.js";
 
 const MODULE_NAME = "contexts/auth.jsx";
 
