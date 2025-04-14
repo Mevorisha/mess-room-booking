@@ -400,7 +400,7 @@ export default function ImageLoader(props: ImageLoaderProps): React.ReactNode {
     objectFit: "scale-down",
   };
 
-  if (isLoading || null === imageUrl) {
+  if (isLoading || null == imageUrl) {
     return <img {...newProps} style={animationStyles} src={loadingAnimation} alt={props.alt} onLoad={void 0} />;
   }
 

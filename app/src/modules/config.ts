@@ -8,8 +8,8 @@ const IS_PREVIEW =
   window.location.hostname !== "mess-booking-app-serverless.web.app" &&
   window.location.hostname !== "mess-booking-app-serverless.firebaseapp.com";
 
-const API_SERVER_URL = IS_DEV ? (import.meta.env["VITE_API_SERVER_URL"] as string) : (prodApiServerUrl as string);
-const FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env["VITE_FIREBASE_APPCHECK_DEBUG_TOKEN"] as string;
+const API_SERVER_URL = IS_DEV ? (import.meta.env["VITE_API_SERVER_URL"] as string | null ?? "") : (prodApiServerUrl as string);
+const FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env["VITE_FIREBASE_APPCHECK_DEBUG_TOKEN"] as string | null ?? "";
 
 // @ts-expect-error: Assigning to self for global access in a non-standard environment
 self["API_SERVER_URL"] = API_SERVER_URL; // just coz
