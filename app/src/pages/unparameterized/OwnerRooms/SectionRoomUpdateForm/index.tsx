@@ -14,94 +14,80 @@ import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
-/**
- * @typedef {import("@/modules/util/dataConversion.js").Base64FileData} Base64FileData
- * @typedef {"MALE" | "FEMALE" | "OTHER"} GenderOptions
- * @typedef {"STUDENT" | "PROFESSIONAL" | "ANY" | ""} OccupationOptions
- */
+type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
+type GenderOptions = "MALE" | "FEMALE" | "OTHER";
+type OccupationOptions = "STUDENT" | "PROFESSIONAL" | "ANY" | "";
 
-/**
- * This is the data received from backend and used to populate the room form.
- * NOTE: `isUnavailable` is only set if room owner fetchig room details.
- * @typedef {Object} RoomData
- * @property {string} id
- * @property {string} ownerId
- * @property {{ small: string, medium: string, large: string }[]} images
- * @property {boolean} isUnavailable
- * @property {GenderOptions} acceptGender
- * @property {OccupationOptions} acceptOccupation
- * @property {string[]} searchTags
- * @property {string} landmark
- * @property {string} address
- * @property {string} city
- * @property {string} state
- * @property {string[]} majorTags
- * @property {string[]} minorTags
- * @property {number} capacity
- * @property {number} pricePerOccupant
- * @property {number} rating
- * @property {boolean} [isUnavailable]
- * @property {boolean} [isDeleted]
- * @property {string} [ttl]
- */
+interface RoomData {
+  id: string;
+  ownerId: string;
+  images: { small: string; medium: string; large: string }[];
+  isUnavailable: boolean;
+  acceptGender: GenderOptions;
+  acceptOccupation: OccupationOptions;
+  searchTags: string[];
+  landmark: string;
+  address: string;
+  city: string;
+  state: string;
+  majorTags: string[];
+  minorTags: string[];
+  capacity: number;
+  pricePerOccupant: number;
+  rating: number;
+  isDeleted?: boolean;
+  ttl?: string;
+}
 
-/**
- * This is the data to be sent to backend.
- * Fields absent in update data:
- * - `acceptGender`
- *
- *  Additional fields in update data:
- * - `keepFiles` - Keep images after update, delete others
- * - `addFiles` - Upload new images
- * @typedef {Object} RoomUpdateData
- * @property {boolean} isUnavailable
- * @property {OccupationOptions} acceptOccupation
- * @property {string[]} searchTags
- * @property {string} landmark
- * @property {string} address
- * @property {string} city
- * @property {string} state
- * @property {string[]} majorTags
- * @property {string[]} minorTags
- * @property {number} capacity
- * @property {number} pricePerOccupant
- * @property {string[]} keepFiles
- * @property {Base64FileData[]} addFiles
- */
+interface RoomUpdateData {
+  isUnavailable: boolean;
+  acceptOccupation: OccupationOptions;
+  searchTags: string[];
+  landmark: string;
+  address: string;
+  city: string;
+  state: string;
+  majorTags: string[];
+  minorTags: string[];
+  capacity: number;
+  pricePerOccupant: number;
+  keepFiles: string[];
+  addFiles: Base64FileData[];
+}
 
-/**
- * @param {{
- *   roomData: RoomData,
- *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
- * }} props
- * @returns {React.ReactNode}
- */
-export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
+interface SectionRoomUpdateFormProps {
+  roomData: RoomData;
+  reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
+}
+
+export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRoomUpdateFormProps): React.ReactNode {
   const viewOnly = false;
 
   const notify = useNotification();
   const dialog = useDialog();
 
   // Replace all useRefs with state variables
-  const [acceptGender, _] = useState(roomData.acceptGender);
-  const [acceptOccupation, setAcceptOccupation] = useState(roomData.acceptOccupation);
-  const [searchTagsSet, setSearchTagsSet] = useState(new Set(roomData.searchTags));
-  const [landmark, setLandmark] = useState(roomData.landmark);
-  const [address, setAddress] = useState(roomData.address);
-  const [city, setCity] = useState(roomData.city);
-  const [state, setState] = useState(roomData.state);
-  const [majorTagsSet, setMajorTagsSet] = useState(new Set(roomData.majorTags));
-  const [minorTagsSet, setMinorTagsSet] = useState(new Set(roomData.minorTags));
-  const [capacity, setCapacity] = useState("" + roomData.capacity);
-  const [pricePerOccupant, setPricePerOccupant] = useState("" + roomData.pricePerOccupant);
-  const [isUnavailable, setIsUnavailable] = useState(roomData.isUnavailable);
+  const [acceptGender, _] = useState<GenderOptions>(roomData.acceptGender);
+  const [acceptOccupation, setAcceptOccupation] = useState<OccupationOptions>(roomData.acceptOccupation);
+  const [searchTagsSet, setSearchTagsSet] = useState<Set<string>>(new Set<string>(roomData.searchTags));
+  const [landmark, setLandmark] = useState<string>(roomData.landmark);
+  const [address, setAddress] = useState<string>(roomData.address);
+  const [city, setCity] = useState<string>(roomData.city);
+  const [state, setState] = useState<string>(roomData.state);
+  const [majorTagsSet, setMajorTagsSet] = useState<Set<string>>(new Set<string>(roomData.majorTags));
+  const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>(roomData.minorTags));
+  const [capacity, setCapacity] = useState<string>("" + roomData.capacity);
+  const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
+  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
 
   // Initialize filesSet with images from roomData
-  const [filesSet, setFilesSet] = useState(new StringySet(roomData.images.map((img) => FileRepr.from(img.medium))));
+  const [filesSet, setFilesSet] = useState(
+    new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)))
+  );
 
-  const [submitButtonKind, setSubmitButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [submitButtonKind, setSubmitButtonKind] = useState<"primary" | "loading">("primary");
 
-  async function handleSubmitAsync() {
+  async function handleSubmitAsync(): Promise<void> {
     // add new files
     const addFilesArr = Array.from(filesSet)
       .filter((fr) => fr.isFile())
@@ -114,10 +100,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
 
     const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
 
-    /**
-     * @type {RoomUpdateData}
-     */
-    const formData = {
+    const formData: RoomUpdateData = {
       isUnavailable,
       acceptOccupation,
       searchTags: Array.from(searchTagsSet),
@@ -136,7 +119,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
 
     // submit to backend
     setSubmitButtonKind("loading");
-    let totalSize = addFilesArr.reduce((acc, f) => acc + f.size, 0);
+    const totalSize = addFilesArr.reduce((acc, f) => acc + f.size, 0);
 
     notify(
       lang(
@@ -148,24 +131,21 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
     );
 
     apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
+      .then((data) => data as { roomId: string })
       .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
       .then(() => setSubmitButtonKind("primary"))
       .then(() => notify(lang("Room updated", "রুম আপডেট হয়েছে", "रूम अपडेट हो गया है"), "success"))
       .then(() => dialog.hide())
-      .then(() => reloadApi && reloadApi({ invalidateCache: true }))
-      .catch((e) => {
+      .then(() => reloadApi({ invalidateCache: true }))
+      .catch((e: Error) => {
         notify(e, "error");
         setSubmitButtonKind("primary");
       });
   }
 
-  /**
-   * @param {React.FormEvent<HTMLFormElement>} e
-   * @returns {void}
-   */
-  function handleSubmitSync(e) {
+  function handleSubmitSync(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    handleSubmitAsync().catch((e) => notify(e, "error"));
+    handleSubmitAsync().catch((e: Error) => notify(e, "error"));
   }
 
   return (
@@ -268,7 +248,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
           <select
             required
             value={acceptOccupation}
-            onChange={(e) => setAcceptOccupation(/** @type {OccupationOptions} */ (e.target.value))}
+            onChange={(e) => setAcceptOccupation(e.target.value as OccupationOptions)}
           >
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
             <option value="STUDENT">{lang("Student", "ছাত্র", "छात्र")}</option>

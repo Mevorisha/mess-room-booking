@@ -1,12 +1,9 @@
 import React from "react";
 import ButtonText from "@/components/ButtonText";
 import NavBars from "@/components/NavBars";
+import User from "@/modules/classes/User";
 
-/**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.ReactNode}
- */
-export default function HomeForTenant({ user: _ }) {
+export default function HomeForTenant({ user: _ }: { user: User }): React.ReactNode {
   return (
     <div className="pages-Home">
       <NavBars>

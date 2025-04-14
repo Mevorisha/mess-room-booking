@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { isEmpty } from "@/modules/util/validations.js";
-import { ActionParams, PageType } from "@/modules/util/pageUrls.js";
+import { ActionType, PagePaths, PageType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
@@ -12,10 +12,7 @@ import HomeForTenant from "./HomeForTenant";
 
 import "./styles.css";
 
-/**
- * @returns {React.ReactNode}
- */
-export default function Home() {
+export default function Home(): React.ReactNode {
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -23,27 +20,27 @@ export default function Home() {
   useEffect(() => {
     // user logged in but profile type not set
     if (isEmpty(compUsr.userCtx.user.type)) {
-      searchParams.set("action", ActionParams.SWITCH_PROFILE_TYPE);
+      searchParams.set("action", ActionType.SWITCH_PROFILE_TYPE);
       navigate({
-        pathname: PageType.ONBOARDING,
+        pathname: PagePaths[PageType.ONBOARDING],
         search: searchParams.toString(),
       });
     }
 
     // user logged in but mobile number not set
     else if (isEmpty(compUsr.userCtx.user.mobile)) {
-      searchParams.set("action", ActionParams.CHANGE_MOBILE_NUMBER);
+      searchParams.set("action", ActionType.CHANGE_MOBILE_NUMBER);
       navigate({
-        pathname: PageType.ONBOARDING,
+        pathname: PagePaths[PageType.ONBOARDING],
         search: searchParams.toString(),
       });
     }
 
     // user logged in but no language set
     else if (isEmpty(window.localStorage.getItem("lang"))) {
-      searchParams.set("action", ActionParams.CHANGE_LANGUAGE);
+      searchParams.set("action", ActionType.CHANGE_LANGUAGE);
       navigate({
-        pathname: PageType.ONBOARDING,
+        pathname: PagePaths[PageType.ONBOARDING],
         search: searchParams.toString(),
       });
     }

@@ -1,10 +1,7 @@
 import React from "react";
 import "./styles.css";
 
-/**
- * @returns {React.ReactNode}
- */
-export default function LoadingPage() {
+export default function LoadingPage(): React.ReactNode {
   return (
     <div className="pages-Loading">
       <div className="spinner"></div>
