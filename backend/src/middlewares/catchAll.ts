@@ -9,7 +9,7 @@ function handleErr(e: any, res: NextApiResponse) {
   }
   if (e instanceof CustomApiError) {
     respond(res, { status: e.status, error: e.message });
-    console.error(e.status, e.message);
+    console.trace(e.status, e.message);
   } else {
     respond(res, { status: 500, error: "Internal Server Error" });
     console.trace(e);
