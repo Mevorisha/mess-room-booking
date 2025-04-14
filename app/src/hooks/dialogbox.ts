@@ -1,19 +1,20 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import DialogBoxContext from "@/contexts/dialogbox.jsx";
+
+export interface DialogBoxHookType {
+  createNewModalId: () => string;
+  showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "uibox") => void;
+  hideStacked: (id: string) => void;
+  hideTopModal: () => void;
+  isVisible: boolean;
+  show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string;
+  hide: () => void;
+}
 
 /**
  * Hook for using the dialog box system
- * @returns {{
- *   createNewModalId: () => string,
- *   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "uibox") => void,
- *   hideStacked: (id: string) => void,
- *   hideTopModal: () => void
- *   isVisible: boolean,
- *   show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string,
- *   hide: () => void,
- * }}
  */
-export default function useDialogBox() {
+export default function useDialogBox(): DialogBoxHookType {
   const { addModal, removeModal, removeTopModal } = useContext(DialogBoxContext);
   const idCounterRef = useRef(0);
 
@@ -35,7 +36,7 @@ export default function useDialogBox() {
      * @param {React.JSX.Element} children - Content of the modal
      * @param {"small" | "large" | "uibox"} size - Size of the modal
      */
-    (id, children, size = "small") => {
+    (id: string, children: React.JSX.Element, size: "small" | "large" | "uibox" = "small") => {
       addModal(id, children, size);
       setIsVisible(true);
     },
@@ -46,13 +47,11 @@ export default function useDialogBox() {
   const hideStacked = useCallback(
     /**
      * Hide a specific modal by ID
-     * @param {string} id - ID of the modal to hide
-     * @param {() => void} [onHide]
      */
-    (id, onHide) => {
+    (id: string, onHide?: () => void) => {
       removeModal(id);
       setIsVisible(false);
-      if (onHide) onHide();
+      if (onHide != null) onHide();
     },
     [removeModal]
   );
@@ -65,7 +64,7 @@ export default function useDialogBox() {
      * @param {"small" | "large" | "uibox"} size - Size of the modal
      * @returns {string} - The generated ID for the modal
      */
-    (children, size = "small") => {
+    (children: React.JSX.Element, size: "small" | "large" | "uibox" = "small"): string => {
       const id = __mkAutoId();
       addModal(id, children, size);
       setIsVisible(true);
@@ -76,26 +75,20 @@ export default function useDialogBox() {
 
   // New simplified hide function
   const hide = useCallback(
-    /**
-     * @param {() => void} [onHide]
-     */
-    (onHide) => {
+    (onHide?: () => void) => {
       removeTopModal();
       setIsVisible(false);
-      if (onHide) onHide();
+      if (onHide != null) onHide();
     },
     [removeTopModal]
   );
 
   // Keep the existing hideTopModal for backwards compatibility
   const hideTopModal = useCallback(
-    /**
-     * @param {() => void} [onHide]
-     */
-    (onHide) => {
+    (onHide?: () => void) => {
       removeTopModal();
       setIsVisible(false);
-      if (onHide) onHide();
+      if (onHide != null) onHide();
     },
     [removeTopModal]
   );
