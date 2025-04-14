@@ -14,7 +14,7 @@ export default function PagingContainer({
   currentPage,
   setCurrentPage,
   onPageChange,
-}: PagingContainerProps): React.JSX.Element {
+}: PagingContainerProps): React.ReactNode {
   if (totalPages <= 1) return <></>;
 
   function handlePageChange(page: number) {

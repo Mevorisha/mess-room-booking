@@ -17,7 +17,7 @@ export default LangContext;
 
 /* ------------------------------------ LANG PROVIDER COMPONENT ----------------------------------- */
 
-export function LanguageProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function LanguageProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const {
     user: { uid },
   } = useContext(UserContext);

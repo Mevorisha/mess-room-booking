@@ -26,7 +26,7 @@ export default AccountContext;
 
 /* ------------------------------------ ACCOUNT PROVIDER COMPONENT ----------------------------------- */
 
-export function AccountProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function AccountProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
   const { user, dispatchUser } = useContext(UserContext);
 

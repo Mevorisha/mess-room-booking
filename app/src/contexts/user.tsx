@@ -32,7 +32,7 @@ export default UserContext;
 
 /* ------------------------------------ USER PROVIDER COMPONENT ----------------------------------- */
 
-export function UserProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function UserProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [user, setUser] = useState(User.loadCurrentUser());
 
   const dispatchUser = useCallback(

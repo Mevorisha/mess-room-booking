@@ -6,7 +6,7 @@ const DIALOG_ANIM_DURATION = 250;
 export interface DialogBoxProps {
   modal: {
     id: string;
-    children: React.JSX.Element;
+    children: React.ReactNode;
     size: "small" | "large" | "uibox";
     overlayState: "fadeIn" | "fadeOut" | "gone";
     dialogState: "scaleIn" | "scaleOut" | "gone";
@@ -14,7 +14,7 @@ export interface DialogBoxProps {
   onClose: () => void;
 }
 
-export default function DialogBox({ modal, onClose }: DialogBoxProps): React.JSX.Element {
+export default function DialogBox({ modal, onClose }: DialogBoxProps): React.ReactNode {
   const { children, size, overlayState, dialogState } = modal;
 
   const [clientDims, setClientDims] = useState({

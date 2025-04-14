@@ -26,7 +26,7 @@ export default ProfileContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
-export function ProfileProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function ProfileProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
   const { user, dispatchUser } = useContext(UserContext);
 

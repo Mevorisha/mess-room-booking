@@ -9,7 +9,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => void;
 }
 
-export default function ConfirmDialog({ title, text, onConfirm: handleConfirmClick }: ConfirmDialogProps): React.JSX.Element {
+export default function ConfirmDialog({ title, text, onConfirm: handleConfirmClick }: ConfirmDialogProps): React.ReactNode {
   const dialog = useDialogBox();
 
   return (

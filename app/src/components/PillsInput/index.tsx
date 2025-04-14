@@ -14,9 +14,9 @@ export interface ControlButtonsProps {
  *   onClearClick: React.MouseEventHandler<HTMLElement>
  *   onAddClick: React.MouseEventHandler<HTMLElement>
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
-function ControlButtons({ disabled, onClearClick, onAddClick }: ControlButtonsProps): React.JSX.Element {
+function ControlButtons({ disabled, onClearClick, onAddClick }: ControlButtonsProps): React.ReactNode {
   if (disabled) return <></>;
   return (
     <>
@@ -26,7 +26,7 @@ function ControlButtons({ disabled, onClearClick, onAddClick }: ControlButtonsPr
   );
 }
 
-export function PillInputTest({ disabled = false }: { disabled?: boolean }): React.JSX.Element {
+export function PillInputTest({ disabled = false }: { disabled?: boolean }): React.ReactNode {
   const [pillsSet, setPillsSet] = useState(new Set<string>());
   return (
     <PillInput
@@ -57,7 +57,7 @@ export default function PillInput({
   minRequired = 1,
   pillsSet,
   setPillsSet,
-}: PillInputProps): React.JSX.Element {
+}: PillInputProps): React.ReactNode {
   const [inputValue, setInputValue] = useState("");
 
   // Use rewuired property of input element

@@ -3,7 +3,7 @@ import DialogBox from "@/components/DialogBox";
 
 export interface ModalData {
   id: string;
-  children: React.JSX.Element;
+  children: React.ReactNode;
   size: "small" | "large" | "uibox";
   overlayState: "fadeIn" | "fadeOut" | "gone";
   dialogState: "scaleIn" | "scaleOut" | "gone";
@@ -13,7 +13,7 @@ const DialogBoxContext = createContext({
   modalStack: [] as ModalData[],
   addModal: ((): void => void 0) as (
     id: string,
-    children: React.JSX.Element,
+    children: React.ReactNode,
     size: "small" | "large" | "uibox"
   ) => void,
   removeModal: ((): void => void 0) as (id: string) => void,
@@ -24,15 +24,15 @@ export default DialogBoxContext;
 
 /**
  * @param {{ children: any }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
-export function DialogBoxProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function DialogBoxProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [modalStack, setModalStack] = useState<ModalData[]>([]);
 
   /**
    * Add a new modal to the stack
    */
-  function addModal(id: string, modalChildren: React.JSX.Element, size: "small" | "large" | "uibox" = "small") {
+  function addModal(id: string, modalChildren: React.ReactNode, size: "small" | "large" | "uibox" = "small") {
     setModalStack((prevStack) => [
       ...prevStack,
       {

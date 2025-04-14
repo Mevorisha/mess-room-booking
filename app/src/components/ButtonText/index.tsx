@@ -23,7 +23,7 @@ export default function ButtonText({
   rounded = "none",
   kind = "primary",
   width = "default",
-}: ButtonTextProps): React.JSX.Element {
+}: ButtonTextProps): React.ReactNode {
   const classes = [];
   const borderRadiusStyle = {
     all: "var(--rounded-rad)",

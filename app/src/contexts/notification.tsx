@@ -29,7 +29,7 @@ const NotificationContext = createContext<NotificationContextType>({
 
 export default NotificationContext;
 
-export function NotificationProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function NotificationProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [message, setMessage] = useState("");
   const [kind, setKind] = useState<"info" | "success" | "warning" | "error">("error");
   const [animstate, setAnimState] = useState<"init" | "visible" | "gone">("init");

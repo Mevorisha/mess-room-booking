@@ -10,7 +10,7 @@ export interface CustomFabProps {
 /**
  * CustomFab - A custom floating action button component
  */
-export default function CustomFab({ marginBottom, title, onClick }: CustomFabProps): React.JSX.Element {
+export default function CustomFab({ marginBottom, title, onClick }: CustomFabProps): React.ReactNode {
   const buttonStyle = {
     bottom: marginBottom != null ? `${marginBottom}px` : "20px",
   };

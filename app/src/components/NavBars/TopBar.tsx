@@ -16,7 +16,7 @@ export interface ActionMenuProps {
   handleDropdownClick: (dropdownState: "init" | "showing" | "visible" | "hiding") => void;
 }
 
-function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): React.JSX.Element {
+function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): React.ReactNode {
   const compUsr = useCompositeUser();
   // prettier-ignore
   let text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
@@ -57,7 +57,7 @@ function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): Re
   );
 }
 
-function MarkOfIncompletion({ isIncomplete }: { isIncomplete: boolean }): React.JSX.Element {
+function MarkOfIncompletion({ isIncomplete }: { isIncomplete: boolean }): React.ReactNode {
   // returns a red exclamation mark if isIncomplete true
   if (!isIncomplete) return <></>;
   return (
@@ -67,7 +67,7 @@ function MarkOfIncompletion({ isIncomplete }: { isIncomplete: boolean }): React.
   );
 }
 
-export default function TopBar({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export default function TopBar({ children }: { children: React.ReactNode }): React.ReactNode {
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
   const notify = useNotification();

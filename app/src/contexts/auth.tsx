@@ -35,7 +35,7 @@ export default AuthContext;
 
 /* ------------------------------------ AUTH PROVIDER COMPONENT ----------------------------------- */
 
-export function AuthProvider({ children }: { children: React.JSX.Element }): React.JSX.Element {
+export function AuthProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [authState, setAuthState] = useState(/** @type {AuthStateEnum} */ AuthStateEnum.STILL_LOADING);
   const { user, dispatchUser } = useContext(UserContext);
 

@@ -373,7 +373,7 @@ export interface ImageLoaderProps extends React.ImgHTMLAttributes<HTMLImageEleme
   onLoad?: () => void;
 }
 
-export default function ImageLoader(props: ImageLoaderProps): React.JSX.Element {
+export default function ImageLoader(props: ImageLoaderProps): React.ReactNode {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 

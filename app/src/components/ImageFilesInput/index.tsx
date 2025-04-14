@@ -49,7 +49,7 @@ export interface ImageFilesInputPropsExtended {
   handleClearAll: () => void;
 }
 
-function EmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Element {
+function EmptyFilesInput(props: ImageFilesInputPropsExtended): React.ReactNode {
   const { disabled = false, handleItemAdd } = props;
   const notify = useNotification();
 
@@ -89,7 +89,7 @@ function EmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Element
   );
 }
 
-function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Element {
+function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.ReactNode {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
   const dialog = useDialogBox();
@@ -248,7 +248,7 @@ function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.JSX.Elem
   );
 }
 
-export default function ImageFilesInput(props: ImageFilesInputProps): React.JSX.Element {
+export default function ImageFilesInput(props: ImageFilesInputProps): React.ReactNode {
   const { required, filesSet, setFilesSet } = props;
 
   const minRequired = props.minRequired ?? 1;

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { PageType } from "@/modules/util/pageUrls.js";
+import { PagePaths, PageType } from "@/modules/util/pageUrls.js";
 
 import { UserProvider } from "@/contexts/user.jsx";
 import { AuthProvider, AuthStateEnum } from "@/contexts/auth.jsx";
@@ -21,14 +21,7 @@ import HomePage from "@/pages/unparameterized/Home";
 import OnboardingPage from "@/pages/parameterized/Onboarding";
 import ProfilePage from "@/pages/parameterized/Profile";
 
-// import NotifPage from "@/pages/Notif";
-// import AccountPage from "@/pages/Account";
-
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-function AuthCheck({ children }) {
+function AuthCheck({ children }: { children: React.ReactNode }): React.ReactNode {
   const compUsr = useCompositeUser();
   const navigate = useNavigate();
 
@@ -52,14 +45,10 @@ function AuthCheck({ children }) {
 
   /* render routing instead of directly loading some page
      and let the pages navigate to the correct page */
-  return children;
+  return <>{children}</>;
 }
 
-/**
- * @param {{ children: any }} props
- * @returns {React.JSX.Element}
- */
-function CompositeUsrProvider({ children }) {
+function CompositeUsrProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   return (
     <UserProvider>
       <LanguageProvider>
@@ -75,10 +64,7 @@ function CompositeUsrProvider({ children }) {
   );
 }
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function App() {
+export default function App(): React.ReactNode {
   // prettier-ignore
   return (
     <NotificationProvider>              {/* provide the notification context */}
@@ -87,16 +73,16 @@ export default function App() {
           <BrowserRouter>               {/* use the browser router to handle routing */}
             <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
               <Routes>
-                <Route path={PageType.ROOT} Component={HomePage} />
-                <Route path={PageType.ONBOARDING} Component={OnboardingPage} />
-                <Route path={PageType.AUTH} Component={AuthPage} />
-                <Route path={PageType.HOME} Component={HomePage} />
-                <Route path={PageType.PROFILE} Component={ProfilePage} />
+                <Route path={PagePaths[PageType.ROOT]} Component={HomePage} />
+                <Route path={PagePaths[PageType.ONBOARDING]} Component={OnboardingPage} />
+                <Route path={PagePaths[PageType.AUTH]} Component={AuthPage} />
+                <Route path={PagePaths[PageType.HOME]} Component={HomePage} />
+                <Route path={PagePaths[PageType.PROFILE]} Component={ProfilePage} />
                 {/*
                   <Route path="/notif" component={NotifPage} />
                   <Route path="/account" component={AccountPage} />
                 */}
-                <Route path={PageType.PAGE_NOT_FOUND} Component={PageNotFound} />
+                <Route path={PagePaths[PageType.PAGE_NOT_FOUND]} Component={PageNotFound} />
                 <Route path="*" Component={PageNotFound} />
               </Routes>
             </AuthCheck>
