@@ -75,6 +75,10 @@ export default class UploadedImage {
     return this.#large;
   }
 
+  get isPrivate(): boolean {
+    return this.#isPrivate;
+  }
+
   toString(): string {
     return JSON.stringify({
       filename: this.#filename,

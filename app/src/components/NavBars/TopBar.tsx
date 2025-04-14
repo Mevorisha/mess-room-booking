@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
-import { ActionType, PagePaths, PageType } from "@/modules/util/pageUrls.js";
+import { ActionLabels, ActionType, PagePaths, PageType } from "@/modules/util/pageUrls.js";
 import { CachePaths } from "@/modules/util/caching";
 import ImageLoader from "@/components/ImageLoader";
 import useCompositeUser from "@/hooks/compositeUser.js";
@@ -184,35 +184,63 @@ export default function TopBar({ children }: { children: React.ReactNode }): Rea
           </div>
           {/* Update Profile Photo */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.UPDATE_PROFILE_PHOTO)}>
-            {ActionType.UPDATE_PROFILE_PHOTO}
+            {lang(
+              ActionLabels[ActionType.UPDATE_PROFILE_PHOTO].en,
+              ActionLabels[ActionType.UPDATE_PROFILE_PHOTO].bn,
+              ActionLabels[ActionType.UPDATE_PROFILE_PHOTO].hi
+            )}
             <MarkOfIncompletion isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)} />
           </div>
           {/* Update ID Documents */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.UPDATE_ID_DOCS)}>
-            {ActionType.UPDATE_ID_DOCS}
+            {lang(
+              ActionLabels[ActionType.UPDATE_ID_DOCS].en,
+              ActionLabels[ActionType.UPDATE_ID_DOCS].bn,
+              ActionLabels[ActionType.UPDATE_ID_DOCS].hi
+            )}
           </div>
           {/* Change Name */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_NAME)}>
-            {ActionType.CHANGE_NAME}
+            {lang(
+              ActionLabels[ActionType.CHANGE_NAME].en,
+              ActionLabels[ActionType.CHANGE_NAME].bn,
+              ActionLabels[ActionType.CHANGE_NAME].hi
+            )}
             <MarkOfIncompletion
               isIncomplete={isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName)}
             />
           </div>
           {/* Change Mobile Number */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_MOBILE_NUMBER)}>
-            {ActionType.CHANGE_MOBILE_NUMBER}
+            {lang(
+              ActionLabels[ActionType.CHANGE_MOBILE_NUMBER].en,
+              ActionLabels[ActionType.CHANGE_MOBILE_NUMBER].bn,
+              ActionLabels[ActionType.CHANGE_MOBILE_NUMBER].hi
+            )}
           </div>
           {/* Request Password Reset */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.RESET_PASSWORD)}>
-            {ActionType.RESET_PASSWORD}
+            {lang(
+              ActionLabels[ActionType.RESET_PASSWORD].en,
+              ActionLabels[ActionType.RESET_PASSWORD].bn,
+              ActionLabels[ActionType.RESET_PASSWORD].hi
+            )}
           </div>
           {/* Change Language */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.CHANGE_LANGUAGE)}>
-            {ActionType.CHANGE_LANGUAGE}
+            {lang(
+              ActionLabels[ActionType.CHANGE_LANGUAGE].en,
+              ActionLabels[ActionType.CHANGE_LANGUAGE].bn,
+              ActionLabels[ActionType.CHANGE_LANGUAGE].hi
+            )}
           </div>
           {/* Log Out */}
           <div style={{ color: "red" }} className="dropdown-item" onClick={() => handleItemClick(ActionType.LOGOUT)}>
-            {ActionType.LOGOUT}
+            {lang(
+              ActionLabels[ActionType.LOGOUT].en,
+              ActionLabels[ActionType.LOGOUT].bn,
+              ActionLabels[ActionType.LOGOUT].hi
+            )}
           </div>
         </div>
       </div>
