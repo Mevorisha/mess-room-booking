@@ -10,7 +10,7 @@ export class CustomApiError extends Error {
     return new CustomApiError(status, message);
   }
 
-  toString() {
+  override toString() {
     return this.message;
   }
 }

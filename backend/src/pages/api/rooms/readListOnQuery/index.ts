@@ -77,7 +77,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   const invalidateCache = req.query["invalidateCache"] === "true" ? true : false;
   // Parse sorting parameters
   const sortOn = req.query["sortOn"] as "capacity" | "rating" | "pricePerOccupant" | undefined;
-  const sortOrder = req.query.sortOrder as "asc" | "desc" | undefined;
+  const sortOrder = req.query["sortOrder"] as "asc" | "desc" | undefined;
   // Handle authentication for self queries
   let uid: string | null = null;
   if (isSelfQuery) {
@@ -117,8 +117,8 @@ function generateCacheKey(req: NextApiRequest): string {
   // Clone query parameters
   const queryParams = { ...req.query };
   // Remove page and invalidateCache parameters
-  delete queryParams.page;
-  delete queryParams.invalidateCache;
+  delete queryParams["page"];
+  delete queryParams["invalidateCache"];
   // Convert to a sorted string to ensure consistent keys
   const queryString = Object.entries(queryParams)
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
@@ -161,32 +161,32 @@ function parseQueryParams(req: NextApiRequest, isSelfQuery: boolean, ownerId: st
     return queryParams;
   }
   // Handle gender filter
-  if (req.query.acceptGender && ["MALE", "FEMALE", "OTHER"].includes(req.query.acceptGender as string)) {
-    queryParams.acceptGender = req.query.acceptGender as AcceptGender;
+  if (req.query["acceptGender"] && ["MALE", "FEMALE", "OTHER"].includes(req.query["acceptGender"] as string)) {
+    queryParams.acceptGender = req.query["acceptGender"] as AcceptGender;
   }
   // Handle occupation filter
-  if (req.query.acceptOccupation && ["STUDENT", "PROFESSIONAL", "ANY"].includes(req.query.acceptOccupation as string)) {
-    queryParams.acceptOccupation = req.query.acceptOccupation as AcceptOccupation;
+  if (req.query["acceptOccupation"] && ["STUDENT", "PROFESSIONAL", "ANY"].includes(req.query["acceptOccupation"] as string)) {
+    queryParams.acceptOccupation = req.query["acceptOccupation"] as AcceptOccupation;
   }
   // Handle string filters
-  if (req.query.landmark) queryParams.landmark = req.query.landmark as string;
-  if (req.query.city) queryParams.city = req.query.city as string;
-  if (req.query.state) queryParams.state = req.query.state as string;
+  if (req.query["landmark"]) queryParams.landmark = req.query["landmark"] as string;
+  if (req.query["city"]) queryParams.city = req.query["city"] as string;
+  if (req.query["state"]) queryParams.state = req.query["state"] as string;
   // Handle numeric filters
-  if (req.query.capacity) queryParams.capacity = parseInt(req.query.capacity as string, 10);
-  if (req.query.lowPrice) queryParams.lowPrice = parseFloat(req.query.lowPrice as string);
-  if (req.query.highPrice) queryParams.highPrice = parseFloat(req.query.highPrice as string);
+  if (req.query["capacity"]) queryParams.capacity = parseInt(req.query["capacity"] as string, 10);
+  if (req.query["lowPrice"]) queryParams.lowPrice = parseFloat(req.query["lowPrice"] as string);
+  if (req.query["highPrice"]) queryParams.highPrice = parseFloat(req.query["highPrice"] as string);
   // Handle search tags
-  if (req.query.searchTags) {
-    const tagsArray = (req.query.searchTags as string).split(",");
+  if (req.query["searchTags"]) {
+    const tagsArray = (req.query["searchTags"] as string).split(",");
     queryParams.searchTags = new Set(tagsArray);
   }
   // Handle timestamps if needed
-  if (req.query.createdAfter) {
-    queryParams.createdOn = Timestamp.fromDate(new Date(req.query.createdAfter as string));
+  if (req.query["createdAfter"]) {
+    queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
   }
-  if (req.query.modifiedAfter) {
-    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query.modifiedAfter as string));
+  if (req.query["modifiedAfter"]) {
+    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
   }
   return queryParams;
 }

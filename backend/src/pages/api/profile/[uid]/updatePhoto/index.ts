@@ -56,7 +56,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   // Get file from form data (only 1 file)
   const fileNames = Object.keys(files);
-  const file = fileNames.length === 1 && files[fileNames[0]][0];
+  const file: formidable.File = fileNames.length === 1 && (files as any)[fileNames[0] ?? ""][0];
   if (fileNames.length !== 1) {
     return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
   }
@@ -76,7 +76,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const imagePaths = { small: "", medium: "", large: "" };
   const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
     const filePath = StoragePaths.ProfilePhotos.gsBucket(uid, imgWithSz.sz, imgWithSz.sz);
-    imagePaths[size] = filePath;
+    imagePaths[size as keyof typeof imagePaths] = filePath;
     const fileRef = bucket.file(filePath);
     return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
   });

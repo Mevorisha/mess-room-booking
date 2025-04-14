@@ -8,7 +8,7 @@ import * as config from "../config";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
 
-let FirebaseApp: App;
+let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;
 let FirebaseRtDb: Database;
 let FirebaseFirestore: Firestore;
@@ -40,6 +40,9 @@ try {
 
   alreadyInit = true;
 } finally {
+  if (FirebaseApp == null) {
+    throw new Error("FirebaseApp is null");
+  }
   FirebaseAuth = getAuth(FirebaseApp);
   FirebaseRtDb = getDatabase(FirebaseApp);
   FirebaseFirestore = getFirestore(FirebaseApp);
@@ -104,7 +107,7 @@ class StoragePaths {
     gsBucket: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
       `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
 
-    getImageIdFromGsPath: (gsPath: string) => gsPath.split("/").reverse()[1],
+    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? "",
 
     apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
       `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,

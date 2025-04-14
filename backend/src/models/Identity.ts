@@ -80,11 +80,13 @@ function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
       medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
       large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
     };
+    const ids: { workId?: MultiSizePhoto, govId?: MultiSizePhoto } = {};
+    if (dataToUpdate.identityPhotos.workId) ids.workId = workId;
+    if (dataToUpdate.identityPhotos.govId) ids.govId = govId;
     dataToUpdate.identityPhotos = {
-      workId: dataToUpdate.identityPhotos.workId && workId,
-      govId: dataToUpdate.identityPhotos.govId && govId,
-      workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate,
-      govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate,
+      ...ids,
+      workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate ?? true,
+      govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate ?? true,
     };
   }
   return dataToUpdate;
@@ -139,7 +141,7 @@ class Identity {
     }
 
     // Compose pseduo fields
-    data.displayName = [data.firstName, data.lastName].filter(Boolean).join(" ");
+    data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
 
     // If no fields are provided, return the entire document
     if (fields.length === 0) {

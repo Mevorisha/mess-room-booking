@@ -130,9 +130,9 @@ class Booking {
     }
 
     // Add pseudo fields
-    data.isAccepted = !!data.acceptedOn;
-    data.isCancelled = !!data.cancelledOn;
-    data.isCleared = !!data.clearedOn;
+    data["isAccepted"] = !!data["acceptedOn"];
+    data["isCancelled"] = !!data["cancelledOn"];
+    data["isCleared"] = !!data["clearedOn"];
 
     // If no fields given return all params
     if (fields.length === 0) {
@@ -210,7 +210,7 @@ class Booking {
    */
   static async markForDelete(bookingId: string): Promise<number> {
     const data = await Booking.get(bookingId, [PsudoFields.IS_CANCELLED, PsudoFields.IS_CLEARED]);
-    if (!data.isCleared && !data.isCancelled) {
+    if (!data?.isCleared && !data?.isCancelled) {
       throw CustomApiError.create(409, "Cannot delete active booking. Needs to be cleared or cancelled first");
     }
     const daysToLive = 30;
@@ -248,7 +248,7 @@ class Booking {
    */
   static async forceDelete(bookingId: string): Promise<void> {
     const data = await Booking.get(bookingId, [PsudoFields.IS_CANCELLED, PsudoFields.IS_CLEARED]);
-    if (!data.isCleared && !data.isCancelled) {
+    if (!data?.isCleared && !data?.isCancelled) {
       throw CustomApiError.create(409, "Cannot delete active booking. Needs to be cleared or cancelled first");
     }
     const ref = FirestorePaths.Bookings(bookingId);

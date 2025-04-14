@@ -56,7 +56,10 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   // Get file from form data (only 1 file)
   const fileNames = Object.keys(files);
-  const file = fileNames.length === 1 && files[fileNames[0]][0];
+  if (fileNames.length <= 1) {
+    throw CustomApiError.create(400, "No files uploaded");
+  }
+  const file: formidable.File = fileNames.length === 1 && (files as any)[fileNames[0] ?? ""][0];
   if (fileNames.length !== 1) {
     return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
   }
@@ -64,7 +67,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(400, "No file uploaded");
   }
   // File should be JPEG or PNG
-  if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {
+  if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "unknown")) {
     return respond(res, { status: 400, error: `Invalid file type '${file.mimetype}'` });
   }
   // Read file buffer
@@ -76,7 +79,7 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const imagePaths = { small: "", medium: "", large: "" };
   const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
     const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
-    imagePaths[size] = filePath;
+    imagePaths[size as keyof typeof imagePaths] = filePath;
     const fileRef = bucket.file(filePath);
     return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
   });

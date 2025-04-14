@@ -8,7 +8,7 @@ export interface Job {
 }
 
 export default class JobScheduler {
-  static #instance = null;
+  static #instance: JobScheduler | null = null;
 
   #jobs: Map<string, Job>;
 
@@ -22,10 +22,10 @@ export default class JobScheduler {
   } as const;
 
   private constructor() {
+    this.#jobs = new Map<string, Job>();
     if (JobScheduler.#instance) {
       return JobScheduler.#instance;
     }
-    this.#jobs = new Map<string, Job>();
     JobScheduler.#instance = this;
   }
 

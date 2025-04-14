@@ -6,10 +6,11 @@ type AuthStatus = "USER_FOUND" | "USER_NOT_FOUND" | "MISSING_CREDS";
 
 class AuthResult {
   #status: AuthStatus;
-  #uid: string;
+  #uid: string | null;
 
   constructor(status: AuthStatus, uid?: string) {
     this.#status = status;
+    this.#uid = null;
     if (typeof uid === "string") {
       this.#uid = uid;
     }
@@ -43,7 +44,7 @@ class AuthResult {
   /**
    * @throws {CustomApiError} If no user UID is found
    */
-  getUid() {
+  getUid(): string {
     if (this.isNotFound()) {
       throw CustomApiError.create(401, "Invalid auth credentials");
     }
@@ -57,6 +58,7 @@ class AuthResult {
         throw CustomApiError.create(500, "Auth error");
       }
     }
+    throw CustomApiError.create(500, "Authentication failure");
   }
 }
 
@@ -93,6 +95,7 @@ export async function authenticate(req: NextApiRequest, expectedUid?: string): P
       throw CustomApiError.create(401, "Invalid auth credentials");
     }
   } else {
-    return loggedInUid;
+    if (loggedInUid) return loggedInUid;
+    else throw CustomApiError.create(500, "Authentication failure");
   }
 }

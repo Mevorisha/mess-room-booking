@@ -25,6 +25,6 @@ export function catchAll(
     const prom = handlerFn(req, res);
     if (prom instanceof Promise) prom.catch((e) => logToDb(e).then(() => handleErr(e, res)));
   } catch (e) {
-    logToDb(e).then(() => handleErr(e, res));
+    logToDb(e as Error).then(() => handleErr(e, res));
   }
 }

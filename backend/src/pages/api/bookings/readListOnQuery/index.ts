@@ -105,8 +105,8 @@ function generateCacheKey(req: NextApiRequest): string {
   // Clone query parameters
   const queryParams = { ...req.query };
   // Remove page and invalidateCache parameters
-  delete queryParams.page;
-  delete queryParams.invalidateCache;
+  delete queryParams["page"];
+  delete queryParams["invalidateCache"];
   // Convert to a sorted string to ensure consistent keys
   const queryString = Object.entries(queryParams)
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
@@ -145,34 +145,34 @@ function parseQueryParams(req: NextApiRequest, uid: string, isSelfQuery: boolean
   // For self queries, we just need the user ID as tenantId
   if (isSelfQuery) {
     queryParams.tenantId = uid;
-  } else if (req.query.tenantId) {
+  } else if (req.query["tenantId"]) {
     // For non-self queries, filter by tenantId if provided
-    queryParams.tenantId = req.query.tenantId as string;
+    queryParams.tenantId = req.query["tenantId"] as string;
   }
   // Handle roomId filter
-  if (req.query.roomId) {
-    queryParams.roomId = req.query.roomId as string;
+  if (req.query["roomId"]) {
+    queryParams.roomId = req.query["roomId"] as string;
   }
   // Handle acceptance filter
-  if (req.query.acceptance && ["ACCEPTED", "REJECTED"].includes(req.query.acceptance as string)) {
-    queryParams.acceptance = req.query.acceptance as AcceptanceStatus;
+  if (req.query["acceptance"] && ["ACCEPTED", "REJECTED"].includes(req.query["acceptance"] as string)) {
+    queryParams.acceptance = req.query["acceptance"] as AcceptanceStatus;
   }
   // Handle boolean status filters
-  if (req.query.isAccepted) {
-    queryParams.isAccepted = req.query.isAccepted === "true";
+  if (req.query["isAccepted"]) {
+    queryParams.isAccepted = req.query["isAccepted"] === "true";
   }
-  if (req.query.isCancelled) {
-    queryParams.isCancelled = req.query.isCancelled === "true";
+  if (req.query["isCancelled"]) {
+    queryParams.isCancelled = req.query["isCancelled"] === "true";
   }
-  if (req.query.isCleared) {
-    queryParams.isCleared = req.query.isCleared === "true";
+  if (req.query["isCleared"]) {
+    queryParams.isCleared = req.query["isCleared"] === "true";
   }
   // Handle timestamps if needed
-  if (req.query.createdAfter) {
-    queryParams.createdOn = Timestamp.fromDate(new Date(req.query.createdAfter as string));
+  if (req.query["createdAfter"]) {
+    queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
   }
-  if (req.query.modifiedAfter) {
-    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query.modifiedAfter as string));
+  if (req.query["modifiedAfter"]) {
+    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
   }
   return queryParams;
 }

@@ -7,7 +7,7 @@ export async function updateRoomRatings() {
   const collRef = FirebaseFirestore.collection(FirestorePaths.ROOMS);
   const snapshot = await collRef.get();
   if (snapshot.empty) return;
-  const updatePromises = [];
+  const updatePromises: Promise<void>[] = [];
   snapshot.forEach((doc) => {
     const roomId = doc.id;
     const mkUpdatePromise = async () => {
