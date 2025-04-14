@@ -39,16 +39,22 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
     );
   }
 
-  // Convert the image to a Blob
-  const blob = await response.blob();
-  // convert blob to a file
-  const file = new File([blob], "unknown.bin", { type: blob.type });
-  // get the data url of the file
-  const result = await fileToDataUrl(file);
-  // cache the result
-  await cache.put(url, new Response(result, { status: 200 }));
+  const isBase64 = response.headers.get("x-content-encoding")?.toUpperCase() === "BASE64";
 
-  return result;
+  if (isBase64) {
+    let base64string = await response.text();
+    const contentType = response.headers.get("x-decoded-content-type") ?? "application/octet-stream";
+    base64string = `data:${contentType};base64,${base64string}`;
+    await cache.put(url, new Response(base64string, { status: 200 }));
+    if (url.includes("profile")) console.log(base64string);
+    return base64string;
+  } else {
+    const blob = await response.blob();
+    const file = new File([blob], "unknown.bin", { type: blob.type });
+    const base64string = await fileToDataUrl(file);
+    await cache.put(url, new Response(base64string, { status: 200 }));
+    return base64string;
+  }
 }
 
 // Queue to manage pending requests
