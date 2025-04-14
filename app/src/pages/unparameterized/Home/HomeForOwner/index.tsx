@@ -14,7 +14,8 @@ import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
-import type { Base64FileData, RoomData } from "../../OwnerRooms/SectionRoomUpdateForm";
+import type { Base64FileData } from "../../OwnerRooms/SectionRoomUpdateForm";
+import type { RoomData } from "@/modules/networkTypes/Room";
 
 export interface DraftData {
   url: string;
