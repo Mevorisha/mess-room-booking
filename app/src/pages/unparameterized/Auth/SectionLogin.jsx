@@ -9,7 +9,7 @@ import ButtonText from "@/components/ButtonText";
 
 /**
  * @param {{ setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">> }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function LoginSection({ setShowSection }) {
   const notify = useNotification();

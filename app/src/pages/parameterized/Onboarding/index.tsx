@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { AuthStateEnum } from "@/contexts/auth.jsx";
 import { isEmpty } from "@/modules/util/validations.js";
-import { ActionParams } from "@/modules/util/pageUrls.js";
+import { ActionType } from "@/modules/util/pageUrls.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
@@ -19,26 +19,29 @@ import PageNotFound from "@/pages/unparameterized/PageNotFound";
 import "./styles.css";
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
-export default function Onboarding() {
+export default function Onboarding(): React.ReactNode {
   const compUsr = useCompositeUser();
   const [searchParams] = useSearchParams();
 
   if (searchParams.has("action"))
-    switch (searchParams.get("action")) {
-      case ActionParams.SWITCH_PROFILE_TYPE:
+    switch (searchParams.get("action") as ActionType) {
+      case ActionType.SWITCH_PROFILE_TYPE:
         return <SetProfileType />;
-      case ActionParams.CHANGE_NAME:
+      case ActionType.CHANGE_NAME:
         return <SetDisplayName />;
-      case ActionParams.CHANGE_MOBILE_NUMBER:
+      case ActionType.CHANGE_MOBILE_NUMBER:
         return <SetMobileNumber />;
-      case ActionParams.UPDATE_PROFILE_PHOTO:
+      case ActionType.UPDATE_PROFILE_PHOTO:
         return <SetProfilePhoto />;
-      case ActionParams.UPDATE_ID_DOCS:
+      case ActionType.UPDATE_ID_DOCS:
         return <SetIdentityDocs />;
-      case ActionParams.CHANGE_LANGUAGE:
+      case ActionType.CHANGE_LANGUAGE:
         return <SetLanguage />;
+      case ActionType.VIEW_PROFILE:
+      case ActionType.RESET_PASSWORD:
+      case ActionType.LOGOUT:
       default:
         return <PageNotFound />;
     }

@@ -8,7 +8,7 @@ import ButtonText from "@/components/ButtonText";
 import "./styles.css";
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function PageNotFound() {
   const navigate = useNavigate();

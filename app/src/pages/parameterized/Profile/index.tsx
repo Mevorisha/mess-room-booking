@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { UploadedImage } from "@/contexts/user";
+import UploadedImage from "@/modules/classes/UploadedImage";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import useDialogBox from "@/hooks/dialogbox";
+import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
+import User from "@/modules/classes/User";
+import IdentityNetworkType from "@/modules/networkTypes/Identity";
 
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
@@ -14,52 +17,45 @@ import PageNotFound from "@/pages/unparameterized/PageNotFound";
 
 import "./styles.css";
 
-// @ts-ignore
 import dpGeneric from "@/assets/images/dpGeneric.png";
-import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function Profile() {
+export default function Profile(): React.ReactNode {
   const compUsr = useCompositeUser();
   const dialog = useDialogBox();
   const notify = useNotification();
   const [searchParams] = useSearchParams();
 
   // null userProfile means profile not found
-  let [userProfile, setProfileUser] = useState(
-    /** @type {import("@/contexts/user").User | null} */ (compUsr.userCtx.user)
-  );
+  const [userProfile, setProfileUser] = useState<User | null>(compUsr.userCtx.user);
 
   useEffect(() => {
     // no ID is ok
     if (!searchParams.has("id")) return;
     // empty ID is not ok
-    if (!searchParams.get("id")) {
+    if (searchParams.get("id") == null) {
       setProfileUser(null);
       return;
     }
 
-    const uid = /** @type {string} */ (searchParams.get("id"));
+    const uid = searchParams.get("id") as string;
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
-      .then(({ json: { firstName, lastName, mobile, profilePhotos } }) => {
+      .then(({ json }) => {
+        const data = json as IdentityNetworkType;
+        let { firstName = "", lastName = "", profilePhotos } = data;
+        const { mobile = "" } = data;
         // If no mobile no., the user is considered to not exist
-        mobile ||= "";
-        firstName ||= "";
-        lastName ||= "";
-        if (!firstName && !lastName) {
+        if (firstName.length === 0 && lastName.length === 0) {
           firstName = "(No Name)";
           lastName = "";
         }
-        profilePhotos ||= {
+        profilePhotos = profilePhotos ?? {
           small: dpGeneric,
           medium: dpGeneric,
           large: dpGeneric,
         };
         setProfileUser((oldProfile) => {
-          if (!oldProfile) return null;
+          if (oldProfile == null) return null;
           const newProfile = oldProfile.clone();
           newProfile.uid = uid;
           newProfile.setProfileName(firstName, lastName);
@@ -68,14 +64,14 @@ export default function Profile() {
           return newProfile;
         });
       })
-      .catch((e) => {
+      .catch((e: Error) => {
         setProfileUser(null);
         notify(e, "error");
       });
   }, [notify, searchParams]);
 
   // user profile set to null by useEffect means profile not found
-  if (!userProfile) {
+  if (userProfile == null) {
     return <PageNotFound />;
   }
 
@@ -85,15 +81,13 @@ export default function Profile() {
   }
 
   function handleShowLargeImage() {
-    if (!userProfile) return;
-
-    if (!userProfile.profilePhotos?.large) return;
-
-    dialog.show(<DialogImagePreview largeImageUrl={userProfile.profilePhotos?.large} />, "large");
+    if (userProfile == null) return;
+    if (userProfile.profilePhotos?.large == null) return;
+    dialog.show(<DialogImagePreview largeImageUrl={userProfile.profilePhotos.large} />, "large");
   }
 
   const displayName =
-    !userProfile.firstName || !userProfile.lastName
+    userProfile.firstName.length === 0 || userProfile.lastName.length === 0
       ? "(Not Provided)"
       : `${userProfile.firstName} ${userProfile.lastName}`;
 
@@ -112,7 +106,7 @@ export default function Profile() {
 
         <div className="photo-container">
           <ImageLoader
-            src={userProfile.profilePhotos?.medium || dpGeneric}
+            src={userProfile.profilePhotos?.medium ?? dpGeneric}
             alt="profile"
             onClick={handleShowLargeImage}
           />
@@ -125,7 +119,7 @@ export default function Profile() {
             </tr>
             <tr className="detail">
               <td className="detail-label">Mobile: </td>
-              <td className="detail-value">{userProfile.mobile || "(Unavailable)"}</td>
+              <td className="detail-value">{userProfile.mobile.length > 0 ? userProfile.mobile : "(Unavailable)"}</td>
             </tr>
           </tbody>
         </table>

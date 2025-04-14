@@ -26,7 +26,7 @@ import dpMevorisha from "@/assets/images/dpMevorisha.png";
  *   showSection: "login" | "register" | "resetPasswd",
  *   setShowSection: React.Dispatch<React.SetStateAction<"login" | "register" | "resetPasswd">>
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function SectionButtons({ showSection, setShowSection }) {
   return (
@@ -50,7 +50,7 @@ function SectionButtons({ showSection, setShowSection }) {
 }
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function Auth() {
   const [showSection, setShowSection] = useState(/** @type {"login" | "register" | "resetPasswd"} */ ("login"));

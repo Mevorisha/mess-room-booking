@@ -8,25 +8,22 @@ import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
+import { Language } from "@/modules/networkTypes/Identity";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function SetLanguage() {
+export default function SetLanguage(): React.ReactNode {
   const langCtx = useContext(LanguageContext);
   const notify = useNotification();
   const navigate = useNavigate();
 
-  const [buttonKind, setButtonKind] = useState({
-    ENGLISH: /** @type {"secondary" | "loading"} */ ("secondary"),
-    BANGLA: /**  @type {"secondary" | "loading"} */ ("secondary"),
-    HINDI: /**  @type {"secondary" | "loading"} */ ("secondary"),
+  type LangBtnKind = "secondary" | "loading";
+
+  const [btnKind, setButtonKind] = useState<Record<Language, LangBtnKind>>({
+    ENGLISH: "secondary",
+    BANGLA: "secondary",
+    HINDI: "secondary",
   });
 
-  /**
-   * @param {"ENGLISH" | "BANGLA" | "HINDI"} type
-   */
-  function handleSubmit(type) {
+  function handleSubmit(type: Language) {
     Promise.resolve()
       .then(() => setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" })))
       .then(() => langCtx.setLang(type))
@@ -38,7 +35,7 @@ export default function SetLanguage() {
         })
       )
       .then(() => navigate(PageType.HOME))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
   return (
@@ -58,9 +55,9 @@ export default function SetLanguage() {
           </p>
         </div>
 
-        <ButtonText rounded="all" title="English" kind={buttonKind.ENGLISH} onClick={() => handleSubmit("ENGLISH")} />
-        <ButtonText rounded="all" title="বাংলা" kind={buttonKind.BANGLA} onClick={() => handleSubmit("BANGLA")} />
-        <ButtonText rounded="all" title="हिंदी" kind={buttonKind.HINDI} onClick={() => handleSubmit("HINDI")} />
+        <ButtonText rounded="all" title="English" kind={btnKind["ENGLISH"]} onClick={() => handleSubmit("ENGLISH")} />
+        <ButtonText rounded="all" title="বাংলা" kind={btnKind["BANGLA"]} onClick={() => handleSubmit("BANGLA")} />
+        <ButtonText rounded="all" title="हिंदी" kind={btnKind["HINDI"]} onClick={() => handleSubmit("HINDI")} />
       </div>
     </div>
   );

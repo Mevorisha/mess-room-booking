@@ -74,7 +74,7 @@ import "./styles.css";
  *   roomData: RoomData,
  *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function SectionRoomUpdateForm({ roomData, reloadApi }) {
   const viewOnly = false;

@@ -2,7 +2,7 @@ import React from "react";
 import "./styles.css";
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function LoadingPage() {
   return (

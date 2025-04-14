@@ -7,7 +7,7 @@ import useNotification from "@/hooks/notification.js";
 import ImageLoader from "@/components/ImageLoader";
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function OAuthSection() {
   const notify = useNotification();

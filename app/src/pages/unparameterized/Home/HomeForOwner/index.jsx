@@ -25,7 +25,7 @@ import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
  */
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function TabRooms() {
   const dialog = useDialogBox();
@@ -138,7 +138,7 @@ function TabRooms() {
 }
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function TabBookings() {
   return (
@@ -150,7 +150,7 @@ function TabBookings() {
 
 /**
  * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function SectionHomeForOwner({ user: _ }) {
   const [page, setPage] = useState(/** @type {"rooms"|"bookings"} */ ("rooms"));

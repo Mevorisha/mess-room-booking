@@ -12,22 +12,18 @@ import ButtonText from "@/components/ButtonText";
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
 
-// @ts-ignore
 import dpGeneric from "@/assets/images/dpGeneric.png";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function SetProfilePhoto() {
+export default function SetProfilePhoto(): React.ReactNode {
   const compUsr = useCompositeUser();
   const notify = useNotification();
   const dialog = useDialog();
   const navigate = useNavigate();
 
   // state
-  const [photoURL, setPhotoURL] = useState(compUsr.userCtx.user.profilePhotos?.medium || dpGeneric);
+  const [photoURL, setPhotoURL] = useState(compUsr.userCtx.user.profilePhotos?.medium ?? dpGeneric);
 
-  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
@@ -45,16 +41,16 @@ export default function SetProfilePhoto() {
       })
       .then((url) => setPhotoURL(url))
       .then(() => navigate(PageType.HOME))
-      .catch((e) => {
+      .catch((e: Error) => {
         setButtonKind("primary");
         notify(e, "error");
       });
   }
 
   function handleShowLargeImage() {
-    if (!compUsr.userCtx.user.profilePhotos?.large) return;
+    if (compUsr.userCtx.user.profilePhotos?.large == null) return;
 
-    dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.profilePhotos?.large} />, "large");
+    dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.profilePhotos.large} />, "large");
   }
 
   return (

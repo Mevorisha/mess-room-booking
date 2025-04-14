@@ -46,7 +46,7 @@ const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
  *   reloadDraft: () => Promise<void>,
  *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function SectionRoomCreateForm({ draftCacheUrl, reloadDraft, reloadApi }) {
   const viewOnly = false;

@@ -7,30 +7,25 @@ import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
+import { IdentityType } from "@/modules/networkTypes/Identity";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function SetProfileType() {
+export default function SetProfileType(): React.ReactNode {
   const compUsr = useCompositeUser();
   const notify = useNotification();
   const navigate = useNavigate();
 
-  const [buttonKind, setButtonKind] = useState({
-    TENANT: /** @type {"secondary" | "loading"} */ ("secondary"),
-    OWNER: /**  @type {"secondary" | "loading"} */ ("secondary"),
+  const [buttonKind, setButtonKind] = useState<Record<IdentityType, "secondary" | "loading">>({
+    TENANT: "secondary",
+    OWNER: "secondary",
   });
 
-  /**
-   * @param {"TENANT" | "OWNER"} type
-   */
-  function handleSubmit(type) {
+  function handleSubmit(type: IdentityType) {
     Promise.resolve()
       .then(() => setButtonKind((oldKind) => ({ ...oldKind, [type]: "loading" })))
       .then(() => compUsr.profileCtx.updateProfileType(type))
       .then(() => setButtonKind({ TENANT: "secondary", OWNER: "secondary" }))
       .then(() => navigate(PageType.HOME))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
   return (

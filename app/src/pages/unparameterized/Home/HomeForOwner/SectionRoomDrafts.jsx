@@ -17,7 +17,7 @@ import ImageLoader from "@/components/ImageLoader";
  *   isLoadingRooms: boolean,
  *   drafts: import(".").DraftData[]
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function SectionDrafts({
   handleAddNewRoom,

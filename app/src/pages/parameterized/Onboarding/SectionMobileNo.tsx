@@ -8,36 +8,31 @@ import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function SetMobileNumber() {
+export default function SetMobileNumber(): React.ReactNode {
   const compUsr = useCompositeUser();
 
-  const [action, setAction] = useState(/** @type {"Request OTP" | "Resend OTP" | "Verify & Submit"} */ ("Request OTP"));
+  const [action, setAction] = useState<"Request OTP" | "Resend OTP" | "Verify & Submit">("Request OTP");
 
-  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
   const notify = useNotification();
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    /** @type {string} */
-    const mobile = e.target[0]?.value;
-    /** @type {string} */
-    const otp = e.target[1]?.value;
+    const target = e.target as unknown as { value: number | string | null }[];
+    const mobile = target[0]?.value as string | null;
+    const otp = target[1]?.value as string | null;
 
     // request otp
-    if (mobile && (action === "Request OTP" || action === "Resend OTP")) {
+    if (mobile != null && (action === "Request OTP" || action === "Resend OTP")) {
       notify("Please wait while we send the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
         .then(() => compUsr.accountCtx.sendPhoneVerificationCode(mobile))
         .then(() => setAction("Verify & Submit"))
         .then(() => setButtonKind("primary"))
-        .catch((e) => {
+        .catch((e: Error) => {
           setAction("Resend OTP");
           setButtonKind("primary");
           notify(e, "error");
@@ -45,13 +40,13 @@ export default function SetMobileNumber() {
     }
 
     // verify otp and submit
-    else if (otp && action === "Verify & Submit") {
+    else if (otp != null && action === "Verify & Submit") {
       notify("Please wait while we verify the OTP", "warning");
       Promise.resolve()
         .then(() => setButtonKind("loading"))
         .then(() => compUsr.accountCtx.verifyPhoneVerificationCode(otp))
         .then(() => navigate(PageType.HOME))
-        .catch((e) => {
+        .catch((e: Error) => {
           setAction("Resend OTP");
           setButtonKind("primary");
           notify(e, "error");
@@ -95,7 +90,7 @@ export default function SetMobileNumber() {
             name="mobile"
             disabled={action === "Verify & Submit"}
             placeholder="Mobile with country code"
-            defaultValue={compUsr.userCtx.user.mobile ?? ""}
+            defaultValue={compUsr.userCtx.user.mobile}
           />
           <input
             required

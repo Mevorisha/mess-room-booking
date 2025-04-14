@@ -12,9 +12,8 @@ import { lang } from "@/modules/util/language.js";
 
 /**
  * Section where the user can upload their identity documents.
- * @return {React.JSX.Element}
  */
-export default function SectionIdentiyDocs() {
+export default function SectionIdentiyDocs(): React.ReactNode {
   const [forceWorkImgReload, setForceWorkImgReload] = useState(0);
   const [forceGovImgReload, setForceGovImgReload] = useState(0);
 
@@ -24,17 +23,12 @@ export default function SectionIdentiyDocs() {
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
-  /**
-   * @param {"WORK_ID" | "GOV_ID"} kind
-   */
-  function handleShowLargeImage(kind) {
+  function handleShowLargeImage(kind: "WORK_ID" | "GOV_ID") {
     if (kind === "WORK_ID") {
-      if (!compUsr.userCtx.user.identityPhotos?.workId) return;
-
+      if (compUsr.userCtx.user.identityPhotos?.workId == null) return;
       dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.workId.large} />, "large");
-    } else if (kind === "GOV_ID") {
-      if (!compUsr.userCtx.user.identityPhotos?.govId) return;
-
+    } else {
+      if (compUsr.userCtx.user.identityPhotos?.govId == null) return;
       dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.govId.large} />, "large");
     }
   }
@@ -43,18 +37,18 @@ export default function SectionIdentiyDocs() {
    * @param {React.FormEvent<HTMLFormElement>} e
    * @param {"WORK_ID" | "GOV_ID"} type
    */
-  function handleSubmit(e, type) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>, type: "WORK_ID" | "GOV_ID") {
     e.preventDefault();
     if (type === "WORK_ID") {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
         .then((file) => compUsr.identityCtx.updateIdentityPhotos({ workId: file }))
         .then(() => setForceWorkImgReload((old) => old + 1))
-        .catch((e) => notify(e, "error"));
-    } else if (type === "GOV_ID") {
+        .catch((e: Error) => notify(e, "error"));
+    } else {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
         .then((file) => compUsr.identityCtx.updateIdentityPhotos({ govId: file }))
         .then(() => setForceGovImgReload((old) => old + 1))
-        .catch((e) => notify(e, "error"));
+        .catch((e: Error) => notify(e, "error"));
     }
   }
 
@@ -63,7 +57,11 @@ export default function SectionIdentiyDocs() {
    * @param {"WORK_ID" | "GOV_ID"} type
    * @param {"PUBLIC" | "PRIVATE"} value
    */
-  function handleVisibilityChange(e, type, value) {
+  function handleVisibilityChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "WORK_ID" | "GOV_ID",
+    value: "PUBLIC" | "PRIVATE"
+  ) {
     e.preventDefault();
     switch (type) {
       case "WORK_ID":
@@ -80,7 +78,7 @@ export default function SectionIdentiyDocs() {
             )
           )
           .then(() => setForceWorkImgReload((old) => old + 1))
-          .catch((e) => notify(e, "error"));
+          .catch((e: Error) => notify(e, "error"));
         break;
       case "GOV_ID":
         compUsr.identityCtx
@@ -96,7 +94,7 @@ export default function SectionIdentiyDocs() {
             )
           )
           .then(() => setForceGovImgReload((old) => old + 1))
-          .catch((e) => notify(e, "error"));
+          .catch((e: Error) => notify(e, "error"));
         break;
       default:
         break;
@@ -133,7 +131,7 @@ export default function SectionIdentiyDocs() {
         </div>
 
         <div className="uploadid-container">
-          {compUsr.userCtx.user.identityPhotos?.workId ? (
+          {compUsr.userCtx.user.identityPhotos?.workId != null ? (
             <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
               <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
               <div className="update-id">
@@ -184,7 +182,7 @@ export default function SectionIdentiyDocs() {
         </div>
 
         <div className="uploadid-container">
-          {compUsr.userCtx.user.identityPhotos?.govId ? (
+          {compUsr.userCtx.user.identityPhotos?.govId != null ? (
             <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
               <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
               <div className="update-id">

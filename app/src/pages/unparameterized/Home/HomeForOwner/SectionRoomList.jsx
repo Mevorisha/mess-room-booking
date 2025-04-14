@@ -11,7 +11,7 @@ import PagingContainer from "@/components/PagingContainer";
 
 /**
  * @param {{ rating: number, washout?: string }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function RatingDisplay({ rating, washout }) {
   // if (rating === 0) return <></>;
@@ -26,12 +26,12 @@ function RatingDisplay({ rating, washout }) {
 /**
  *
  * @param {{
- *   dialog: { show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string; },
+ *   dialog: { show: (children: React.ReactNode, size?: "small" | "large" | "uibox") => string; },
  *   roomItem: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData
  *   handleRestoreRoom: (roomId: string) => void,
  *   handleDeleteRoom: (roomId: string, force?: boolean) => void
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom }) {
   if (!roomItem.isDeleted) {
@@ -122,7 +122,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
  *   currentPage: number,
  *   setCurrentPage: React.Dispatch<React.SetStateAction<number>>
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function SectionRooms({
   handleAddNewRoom,

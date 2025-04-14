@@ -10,31 +10,26 @@ import useNotification from "@/hooks/notification.js";
 import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
 
-/**
- * @returns {React.JSX.Element}
- */
-export default function SetDisplayName() {
+export default function SetDisplayName(): React.ReactNode {
   const compUsr = useCompositeUser();
   const notify = useNotification();
   const navigate = useNavigate();
 
-  const [buttonKind, setButtonKind] = useState(/** @type {"primary" | "loading"} */ ("primary"));
+  const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
-  function handleUpdateName(e) {
+  function handleUpdateName(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const target = e.target as unknown as { value: string | null }[];
+    const firstName = target[0]?.value as string | null;
+    const lastName = target[1]?.value as string | null;
 
-    /** @type {string} */
-    const firstName = e.target[0]?.value;
-    /** @type {string} */
-    const lastName = e.target[1]?.value;
-
-    if (firstName && lastName)
+    if (firstName != null && lastName != null)
       Promise.resolve()
         .then(() => setButtonKind("loading"))
         .then(() => compUsr.profileCtx.updateProfileName(firstName, lastName))
         .then(() => setButtonKind("primary"))
         .then(() => navigate(PageType.HOME))
-        .catch((e) => {
+        .catch((e: Error) => {
           setButtonKind("primary");
           notify(e, "error");
         });
@@ -75,7 +70,7 @@ export default function SetDisplayName() {
             type="text"
             name="lastName"
             placeholder="Last Name"
-            defaultValue={1 && isEmpty(compUsr.userCtx.user.lastName) ? "" : compUsr.userCtx.user.lastName}
+            defaultValue={isEmpty(compUsr.userCtx.user.lastName) ? "" : compUsr.userCtx.user.lastName}
           />
           <div className="submit-container">
             <ButtonText width="40%" rounded="all" title="Update Name" kind={buttonKind} />

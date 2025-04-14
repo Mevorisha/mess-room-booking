@@ -4,7 +4,7 @@ import NavBars from "@/components/NavBars";
 
 /**
  * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function HomeForTenant({ user: _ }) {
   return (

@@ -13,7 +13,7 @@ import ButtonText from "@/components/ButtonText";
  *   email: string;
  *   setResetButtonKind: (val: "primary" | "loading") => void;
  * }} props
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 function DialogContent({ email, setResetButtonKind }) {
   const notify = useNotification();
@@ -67,7 +67,7 @@ function DialogContent({ email, setResetButtonKind }) {
 }
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function ResetPasswdSection() {
   const notify = useNotification();

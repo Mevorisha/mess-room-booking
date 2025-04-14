@@ -13,7 +13,7 @@ import HomeForTenant from "./HomeForTenant";
 import "./styles.css";
 
 /**
- * @returns {React.JSX.Element}
+ * @returns {React.ReactNode}
  */
 export default function Home() {
   const compUsr = useCompositeUser();
