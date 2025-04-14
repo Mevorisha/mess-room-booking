@@ -82,7 +82,7 @@ export const RateLimits = {
   ROOM_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_READ", req, res),
   ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(60, uid, "ROOM_SEARCH_READ", req, res),
-  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(20, null, "ROOM_IMAGE_READ", req, res),
+  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(240, null, "ROOM_IMAGE_READ", req, res),
   ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_RATING_READ", req, res),
   ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "ROOM_PARAMS_UPDATE", req, res),
