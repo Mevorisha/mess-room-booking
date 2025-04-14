@@ -46,7 +46,6 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
     const contentType = response.headers.get("x-decoded-content-type") ?? "application/octet-stream";
     base64string = `data:${contentType};base64,${base64string}`;
     await cache.put(url, new Response(base64string, { status: 200 }));
-    if (url.includes("profile")) console.log(base64string);
     return base64string;
   } else {
     const blob = await response.blob();
