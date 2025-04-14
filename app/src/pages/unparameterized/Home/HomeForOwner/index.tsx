@@ -12,59 +12,68 @@ import { CachePaths } from "@/modules/util/caching";
 import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
+import User from "@/modules/classes/User";
+import type { CachableDraftFormData } from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
+import type { Base64FileData, RoomData } from "../../OwnerRooms/SectionRoomUpdateForm";
 
-/**
- * @typedef {Object} DraftData
- * @property {string} url
- * @property {string} landmark
- * @property {string[]} searchTags
- * @property {string[]} majorTags
- * @property {string} city
- * @property {string} state
- * @property {string} firstImage
- */
+export interface DraftData {
+  url: string;
+  landmark: string;
+  searchTags: string[];
+  majorTags: string[];
+  city: string;
+  state: string;
+  firstImage: string;
+}
 
-/**
- * @returns {React.ReactNode}
- */
-function TabRooms() {
+export interface ReloadApiParams {
+  page?: number;
+  invalidateCache?: boolean;
+}
+
+function TabRooms(): React.ReactNode {
   const dialog = useDialogBox();
   const notify = useNotification();
 
-  const [drafts, setDrafts] = useState(/**@type {DraftData[]}*/ ([]));
-  const [rooms, setRooms] = useState(/** @type {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]} */ ([]));
-  const [roomPages, setRoomPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [drafts, setDrafts] = useState<DraftData[]>([]);
+  const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [roomPages, setRoomPages] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const [isLoadingDrafts, setIsLoadingDrafts] = useState(true);
-  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
+  const [isLoadingDrafts, setIsLoadingDrafts] = useState<boolean>(true);
+  const [isLoadingRooms, setIsLoadingRooms] = useState<boolean>(true);
 
-  const reloadDraft = useCallback(async () => {
+  const reloadDraft = useCallback(async (): Promise<void> => {
     try {
       setIsLoadingDrafts(true);
       const cache = await caches.open(CachePaths.SECTION_ROOM_FORM);
       const cacheKeys = await cache.keys();
 
-      /** @type {{url: string, data: Promise<import("@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm").CachableDraftFormData>}[]} */
-      const draftPromises = cacheKeys
+      interface DraftPromise {
+        url: string;
+        data: Promise<CachableDraftFormData>;
+      }
+
+      const draftPromises: DraftPromise[] = cacheKeys
         .filter((req) => !req.url.endsWith("/last-id")) // do not take the one that counts last-id
         .map((req) => ({ url: req.url, res: cache.match(req.url) })) // get a response and return both url and response
-        .map(({ url, res }) => res && { url, data: res.then((res) => res.json()) }); // for valid reponses, return url and Promise<data> of response
+        .map(({ url, res }) => ({ url, data: res.then((res) => res?.json()) })) // for valid responses, return url and Promise<data> of response
+        .filter(Boolean) as DraftPromise[]; // Filter out nulls
 
       // await all promises
       const results = await Promise.all(draftPromises.map(async ({ url, data }) => ({ url, data: await data })));
 
       const loadedDrafts = results.map(({ url, data }) => ({
         url,
-        landmark: data.landmark || "",
-        searchTags: data.searchTags || [],
-        majorTags: data.majorTags || [],
-        city: data.city || "",
-        state: data.state || "",
-        firstImage: data.files?.length > 0 ? base64FileDataToDataUrl(data.files[0]) : "",
+        landmark: data.landmark,
+        searchTags: data.searchTags,
+        majorTags: data.majorTags,
+        city: data.city,
+        state: data.state,
+        firstImage: data.files.length > 0 ? base64FileDataToDataUrl(data.files[0] as Base64FileData) : "",
       }));
 
-      setDrafts(loadedDrafts.filter(Boolean));
+      setDrafts(loadedDrafts);
     } catch (error) {
       console.error(error);
       notify(
@@ -72,30 +81,19 @@ function TabRooms() {
         "error"
       );
     } finally {
-      // This timeout reduces flicker by giving user time to adjust to the new UI before popuating it
+      // This timeout reduces flicker by giving user time to adjust to the new UI before populating it
       setTimeout(() => setIsLoadingDrafts(false), 0);
     }
   }, [notify]);
 
   const reloadApi = useCallback(
-    /**
-     * @param {{
-     *   page?: number,
-     *   invalidateCache?: boolean
-     * }} [params]
-     */
-    async (params) => {
-      params = params ?? {};
-      params.page = params?.page ?? currentPage;
+    async (params?: ReloadApiParams): Promise<void> => {
+      const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       const { json } = await apiGetOrDelete(
         "GET",
-        ApiPaths.Rooms.readListOnQuery({
-          self: true,
-          page: params?.page ?? 1,
-          invalidateCache: params?.invalidateCache ?? false,
-        })
-      );
+        ApiPaths.Rooms.readListOnQuery({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false })
+      ).then(({ json }) => ({ json } as { json: { rooms: RoomData[]; totalPages: number } }));
       setRooms(json.rooms);
       setRoomPages(json.totalPages);
       setIsLoadingRooms(false);
@@ -103,7 +101,7 @@ function TabRooms() {
     [currentPage]
   );
 
-  function handleAddNewRoom() {
+  function handleAddNewRoom(): void {
     dialog.show(<SectionRoomCreateForm reloadApi={reloadApi} reloadDraft={reloadDraft} />, "uibox");
   }
 
@@ -137,10 +135,7 @@ function TabRooms() {
   );
 }
 
-/**
- * @returns {React.ReactNode}
- */
-function TabBookings() {
+function TabBookings(): React.ReactNode {
   return (
     <div className="pages-Home">
       <SectionBookingList />
@@ -148,12 +143,12 @@ function TabBookings() {
   );
 }
 
-/**
- * @param {{ user: import("@/contexts/user.jsx").User }} props
- * @returns {React.ReactNode}
- */
-export default function SectionHomeForOwner({ user: _ }) {
-  const [page, setPage] = useState(/** @type {"rooms"|"bookings"} */ ("rooms"));
+interface SectionHomeForOwnerProps {
+  user: User;
+}
+
+export default function SectionHomeForOwner({ user: _ }: SectionHomeForOwnerProps): React.ReactNode {
+  const [page, setPage] = useState<"rooms" | "bookings">("rooms");
 
   return (
     <>

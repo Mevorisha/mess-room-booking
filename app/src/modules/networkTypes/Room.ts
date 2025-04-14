@@ -4,25 +4,27 @@ export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 
 export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 
-interface RoomData {
+export interface RoomData {
+  id?: string;
   ownerId: string;
-  acceptGender: AcceptGender;
-  acceptOccupation: AcceptOccupation;
-  searchTags: Set<string>;
+  images: MultiSizePhoto[];
+  isUnavailable: boolean;
+  acceptGender: AcceptGender | null;
+  acceptOccupation: AcceptOccupation | null;
+  searchTags: string[];
   landmark: string;
   address: string;
   city: string;
   state: string;
-  majorTags: Set<string>;
-  minorTags: Set<string>;
+  majorTags: string[];
+  minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
-  images: MultiSizePhoto[];
-  isUnavailable: boolean;
   rating: number;
+  isDeleted?: boolean;
   createdOn: string;
   lastModifiedOn: string;
-  ttl: string;
+  ttl?: string;
 }
 
 type RoomNetworkType = Partial<RoomData>;

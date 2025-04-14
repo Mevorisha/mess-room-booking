@@ -18,11 +18,11 @@ import "./styles.css";
 
 const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
-type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
-type GenderOptions = AcceptGender | null;
-type OccupationOptions = AcceptOccupation | null;
+export type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
+export type GenderOptions = AcceptGender | null;
+export type OccupationOptions = AcceptOccupation | null;
 
-interface CachableDraftFormData {
+export interface CachableDraftFormData {
   acceptGender: GenderOptions;
   acceptOccupation: OccupationOptions;
   searchTags: string[];

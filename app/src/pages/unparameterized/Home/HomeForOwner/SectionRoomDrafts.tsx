@@ -8,56 +8,65 @@ import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImageLoader from "@/components/ImageLoader";
 
-/**
- * @param {{
- *   handleAddNewRoom: () => void,
- *   reloadDraft: () => Promise<void>,
- *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
- *   isLoadingDrafts: boolean,
- *   isLoadingRooms: boolean,
- *   drafts: import(".").DraftData[]
- * }} props
- * @returns {React.ReactNode}
- */
+export interface DraftData {
+  url: string;
+  landmark: string;
+  city: string;
+  state: string;
+  searchTags: string[];
+  majorTags: string[];
+  firstImage?: string;
+}
+
+export interface SectionDraftsProps {
+  handleAddNewRoom: () => void;
+  reloadDraft: () => Promise<void>;
+  reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
+  isLoadingDrafts: boolean;
+  isLoadingRooms: boolean;
+  drafts: DraftData[];
+}
+
 export default function SectionDrafts({
   handleAddNewRoom,
   reloadDraft,
   reloadApi,
   isLoadingDrafts,
-  isLoadingRooms,
+  isLoadingRooms: _,
   drafts,
-}) {
+}: SectionDraftsProps): React.ReactNode {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  /**
-   * @param {string} draftUrl
-   */
-  function handleOpenDraft(draftUrl) {
+  function handleOpenDraft(draftUrl: string): void {
     dialog.show(
       <SectionRoomCreateForm draftCacheUrl={draftUrl} reloadApi={reloadApi} reloadDraft={reloadDraft} />,
       "uibox"
     );
   }
 
-  /**
-   * @param {string} draftUrl
-   */
-  function handleDeleteDraft(draftUrl) {
+  function handleDeleteDraft(draftUrl: string): void {
     caches
       .open(CachePaths.SECTION_ROOM_FORM)
       .then((cache) => cache.delete(draftUrl))
       .then(() => reloadDraft())
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
-  useEffect(() => reloadDraft() && void 0, [reloadDraft]);
+  useEffect(() => {
+    reloadDraft().catch((e: Error) => notify(e, "error"));
+    // The void 0 was unnecessary in TypeScript
+  }, [notify, reloadDraft]);
 
   return (
     <div className="section-container">
       <div className="section-header">
         <h2>{lang("Drafts", "খসড়া", "ड्राफ्ट")}</h2>
-        <button className="reload-button" onClick={reloadDraft} disabled={isLoadingDrafts}>
+        <button
+          className="reload-button"
+          onClick={() => void reloadDraft().catch((e: Error) => notify(e, "error"))}
+          disabled={isLoadingDrafts}
+        >
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </button>
       </div>
@@ -71,7 +80,7 @@ export default function SectionDrafts({
           {drafts.map((draft, index) => (
             <li key={index} className="content-item item-item">
               <div className="item-preview">
-                {draft.firstImage && (
+                {draft.firstImage != null && (
                   <div className="item-image">
                     <ImageLoader src={draft.firstImage} alt={draft.landmark} />
                   </div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialogBox, { DialogBoxHookType } from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
@@ -8,12 +8,14 @@ import SectionRoomUpdateForm from "../../OwnerRooms/SectionRoomUpdateForm";
 import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
+import { RoomData } from "@/modules/networkTypes/Room";
 
-/**
- * @param {{ rating: number, washout?: string }} props
- * @returns {React.ReactNode}
- */
-function RatingDisplay({ rating, washout }) {
+export interface RatingDisplayProps {
+  rating: number;
+  washout?: string;
+}
+
+function RatingDisplay({ rating, washout }: RatingDisplayProps): React.ReactNode {
   // if (rating === 0) return <></>;
   return (
     <div className={`item-rating ${washout}`} title={rating.toString()}>
@@ -23,18 +25,20 @@ function RatingDisplay({ rating, washout }) {
   );
 }
 
-/**
- *
- * @param {{
- *   dialog: { show: (children: React.ReactNode, size?: "small" | "large" | "uibox") => string; },
- *   roomItem: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData
- *   handleRestoreRoom: (roomId: string) => void,
- *   handleDeleteRoom: (roomId: string, force?: boolean) => void
- * }} props
- * @returns {React.ReactNode}
- */
-function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom }) {
-  if (!roomItem.isDeleted) {
+export interface RestoreOrDeleteProps {
+  dialog: DialogBoxHookType;
+  roomItem: RoomData;
+  handleRestoreRoom: (roomId: string) => void;
+  handleDeleteRoom: (roomId: string, force?: boolean) => void;
+}
+
+function RestoreOrDelete({
+  dialog,
+  roomItem,
+  handleRestoreRoom,
+  handleDeleteRoom,
+}: RestoreOrDeleteProps): React.ReactNode {
+  if (!(roomItem.isDeleted ?? false)) {
     return (
       <button
         className="delete-item-button"
@@ -47,7 +51,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
                 "রুম মুছে ফেলতে কনফার্ম চাপুন। মুছে ফেলা রুমগুলি ৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে, তারপর সেগুলি স্থায়ীভাবে সরানো হবে।",
                 "रूम हटाने के लिए कन्फर्म पर क्लिक करें। हटाए गए रूम 30 दिनों के भीतर रीस्टोर किए जा सकते हैं, उसके बाद वे स्थायी रूप से हटा दिए जाएंगे।"
               )}
-              onConfirm={() => handleDeleteRoom(roomItem.id)}
+              onConfirm={() => handleDeleteRoom(roomItem.id ?? "unknown")}
             />
           )
         }
@@ -74,7 +78,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
                   "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
                   "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
                 )}
-                onConfirm={() => handleRestoreRoom(roomItem.id)}
+                onConfirm={() => handleRestoreRoom(roomItem.id ?? "unknown")}
               />
             )
           }
@@ -97,7 +101,7 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
                   "সতর্কতা: এটি অবিলম্বে রুমটি স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না এবং সমস্ত ডেটা চিরতরে হারিয়ে যাবে।",
                   "चेतावनी: यह रूम को तुरंत स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती है और सभी डेटा हमेशा के लिए खो जाएगा।"
                 )}
-                onConfirm={() => handleDeleteRoom(roomItem.id, true)}
+                onConfirm={() => handleDeleteRoom(roomItem.id ?? "unknown", true)}
               />
             )
           }
@@ -110,71 +114,58 @@ function RestoreOrDelete({ dialog, roomItem, handleRestoreRoom, handleDeleteRoom
   }
 }
 
-/**
- * @param {{
- *   handleAddNewRoom: () => void,
- *   reloadDraft: () => Promise<void>,
- *   reloadApi: (params?: { page?: number; invalidateCache?: boolean; }) => Promise<void>,
- *   isLoadingDrafts: boolean,
- *   isLoadingRooms: boolean,
- *   rooms: import("../../OwnerRooms/SectionRoomUpdateForm").RoomData[]
- *   roomPages: number,
- *   currentPage: number,
- *   setCurrentPage: React.Dispatch<React.SetStateAction<number>>
- * }} props
- * @returns {React.ReactNode}
- */
+export interface SectionRoomsProps {
+  handleAddNewRoom: () => void;
+  reloadDraft: () => Promise<void>;
+  reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
+  isLoadingDrafts: boolean;
+  isLoadingRooms: boolean;
+  rooms: RoomData[];
+  roomPages: number;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+}
+
 export default function SectionRooms({
   handleAddNewRoom,
-  reloadDraft,
+  reloadDraft: _,
   reloadApi,
-  isLoadingDrafts,
+  isLoadingDrafts: _1,
   isLoadingRooms,
   rooms,
   roomPages,
   currentPage,
   setCurrentPage,
-}) {
+}: SectionRoomsProps): React.ReactNode {
   const notify = useNotification();
   const dialog = useDialogBox();
 
-  /**
-   * @param {number} n
-   */
-  function handlePageChange(n) {
-    reloadApi({ page: n }).catch((e) => notify(e, "error"));
+  function handlePageChange(n: number): void {
+    reloadApi({ page: n }).catch((e: Error) => notify(e, "error"));
   }
 
-  /**
-   * @param {import("../../OwnerRooms/SectionRoomUpdateForm").RoomData} roomData
-   */
-  function handleOpenRoom(roomData) {
+  function handleOpenRoom(roomData: RoomData): void {
     dialog.show(<SectionRoomUpdateForm roomData={roomData} reloadApi={reloadApi} />, "uibox");
   }
 
-  /**
-   * @param {string} roomId
-   * @param {boolean} [force]
-   */
-  function handleDeleteRoom(roomId, force) {
+  function handleDeleteRoom(roomId: string, force?: boolean): void {
     apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId, force))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
       .then(() => reloadApi({ invalidateCache: true }))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
-  /**
-   * @param {string} roomId
-   */
-  function handleRestoreRoom(roomId) {
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
-      .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रুম रीस्टोर किया गया है"), "success"))
+  function handleRestoreRoom(roomId: string): void {
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId), {})
+      .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रुम रीस्टोर किया गया है"), "success"))
       .then(() => reloadApi({ invalidateCache: true }))
-      .catch((e) => notify(e, "error"));
+      .catch((e: Error) => notify(e, "error"));
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => reloadApi({ invalidateCache: true }).catch((e) => notify(e, "error")) && void 0, [notify]);
+  useEffect(() => {
+    reloadApi({ invalidateCache: true }).catch((e: Error) => notify(e, "error"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notify]);
 
   return (
     <div className="section-container">
@@ -182,7 +173,7 @@ export default function SectionRooms({
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
         <button
           className="reload-button"
-          onClick={() => reloadApi({ invalidateCache: true })}
+          onClick={() => void reloadApi({ invalidateCache: true })}
           disabled={isLoadingRooms}
         >
           <i className="fa fa-refresh" aria-hidden="true"></i>
@@ -197,13 +188,13 @@ export default function SectionRooms({
         <>
           <ul className="content-list">
             {rooms.map((roomItem, index) => {
-              const washout = roomItem.isDeleted || roomItem.isUnavailable ? "washout" : "";
+              const washout = (roomItem.isDeleted ?? false) || roomItem.isUnavailable ? "washout" : "";
               return (
                 <li key={index} className="content-item item-item">
                   <div className="item-preview">
-                    {roomItem.images?.length > 0 && (
+                    {roomItem.images.length > 0 && (
                       <div className={`item-image ${washout}`}>
-                        <ImageLoader src={roomItem.images[0].small} alt={roomItem.landmark} />
+                        <ImageLoader src={roomItem.images[0]?.small ?? ""} alt={roomItem.landmark} />
                       </div>
                     )}
                     <div className="item-info">
@@ -219,25 +210,25 @@ export default function SectionRooms({
                       <div className="item-tags">
                         {/* Show only 2 search tags and 1 major tag */}
                         {!roomItem.isUnavailable &&
-                          !roomItem.isDeleted &&
+                          !(roomItem.isDeleted ?? false) &&
                           roomItem.searchTags.slice(0, 2).map((tag, idx) => (
                             <span key={idx} className="tag search-tag">
                               {tag}
                             </span>
                           ))}
                         {!roomItem.isUnavailable &&
-                          !roomItem.isDeleted &&
+                          !(roomItem.isDeleted ?? false) &&
                           roomItem.majorTags.slice(0, 1).map((tag, idx) => (
                             <span key={idx} className="tag major-tag">
                               {tag}
                             </span>
                           ))}
-                        {!roomItem.isDeleted && roomItem.isUnavailable && (
+                        {!(roomItem.isDeleted ?? false) && roomItem.isUnavailable && (
                           <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
                         )}
-                        {roomItem.isDeleted && (
+                        {(roomItem.isDeleted ?? false) && (
                           <span className="tag deleted-tag">
-                            {roomItem.ttl
+                            {roomItem.ttl != null
                               ? lang(
                                   `Delete on ${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
                                     month: "short",
@@ -261,7 +252,7 @@ export default function SectionRooms({
                       </div>
                     </div>
                     <div className="item-actions">
-                      {!roomItem.isDeleted && (
+                      {!(roomItem.isDeleted ?? false) && (
                         <button
                           className="edit-item-button"
                           onClick={() => handleOpenRoom(roomItem)}

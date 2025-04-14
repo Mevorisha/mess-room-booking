@@ -6,6 +6,7 @@ import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
+import { RoomData } from "@/modules/networkTypes/Room";
 
 import PillsInput from "@/components/PillsInput/index.jsx";
 import ButtonText from "@/components/ButtonText/index.jsx";
@@ -14,32 +15,11 @@ import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
-type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
-type GenderOptions = "MALE" | "FEMALE" | "OTHER";
-type OccupationOptions = "STUDENT" | "PROFESSIONAL" | "ANY" | "";
+export type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
+export type GenderOptions = "MALE" | "FEMALE" | "OTHER" | null;
+export type OccupationOptions = "STUDENT" | "PROFESSIONAL" | "ANY" | null;
 
-interface RoomData {
-  id: string;
-  ownerId: string;
-  images: { small: string; medium: string; large: string }[];
-  isUnavailable: boolean;
-  acceptGender: GenderOptions;
-  acceptOccupation: OccupationOptions;
-  searchTags: string[];
-  landmark: string;
-  address: string;
-  city: string;
-  state: string;
-  majorTags: string[];
-  minorTags: string[];
-  capacity: number;
-  pricePerOccupant: number;
-  rating: number;
-  isDeleted?: boolean;
-  ttl?: string;
-}
-
-interface RoomUpdateData {
+export interface RoomUpdateData {
   isUnavailable: boolean;
   acceptOccupation: OccupationOptions;
   searchTags: string[];
@@ -55,7 +35,7 @@ interface RoomUpdateData {
   addFiles: Base64FileData[];
 }
 
-interface SectionRoomUpdateFormProps {
+export interface SectionRoomUpdateFormProps {
   roomData: RoomData;
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
@@ -130,7 +110,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       "info"
     );
 
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id ?? "unknown"), formData)
       .then((data) => data as { roomId: string })
       .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
       .then(() => setSubmitButtonKind("primary"))
@@ -239,7 +219,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
             </span>
           </div>
 
-          <select disabled value={acceptGender}>
+          <select disabled value={acceptGender ?? ""}>
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
@@ -247,7 +227,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
           <select
             required
-            value={acceptOccupation}
+            value={acceptOccupation ?? ""}
             onChange={(e) => setAcceptOccupation(e.target.value as OccupationOptions)}
           >
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
