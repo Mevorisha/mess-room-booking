@@ -10,6 +10,7 @@ import { withmiddleware } from "@/middlewares/withMiddleware";
 import FormParseResult from "@/lib/types/IFormParseResult";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { RateLimits } from "@/middlewares/rateLimit";
+import PersistentFile from "formidable/PersistentFile";
 
 export const config = {
   api: {
@@ -48,27 +49,31 @@ export default withmiddleware(async function PATCH(req: NextApiRequest, res: Nex
     });
   });
 
-  const { err, files } = await formParsePromise;
-  // Parsing error
+  const { err, files: _files } = await formParsePromise; // prettier-ignore
+  const files = _files as Record<string, PersistentFile[]> | null;
   if (err) {
     console.trace(err);
     throw CustomApiError.create(500, "Error parsing file");
   }
-  // Get file from form data (only 1 file)
-  const fileNames = Object.keys(files);
-  const file: formidable.File = fileNames.length === 1 && (files as any)[fileNames[0] ?? ""][0];
-  if (fileNames.length !== 1) {
-    return respond(res, { status: 400, error: `Expected 1 file, received ${fileNames.length}` });
-  }
-  if (!file) {
+  if (!files) {
     throw CustomApiError.create(400, "No file uploaded");
   }
+  const pfilesArr = Object.values(files).map((pfiles) => pfiles[0] as PersistentFile);
+  if (pfilesArr.length !== 1) {
+    console.log(pfilesArr.length);
+    return respond(res, { status: 400, error: `Expected 1 file, received ${pfilesArr.length}` });
+  }
+  const pfile = pfilesArr[0];
+  if (!pfile) {
+    throw CustomApiError.create(400, "No file uploaded");
+  }
+  const fileJson = pfile.toJSON();
   // File should be JPEG or PNG
-  if (file && !/^image\/(jpeg|png|jpg)$/.test(file.mimetype ?? "")) {
-    return respond(res, { status: 400, error: `Invalid file type '${file.mimetype}'` });
+  if (!/^image\/(jpeg|png|jpg)$/.test(fileJson.mimetype ?? "application/octet-stream")) {
+    return respond(res, { status: 400, error: `Invalid file type '${fileJson.mimetype}'` });
   }
   // Read file buffer
-  const fileBuffer = fs.readFileSync(file.filepath);
+  const fileBuffer = fs.readFileSync(fileJson.filepath);
 
   const resizedImages = await resizeImage(fileBuffer);
   const bucket = FirebaseStorage.bucket();
