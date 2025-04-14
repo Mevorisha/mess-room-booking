@@ -4,10 +4,11 @@ import { MultiSizeImageSz, StoragePaths } from "@/lib/firebaseAdmin/init";
 import { gsPathToUrl } from "@/models/utils";
 import { CustomApiError } from "@/lib/utils/ApiError";
 import { RateLimits } from "@/middlewares/rateLimit";
+import HeaderTypes from "@/lib/utils/HeaderTypes";
 
 /**
  * ```
- * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readImage?size=small|medium|large"
+ * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readImage?size=(small|medium|large)&b64=boolean"
  * response = "Content-Type: image/(jpeg|png)"
  * ```
  */
@@ -23,6 +24,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   const roomId = req.query["roomId"] as string;
   const imageId = req.query["imageIdOrUid"] as string;
   const size = req.query["size"] as MultiSizeImageSz;
+  const b64 = req.query["b64"] === "true" ? true : false;
 
   if (!roomId) {
     throw CustomApiError.create(400, "Missing field 'roomId: string'");
@@ -50,12 +52,15 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!response.ok) {
     throw CustomApiError.create(404, "Image not found");
   }
-
-  // Get content type and binary data
-  const contentType = response.headers.get("content-type");
+  const contentType = response.headers.get(HeaderTypes.CONTENT_TYPE);
   const imageBuffer = await response.arrayBuffer();
-
-  // Send the image
-  res.setHeader("Content-Type", contentType || "application/octet-stream");
-  res.send(Buffer.from(imageBuffer));
+  if (b64) {
+    res.setHeader(HeaderTypes.CONTENT_TYPE, "text/plain");
+    res.setHeader(HeaderTypes.X_CONTENT_ENCODING, "BASE64");
+    res.setHeader(HeaderTypes.X_DECODED_CONTENT_TYPE, contentType ?? "application/octet-stream");
+    res.send(Buffer.from(imageBuffer).toString("base64"));
+  } else {
+    res.setHeader(HeaderTypes.CONTENT_TYPE, contentType ?? "application/octet-stream");
+    res.send(Buffer.from(imageBuffer));
+  }
 });
