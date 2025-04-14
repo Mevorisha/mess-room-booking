@@ -37,7 +37,7 @@ export default function Profile(): React.ReactNode {
       return;
     }
 
-    const uid = searchParams.get("id") as string;
+    const uid = searchParams.get("id") ?? "";
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
       .then(({ json }) => {
