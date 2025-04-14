@@ -19,7 +19,7 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
     AllowedOrigins.includes(origin) ||
     /mess-booking-app-serverless-[a-z0-9\-]+.web.app/.test(origin)
   ) {
-    console.log("[I] [CORS] allowed origin:", origin);
+    if (config.IS_DEV) console.log("[I] [CORS] allowed origin:", origin);
     res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
   } else {
     if (origin) console.error("[E] [CORS] blocked origin:", origin);
