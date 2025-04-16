@@ -24,6 +24,7 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   const [rooms, setRooms] = useState<RoomData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalResuts, setTotalResuts] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
@@ -89,9 +90,10 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
     try {
       const response = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery(query));
       if (response.json != null) {
-        const data = response.json as { rooms: RoomData[]; totalPages: number };
+        const data = response.json as { rooms: RoomData[]; totalPages: number; totalItems: number };
         setRooms(data.rooms);
         setTotalPages(data.totalPages);
+        setTotalResuts(data.totalItems);
       }
     } catch (error) {
       notify(error as Error, "error");
@@ -156,9 +158,9 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
               <div className="results-header">
                 <h2>
                   {lang(
-                    `${rooms.length} Room${rooms.length !== 1 ? "s" : ""} Found`,
-                    `${rooms.length}টি রুম পাওয়া গেছে`,
-                    `${rooms.length} रूम मिले`
+                    `${totalResuts} Room${rooms.length !== 1 ? "s" : ""} Found`,
+                    `${totalResuts}টি রুম পাওয়া গেছে`,
+                    `${totalResuts} रूम मिले`
                   )}
                 </h2>
               </div>
