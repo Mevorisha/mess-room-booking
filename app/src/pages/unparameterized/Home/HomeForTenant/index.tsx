@@ -4,6 +4,8 @@ import NavBars from "@/components/NavBars";
 import User from "@/modules/classes/User";
 import SectionSearch from "./SectionSearch";
 
+import "./styles.css";
+
 export default function HomeForTenant({ user: _ }: { user: User }): React.ReactNode {
   return (
     <div className="pages-Home">

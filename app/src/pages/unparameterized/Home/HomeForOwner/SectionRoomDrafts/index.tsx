@@ -8,6 +8,8 @@ import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImageLoader from "@/components/ImageLoader";
 
+import "./styles.css";
+
 export interface DraftData {
   url: string;
   landmark: string;
@@ -59,7 +61,7 @@ export default function SectionDrafts({
   }, [notify, reloadDraft]);
 
   return (
-    <div className="section-container">
+    <div className="section-RoomDrafts">
       <div className="section-header">
         <h2>{lang("Drafts", "খসড়া", "ड्राफ्ट")}</h2>
         <button

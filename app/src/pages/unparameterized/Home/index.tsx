@@ -10,8 +10,6 @@ import LoadingPage from "@/pages/unparameterized/Loading";
 import HomeForOwner from "./HomeForOwner";
 import HomeForTenant from "./HomeForTenant";
 
-import "./styles.css";
-
 export default function Home(): React.ReactNode {
   const compUsr = useCompositeUser();
   const navigate = useNavigate();

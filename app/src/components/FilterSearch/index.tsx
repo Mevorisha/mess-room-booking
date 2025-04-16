@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import { RoomQuery } from "@/modules/networkTypes/Room";
-import { DialogBoxHookType } from "@/hooks/dialogbox";
+import useDialogBox from "@/hooks/dialogbox";
 
 import "./styles.css";
 
@@ -11,7 +11,6 @@ interface FilterSearchProps {
   handleFilterChange: (filters: Partial<RoomQuery>) => void;
   handleFilterClear: () => void;
   isDialog?: boolean;
-  dialog?: DialogBoxHookType;
 }
 
 export default function FilterSearch({
@@ -19,8 +18,9 @@ export default function FilterSearch({
   handleFilterChange,
   handleFilterClear,
   isDialog = false,
-  dialog,
 }: FilterSearchProps): React.ReactNode {
+  const dialog = useDialogBox();
+
   // Local state for filter values
   const [genderFilter, setGenderFilter] = useState<RoomQuery["acceptGender"]>(currentFilters.acceptGender);
   const [occupationFilter, setOccupationFilter] = useState<RoomQuery["acceptOccupation"]>(
@@ -93,14 +93,14 @@ export default function FilterSearch({
     setPriceRange({ low: currentFilters.lowPrice, high: currentFilters.highPrice });
     setSortOption({ sortOn: currentFilters.sortOn, sortOrder: currentFilters.sortOrder });
     handleFilterClear();
-    if (dialog != null) dialog.hide();
+    if (isDialog) dialog.hide();
   }
 
   return (
     <div className={`components-FilterSearch ${isDialog ? "dialog-mode" : ""}`}>
       <div className="filter-header">
         <h3>{lang("Filters", "ফিল্টার", "फिल्टर")}</h3>
-        {isDialog && <i className="btn-close fa fa-close" onClick={() => dialog != null && dialog.hide()} />}
+        {isDialog && <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />}
         {!isDialog && (
           <button className="clear-filters-button" onClick={handleFilterClear}>
             {lang("Clear All", "সব পরিষ্কার করুন", "सभी साफ़ करें")}

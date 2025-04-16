@@ -1,0 +1,274 @@
+.section-RoomList {
+  width: calc(100% - var(--pad-4));
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: var(--rounded-rad);
+  padding: var(--pad-3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+.section-RoomList .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--pad-2);
+  border-bottom: 1px solid var(--color-light);
+  padding-bottom: var(--pad-1);
+}
+
+.section-RoomList .section-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.section-RoomList .reload-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: var(--pad-1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.section-RoomList .reload-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.section-RoomList .reload-button:disabled {
+  color: var(--color-light);
+  cursor: not-allowed;
+}
+
+.section-RoomList .content-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--pad-2);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 750px) {
+  .section-RoomList .content-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.section-RoomList .content-item {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: var(--rounded-rad);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-RoomList .content-item .washout {
+  filter: opacity(0.5);
+}
+
+.section-RoomList .item-item {
+  border: 1px solid var(--color-light);
+}
+
+.section-RoomList .item-preview {
+  display: flex;
+  align-items: center;
+  padding: var(--pad-2);
+  gap: var(--pad-2);
+}
+
+.section-RoomList .item-image {
+  width: 70px;
+  height: 70px;
+  overflow: hidden;
+  border-radius: var(--rounded-rad);
+  flex-shrink: 0;
+}
+
+.section-RoomList .item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.section-RoomList .item-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.section-RoomList .items-landmark-rating {
+  display: flex;
+  gap: var(--pad-2);
+  margin-bottom: var(--pad-1);
+}
+
+.section-RoomList .item-landmark {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section-RoomList .item-rating {
+  display: flex;
+  align-items: center;
+  color: #6b7280; /* gray-500 equivalent */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: center;
+  margin-top: calc(0.25 * var(--pad-1));
+}
+
+/* If using Font Awesome */
+.section-RoomList .item-rating .fa-star-o {
+  margin: auto;
+  margin-right: 0.125rem;
+  font-size: 0.8rem;
+}
+
+.section-RoomList .item-rating span {
+  font-size: 0.9rem;
+  margin-bottom: calc(0.5 * var(--pad-1));
+}
+
+.section-RoomList .item-location {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: var(--pad-1);
+}
+
+.section-RoomList .item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-1);
+}
+
+.section-RoomList .tag {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.section-RoomList .search-tag {
+  color: var(--color-primary);
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.section-RoomList .major-tag {
+  color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.section-RoomList .hidden-tag {
+  color: #653838;
+  background-color: rgba(210, 5, 5, 0.1);
+}
+
+.section-RoomList .deleted-tag {
+  color: #da0000;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.section-RoomList .item-actions {
+  display: flex;
+  gap: var(--pad-1);
+}
+
+.section-RoomList .edit-item-button {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: var(--rounded-rad);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: background-color 0.15s;
+  font-weight: 500;
+}
+
+.section-RoomList .edit-item-button:hover {
+  background-color: #d0d0d0;
+}
+
+.section-RoomList .delete-item-button {
+  background-color: #ffdbdb;
+  color: #d32f2f;
+  border: none;
+  border-radius: var(--rounded-rad);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: background-color 0.15s;
+  font-weight: 500;
+}
+
+.section-RoomList .restore-item-button {
+  background-color: #d2f5d2;
+  color: #289c37;
+  border: none;
+  border-radius: var(--rounded-rad);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: background-color 0.15s;
+  font-weight: 500;
+}
+
+.section-RoomList .delete-item-button:hover {
+  background-color: #e4d2d2;
+}
+
+.section-RoomList .restore-item-button:hover {
+  background-color: #c6e8c6;
+}
+
+.section-RoomList .loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--pad-3);
+  height: 200px;
+}
+
+.section-RoomList .loading-spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.section-RoomList .no-item-message {
+  width: fit-content;
+  margin: var(--pad-4) auto;
+  text-align: center;
+  padding: var(--pad-3);
+  color: #666;
+}
+
+.section-RoomList .no-item-message p {
+  margin: var(--pad-2);
+}

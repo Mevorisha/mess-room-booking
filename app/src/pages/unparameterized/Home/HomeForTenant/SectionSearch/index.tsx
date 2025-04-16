@@ -9,6 +9,8 @@ import useDialogBox from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
 
+import "./styles.css";
+
 export interface SectionSearchProps {
   initialQuery?: Partial<RoomQuery>;
 }
@@ -33,11 +35,11 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   const [hasFilters, setHasFilters] = useState<boolean>(false);
 
   // Check if we're on mobile view
-  const [isMobileView, setIsMobileView] = useState<boolean>(window.innerWidth < 768);
+  const [isMobileView, setIsMobileView] = useState<boolean>(window.innerWidth < 750);
 
   // Effect to handle window resize for responsive design
   useEffect(() => {
-    const handleResize = () => setIsMobileView(window.innerWidth < 768);
+    const handleResize = () => setIsMobileView(window.innerWidth < 750);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -75,9 +77,8 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
         handleFilterChange={handleFilterChange}
         handleFilterClear={handleFilterClear}
         isDialog={true}
-        dialog={dialog}
       />,
-      "large"
+      "small"
     );
   }
 
@@ -108,7 +109,7 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, query]);
 
   return (
-    <div className="section-SectionSearch">
+    <div className="section-Search">
       <div className="search-header">
         <div className="search-input-container">
           <input
@@ -134,7 +135,6 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
           )}
         </div>
       </div>
-
       <div className="search-content">
         {!isMobileView && (
           <div className="filters-sidebar">
