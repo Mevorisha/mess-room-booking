@@ -108,7 +108,7 @@ export default function FilterSearch({
         )}
       </div>
       <div className="filter-section">
-        <h4>{lang("Gender Preference", "লিঙ্গ পছন্দ", "लिंग प्राथमिकता")}</h4>
+        <h4>{lang("Gender", "লিঙ্গ", "लिंग")}</h4>
         <div className="filter-options">
           <div
             className={`filter-option ${genderFilter === "MALE" ? "selected" : ""}`}
