@@ -82,6 +82,7 @@ export default function FilterSearch({
     }
     // Pass only the non-null fields to the function
     handleFilterChange(filterParams);
+    if (isDialog) dialog.hide();
   }
 
   // Clear all filters

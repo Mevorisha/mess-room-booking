@@ -10,6 +10,7 @@ import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
 
 import "./styles.css";
+import ButtonText from "@/components/ButtonText";
 
 export interface SectionSearchProps {
   initialQuery?: Partial<RoomQuery>;
@@ -111,7 +112,7 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   return (
     <div className="section-Search">
       <div className="search-header">
-        <div className="search-input-container">
+        <div className="input-span">
           <input
             type="text"
             className="search-input"
@@ -130,7 +131,6 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
           {isMobileView && (
             <button className={`filter-button ${hasFilters ? "filter-active" : ""}`} onClick={handleOpenFiltersDialog}>
               <i className="fa fa-filter" aria-hidden="true"></i>
-              {hasFilters && <span className="filter-indicator"></span>}
             </button>
           )}
         </div>
@@ -169,48 +169,50 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                     <div className="item-preview">
                       {room.images.length > 0 && (
                         <div className="item-image">
-                          <ImageLoader src={room.images[0]?.small ?? ""} alt={room.landmark} />
+                          <ImageLoader src={room.images[0]?.medium ?? ""} alt={room.landmark} />
                         </div>
                       )}
-                      <div className="item-info">
-                        <div className="items-landmark-rating">
-                          <div className="item-landmark" title={room.landmark}>
-                            {room.landmark}
+                      <div className="item-preview-nonimg">
+                        <div className="item-info">
+                          <div className="items-landmark-rating">
+                            <div className="item-landmark" title={room.landmark}>
+                              {room.landmark}
+                            </div>
                           </div>
+                          <div className="item-location">
+                            {room.city}, {room.state}
+                          </div>
+                          <div className="item-price">
+                            <span className="price-amount">₹{room.pricePerOccupant}</span>
+                            <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
+                          </div>
+                          <div className="item-tags">
+                            {room.searchTags.slice(0, 3).map((tag, idx) => (
+                              <span key={idx} className="tag search-tag">
+                                {tag}
+                              </span>
+                            ))}
+                            {room.majorTags.slice(0, 1).map((tag, idx) => (
+                              <span key={idx} className="tag major-tag">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="item-actions">
                           <div className="item-rating" title={room.rating.toString()}>
                             <i className="fa fa-star-o"></i>
                             <span>{room.rating}</span>
                           </div>
+                          <ButtonText
+                            rounded="all"
+                            kind="secondary"
+                            onClick={() => {
+                              /* Placeholder for view details function */
+                            }}
+                            title={lang("View", "দেখুন", "देखें")}
+                          />
                         </div>
-                        <div className="item-location">
-                          {room.city}, {room.state}
-                        </div>
-                        <div className="item-price">
-                          <span className="price-amount">₹{room.pricePerOccupant}</span>
-                          <span className="price-period">{lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
-                        </div>
-                        <div className="item-tags">
-                          {room.searchTags.slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="tag search-tag">
-                              {tag}
-                            </span>
-                          ))}
-                          {room.majorTags.slice(0, 1).map((tag, idx) => (
-                            <span key={idx} className="tag major-tag">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="item-actions">
-                        <button
-                          className="view-details-button"
-                          onClick={() => {
-                            /* Placeholder for view details function */
-                          }}
-                        >
-                          {lang("View", "দেখুন", "देखें")}
-                        </button>
                       </div>
                     </div>
                   </li>

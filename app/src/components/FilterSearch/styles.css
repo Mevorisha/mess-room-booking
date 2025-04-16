@@ -2,7 +2,7 @@
   background-color: var(--color-bg-primary);
   border-radius: var(--rounded-rad);
   padding: var(--pad-4);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
 }
 
 .components-FilterSearch .filter-header {
@@ -10,7 +10,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--pad-3);
-  border-bottom: 1px solid var(--color-light);
+  border-bottom: 1px solid #ccc;
   padding-bottom: var(--pad-2);
 }
 
@@ -77,7 +77,7 @@
 
 .components-FilterSearch .filter-option {
   padding: var(--pad-1) var(--pad-2);
-  border: 1px solid var(--color-light);
+  border: 1px solid #ccc;
   border-radius: var(--rounded-rad);
   cursor: pointer;
   transition: background-color 0.15s, border-color 0.15s;
@@ -127,6 +127,7 @@
 
 .components-FilterSearch .sort-options select option {
   color: #000;
+  background-color: var(--color-bg-primary);
 }
 
 .components-FilterSearch .filter-actions {
