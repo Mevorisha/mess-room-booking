@@ -336,6 +336,7 @@
 @media (max-width: 750px) {
   .section-Search {
     min-height: 100vh;
+    padding-top: var(--pad-8);
     border-radius: 0;
     background-color: #ffffff82;
     width: calc(100% - 2 * var(--pad-2) + 8px);
