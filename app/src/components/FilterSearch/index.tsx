@@ -2,21 +2,24 @@ import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import { RoomQuery } from "@/modules/networkTypes/Room";
+import { DialogBoxHookType } from "@/hooks/dialogbox";
 
 import "./styles.css";
 
 interface FilterSearchProps {
   currentFilters: RoomQuery;
-  onFilterChange: (filters: Partial<RoomQuery>) => void;
-  onClearFilters: () => void;
+  handleFilterChange: (filters: Partial<RoomQuery>) => void;
+  handleFilterClear: () => void;
   isDialog?: boolean;
+  dialog?: DialogBoxHookType;
 }
 
 export default function FilterSearch({
   currentFilters,
-  onFilterChange,
-  onClearFilters,
+  handleFilterChange,
+  handleFilterClear,
   isDialog = false,
+  dialog,
 }: FilterSearchProps): React.ReactNode {
   // Local state for filter values
   const [genderFilter, setGenderFilter] = useState<RoomQuery["acceptGender"]>(currentFilters.acceptGender);
@@ -52,7 +55,7 @@ export default function FilterSearch({
   }, [currentFilters]);
 
   // Apply filters
-  const handleApplyFilters = () => {
+  function handleApplyAction() {
     // First, create an object with only the non-null fields
     const filterParams: Partial<RoomQuery> = {};
     // Add each property only if it's not null or undefined
@@ -78,39 +81,32 @@ export default function FilterSearch({
       filterParams.sortOrder = sortOption.sortOrder;
     }
     // Pass only the non-null fields to the function
-    onFilterChange(filterParams);
-  };
+    handleFilterChange(filterParams);
+  }
 
   // Clear all filters
-  const handleClearFilters = () => {
-    setGenderFilter(undefined);
-    setOccupationFilter(undefined);
-    setCapacityFilter(undefined);
-    setPriceRange({ low: undefined, high: undefined });
-    setSortOption({ sortOn: undefined, sortOrder: undefined });
-    onClearFilters();
-  };
+  function handleClearAction() {
+    // Reset to currentFilters
+    setGenderFilter(currentFilters.acceptGender);
+    setOccupationFilter(currentFilters.acceptOccupation);
+    setCapacityFilter(currentFilters.capacity);
+    setPriceRange({ low: currentFilters.lowPrice, high: currentFilters.highPrice });
+    setSortOption({ sortOn: currentFilters.sortOn, sortOrder: currentFilters.sortOrder });
+    handleFilterClear();
+    if (dialog != null) dialog.hide();
+  }
 
   return (
     <div className={`components-FilterSearch ${isDialog ? "dialog-mode" : ""}`}>
       <div className="filter-header">
         <h3>{lang("Filters", "ফিল্টার", "फिल्टर")}</h3>
-        <button
-          className="clear-filters-button"
-          onClick={handleClearFilters}
-          disabled={
-            currentFilters.acceptGender == null &&
-            currentFilters.acceptOccupation == null &&
-            currentFilters.capacity == null &&
-            currentFilters.lowPrice == null &&
-            currentFilters.highPrice == null &&
-            currentFilters.sortOn == null
-          }
-        >
-          {lang("Clear All", "সব পরিষ্কার করুন", "सभी साफ़ करें")}
-        </button>
+        {isDialog && <i className="btn-close fa fa-close" onClick={() => dialog != null && dialog.hide()} />}
+        {!isDialog && (
+          <button className="clear-filters-button" onClick={handleFilterClear}>
+            {lang("Clear All", "সব পরিষ্কার করুন", "सभी साफ़ करें")}
+          </button>
+        )}
       </div>
-
       <div className="filter-section">
         <h4>{lang("Gender Preference", "লিঙ্গ পছন্দ", "लिंग प्राथमिकता")}</h4>
         <div className="filter-options">
@@ -184,7 +180,7 @@ export default function FilterSearch({
       </div>
 
       <div className="filter-section">
-        <h4>{lang("Price Range (₹/head)", "মূল্য সীমা (₹/জনে)", "मूल्य सीमा (₹/व्यक्ति)")}</h4>
+        <h4>{lang("Price Range (₹ per head)", "মূল্য সীমা (₹ প্রতি জনে)", "मूल्य सीमा (₹ प्रति व्यक्ति)")}</h4>
         <div className="price-range-inputs">
           <input
             type="number"
@@ -205,7 +201,7 @@ export default function FilterSearch({
       </div>
 
       <div className="filter-section">
-        <h4>{lang("Sort By", "দ্বারা সাজান", "इसके अनुसार क्रमबद्ध करें")}</h4>
+        <h4>{lang("Sort By", "সাজান", "सॉर्ट करें")}</h4>
         <div className="sort-options">
           <select
             value={`${sortOption.sortOn ?? "(unset)"}-${sortOption.sortOrder ?? "(unset)"}`}
@@ -235,43 +231,30 @@ export default function FilterSearch({
       {isDialog && (
         <div className="dialog-actions">
           <ButtonText
-            width="45%"
-            rounded="all"
-            title={lang("Apply Filters", "ফিল্টারগুলি প্রয়োগ করুন", "फिल्टर लागू करें")}
-            kind="primary"
-            onClick={handleApplyFilters}
-          />
-          <ButtonText
-            width="45%"
+            width="20%"
             rounded="all"
             title={lang("Cancel", "বাতিল করুন", "रद्द करें")}
             kind="secondary"
-            onClick={() => {
-              // Reset to currentFilters
-              setGenderFilter(currentFilters.acceptGender);
-              setOccupationFilter(currentFilters.acceptOccupation);
-              setCapacityFilter(currentFilters.capacity);
-              setPriceRange({
-                low: currentFilters.lowPrice,
-                high: currentFilters.highPrice,
-              });
-              setSortOption({
-                sortOn: currentFilters.sortOn,
-                sortOrder: currentFilters.sortOrder,
-              });
-            }}
+            onClick={handleClearAction}
+          />
+          <ButtonText
+            width="20%"
+            rounded="all"
+            title={lang("Apply", "প্রয়োগ করুন", "लागू करें")}
+            kind="primary"
+            onClick={handleApplyAction}
           />
         </div>
       )}
 
       {!isDialog && (
-        <div className="filter-actions">
+        <div className="filter-actions not-dialog-mode">
           <ButtonText
-            width="100%"
+            width="20%"
             rounded="all"
-            title={lang("Apply Filters", "ফিল্টারগুলি প্রয়োগ করুন", "फिल्टर लागू करें")}
+            title={lang("Apply", "প্রয়োগ করুন", "लागू करें")}
             kind="primary"
-            onClick={handleApplyFilters}
+            onClick={handleApplyAction}
           />
         </div>
       )}

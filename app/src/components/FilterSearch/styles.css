@@ -1,14 +1,8 @@
 .components-FilterSearch {
   background-color: var(--color-bg-primary);
   border-radius: var(--rounded-rad);
-  padding: var(--pad-3);
+  padding: var(--pad-4);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.components-FilterSearch.dialog-mode {
-  box-shadow: none;
-  max-width: 90vw;
-  width: 400px;
 }
 
 .components-FilterSearch .filter-header {
@@ -23,20 +17,44 @@
 .components-FilterSearch .filter-header h3 {
   margin: 0;
   font-size: 1.2rem;
-  color: var(--color-text-primary);
+  color: #333;
+}
+
+.components-FilterSearch i {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  width: 30px;
+  height: 30px;
+
+  margin: 0;
+  padding: var(--pad-1);
+
+  border-radius: 100%;
+
+  position: absolute;
+  top: var(--pad-2);
+  right: var(--pad-2);
+
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  background-color: #555555aa;
 }
 
 .components-FilterSearch .clear-filters-button {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: #555;
   cursor: pointer;
   font-size: 0.9rem;
   padding: 0;
 }
 
 .components-FilterSearch .clear-filters-button:disabled {
-  color: var(--color-text-secondary);
+  color: #555;
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -48,7 +66,7 @@
 .components-FilterSearch .filter-section h4 {
   margin: 0 0 var(--pad-2) 0;
   font-size: 1rem;
-  color: var(--color-text-primary);
+  color: #444;
 }
 
 .components-FilterSearch .filter-options {
@@ -70,9 +88,7 @@
 }
 
 .components-FilterSearch .filter-option.selected {
-  background-color: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
+  background-color: #c0c0c0;
 }
 
 .components-FilterSearch .price-range-inputs {
@@ -81,11 +97,12 @@
   gap: var(--pad-2);
 }
 
-.components-FilterSearch .price-range-inputs input {
-  flex: 1;
-  padding: var(--pad-1);
-  border: 1px solid var(--color-light);
+.components-FilterSearch .price-range-inputs input:not([type="submit"]) {
+  width: calc(100% - 2 * var(--pad-2));
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
 }
 
 .components-FilterSearch .range-separator {
@@ -93,20 +110,36 @@
 }
 
 .components-FilterSearch .sort-options select {
-  width: 100%;
-  padding: var(--pad-1);
-  border: 1px solid var(--color-light);
+  width: calc(100%);
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-light);
+}
+
+.components-FilterSearch .sort-options select:disabled {
+  cursor: not-allowed;
+}
+
+.components-FilterSearch .sort-options select:has(option[value=""]:checked) {
+  color: #777;
+}
+
+.components-FilterSearch .sort-options select option {
+  color: #000;
 }
 
 .components-FilterSearch .filter-actions {
+  display: flex;
   margin-top: var(--pad-3);
+  justify-content: center;
+  align-items: center;
 }
 
 .components-FilterSearch .dialog-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
+  align-items: center;
+  gap: var(--pad-2);
   margin-top: var(--pad-3);
 }

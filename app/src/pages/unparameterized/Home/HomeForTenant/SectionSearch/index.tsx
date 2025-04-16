@@ -43,13 +43,13 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   }, []);
 
   // Function to handle search
-  const handleSearch = () => {
+  function handleSearch() {
     // Update query with search input as landmark
     setQuery((prev) => ({ ...prev, landmark: searchInput.trim(), page: 1 }));
-  };
+  }
 
   // Function to handle filter changes
-  const handleFilterChange = (newFilters: Partial<RoomQuery>) => {
+  const handleFilterChange = useCallback((newFilters: Partial<RoomQuery>) => {
     setQuery((prev) => ({ ...prev, ...newFilters, page: 1 }));
     // Check if any filters are applied
     const filterKeys = Object.keys(newFilters) as (keyof RoomQuery)[];
@@ -58,27 +58,28 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
         (key) => newFilters[key] !== undefined && key !== "page" && key !== "invalidateCache" && key !== "landmark"
       )
     );
-  };
+  }, []);
 
   // Function to handle clearing filters
-  const handleClearFilters = () => {
-    const clearedQuery: RoomQuery = { landmark: query.landmark ?? "", page: 1 };
+  const handleFilterClear = useCallback(() => {
+    const clearedQuery: RoomQuery = {};
     setQuery(clearedQuery);
     setHasFilters(false);
-  };
+  }, []);
 
   // Function to open filters dialog on mobile
-  const handleOpenFiltersDialog = () => {
+  function handleOpenFiltersDialog() {
     dialog.show(
       <FilterSearch
         currentFilters={query}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
+        handleFilterChange={handleFilterChange}
+        handleFilterClear={handleFilterClear}
         isDialog={true}
+        dialog={dialog}
       />,
-      "uibox"
+      "large"
     );
-  };
+  }
 
   // Function to load rooms data
   const loadRooms = useCallback(async () => {
@@ -98,10 +99,10 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   }, [notify, query]);
 
   // Handle page change
-  const handlePageChange = (page: number) => {
+  function handlePageChange(page: number) {
     setCurrentPage(page);
     setQuery((prev) => ({ ...prev, page }));
-  };
+  }
 
   // Load rooms when query changes
   useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, query]);
@@ -139,8 +140,8 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
           <div className="filters-sidebar">
             <FilterSearch
               currentFilters={query}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
+              handleFilterChange={handleFilterChange}
+              handleFilterClear={handleFilterClear}
             />
           </div>
         )}
