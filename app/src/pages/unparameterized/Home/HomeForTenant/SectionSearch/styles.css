@@ -159,6 +159,7 @@
 }
 
 .section-Search .item-preview {
+  height: 100%;
   display: flex;
   padding: var(--pad-0);
 }
@@ -172,7 +173,6 @@
 
 .section-Search .item-image {
   width: 120px;
-  height: 120px;
   overflow: hidden;
   border-radius: var(--rounded-rad);
   border-top-right-radius: 0;
@@ -187,6 +187,7 @@
 }
 
 .section-Search .item-info {
+  height: fit-content;
   flex: 1;
   overflow: hidden;
   display: flex;
@@ -255,11 +256,17 @@
 .section-Search .search-tag {
   color: var(--color-primary);
   background-color: rgba(0, 123, 255, 0.1);
+  text-overflow: ellipsis;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .section-Search .major-tag {
   color: #28a745;
   background-color: rgba(40, 167, 69, 0.1);
+  text-overflow: ellipsis;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .section-Search .item-actions {
