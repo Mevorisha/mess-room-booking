@@ -176,10 +176,8 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                       )}
                       <div className="item-preview-nonimg">
                         <div className="item-info">
-                          <div className="items-landmark-rating">
-                            <div className="item-landmark" title={room.landmark}>
-                              {room.landmark}
-                            </div>
+                          <div className="item-landmark" title={room.landmark}>
+                            {room.landmark}
                           </div>
                           <div className="item-location">
                             {room.city}, {room.state}
