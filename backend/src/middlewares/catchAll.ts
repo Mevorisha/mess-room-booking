@@ -9,7 +9,7 @@ function handleErr(e: any, res: NextApiResponse) {
   }
   if (e instanceof CustomApiError) {
     respond(res, { status: e.status, error: e.message });
-    console.error(e.status, e.message);
+    console.trace(e.status, e.message);
   } else {
     respond(res, { status: 500, error: "Internal Server Error" });
     console.trace(e);
@@ -25,6 +25,6 @@ export function catchAll(
     const prom = handlerFn(req, res);
     if (prom instanceof Promise) prom.catch((e) => logToDb(e).then(() => handleErr(e, res)));
   } catch (e) {
-    logToDb(e).then(() => handleErr(e, res));
+    logToDb(e as Error).then(() => handleErr(e, res));
   }
 }

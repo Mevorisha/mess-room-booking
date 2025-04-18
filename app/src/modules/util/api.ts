@@ -30,7 +30,7 @@ export class ApiPaths {
 
   // prettier-ignore
   static IdentityDocs = {
-    readImage: (type: "GOV_ID" | "WORK_ID", uid: string, size: MultiSizeImageSz): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}`,
+    readImage: (type: "GOV_ID" | "WORK_ID", uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
     updateImage: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateImage`,
     updateVisibility: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
   };
@@ -39,7 +39,7 @@ export class ApiPaths {
   static Profile = {
     create: (): string => `${ApiPaths.PROFILE}/create`,
     read: (uid: string): string => `${ApiPaths.PROFILE}/${uid}/read`,
-    readImage: (uid: string, size: MultiSizeImageSz): string => `${ApiPaths.PROFILE}/${uid}/readImage?size=${size}`,
+    readImage: (uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.PROFILE}/${uid}/readImage?size=${size}&b64=${b64}`,
     updateLanguage: (uid: string): string => `${ApiPaths.PROFILE}/${uid}/updateLanguage`,
     updateMobile: (uid: string): string => `${ApiPaths.PROFILE}/${uid}/updateMobile`,
     updateName: (uid: string): string => `${ApiPaths.PROFILE}/${uid}/updateName`,
@@ -82,7 +82,7 @@ export class ApiPaths {
     },
 
     Images: {
-      readImage: (roomId: string, imageId: string, size: MultiSizeImageSz): string => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
+      readImage: (roomId: string, imageId: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}&b64=${b64}`,
     },
   };
 
@@ -91,7 +91,7 @@ export class ApiPaths {
   };
 }
 
-async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
+export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
   try {
     const response = await callback();
     if (response.ok) return response;

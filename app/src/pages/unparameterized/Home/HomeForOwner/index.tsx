@@ -17,6 +17,8 @@ import type { CachableDraftFormData } from "@/pages/unparameterized/OwnerRooms/S
 import type { Base64FileData } from "../../OwnerRooms/SectionRoomUpdateForm";
 import type { RoomData } from "@/modules/networkTypes/Room";
 
+import "./styles.css";
+
 export interface DraftData {
   url: string;
   landmark: string;

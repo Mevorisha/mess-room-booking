@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-type ImgWithSz<N> = { img: Buffer; sz: N };
+export type ImgWithSz<N> = { img: Buffer; sz: N };
 
 export async function resizeImage(
   imageBuffer: Buffer
@@ -12,13 +12,13 @@ export async function resizeImage(
   ];
   const [small, medium, large] = await Promise.all(promises);
   return {
-    small: { img: small, sz: 30 },
-    medium: { img: medium, sz: 90 },
-    large: { img: large, sz: 500 },
+    small: { img: small as Buffer, sz: 30 },
+    medium: { img: medium as Buffer, sz: 90 },
+    large: { img: large as Buffer, sz: 500 },
   };
 }
 
-export async function resizeImageOneSz<N>(imageBuffer: Buffer, n: N): Promise<ImgWithSz<N>> {
+export async function resizeImageOneSz<N extends number>(imageBuffer: Buffer, n: N): Promise<ImgWithSz<N>> {
   const buffer = await sharp(imageBuffer).resize(n).toBuffer();
   return { img: buffer, sz: n };
 }

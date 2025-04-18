@@ -8,7 +8,7 @@ import * as config from "../config";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
 
-let FirebaseApp: App;
+let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;
 let FirebaseRtDb: Database;
 let FirebaseFirestore: Firestore;
@@ -40,6 +40,9 @@ try {
 
   alreadyInit = true;
 } finally {
+  if (FirebaseApp == null) {
+    throw new Error("FirebaseApp is null");
+  }
   FirebaseAuth = getAuth(FirebaseApp);
   FirebaseRtDb = getDatabase(FirebaseApp);
   FirebaseFirestore = getFirestore(FirebaseApp);
@@ -89,25 +92,26 @@ class StoragePaths {
   static ProfilePhotos = {
     gsBucket: (uid: string, w: number, h: number): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`,
 
-    apiUri: (uid: string, size: MultiSizeImageSz): string => `${config.ApiPaths.PROFILE}/${uid}/readImage?size=${size}`,
+    apiUri: (uid: string, size: MultiSizeImageSz, b64 = true): string =>
+      `${config.ApiPaths.PROFILE}/${uid}/readImage?size=${size}&b64=${b64}`,
   };
 
   static IdentityDocuments = {
     gsBucket: (uid: string, type: "WORK_ID" | "GOV_ID", w: number, h: number): string =>
       `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${w}/${h}`,
 
-    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz) =>
-      `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}`,
+    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz, b64 = true) =>
+      `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
   };
 
   static RoomPhotos = {
     gsBucket: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
       `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
 
-    getImageIdFromGsPath: (gsPath: string) => gsPath.split("/").reverse()[1],
+    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? "",
 
-    apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
-      `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}`,
+    apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz, b64 = true): string =>
+      `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}&b64=${b64}`,
   };
 
   static FeedbackPhotos = (uid: string, code: string): string => `${StoragePaths.FEEDBACK_PHOTOS}/${uid}/${code}`;

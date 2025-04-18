@@ -1,9 +1,41 @@
+import { IS_DEV } from "../config";
 import { FirebaseAuth } from "../firebase/init";
+import { errorHandlerWrapperOnCallApi } from "./api";
 import { CachePaths } from "./caching";
 import { fileToDataUrl } from "./dataConversion";
-import { lang } from "./language";
 
 const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
+const CACHE_EXPIRATION_OFFSET_7D = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_EXPIRATION_OFFSET_7S = 7 * 1000; // 7 seconds
+
+interface CachedDataType {
+  base64DataUrl: string;
+  expiration: number;
+}
+
+async function cleanupExpiredCache(cache: Cache): Promise<void> {
+  try {
+    const keys = await cache.keys();
+    const now = Date.now();
+    for (const request of keys) {
+      const response = await cache.match(request);
+      if (response == null) continue;
+      try {
+        const data = (await response.json()) as CachedDataType | null;
+        if (data?.expiration != null && data.expiration < now) {
+          await cache.delete(request);
+        }
+      } catch (e) {
+        // If we can't parse the response as JSON, it might be old format or corrupted
+        // Delete it to be safe
+        console.error(`Error parsing cache ${request.url}:`, e);
+        await cache.delete(request);
+      }
+    }
+  } catch (error) {
+    console.error("Error cleaning up cache:", error);
+  }
+}
 
 export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<string> {
   // keep blob and data urls as is
@@ -13,12 +45,21 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
     return url;
   }
 
+  const cacheExpiratnOffset = IS_DEV ? CACHE_EXPIRATION_OFFSET_7S : CACHE_EXPIRATION_OFFSET_7D;
+
   const cache = await caches.open(FILE_LOADER_CACHE_PATH);
   const cachedRes = await cache.match(url);
   if (cachedRes != null) {
-    const result = await cachedRes.text();
-    // console.warn("ImageLoader: found", url, ": size:", result.length);
-    return result;
+    const result = (await cachedRes.json()) as CachedDataType | null;
+    if (result?.base64DataUrl != null) {
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => void cleanupExpiredCache(cache));
+      } else {
+        setTimeout(() => void cleanupExpiredCache(cache), 0);
+      }
+      // console.warn("ImageLoader: found", url, ": size:", result.length);
+      return result.base64DataUrl;
+    }
   }
 
   const headers: Record<string, string> = {};
@@ -27,28 +68,26 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
   }
 
   // Fetch the image from the URL
-  const response = await fetch(url, { headers });
+  const response = await errorHandlerWrapperOnCallApi(async () => fetch(url, { headers }));
+  const isBase64 = response.headers.get("x-content-encoding")?.toUpperCase() === "BASE64";
 
-  if (!response.ok) {
-    throw new Error(
-      lang(
-        `HTTP error! status: ${response.status}`,
-        `এইচ-টি-টি-পি সমস্যা! স্ট্যাটাস: ${response.status}`,
-        `एच-टी-टी-पी समस्या! स्टेटस: ${response.status}`
-      )
-    );
+  if (isBase64) {
+    let base64DataUrl = await response.text();
+    const contentType = response.headers.get("x-decoded-content-type") ?? "application/octet-stream";
+    base64DataUrl = `data:${contentType};base64,${base64DataUrl}`;
+    const expiration = Date.now() + cacheExpiratnOffset;
+    const result = JSON.stringify({ base64DataUrl, expiration });
+    await cache.put(url, new Response(result, { status: 200 }));
+    return base64DataUrl;
+  } else {
+    const blob = await response.blob();
+    const file = new File([blob], "unknown.bin", { type: blob.type });
+    const base64DataUrl = await fileToDataUrl(file);
+    const expiration = Date.now() + cacheExpiratnOffset;
+    const result = JSON.stringify({ base64DataUrl, expiration });
+    await cache.put(url, new Response(result, { status: 200 }));
+    return base64DataUrl;
   }
-
-  // Convert the image to a Blob
-  const blob = await response.blob();
-  // convert blob to a file
-  const file = new File([blob], "unknown.bin", { type: blob.type });
-  // get the data url of the file
-  const result = await fileToDataUrl(file);
-  // cache the result
-  await cache.put(url, new Response(result, { status: 200 }));
-
-  return result;
 }
 
 // Queue to manage pending requests

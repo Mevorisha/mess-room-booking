@@ -4,11 +4,13 @@ import useDialogBox, { DialogBoxHookType } from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
-import SectionRoomUpdateForm from "../../OwnerRooms/SectionRoomUpdateForm";
+import SectionRoomUpdateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomUpdateForm";
 import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
 import { RoomData } from "@/modules/networkTypes/Room";
+
+import "./styles.css";
 
 export interface RatingDisplayProps {
   rating: number;
@@ -168,7 +170,7 @@ export default function SectionRooms({
   }, [notify]);
 
   return (
-    <div className="section-container">
+    <div className="section-RoomList">
       <div className="section-header">
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
         <button

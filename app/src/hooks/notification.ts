@@ -9,17 +9,17 @@ export default function useNotification(): (
     useContext(NotificationContext);
 
   const notify = useCallback(
-    (message: string | Error, kind: "info" | "success" | "warning" | "error") => {
+    (msgOrErr: string | Error, kind: "info" | "success" | "warning" | "error") => {
       /* if no message, following doesn't happen:
        * - notification doesn't slide in
        * - notification is not scheduled to begin sliding out after 5 seconds
        * - notification is not hidden 300ms after sliding out animation ends
        */
-      if (typeof message === "string" && message.length <= 0) return;
+      if (typeof msgOrErr === "string" && msgOrErr.length <= 0) return;
       /* set message and kind */
-      setMessage(message instanceof Error ? message.toString() : message);
+      setMessage(msgOrErr instanceof Error ? msgOrErr.message.toString() : msgOrErr);
       setKind(kind);
-      if (kind === "error") console.error(message);
+      if (kind === "error") console.error(msgOrErr);
       /* begin sliding in animation */
       showNotification();
       /* schedules notification to slide out after 5 seconds */

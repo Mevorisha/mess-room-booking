@@ -142,9 +142,9 @@ class Room {
 
     // Convert sets to array
     // Make sure u update the array type fields only if they exist in given data
-    if (updateDataFrstrFormat.searchTags) updateDataFrstrFormat.searchTags = Array.from(updateData.searchTags);
-    if (updateDataFrstrFormat.majorTags) updateDataFrstrFormat.majorTags = Array.from(updateData.majorTags);
-    if (updateDataFrstrFormat.minorTags) updateDataFrstrFormat.minorTags = Array.from(updateData.minorTags);
+    if (updateDataFrstrFormat["searchTags"]) updateDataFrstrFormat["searchTags"] = Array.from(updateData.searchTags ?? []); // prettier-ignore
+    if (updateDataFrstrFormat["majorTags"]) updateDataFrstrFormat["majorTags"] = Array.from(updateData.majorTags ?? []);
+    if (updateDataFrstrFormat["minorTags"]) updateDataFrstrFormat["minorTags"] = Array.from(updateData.minorTags ?? []);
 
     try {
       // Throws error if room doesn't exist

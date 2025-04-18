@@ -1,4 +1,5 @@
 import { FirestorePaths } from "@/lib/firebaseAdmin/init";
+import { ValueOf } from "next/dist/shared/lib/constants";
 
 export type LogType = "info" | "error" | "warn";
 export type DateTimeRange = { from: Date; to: Date };
@@ -55,11 +56,11 @@ class Logs {
     const bkpResult = result;
     result = {} as LogData;
 
-    // If types give, filter, else all
+    // If types given, filter, else all
     if (types.length > 0) {
       Object.keys(bkpResult).forEach((timestamp) => {
-        const messageObj = bkpResult[timestamp];
-        const messageType = messageObj.type;
+        const messageObj = bkpResult[timestamp] as ValueOf<LogData>;
+        const messageType = messageObj?.type ?? "error";
         if (types.includes(messageType as LogType)) {
           result[timestamp] = messageObj;
         }

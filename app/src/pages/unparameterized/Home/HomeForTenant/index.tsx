@@ -2,6 +2,9 @@ import React from "react";
 import ButtonText from "@/components/ButtonText";
 import NavBars from "@/components/NavBars";
 import User from "@/modules/classes/User";
+import SectionSearch from "./SectionSearch";
+
+import "./styles.css";
 
 export default function HomeForTenant({ user: _ }: { user: User }): React.ReactNode {
   return (
@@ -12,15 +15,7 @@ export default function HomeForTenant({ user: _ }: { user: User }): React.ReactN
           <ButtonText rounded="all" title="Booking" kind="cannibalized" width="50%" />
         </>
       </NavBars>
-      <div className="content-container">
-        <div className="contents">
-          <ul className="content-list">
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-            <li className="content-item"></li>
-          </ul>
-        </div>
-      </div>
+      <SectionSearch />
     </div>
   );
 }

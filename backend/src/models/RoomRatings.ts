@@ -47,7 +47,7 @@ class RoomRatings {
         // Extract uid from the composite key
         const compositeKey = doc.id;
         const uid = compositeKey.split(":")[0];
-        result.set(uid, data.ratingOn5);
+        result.set(uid ?? "", data.ratingOn5);
       }
     });
     return result;

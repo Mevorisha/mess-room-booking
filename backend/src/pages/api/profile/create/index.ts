@@ -30,7 +30,7 @@ export default withmiddleware(async function POST(req: NextApiRequest, res: Next
   const mobile = user.phoneNumber;
   const [firstName, lastName] = user.displayName?.split(" ") ?? [void 0, void 0];
 
-  const updatePayload = { mobile, firstName, lastName };
+  const updatePayload: any = { mobile, firstName, lastName };
   if (!updatePayload.mobile) delete updatePayload.mobile;
   if (!updatePayload.firstName) delete updatePayload.firstName;
   if (!updatePayload.lastName) delete updatePayload.lastName;

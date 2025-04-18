@@ -28,7 +28,7 @@ export async function rateLimiter(
   // Use uid if provided, otherwise use IP address as identifier
   const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
   // Extract the URL path to include in the rate limiting key
-  const pathId = path || req.url || req.query.path || "/";
+  const pathId = path || req.url || req.query["path"] || "/";
   // Create a unique identifier for rate limiting that includes both user/IP and path
   const identifier = uid || String(clientIp);
   // Create a key with a prefix and path
@@ -82,7 +82,7 @@ export const RateLimits = {
   ROOM_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_READ", req, res),
   ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(60, uid, "ROOM_SEARCH_READ", req, res),
-  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(20, null, "ROOM_IMAGE_READ", req, res),
+  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(240, null, "ROOM_IMAGE_READ", req, res),
   ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_RATING_READ", req, res),
   ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
     rateLimiter(5, uid, "ROOM_PARAMS_UPDATE", req, res),
