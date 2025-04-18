@@ -76,7 +76,7 @@
 }
 
 .components-PillsSelect .pills-container .pill {
-  max-width: 120px;
+  max-width: 150px;
   height: fit-content;
   min-height: 30px;
   display: flex;
@@ -95,9 +95,10 @@
 }
 
 .components-PillsSelect .pills-container .pill-data {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .components-PillsSelect .pills-container .pill-data {
