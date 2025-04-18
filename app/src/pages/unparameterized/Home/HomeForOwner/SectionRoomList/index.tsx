@@ -214,14 +214,14 @@ export default function SectionRooms({
                         {!roomItem.isUnavailable &&
                           !(roomItem.isDeleted ?? false) &&
                           roomItem.searchTags.slice(0, 2).map((tag, idx) => (
-                            <span key={idx} className="tag search-tag">
+                            <span key={idx} title={tag} className="tag search-tag">
                               {tag}
                             </span>
                           ))}
                         {!roomItem.isUnavailable &&
                           !(roomItem.isDeleted ?? false) &&
                           roomItem.majorTags.slice(0, 1).map((tag, idx) => (
-                            <span key={idx} className="tag major-tag">
+                            <span key={idx} title={tag} className="tag major-tag">
                               {tag}
                             </span>
                           ))}

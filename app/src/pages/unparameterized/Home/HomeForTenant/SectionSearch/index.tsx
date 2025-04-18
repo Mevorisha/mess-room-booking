@@ -184,12 +184,12 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                           </div>
                           <div className="item-tags">
                             {room.searchTags.slice(0, 3).map((tag, idx) => (
-                              <span key={idx} className="tag search-tag">
+                              <span key={idx} title={tag} className="tag search-tag">
                                 {tag}
                               </span>
                             ))}
                             {room.majorTags.slice(0, 1).map((tag, idx) => (
-                              <span key={idx} className="tag major-tag">
+                              <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
                             ))}

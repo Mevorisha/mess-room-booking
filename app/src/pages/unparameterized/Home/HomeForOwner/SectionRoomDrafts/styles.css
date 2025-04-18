@@ -154,6 +154,10 @@
   padding: 2px 6px;
   border-radius: 12px;
   background-color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .section-RoomDrafts .search-tag {

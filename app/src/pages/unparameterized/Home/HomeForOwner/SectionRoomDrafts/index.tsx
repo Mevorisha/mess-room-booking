@@ -97,12 +97,12 @@ export default function SectionDrafts({
                   <div className="item-tags">
                     {/* Show only 2 search tags and 1 major tag */}
                     {draft.searchTags.slice(0, 2).map((tag, idx) => (
-                      <span key={idx} className="tag search-tag">
+                      <span key={idx} title={tag} className="tag search-tag">
                         {tag}
                       </span>
                     ))}
                     {draft.majorTags.slice(0, 1).map((tag, idx) => (
-                      <span key={idx} className="tag major-tag">
+                      <span key={idx} title={tag} className="tag major-tag">
                         {tag}
                       </span>
                     ))}

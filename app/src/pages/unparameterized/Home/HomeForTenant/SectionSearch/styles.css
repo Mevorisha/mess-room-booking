@@ -253,22 +253,20 @@
   padding: 2px 8px;
   border-radius: 12px;
   background-color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .section-Search .search-tag {
   color: var(--color-primary);
   background-color: rgba(0, 123, 255, 0.1);
-  text-overflow: ellipsis;
-  max-width: 120px;
-  overflow: hidden;
 }
 
 .section-Search .major-tag {
   color: #28a745;
   background-color: rgba(40, 167, 69, 0.1);
-  text-overflow: ellipsis;
-  max-width: 120px;
-  overflow: hidden;
 }
 
 .section-Search .item-actions {

@@ -151,25 +151,23 @@
 
 .section-RoomList .tag {
   font-size: 0.8rem;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 12px;
   background-color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .section-RoomList .search-tag {
   color: var(--color-primary);
   background-color: rgba(0, 123, 255, 0.1);
-  max-width: 120px;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .section-RoomList .major-tag {
   color: #28a745;
   background-color: rgba(40, 167, 69, 0.1);
-  max-width: 120px;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .section-RoomList .hidden-tag {
