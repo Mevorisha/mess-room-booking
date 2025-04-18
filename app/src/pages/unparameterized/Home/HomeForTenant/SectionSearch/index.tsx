@@ -184,10 +184,6 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                           <div className="item-location">
                             {room.city}, {room.state}
                           </div>
-                          <div className="item-price">
-                            <span className="price-amount">₹{room.pricePerOccupant}</span>
-                            <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
-                          </div>
                           <div className="item-tags">
                             {room.searchTags.slice(0, 3).map((tag, idx) => (
                               <span key={idx} className="tag search-tag">
@@ -200,12 +196,17 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                               </span>
                             ))}
                           </div>
+                          <div className="item-price">
+                            <span className="price-amount">₹{room.pricePerOccupant}</span>
+                            <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
+                          </div>
                         </div>
                         <div className="item-actions">
                           <div className="item-rating" title={room.rating.toString()}>
                             <i className="fa fa-star-o"></i>
                             <span>{room.rating}</span>
                           </div>
+
                           <ButtonText
                             rounded="all"
                             kind="secondary"

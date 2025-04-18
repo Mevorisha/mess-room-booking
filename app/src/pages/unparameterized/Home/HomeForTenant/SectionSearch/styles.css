@@ -160,8 +160,7 @@
 
 .section-Search .item-preview {
   display: flex;
-  gap: var(--pad-2);
-  padding: var(--pad-2);
+  padding: var(--pad-0);
 }
 
 .section-Search .item-preview-nonimg {
@@ -176,6 +175,8 @@
   height: 120px;
   overflow: hidden;
   border-radius: var(--rounded-rad);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   flex-shrink: 0;
 }
 
@@ -190,6 +191,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  align-items: start;
   gap: var(--pad-1);
 }
 
@@ -201,7 +204,6 @@
 }
 
 .section-Search .item-landmark {
-  font-weight: bold;
   font-size: 1.1rem;
   white-space: nowrap;
   overflow: hidden;
@@ -211,13 +213,14 @@
 .section-Search .item-rating {
   display: flex;
   align-items: center;
-  color: #f59e0b; /* Amber color for stars */
+  color: #555;
   gap: 4px;
+  font-size: 0.9rem;
 }
 
 .section-Search .item-location {
+  color: #555;
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
 }
 
 .section-Search .item-price {
@@ -226,12 +229,13 @@
 
 .section-Search .price-amount {
   font-weight: bold;
+  color: #555;
   font-size: 1.1rem;
 }
 
 .section-Search .price-period {
-  font-size: 0.9rem;
   color: #555;
+  font-size: 0.85rem;
 }
 
 .section-Search .item-tags {
@@ -263,7 +267,6 @@
   flex-direction: column;
   align-items: end;
   justify-content: space-between;
-  margin-left: var(--pad-2);
 }
 
 .section-Search .view-details-button {
@@ -368,11 +371,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--pad-2);
-    padding: var(--pad-2);
+    padding: var(--pad-0);
   }
   .section-Search .item-preview .item-image {
     width: 100%;
+    height: 150px;
+    border-radius: var(--rounded-rad);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
   .section-Search .item-preview-nonimg {
     width: calc(100% - 2 * var(--pad-2));
