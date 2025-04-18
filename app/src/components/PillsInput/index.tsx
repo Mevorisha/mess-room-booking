@@ -96,10 +96,6 @@ export default function PillInput({
     setInputValue("");
   }
 
-  function handleDataScroll(e: React.WheelEvent<HTMLDivElement>) {
-    (e.target as HTMLDivElement).scrollBy({ left: e.deltaY / 4, behavior: "smooth" });
-  }
-
   const additionalPillContainerStyle = pillsSet.size <= 0 ? { padding: "0" } : {};
 
   return (
@@ -107,9 +103,7 @@ export default function PillInput({
       <div className="pills-container" style={additionalPillContainerStyle}>
         {Array.from(pillsSet).map((item, idx) => (
           <div key={idx} className={`pill ${disabled ? "disabled" : ""}`} title={item}>
-            <div className="pill-data" onWheel={(e) => handleDataScroll(e)}>
-              {item.toString()}
-            </div>
+            <div className="pill-data">{item.toString()}</div>
 
             {!disabled && (
               <div className="clearpill-container">

@@ -36,7 +36,7 @@
   margin: 0 var(--pad-1);
 }
 
-.components-PillsSelect .clearall-container .btn-control  {
+.components-PillsSelect .clearall-container .btn-control {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,15 +68,15 @@
 }
 
 .components-PillsSelect .pills-container {
-  display: grid;
-  grid-gap: var(--pad-1);
-  grid-template-columns: repeat(auto-fill, 80px) ;
+  display: flex;
   padding: var(--pad-1);
   overflow: hidden;
+  flex-wrap: wrap;
+  gap: var(--pad-1);
 }
 
 .components-PillsSelect .pills-container .pill {
-  width: calc(100% - 2 * var(--pad-1));
+  max-width: 120px;
   height: fit-content;
   min-height: 30px;
   display: flex;
@@ -95,19 +95,17 @@
 }
 
 .components-PillsSelect .pills-container .pill-data {
-  width: calc(100% - 2 * var(--pad-1));
-  font-size: 0.8rem;
-  overflow: scroll;
-  white-space: nowrap;
-  cursor: e-resize;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .components-PillsSelect .pills-container .pill-data {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
-.components-PillsSelect .pills-container .pill-data ::-webkit-scrollbar { 
-  display: none;  /* Safari and Chrome */
+.components-PillsSelect .pills-container .pill-data ::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 .components-PillsSelect .pills-container .pill i {
