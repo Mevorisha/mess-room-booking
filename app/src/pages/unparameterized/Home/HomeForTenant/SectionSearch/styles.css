@@ -165,7 +165,7 @@
 }
 
 .section-Search .item-image {
-  width: 120px;
+  max-width: 120px;
   overflow: hidden;
   border-radius: var(--rounded-rad);
   border-top-right-radius: 0;
@@ -176,6 +176,7 @@
 .section-Search .item-image img {
   width: 100%;
   height: 100%;
+  max-width: 120px;
   object-fit: cover;
 }
 
@@ -198,13 +199,6 @@
   gap: var(--pad-1);
 }
 
-.section-Search .items-landmark-rating {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--pad-2);
-}
-
 .section-Search .item-landmark {
   font-size: 1.1rem;
   white-space: nowrap;
@@ -219,6 +213,13 @@
   color: #555;
   gap: 4px;
   font-size: 0.9rem;
+}
+
+/* If using Font Awesome */
+.section-RoomList .item-rating .fa-star-o {
+  margin: auto;
+  margin-right: 0.125rem;
+  font-size: 0.8rem;
 }
 
 .section-Search .item-location {
@@ -383,9 +384,13 @@
   .section-Search .item-preview .item-image {
     width: 100%;
     height: 150px;
+    max-width: unset;
     border-radius: var(--rounded-rad);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+  }
+  .section-Search .item-preview .item-image img {
+    max-width: unset;
   }
   .section-Search .item-preview-nonimg {
     width: calc(100% - 2 * var(--pad-2));

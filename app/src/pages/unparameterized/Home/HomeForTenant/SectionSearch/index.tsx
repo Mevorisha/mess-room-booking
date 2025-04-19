@@ -171,7 +171,7 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                     <div className="item-preview">
                       {room.images.length > 0 && (
                         <div className="item-image">
-                          <ImageLoader src={room.images[0]?.medium ?? ""} alt={room.landmark} />
+                          <ImageLoader src={room.images[0]?.large ?? ""} alt={room.landmark} />
                         </div>
                       )}
                       <div className="item-preview-nonimg">

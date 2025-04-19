@@ -46,70 +46,76 @@
 }
 
 .section-RoomList .content-list {
-  list-style: none;
   padding: 0;
-  margin: 0;
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--pad-2);
-  grid-template-columns: 1fr;
 }
 
-@media (min-width: 750px) {
+@media (max-width: 750px) {
   .section-RoomList .content-list {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 .section-RoomList .content-item {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: var(--color-bg-primary);
   border-radius: var(--rounded-rad);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .section-RoomList .content-item .washout {
   filter: opacity(0.5);
 }
 
-.section-RoomList .item-item {
-  border: 1px solid var(--color-light);
-}
-
 .section-RoomList .item-preview {
+  height: 100%;
   display: flex;
-  align-items: center;
-  padding: var(--pad-2);
-  gap: var(--pad-2);
+  padding: var(--pad-0);
 }
 
 .section-RoomList .item-image {
-  width: 70px;
-  height: 70px;
+  max-width: 75px;
   overflow: hidden;
   border-radius: var(--rounded-rad);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   flex-shrink: 0;
 }
 
 .section-RoomList .item-image img {
   width: 100%;
   height: 100%;
+  max-width: 75px;
   object-fit: cover;
 }
 
-.section-RoomList .item-info {
-  flex: 1;
-  overflow: hidden;
-}
-
-.section-RoomList .items-landmark-rating {
+.section-RoomList .item-preview-nonimg {
+  width: calc(100% - 2 * var(--pad-2) - 70px);
   display: flex;
   gap: var(--pad-2);
-  margin-bottom: var(--pad-1);
+  padding: var(--pad-2);
+}
+
+.section-RoomList .item-info {
+  height: fit-content;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--pad-1);
 }
 
 .section-RoomList .item-landmark {
-  font-weight: bold;
+  font-size: 1.1rem;
   white-space: nowrap;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -117,12 +123,9 @@
 .section-RoomList .item-rating {
   display: flex;
   align-items: center;
-  color: #6b7280; /* gray-500 equivalent */
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  text-align: center;
-  margin-top: calc(0.25 * var(--pad-1));
+  color: #555;
+  gap: 4px;
+  font-size: 0.9rem;
 }
 
 /* If using Font Awesome */
@@ -138,9 +141,8 @@
 }
 
 .section-RoomList .item-location {
+  color: #555;
   font-size: 0.9rem;
-  color: #666;
-  margin-bottom: var(--pad-1);
 }
 
 .section-RoomList .item-tags {
@@ -178,11 +180,23 @@
 .section-RoomList .deleted-tag {
   color: #da0000;
   background-color: rgba(255, 0, 0, 0.1);
+  white-space: unset;
+  text-overflow: unset;
+  max-width: unset;
+  overflow: unset;
 }
 
 .section-RoomList .item-actions {
   display: flex;
   gap: var(--pad-1);
+}
+
+.section-RoomList .item-rating-actions {
+  display: flex;
+  gap: var(--pad-1);
+  align-items: end;
+  justify-content: space-between;
+  flex-direction: column;
 }
 
 .section-RoomList .edit-item-button {
