@@ -250,6 +250,10 @@ export default function SectionRooms({
                             </span>
                           )}
                         </div>
+                        <div className="item-price">
+                          <span className="price-amount">₹{roomItem.pricePerOccupant}</span>
+                          <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
+                        </div>
                       </div>
                       <div className="item-rating-actions">
                         <RatingDisplay rating={roomItem.rating} washout={washout} />
