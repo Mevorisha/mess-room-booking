@@ -281,7 +281,6 @@ export default function SectionRooms({
               );
             })}
           </ul>
-          <br style={{ height: "var(--pad-1)" }} />
           <PagingContainer
             totalPages={roomPages}
             currentPage={currentPage}
