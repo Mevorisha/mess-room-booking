@@ -29,7 +29,7 @@ CORS_ALLOWED_ORIGINS.push(WEB_SERVER_ORIGIN);
 export const CORS_ALLOW_EVERYTHING = process.env["CORS_ALLOW_EVERYTHING"] === "true";
 
 export const IS_DEV = ["dev", "devnoemu"].includes(process.env["ENVIRONMENT_TYPE"]);
-export const RUN_ON_EMULATOR = /localhost|127\.0\.0\.1|192.168/i.test(API_SERVER_ORIGIN) && "devnoemu" !== process.env["ENVIRONMENT_TYPE"];
+export const RUN_ON_EMULATOR = /localhost|127\.0\.0\.1|192\.168/i.test(API_SERVER_ORIGIN) && "devnoemu" !== process.env["ENVIRONMENT_TYPE"];
 
 export const FIREBASE_SERVICE_ACCOUNT_KEY: object = JSON.parse(process.env["FIREBASE_SERVICE_ACCOUNT_KEY"] ?? "{}");
 
