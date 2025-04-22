@@ -7,6 +7,7 @@ if (!process.env["CORS_ALLOWED_ORIGINS"]) throw new Error(".env CORS_ALLOWED_ORI
 if (!process.env["CORS_ALLOW_EVERYTHING"]) throw new Error(".env CORS_ALLOW_EVERYTHING undefined");
 if (!process.env["FIREBASE_PROJECT_ID"]) throw new Error(".env FIREBASE_PROJECT_ID undefined");
 if (!process.env["FIREBASE_SERVICE_ACCOUNT_KEY"]) throw new Error(".env FIREBASE_SERVICE_ACCOUNT_KEY undefined");
+if (!process.env["CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY"]) throw Error(".env CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY undefined"); // prettier-ignore
 if (!process.env["FIREBASE_DATABASE_URL"]) throw Error(".env FIREBASE_DATABASE_URL undefined");
 if (!process.env["FIREBASE_STORAGE_BUCKET"]) throw Error(".env FIREBASE_STORAGE_BUCKET undefined");
 if (!process.env["FIREBASE_EMULATOR_DATABASE_URL"]) throw Error(".env FIREBASE_EMULATOR_DATABASE_URL undefined");
@@ -32,6 +33,7 @@ export const IS_DEV = ["dev", "devnoemu"].includes(process.env["ENVIRONMENT_TYPE
 export const RUN_ON_EMULATOR = /localhost|127\.0\.0\.1|192\.168/i.test(API_SERVER_ORIGIN) && "devnoemu" !== process.env["ENVIRONMENT_TYPE"];
 
 export const FIREBASE_SERVICE_ACCOUNT_KEY: object = JSON.parse(process.env["FIREBASE_SERVICE_ACCOUNT_KEY"] ?? "{}");
+export const CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY: object = JSON.parse(process.env["CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY"] ?? "{}"); // prettier-ignore
 
 export const FIREBASE_DATABASE_URL = process.env["FIREBASE_DATABASE_URL"];
 
