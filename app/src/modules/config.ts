@@ -2,7 +2,7 @@
 
 import prodApiServerUrl from "@/configs/API_SERVER_URL.js";
 
-const IS_DEV = /localhost|127\.0\.0\.1|192.168/i.test(window.location.href);
+const IS_DEV = /localhost|127\.0\.0\.1|192\.168/i.test(window.location.href);
 const IS_PREVIEW =
   !IS_DEV &&
   window.location.hostname !== "mess-booking-app-serverless.web.app" &&

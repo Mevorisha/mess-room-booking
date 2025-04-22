@@ -171,34 +171,32 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                     <div className="item-preview">
                       {room.images.length > 0 && (
                         <div className="item-image">
-                          <ImageLoader src={room.images[0]?.medium ?? ""} alt={room.landmark} />
+                          <ImageLoader src={room.images[0]?.large ?? ""} alt={room.landmark} />
                         </div>
                       )}
                       <div className="item-preview-nonimg">
                         <div className="item-info">
-                          <div className="items-landmark-rating">
-                            <div className="item-landmark" title={room.landmark}>
-                              {room.landmark}
-                            </div>
+                          <div className="item-landmark" title={room.landmark}>
+                            {room.landmark}
                           </div>
                           <div className="item-location">
                             {room.city}, {room.state}
                           </div>
-                          <div className="item-price">
-                            <span className="price-amount">₹{room.pricePerOccupant}</span>
-                            <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
-                          </div>
                           <div className="item-tags">
                             {room.searchTags.slice(0, 3).map((tag, idx) => (
-                              <span key={idx} className="tag search-tag">
+                              <span key={idx} title={tag} className="tag search-tag">
                                 {tag}
                               </span>
                             ))}
                             {room.majorTags.slice(0, 1).map((tag, idx) => (
-                              <span key={idx} className="tag major-tag">
+                              <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
                             ))}
+                          </div>
+                          <div className="item-price">
+                            <span className="price-amount">₹{room.pricePerOccupant}</span>
+                            <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
                           </div>
                         </div>
                         <div className="item-actions">
@@ -206,6 +204,7 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
                             <i className="fa fa-star-o"></i>
                             <span>{room.rating}</span>
                           </div>
+
                           <ButtonText
                             rounded="all"
                             kind="secondary"

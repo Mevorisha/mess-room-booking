@@ -87,58 +87,60 @@ export default function SectionDrafts({
                     <ImageLoader src={draft.firstImage} alt={draft.landmark} />
                   </div>
                 )}
-                <div className="item-info">
-                  <div className="item-landmark" title={draft.landmark}>
-                    {draft.landmark}
+                <div className="item-preview-nonimg">
+                  <div className="item-info">
+                    <div className="item-landmark" title={draft.landmark}>
+                      {draft.landmark}
+                    </div>
+                    <div className="item-location">
+                      {draft.city}, {draft.state}
+                    </div>
+                    <div className="item-tags">
+                      {/* Show only 2 search tags and 1 major tag */}
+                      {draft.searchTags.slice(0, 2).map((tag, idx) => (
+                        <span key={idx} title={tag} className="tag search-tag">
+                          {tag}
+                        </span>
+                      ))}
+                      {draft.majorTags.slice(0, 1).map((tag, idx) => (
+                        <span key={idx} title={tag} className="tag major-tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="item-location">
-                    {draft.city}, {draft.state}
+                  <div className="item-actions">
+                    <button
+                      className="edit-item-button"
+                      onClick={() => handleOpenDraft(draft.url)}
+                      title={lang("Edit", "এডিট করুন", "एडिट करें")}
+                    >
+                      <i className="fa fa-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      className="delete-item-button"
+                      onClick={() =>
+                        dialog.show(
+                          <ConfirmDialog
+                            title={lang(
+                              "Confirm Delete Draft",
+                              "ড্রাফট মুছে ফেলতে নিশ্চিত করুন",
+                              "ड्राफ्ट हटाने के लिए कन्फर्म करें"
+                            )}
+                            text={lang(
+                              "Click confirm to delete draft. This action cannot be undone and your data will be deleted.",
+                              "ড্রাফট মুছে ফেলতে কনফার্ম চাপুন। এই কাজটি বাতিল করা যাবে না এবং আপনার ডেটা মুছে যাবে।",
+                              "ड्राफ्ट हटाने के लिए कन्फर्म पर क्लिक करें। यह क्रिया पूर्ववत नहीं की जा सकती और आपका डेटा हट जाएगा।"
+                            )}
+                            onConfirm={() => handleDeleteDraft(draft.url)}
+                          />
+                        )
+                      }
+                      title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
+                    >
+                      <i className="fa fa-trash" aria-hidden="true"></i>
+                    </button>
                   </div>
-                  <div className="item-tags">
-                    {/* Show only 2 search tags and 1 major tag */}
-                    {draft.searchTags.slice(0, 2).map((tag, idx) => (
-                      <span key={idx} className="tag search-tag">
-                        {tag}
-                      </span>
-                    ))}
-                    {draft.majorTags.slice(0, 1).map((tag, idx) => (
-                      <span key={idx} className="tag major-tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="item-actions">
-                  <button
-                    className="edit-item-button"
-                    onClick={() => handleOpenDraft(draft.url)}
-                    title={lang("Edit", "এডিট করুন", "एडिट करें")}
-                  >
-                    <i className="fa fa-pencil" aria-hidden="true"></i>
-                  </button>
-                  <button
-                    className="delete-item-button"
-                    onClick={() =>
-                      dialog.show(
-                        <ConfirmDialog
-                          title={lang(
-                            "Confirm Delete Draft",
-                            "ড্রাফট মুছে ফেলতে নিশ্চিত করুন",
-                            "ड्राफ्ट हटाने के लिए कन्फर्म करें"
-                          )}
-                          text={lang(
-                            "Click confirm to delete draft. This action cannot be undone and your data will be deleted.",
-                            "ড্রাফট মুছে ফেলতে কনফার্ম চাপুন। এই কাজটি বাতিল করা যাবে না এবং আপনার ডেটা মুছে যাবে।",
-                            "ड्राफ्ट हटाने के लिए कन्फर्म पर क्लिक करें। यह क्रिया पूर्ववत नहीं की जा सकती और आपका डेटा हट जाएगा।"
-                          )}
-                          onConfirm={() => handleDeleteDraft(draft.url)}
-                        />
-                      )
-                    }
-                    title={lang("Delete", "মুছে ফেলুন", "हटाएं")}
-                  >
-                    <i className="fa fa-trash" aria-hidden="true"></i>
-                  </button>
                 </div>
               </div>
             </li>

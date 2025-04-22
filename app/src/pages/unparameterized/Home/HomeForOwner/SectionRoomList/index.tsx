@@ -175,7 +175,7 @@ export default function SectionRooms({
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
         <button
           className="reload-button"
-          onClick={() => void reloadApi({ invalidateCache: true })}
+          onClick={() => void reloadApi({ invalidateCache: true }).catch((e: Error) => notify(e, "error"))}
           disabled={isLoadingRooms}
         >
           <i className="fa fa-refresh" aria-hidden="true"></i>
@@ -192,90 +192,95 @@ export default function SectionRooms({
             {rooms.map((roomItem, index) => {
               const washout = (roomItem.isDeleted ?? false) || roomItem.isUnavailable ? "washout" : "";
               return (
-                <li key={index} className="content-item item-item">
+                <li key={index} className="content-item">
                   <div className="item-preview">
                     {roomItem.images.length > 0 && (
                       <div className={`item-image ${washout}`}>
-                        <ImageLoader src={roomItem.images[0]?.small ?? ""} alt={roomItem.landmark} />
+                        <ImageLoader src={roomItem.images[0]?.medium ?? ""} alt={roomItem.landmark} />
                       </div>
                     )}
-                    <div className="item-info">
-                      <div className="items-landmark-rating">
+                    <div className="item-preview-nonimg">
+                      <div className="item-info">
                         <div className={`item-landmark ${washout}`} title={roomItem.landmark}>
                           {roomItem.landmark}
                         </div>
+                        <div className={`item-location ${washout}`}>
+                          {roomItem.city}, {roomItem.state}
+                        </div>
+                        <div className="item-tags">
+                          {/* Show only 2 search tags and 1 major tag */}
+                          {!roomItem.isUnavailable &&
+                            !(roomItem.isDeleted ?? false) &&
+                            roomItem.searchTags.slice(0, 2).map((tag, idx) => (
+                              <span key={idx} title={tag} className="tag search-tag">
+                                {tag}
+                              </span>
+                            ))}
+                          {!roomItem.isUnavailable &&
+                            !(roomItem.isDeleted ?? false) &&
+                            roomItem.majorTags.slice(0, 1).map((tag, idx) => (
+                              <span key={idx} title={tag} className="tag major-tag">
+                                {tag}
+                              </span>
+                            ))}
+                          {!(roomItem.isDeleted ?? false) && roomItem.isUnavailable && (
+                            <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
+                          )}
+                          {(roomItem.isDeleted ?? false) && (
+                            <span className="tag deleted-tag">
+                              {roomItem.ttl != null
+                                ? lang(
+                                    `Delete on ${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}`,
+                                    `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })} তারিখে মোছা হবে`,
+                                    `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })} को मिटाया जायेगा`
+                                  )
+                                : lang("Deleted", "মুছে ফেলা", "हटाया गया")}
+                            </span>
+                          )}
+                        </div>
+                        <div className="item-price">
+                          <span className="price-amount">₹{roomItem.pricePerOccupant}</span>
+                          <span className="price-period">{" " + lang("per head", "প্রতি জনে", "प्रति व्यक्ति")}</span>
+                        </div>
+                      </div>
+                      <div className="item-rating-actions">
                         <RatingDisplay rating={roomItem.rating} washout={washout} />
+                        <div className="item-actions">
+                          {!(roomItem.isDeleted ?? false) && (
+                            <button
+                              className="edit-item-button"
+                              onClick={() => handleOpenRoom(roomItem)}
+                              title={lang("Edit", "এডিট করুন", "एडिट करें")}
+                            >
+                              <i className="fa fa-pencil" aria-hidden="true"></i>
+                            </button>
+                          )}
+                          <RestoreOrDelete
+                            dialog={dialog}
+                            roomItem={roomItem}
+                            handleRestoreRoom={handleRestoreRoom}
+                            handleDeleteRoom={handleDeleteRoom}
+                          />
+                        </div>
                       </div>
-                      <div className={`item-location ${washout}`}>
-                        {roomItem.city}, {roomItem.state}
-                      </div>
-                      <div className="item-tags">
-                        {/* Show only 2 search tags and 1 major tag */}
-                        {!roomItem.isUnavailable &&
-                          !(roomItem.isDeleted ?? false) &&
-                          roomItem.searchTags.slice(0, 2).map((tag, idx) => (
-                            <span key={idx} className="tag search-tag">
-                              {tag}
-                            </span>
-                          ))}
-                        {!roomItem.isUnavailable &&
-                          !(roomItem.isDeleted ?? false) &&
-                          roomItem.majorTags.slice(0, 1).map((tag, idx) => (
-                            <span key={idx} className="tag major-tag">
-                              {tag}
-                            </span>
-                          ))}
-                        {!(roomItem.isDeleted ?? false) && roomItem.isUnavailable && (
-                          <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
-                        )}
-                        {(roomItem.isDeleted ?? false) && (
-                          <span className="tag deleted-tag">
-                            {roomItem.ttl != null
-                              ? lang(
-                                  `Delete on ${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })}`,
-                                  `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })} তারিখে মোছা হবে`,
-                                  `${new Date(roomItem.ttl).toLocaleString(getLangCode(), {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })} को मिटाया जायेगा`
-                                )
-                              : lang("Deleted", "মুছে ফেলা", "हटाया गया")}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="item-actions">
-                      {!(roomItem.isDeleted ?? false) && (
-                        <button
-                          className="edit-item-button"
-                          onClick={() => handleOpenRoom(roomItem)}
-                          title={lang("Edit", "এডিট করুন", "एडिट करें")}
-                        >
-                          <i className="fa fa-pencil" aria-hidden="true"></i>
-                        </button>
-                      )}
-                      <RestoreOrDelete
-                        dialog={dialog}
-                        roomItem={roomItem}
-                        handleRestoreRoom={handleRestoreRoom}
-                        handleDeleteRoom={handleDeleteRoom}
-                      />
                     </div>
                   </div>
                 </li>
               );
             })}
           </ul>
-          <br style={{ height: "var(--pad-1)" }} />
           <PagingContainer
             totalPages={roomPages}
             currentPage={currentPage}
