@@ -21,6 +21,7 @@ async function handleErr(e: any, res: NextApiResponse) {
       } else {
         // Index related error, ask user to wait
         respond(res, { status: 500, error: "Server busy. Please try again later." });
+        console.error("[I] [CatchAll] Waiting for index to be created");
       }
     } catch (e) {
       // could call handleErr recursively here but that's a bad idea
