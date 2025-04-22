@@ -1,5 +1,4 @@
 import { extractIndexData, parseDataIntoIndexSpec, createFirestoreIndex } from "@/lib/firebaseAdmin";
-import IndexTracker from "@/models/IndexTracker";
 
 /**
  * Handles Firebase errors by automatically creating missing indexes when possible
@@ -20,13 +19,7 @@ export async function handleFirebaseIndexError(error: { code: number; details: s
   }
   // Extract the index creation URL from the error
   const indexDataString = extractIndexData(error.details);
-  // Check if we're already handling this index creation
-  if (await IndexTracker.has(indexDataString)) {
-    return true; // Already handling this index creation, return true
-  }
   try {
-    // Mark this index as being created
-    IndexTracker.put(indexDataString);
     // Parse the index specification from the URL
     const { projectId, databaseId, spec: indexSpec } = parseDataIntoIndexSpec(indexDataString);
     if (!indexSpec) {
@@ -36,8 +29,6 @@ export async function handleFirebaseIndexError(error: { code: number; details: s
     await createFirestoreIndex(projectId, databaseId, indexSpec);
     console.log(`[I] [HandleFirebaseIndexError] Successfully created index for key: ${indexDataString}`);
   } catch (indexError) {
-    // Remove the tracking key on failure
-    IndexTracker.remove(indexDataString);
     // Rethrow with more specific error
     throw indexError;
   }
