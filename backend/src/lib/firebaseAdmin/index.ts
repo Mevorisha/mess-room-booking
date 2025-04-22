@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import * as config from "@/lib/config";
+import { CustomApiError } from "../utils/ApiError";
 
 export interface IndexSpec {
   collectionId: string;
@@ -180,10 +181,14 @@ export async function createFirestoreIndex(
     .createIndex(request)
     .then((responses) => {
       const response = responses[0];
-      console.log(`Created index: ${response.name}`);
       return response;
     })
     .catch((error) => {
-      throw new Error(`Failed to create index: ${error}\nOn request: ${JSON.stringify(request, null, 2)}`);
+      if (error.code === 6 || error.code === 9) {
+        console.error(`[E] [CreateFirestoreIndex] Failed to create index: ${error.message}\nOn request: ${JSON.stringify(request, null, 2)}`); // prettier-ignore
+        throw CustomApiError.create(500, "Server busy. Please try again later.");
+      } else {
+        throw new Error(`Failed to create index: ${error}\nOn request: ${JSON.stringify(request, null, 2)}`);
+      }
     });
 }

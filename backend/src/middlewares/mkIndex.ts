@@ -9,6 +9,14 @@ import { extractIndexData, parseDataIntoIndexSpec, createFirestoreIndex } from "
 export async function handleFirebaseIndexError(error: { code: number; details: string }): Promise<boolean> {
   // Check if this is an index-related error (code 9 with specific details)
   if (
+    error.code === 9 &&
+    error.details &&
+    typeof error.details === "string" &&
+    error.details.includes("The query requires an index. That index is currently building and cannot be used yet.")
+  ) {
+    return true; // Index is being built, return true
+  }
+  if (
     error.code !== 9 ||
     !error.details ||
     typeof error.details !== "string" ||
