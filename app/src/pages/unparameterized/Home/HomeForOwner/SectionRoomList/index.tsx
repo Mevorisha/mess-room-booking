@@ -175,7 +175,7 @@ export default function SectionRooms({
         <h2>{lang("Rooms", "রুম", "रूम")}</h2>
         <button
           className="reload-button"
-          onClick={() => void reloadApi({ invalidateCache: true })}
+          onClick={() => void reloadApi({ invalidateCache: true }).catch((e: Error) => notify(e, "error"))}
           disabled={isLoadingRooms}
         >
           <i className="fa fa-refresh" aria-hidden="true"></i>

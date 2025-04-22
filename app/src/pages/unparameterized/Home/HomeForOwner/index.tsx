@@ -93,13 +93,18 @@ function TabRooms(): React.ReactNode {
     async (params?: ReloadApiParams): Promise<void> => {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
-      const { json } = await apiGetOrDelete(
-        "GET",
-        ApiPaths.Rooms.readListOnQuery({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false })
-      ).then(({ json }) => ({ json } as { json: { rooms: RoomData[]; totalPages: number } }));
-      setRooms(json.rooms);
-      setRoomPages(json.totalPages);
-      setIsLoadingRooms(false);
+      try {
+        const { json } = await apiGetOrDelete(
+          "GET",
+          ApiPaths.Rooms.readListOnQuery({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false })
+        ).then(({ json }) => ({ json } as { json: { rooms: RoomData[]; totalPages: number } }));
+        setRooms(json.rooms);
+        setRoomPages(json.totalPages);
+        setIsLoadingRooms(false);
+      } catch (e) {
+        setIsLoadingRooms(false);
+        throw e;
+      }
     },
     [currentPage]
   );
