@@ -1,24 +1,28 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import { RoomData } from "@/modules/networkTypes/Room";
+import { RoomData, RoomQueryParser } from "@/modules/networkTypes/Room";
 import { lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import PagingContainer from "@/components/PagingContainer";
 import ImageLoader from "@/components/ImageLoader";
+import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
 
 import "./styles.css";
-import ButtonText from "@/components/ButtonText";
 
-export interface SectionSearchProps {
-  initialQuery?: Partial<RoomQuery>;
-}
-
-export default function SectionSearch({ initialQuery = {} }: SectionSearchProps): React.ReactNode {
+export default function SectionSearch(): React.ReactNode {
   const notify = useNotification();
   const dialog = useDialogBox();
+
+  // WARNING: setSearchParams should be called only in one place
+  // This is cause searchParams are a reflection of the query, and NOT the other way around
+  // Query while is loaded from the URL, this is for initializing the state ONLY
+  // After this, all updates are done via setQuery and setSearchParams is called only once
+  // to update the URL in a useEffect as a side effect of the query change
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // State for rooms data
   const [rooms, setRooms] = useState<RoomData[]>([]);
@@ -28,51 +32,85 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
-  const [query, setQuery] = useState<RoomQuery>({ ...initialQuery, page: 1 });
+  const [query, setQuery] = useState<RoomQuery>(RoomQueryParser.from(searchParams));
+  const apiUri = ApiPaths.Rooms.readListOnQuery(query);
 
   // State for search input
-  const [searchInput, setSearchInput] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>(query.searchTags?.join(" ") ?? "");
 
   // State to track if filters are applied
-  const [hasFilters, setHasFilters] = useState<boolean>(false);
+  const [hasFilters, _setHasFilters] = useState<boolean>(false);
+  const updateHasFilters = useCallback(
+    (value?: boolean) => {
+      if (value != null) {
+        _setHasFilters(value);
+        return;
+      }
+      const apiParams = new URL(apiUri).searchParams;
+      _setHasFilters(
+        apiParams.has("acceptGender") ||
+          apiParams.has("acceptOccupation") ||
+          apiParams.has("capacity") ||
+          apiParams.has("lowPrice") ||
+          apiParams.has("highPrice") ||
+          apiParams.has("sortOn") ||
+          apiParams.has("sortOrder")
+      );
+    },
+    [apiUri, _setHasFilters]
+  );
 
   // Check if we're on mobile view
   const [isMobileView, setIsMobileView] = useState<boolean>(window.innerWidth < 750);
 
-  // Effect to handle window resize for responsive design
-  useEffect(() => {
-    const handleResize = () => setIsMobileView(window.innerWidth < 750);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // Function to handle search
-  function handleSearch() {
-    // Update query with search input as landmark
-    setQuery((prev) => ({ ...prev, landmark: searchInput.trim(), page: 1 }));
-  }
+  const handleSearch = useCallback(() => {
+    const searchStr = searchInput.trim();
+    const searchStrLength = searchStr.length;
+    if (searchStrLength > 0) {
+      // Set searchTags in query and reset page to 1
+      setQuery((prev) => ({ ...prev, searchTags: searchStr.split(" "), page: 1 }));
+    } else {
+      // Remove searchTags from query and remove page
+      setQuery((prev) => {
+        delete prev.searchTags;
+        delete prev.page;
+        return { ...prev };
+      });
+    }
+  }, [searchInput, setQuery]);
 
   // Function to handle filter changes
-  const handleFilterChange = useCallback((newFilters: Partial<RoomQuery>) => {
-    setQuery((prev) => ({ ...prev, ...newFilters, page: 1 }));
-    // Check if any filters are applied
-    const filterKeys = Object.keys(newFilters) as (keyof RoomQuery)[];
-    setHasFilters(
-      filterKeys.some(
-        (key) => newFilters[key] !== undefined && key !== "page" && key !== "invalidateCache" && key !== "landmark"
-      )
-    );
-  }, []);
+  const handleFilterChange = useCallback(
+    (newFilters: Partial<RoomQuery>) => {
+      // Set respective filters in query and reset page to 1
+      setQuery((prev) => ({ ...prev, ...newFilters, page: 1 }));
+      updateHasFilters();
+    },
+    [updateHasFilters]
+  );
 
   // Function to handle clearing filters
   const handleFilterClear = useCallback(() => {
-    const clearedQuery: RoomQuery = {};
-    setQuery(clearedQuery);
-    setHasFilters(false);
-  }, []);
+    // Clear all filters in query but keep searchTags
+    setQuery((oldQuery) => {
+      if (oldQuery.searchTags == null) return {};
+      return { searchTags: oldQuery.searchTags };
+    });
+    updateHasFilters();
+  }, [updateHasFilters]);
+
+  // Handle page change
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      setQuery((prev) => ({ ...prev, page }));
+    },
+    [setCurrentPage, setQuery]
+  );
 
   // Function to open filters dialog on mobile
-  function handleOpenFiltersDialog() {
+  const handleOpenFiltersDialog = useCallback(() => {
     dialog.show(
       <FilterSearch
         currentFilters={query}
@@ -82,13 +120,13 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
       />,
       "small"
     );
-  }
+  }, [dialog, handleFilterChange, handleFilterClear, query]);
 
   // Function to load rooms data
   const loadRooms = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery(query));
+      const response = await apiGetOrDelete("GET", apiUri);
       if (response.json != null) {
         const data = response.json as { rooms: RoomData[]; totalPages: number; totalItems: number };
         setRooms(data.rooms);
@@ -100,16 +138,36 @@ export default function SectionSearch({ initialQuery = {} }: SectionSearchProps)
     } finally {
       setIsLoading(false);
     }
-  }, [notify, query]);
+  }, [apiUri, notify]);
 
-  // Handle page change
-  function handlePageChange(page: number) {
-    setCurrentPage(page);
-    setQuery((prev) => ({ ...prev, page }));
-  }
+  // Effect to handle window resize for responsive design
+  useEffect(() => {
+    const handleResize = () => setIsMobileView(window.innerWidth < 750);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Load rooms when query changes
   useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, query]);
+
+  // Effect to update the query params in the URL bar
+  useEffect(() => {
+    // copy current search params
+    const newParams = new URLSearchParams(searchParams);
+    // update params from API URI
+    const apiParams = new URL(apiUri).searchParams;
+    updateHasFilters();
+    // remove params not in new API URI
+    for (const key of newParams.keys()) {
+      if (!apiParams.has(key)) newParams.delete(key);
+    }
+    // add params from API URI
+    for (const [key, value] of apiParams.entries()) {
+      if (value != "") newParams.set(key, value);
+    }
+    // set as new search params of page
+    setSearchParams(newParams);
+  }, [apiUri, searchParams, setSearchParams, updateHasFilters]);
 
   return (
     <div className="section-Search">
