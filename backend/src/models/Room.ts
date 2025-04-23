@@ -13,13 +13,13 @@ export interface RoomData {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
-  searchTags: Set<string>;
+  searchTags: string[];
   landmark: string;
   address: string;
   city: string;
   state: string;
-  majorTags: Set<string>;
-  minorTags: Set<string>;
+  majorTags: string[];
+  minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
   // Set later on
@@ -38,7 +38,8 @@ export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavai
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
 export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
 // During read, all data may be read
-type RoomReadData = Partial<RoomData>;
+export type RoomReadData = Partial<RoomData> & { sortPriority?: number };
+export type RoomReadDataWithId = RoomReadData & { id: string };
 // Params to query a room by
 export type RoomQueryParams = Partial<{
   self?: boolean;
@@ -77,6 +78,24 @@ export enum SchemaFields {
   TTL = "ttl",
 }
 
+function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomReadData {
+  let _data = { ...data };
+  _data["searchTags"] = (_data["searchTags"] || []).map((tag: string) => tag.toLowerCase());
+  _data["majorTags"] = (_data["majorTags"] || []).map((tag: string) => tag.toLowerCase());
+  _data["minorTags"] = (_data["minorTags"] || []).map((tag: string) => tag.toLowerCase());
+  _data["landmark"] = _data["landmark"]?.toLowerCase();
+  _data["city"] = _data["city"]?.toLowerCase();
+  _data["state"] = _data["state"]?.toLowerCase();
+  _data["address"] = _data["address"]?.toLowerCase();
+  _data["images"] = _data["images"]?.map((img: MultiSizePhoto) => ({
+    small: img.small,
+    medium: img.medium,
+    large: img.large,
+  }));
+  _data = _data as RoomReadData;
+  return _data;
+}
+
 function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string) {
   if (dataToBeUpdated.images) {
     // prettier-ignore
@@ -88,8 +107,6 @@ function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string)
   }
   return dataToBeUpdated;
 }
-
-export type RoomReadDataWithId = RoomReadData & { id: string };
 
 class Room {
   /**
@@ -229,9 +246,33 @@ class Room {
     sortOn?: "capacity" | "rating" | "pricePerOccupant",
     sortOrder?: "asc" | "desc"
   ): Promise<RoomReadDataWithId[]> {
+    // For self queries, simplify and just get all rooms by owner, then sort
+    if (params.self && params.ownerId) {
+      const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+      const query = ref.where(SchemaFields.OWNER_ID, "==", params.ownerId);
+      const snapshot = await query.get();
+      const results: RoomReadDataWithId[] = [];
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        results.push({ ...data, id: doc.id });
+      }
+      if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
+      // Sort self results: non-TTL first, then by lastModifiedOn desc within each group
+      return results.sort((a, b) => {
+        // TTL rooms come last
+        if (a.ttl && !b.ttl) return 1;
+        if (!a.ttl && b.ttl) return -1;
+        // Within each group (TTL or non-TTL), sort by lastModifiedOn desc
+        if (a.lastModifiedOn && b.lastModifiedOn) {
+          return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
+        }
+        return 0;
+      });
+    }
+
+    // Regular search query for non-self
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     let query: any = ref;
-
     // Apply filters for exact matches
     if (params.ownerId) {
       query = query.where(SchemaFields.OWNER_ID, "==", params.ownerId);
@@ -254,7 +295,6 @@ class Room {
     if (params.capacity) {
       query = query.where(SchemaFields.CAPACITY, ">=", params.capacity);
     }
-
     // Price range filters
     if (params.lowPrice) {
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
@@ -262,7 +302,6 @@ class Room {
     if (params.highPrice) {
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
     }
-
     // Timestamp filters
     if (params.createdOn) {
       query = query.where(SchemaFields.CREATED_ON, ">=", params.createdOn);
@@ -270,14 +309,9 @@ class Room {
     if (params.lastModifiedOn) {
       query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
     }
-
-    if (!params.self) {
-      // TTL and isUnavailable filter (unconditional filters)
-      // Only available Rooms that are not to be deleted will appear in search results
-      query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
-    }
-
-    // Apply sorting if specified by user
+    // Only available Rooms that are not to be deleted will appear in search results
+    query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
+    // Apply server-side sorting
     if (sortOn) {
       const fieldToSort =
         sortOn === "pricePerOccupant"
@@ -287,7 +321,6 @@ class Room {
           : sortOn === "rating"
           ? SchemaFields.RATING
           : null;
-
       if (fieldToSort) {
         const direction = sortOrder === "desc" ? "desc" : "asc";
         query = query.orderBy(fieldToSort, direction);
@@ -296,75 +329,89 @@ class Room {
       // Default sorting by lastModifiedOn if no sortOn specified
       query = query.orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
     }
-
     // Execute query
     const snapshot = await query.get();
     const results: RoomReadDataWithId[] = [];
-
     // Process results and apply any tag filters in code
-    // (since we can't query array containment for multiple arrays effectively)
     for (const doc of snapshot.docs) {
-      const data = doc.data() as RoomReadData;
-
+      const data = doc.data();
+      // Skip documents with TTL for non-self queries
+      if (data.ttl) continue;
       // Filter by tags if specified
       if (params.searchTags && params.searchTags.size > 0) {
-        // Convert arrays to Sets for easier checking
-        const searchTags = new Set(data.searchTags || []);
-        const majorTags = new Set(data.majorTags || []);
-        const minorTags = new Set(data.minorTags || []);
-
-        // Check if any tag in searchTags matches in searchTags, majorTags, or minorTags
+        const roomReadData = fbDataToQueryableRoomData(data);
+        // Check if any tag in searchTags matches
         let hasMatchingTag = false;
-        for (const tag of params.searchTags) {
-          if (searchTags.has(tag) || majorTags.has(tag) || minorTags.has(tag)) {
+        // Default to lowest priority
+        let sortPriority = Number.MAX_VALUE;
+        // Iterate through each tag in given searchTags
+        for (let tag of params.searchTags) {
+          // Convert tag to lowercase for case-insensitive comparison
+          tag = tag.toLowerCase();
+          // Check different fields for tag matches with different priorities
+          if (roomReadData.landmark?.includes(tag)) {
             hasMatchingTag = true;
+            sortPriority = 1; // Highest priority
             break;
-          }
-          // else check if searchTags matches landmark, city, or state
-          else if (data.landmark === tag || data.city === tag || data.state === tag) {
+          } else if (roomReadData.city?.includes(tag)) {
             hasMatchingTag = true;
+            sortPriority = 2;
+            break;
+          } else if (roomReadData.state?.includes(tag)) {
+            hasMatchingTag = true;
+            sortPriority = 3;
+            break;
+          } else if (roomReadData.address?.includes(tag)) {
+            hasMatchingTag = true;
+            sortPriority = 4;
+            break;
+          } else if (roomReadData.searchTags?.some((t) => t.includes(tag))) {
+            hasMatchingTag = true;
+            sortPriority = 5;
+            break;
+          } else if (roomReadData.majorTags?.some((t) => t.includes(tag))) {
+            hasMatchingTag = true;
+            sortPriority = 6;
+            break;
+          } else if (roomReadData.minorTags?.some((t) => t.includes(tag))) {
+            hasMatchingTag = true;
+            sortPriority = 7; // Lowest priority
             break;
           }
         }
-
         if (!hasMatchingTag) {
           continue; // Skip this document if no matching tags
         }
+        // Store the sort priority for later sorting
+        data.sortPriority = sortPriority;
       }
-
-      // Convert back to sets from arrays in the result
-      if (data.searchTags) data.searchTags = new Set(data.searchTags);
-      if (data.majorTags) data.majorTags = new Set(data.majorTags);
-      if (data.minorTags) data.minorTags = new Set(data.minorTags);
-
       results.push({ ...data, id: doc.id });
     }
-
     if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
-
-    // For the "self" parameter, instead of filtering out TTL records completely,
-    // we now need to sort them to appear at the bottom
-    if (!params.self) {
-      // Filter out rooms with TTL for non-self queries
-      return results.filter((data) => !data.ttl);
-    } else {
-      // For self queries, sort rooms with TTL to appear at the bottom
-      // Within each group (with TTL and without TTL), maintain the lastModifiedOn ordering
-      return results.sort((a, b) => {
-        // If one has TTL and the other doesn't, the one without TTL comes first
-        if (a.ttl && !b.ttl) return 1;
-        if (!a.ttl && b.ttl) return -1;
-
-        // Within the same group (both have TTL or both don't have TTL),
-        // sort by lastModifiedOn in descending order (newest first)
+    // Final sorting logic
+    return results.sort((a, b) => {
+      // If sortOn was specified, we've already done the primary sort in Firestore,
+      // but we need to maintain search tag priority as a stable secondary sort
+      if (sortOn) {
+        // If search tags were used, use sortPriority as secondary sort
+        if (params.searchTags && params.searchTags.size > 0) {
+          return (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
+        }
+        // Otherwise, results are already correctly sorted by the database
+        return 0;
+      } else {
+        // No sortOn specified, sort primarily by search tag priority if used
+        if (params.searchTags && params.searchTags.size > 0) {
+          const priorityDiff = (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
+          if (priorityDiff !== 0) return priorityDiff;
+        }
+        // As secondary sort (or primary if no search tags), sort by lastModifiedOn desc
         if (a.lastModifiedOn && b.lastModifiedOn) {
           return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
         }
-
-        // If lastModifiedOn is missing on either, maintain original order
         return 0;
-      });
-    }
+      }
+    });
   }
 
   /**
