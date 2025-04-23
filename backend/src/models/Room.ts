@@ -320,6 +320,11 @@ class Room {
             hasMatchingTag = true;
             break;
           }
+          // else check if searchTags matches landmark, city, or state
+          else if (data.landmark === tag || data.city === tag || data.state === tag) {
+            hasMatchingTag = true;
+            break;
+          }
         }
 
         if (!hasMatchingTag) {
