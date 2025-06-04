@@ -9,10 +9,10 @@ import { RateLimits } from "@/middlewares/rateLimit";
 import { LRUCache } from "lru-cache";
 
 // Configure LRU cache
-// Store up to 100 queries for 5 minutes (300,000 ms)
 const bookingsCache = new LRUCache<string, any[]>({
-  max: 100,
-  ttl: 1000 * 60 * 5,
+  maxSize: 50 * 1024 * 1024, // Maximum size of the cache in bytes (50 MB)
+  sizeCalculation: (value) => JSON.stringify(value).length, // Calculate size based on JSON string length
+  ttl: 1000 * 60 * 2, // Time to live for cache items (2 minutes)
   allowStale: false,
 });
 

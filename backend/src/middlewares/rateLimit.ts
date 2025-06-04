@@ -3,8 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 // Initialize LRU cache instead of Redis
 const rateCache = new LRUCache({
-  // Max number of items to store in cache
-  max: 5000,
+  // Max size to store in cache
+  maxSize: 50 * 1024 * 1024, // 50 MB
+  // Size calculation function to determine size of each entry
+  sizeCalculation: (value) => JSON.stringify(value).length,
   // TTL for each entry in milliseconds (60 seconds/1 minute)
   ttl: 60 * 1000,
 });
