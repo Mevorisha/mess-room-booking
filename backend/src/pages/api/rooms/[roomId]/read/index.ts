@@ -71,14 +71,15 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     throw CustomApiError.create(404, "Room not found");
   }
 
+  // if the room is marked as unavailable, return 404
+  if (roomData.isUnavailable) {
+    throw CustomApiError.create(404, "Room not found");
+  }
+
   // If user is authenticated, check if they are the room owner, and if not, delete sensitive room data
-  // Additionally, if the room is marked isUnavailable, return 404
   const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
     if (authResult.getUid() !== roomData.ownerId) {
-      if (roomData.isUnavailable) {
-        throw CustomApiError.create(404, "Room not found");
-      }
       if (roomData.ttl) {
         throw CustomApiError.create(404, "Room not found");
       }
