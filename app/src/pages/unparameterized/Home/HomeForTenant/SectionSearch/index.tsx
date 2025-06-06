@@ -84,7 +84,7 @@ export default function SectionSearch(): React.ReactNode {
   const handleFilterChange = useCallback(
     (newFilters: Partial<RoomQuery>) => {
       // Set respective filters in query and reset page to 1
-      setQuery((prev) => ({ ...prev, ...newFilters, page: 1 }));
+      setQuery(() => ({ ...newFilters, page: 1 }));
       updateHasFilters();
     },
     [updateHasFilters]
