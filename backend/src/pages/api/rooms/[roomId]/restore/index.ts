@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { getLoggedInUser } from "@/middlewares/auth";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { respond } from "@/utils/respond";
+import { getLoggedInUser } from "@/middlewares/Auth";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
 import Room, { SchemaFields } from "@/models/Room";
 
 /**
@@ -12,7 +12,7 @@ import Room, { SchemaFields } from "@/models/Room";
  * response = { message: string }
  * ```
  */
-export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     throw CustomApiError.create(405, "Method Not Allowed");

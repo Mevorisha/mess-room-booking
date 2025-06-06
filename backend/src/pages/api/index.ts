@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
+import { respond } from "@/utils/respond";
 
 /**
  * ```

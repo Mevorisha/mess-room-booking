@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { logToDb } from "./logToDb";
+import { respond } from "@/utils/respond";
+import { CustomApiError } from "@/types/CustomApiError";
+import { logToDb } from "../LogToDb";
 import { handleFirebaseIndexError } from "./mkIndex";
 
 async function handleErr(e: any, res: NextApiResponse) {

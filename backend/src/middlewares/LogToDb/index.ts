@@ -1,4 +1,4 @@
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/types/CustomApiError";
 import Logs from "@/models/Logs";
 
 export async function logToDb(e: Error): Promise<Error> {

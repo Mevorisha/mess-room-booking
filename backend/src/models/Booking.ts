@@ -1,7 +1,7 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { AutoSetFields } from "./utils";
+import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
+import { CustomApiError } from "@/types/CustomApiError";
+import { AutoSetFields } from "./types";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
 

@@ -1,8 +1,8 @@
-import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
+import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { ApiResponseUrlType, AutoSetFields } from "./utils";
+import { ApiResponseUrlType, AutoSetFields } from "./types";
 import { MultiSizePhoto } from "./Identity";
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";

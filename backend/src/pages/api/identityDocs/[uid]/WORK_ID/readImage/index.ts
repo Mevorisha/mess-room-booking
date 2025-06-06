@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
-import { getLoggedInUser } from "@/middlewares/auth";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
-import { gsPathToUrl } from "@/models/utils";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
-import HeaderTypes from "@/lib/utils/HeaderTypes";
+import { getLoggedInUser } from "@/middlewares/Auth";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { MultiSizeImageSz } from "@/firebase/init";
+import { gsPathToUrl } from "@/models/utils/gsUrlManager";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
+import HeaderTypes from "@/types/HeaderTypes";
 
 /**
  * ```
@@ -14,7 +14,7 @@ import HeaderTypes from "@/lib/utils/HeaderTypes";
  * response = 301 to "Content-Type: image/(jpeg|png)"
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ID_DOC_READ(req, res))) return;
 
   // Only allow GET method

@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { getLoggedInUser } from "@/middlewares/auth";
+import { respond } from "@/utils/respond";
+import { getLoggedInUser } from "@/middlewares/Auth";
 import Logs, { LogType } from "@/models/Logs";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
 
 /**
  * ```
@@ -12,7 +12,7 @@ import { RateLimits } from "@/middlewares/rateLimit";
  * response = { message: string }
  * ```
  */
-export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.LOG_WRITE(req, res))) return;
 
   // Only allow POST method

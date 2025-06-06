@@ -4,7 +4,7 @@ import { Auth, getAuth } from "firebase-admin/auth";
 import { Database, getDatabase } from "firebase-admin/database";
 import { Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
-import * as config from "../config";
+import * as config from "../config/env";
 
 export type MultiSizeImageSz = "small" | "medium" | "large";
 

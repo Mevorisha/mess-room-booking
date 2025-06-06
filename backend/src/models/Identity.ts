@@ -1,7 +1,7 @@
-import { FirestorePaths, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { FirestorePaths, StoragePaths } from "@/firebase/init";
+import { CustomApiError } from "@/types/CustomApiError";
 import { FieldValue } from "firebase-admin/firestore";
-import { ApiResponseUrlType, AutoSetFields } from "./utils";
+import { ApiResponseUrlType, AutoSetFields } from "./types";
 
 export interface MultiSizePhoto {
   small: string;

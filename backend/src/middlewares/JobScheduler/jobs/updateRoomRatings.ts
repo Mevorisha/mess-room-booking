@@ -1,5 +1,5 @@
-import { FirestorePaths } from "@/lib/firebaseAdmin/init";
-import { FirebaseFirestore } from "@/lib/firebaseAdmin/init";
+import { FirestorePaths } from "@/firebase/init";
+import { FirebaseFirestore } from "@/firebase/init";
 import Room from "@/models/Room";
 import RoomRatings from "@/models/RoomRatings";
 

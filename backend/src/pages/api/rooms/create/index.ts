@@ -1,14 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { getLoggedInUser } from "@/middlewares/auth";
+import { respond } from "@/utils/respond";
+import { getLoggedInUser } from "@/middlewares/Auth";
 import Identity, { MultiSizePhoto, SchemaFields } from "@/models/Identity";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
 import Room, { RoomCreateData } from "@/models/Room";
 import Joi from "joi";
-import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { resizeImageOneSz } from "@/lib/utils/dataConversion";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { FirebaseStorage, StoragePaths } from "@/firebase/init";
+import { resizeImageOneSz } from "@/utils/dataConversion";
+import { RateLimits } from "@/middlewares/RateLimiter";
 
 export const config = {
   api: {
@@ -154,7 +154,7 @@ async function uploadRoomImages(
  * response = { roomId: string }
  * ```
  */
-export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST method
   if (req.method !== "POST") {
     throw CustomApiError.create(405, "Method Not Allowed");

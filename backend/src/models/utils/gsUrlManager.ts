@@ -1,11 +1,4 @@
-import { FirebaseStorage } from "@/lib/firebaseAdmin/init";
-
-// -------------------------------------------- TYPEDEFS -----------------------------------------------
-
-export type AutoSetFields = "createdOn" | "lastModifiedOn" | "ttl";
-export type ApiResponseUrlType = "GS_PATH" | "API_URI";
-
-// -------------------------------------------- THIS FILE ---------------------------------------------------
+import { FirebaseStorage } from "@/firebase/init";
 
 interface UrlCacheData {
   url: string;
