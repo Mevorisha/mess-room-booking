@@ -10,7 +10,7 @@ import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
-import SectionRoomView from "@/pages/unparameterized/OwnerRooms/SectionRoomView";
+import SectionRoomView from "@/pages/unparameterized/RoomViews/SectionRoomView";
 
 import "./styles.css";
 

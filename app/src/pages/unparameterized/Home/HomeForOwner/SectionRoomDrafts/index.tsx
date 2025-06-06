@@ -3,7 +3,7 @@ import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import { CachePaths } from "@/modules/util/caching";
 import { lang } from "@/modules/util/language";
-import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
+import SectionRoomCreateForm from "@/pages/unparameterized/RoomViews/SectionRoomCreateForm";
 import useNotification from "@/hooks/notification";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImageLoader from "@/components/ImageLoader";

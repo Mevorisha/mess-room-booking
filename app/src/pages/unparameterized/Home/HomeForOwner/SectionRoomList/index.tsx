@@ -4,7 +4,7 @@ import useDialogBox, { DialogBoxHookType } from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
-import SectionRoomUpdateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomUpdateForm";
+import SectionRoomUpdateForm from "@/pages/unparameterized/RoomViews/SectionRoomUpdateForm";
 import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
