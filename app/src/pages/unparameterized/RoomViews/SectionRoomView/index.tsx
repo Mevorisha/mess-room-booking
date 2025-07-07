@@ -52,10 +52,11 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
   }
 
   function handleOpenOwnerProfile() {
-    searchParams.set("id", roomData.ownerId);
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("id", roomData.ownerId);
     navigate({
       pathname: PagePaths[PageType.PROFILE],
-      search: searchParams.toString(),
+      search: newSearchParams.toString(),
     });
     dialog.hide();
   }
