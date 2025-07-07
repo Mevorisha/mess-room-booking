@@ -45,19 +45,24 @@ export function catchAll(
   res: NextApiResponse,
   handlerFn: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
 ) {
-  try {
-    const prom = handlerFn(req, res);
-    if (prom instanceof Promise)
-      prom
+  return new Promise<void>((resolve, reject) => {
+    try {
+      const prom = handlerFn(req, res);
+      if (prom instanceof Promise)
+        prom
+          .then(() => consoleLog(req, res))
+          .then(() => resolve())
+          .catch((e) =>
+            logToDb(e)
+              .then(() => handleErr(e, res))
+              .then(() => consoleLog(req, res))
+              .then(() => reject(e))
+          );
+    } catch (e) {
+      logToDb(e as Error)
+        .then(() => handleErr(e, res))
         .then(() => consoleLog(req, res))
-        .catch((e) =>
-          logToDb(e)
-            .then(() => handleErr(e, res))
-            .then(() => consoleLog(req, res))
-        );
-  } catch (e) {
-    logToDb(e as Error)
-      .then(() => handleErr(e, res))
-      .then(() => consoleLog(req, res));
-  }
+        .then(() => reject(e));
+    }
+  });
 }
