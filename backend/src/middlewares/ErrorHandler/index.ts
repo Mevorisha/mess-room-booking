@@ -3,6 +3,7 @@ import { respond } from "@/utils/respond";
 import { CustomApiError } from "@/types/CustomApiError";
 import { logToDb } from "../LogToDb";
 import { handleFirebaseIndexError } from "./mkIndex";
+import { consoleLog } from "../ConsoleLog/index.js";
 
 async function handleErr(e: any, res: NextApiResponse) {
   if (!e) {
@@ -46,8 +47,17 @@ export function catchAll(
 ) {
   try {
     const prom = handlerFn(req, res);
-    if (prom instanceof Promise) prom.catch((e) => logToDb(e).then(() => handleErr(e, res)));
+    if (prom instanceof Promise)
+      prom
+        .then(() => consoleLog(req, res))
+        .catch((e) =>
+          logToDb(e)
+            .then(() => handleErr(e, res))
+            .then(() => consoleLog(req, res))
+        );
   } catch (e) {
-    logToDb(e as Error).then(() => handleErr(e, res));
+    logToDb(e as Error)
+      .then(() => handleErr(e, res))
+      .then(() => consoleLog(req, res));
   }
 }
