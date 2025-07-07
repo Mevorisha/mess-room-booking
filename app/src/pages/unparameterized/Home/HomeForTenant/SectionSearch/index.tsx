@@ -10,6 +10,7 @@ import ButtonText from "@/components/ButtonText";
 import useDialogBox from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
+import SectionRoomView from "@/pages/unparameterized/RoomViews/SectionRoomView";
 
 import "./styles.css";
 
@@ -84,7 +85,7 @@ export default function SectionSearch(): React.ReactNode {
   const handleFilterChange = useCallback(
     (newFilters: Partial<RoomQuery>) => {
       // Set respective filters in query and reset page to 1
-      setQuery((prev) => ({ ...prev, ...newFilters, page: 1 }));
+      setQuery(() => ({ ...newFilters, page: 1 }));
       updateHasFilters();
     },
     [updateHasFilters]
@@ -267,7 +268,12 @@ export default function SectionSearch(): React.ReactNode {
                             rounded="all"
                             kind="secondary"
                             onClick={() => {
-                              /* Placeholder for view details function */
+                              const roomId = room.id ?? "unknown";
+                              apiGetOrDelete("GET", ApiPaths.Rooms.read(roomId))
+                                .then(({ json }) =>
+                                  dialog.show(<SectionRoomView roomData={json as RoomData} />, "uibox")
+                                )
+                                .catch((error: Error) => notify(error, "error"));
                             }}
                             title={lang("View", "দেখুন", "देखें")}
                           />

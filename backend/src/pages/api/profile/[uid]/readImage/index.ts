@@ -1,19 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { MultiSizeImageSz } from "@/lib/firebaseAdmin/init";
-import { gsPathToUrl } from "@/models/utils";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
-import HeaderTypes  from "@/lib/utils/HeaderTypes";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { MultiSizeImageSz } from "@/firebase/init";
+import { gsPathToUrl } from "@/models/utils/gsUrlManager";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
+import HeaderTypes  from "@/types/HeaderTypes";
 
 /**
  * ```
  * request = "GET /api/profile/[uid]/readImage?size=(small|medium|large)&b64=boolean"
- * response = 301 to "Content-Type: image/(jpeg|png)"
+ * response = text/plain (base64) is b64 = true, else image/*
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");

@@ -1,5 +1,5 @@
-import JobScheduler from "@/lib/utils/JobScheduler";
-import { updateRoomRatings } from "@/jobs/updateRoomRatings";
+import JobScheduler from "@/middlewares/JobScheduler/JobScheduler";
+import { updateRoomRatings } from "@/middlewares/JobScheduler/jobs/updateRoomRatings";
 
 export function scheduleJobs() {
   // Example: Update room ratings every 24 hours

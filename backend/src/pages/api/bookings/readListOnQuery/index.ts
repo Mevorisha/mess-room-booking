@@ -1,18 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Booking, { AcceptanceStatus, BookingQueryParams } from "@/models/Booking";
 import { Timestamp } from "firebase-admin/firestore";
-import { respond } from "@/lib/utils/respond";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { getLoggedInUser } from "@/middlewares/auth";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { respond } from "@/utils/respond";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { getLoggedInUser } from "@/middlewares/Auth";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
 import { LRUCache } from "lru-cache";
 
 // Configure LRU cache
-// Store up to 100 queries for 5 minutes (300,000 ms)
 const bookingsCache = new LRUCache<string, any[]>({
-  max: 100,
-  ttl: 1000 * 60 * 5,
+  maxSize: 50 * 1024 * 1024, // Maximum size of the cache in bytes (50 MB)
+  sizeCalculation: (value) => JSON.stringify(value).length, // Calculate size based on JSON string length
+  ttl: 1000 * 60 * 2, // Time to live for cache items (2 minutes)
   allowStale: false,
 });
 
@@ -58,7 +58,7 @@ const PAGE_SIZE = 8;
  * }
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Allow only GET requests
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");

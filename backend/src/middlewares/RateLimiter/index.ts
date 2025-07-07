@@ -1,10 +1,13 @@
+import { getPossibleClientIp } from "@/utils/getClientIp";
 import { LRUCache } from "lru-cache";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Initialize LRU cache instead of Redis
 const rateCache = new LRUCache({
-  // Max number of items to store in cache
-  max: 5000,
+  // Max size to store in cache
+  maxSize: 50 * 1024 * 1024, // 50 MB
+  // Size calculation function to determine size of each entry
+  sizeCalculation: (value) => JSON.stringify(value).length,
   // TTL for each entry in milliseconds (60 seconds/1 minute)
   ttl: 60 * 1000,
 });
@@ -26,7 +29,7 @@ export async function rateLimiter(
   res: NextApiResponse
 ): Promise<boolean> {
   // Use uid if provided, otherwise use IP address as identifier
-  const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+  const clientIp = getPossibleClientIp(req);
   // Extract the URL path to include in the rate limiting key
   const pathId = path || req.url || req.query["path"] || "/";
   // Create a unique identifier for rate limiting that includes both user/IP and path

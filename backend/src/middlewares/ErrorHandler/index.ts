@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { logToDb } from "./logToDb";
+import { respond } from "@/utils/respond";
+import { CustomApiError } from "@/types/CustomApiError";
+import { logToDb } from "../LogToDb";
 import { handleFirebaseIndexError } from "./mkIndex";
+import { consoleLog } from "../ConsoleLog/index.js";
 
 async function handleErr(e: any, res: NextApiResponse) {
   if (!e) {
@@ -44,10 +45,24 @@ export function catchAll(
   res: NextApiResponse,
   handlerFn: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
 ) {
-  try {
-    const prom = handlerFn(req, res);
-    if (prom instanceof Promise) prom.catch((e) => logToDb(e).then(() => handleErr(e, res)));
-  } catch (e) {
-    logToDb(e as Error).then(() => handleErr(e, res));
-  }
+  return new Promise<void>((resolve, reject) => {
+    try {
+      const prom = handlerFn(req, res);
+      if (prom instanceof Promise)
+        prom
+          .then(() => consoleLog(req, res))
+          .then(() => resolve())
+          .catch((e) =>
+            logToDb(e)
+              .then(() => handleErr(e, res))
+              .then(() => consoleLog(req, res))
+              .then(() => reject(e))
+          );
+    } catch (e) {
+      logToDb(e as Error)
+        .then(() => handleErr(e, res))
+        .then(() => consoleLog(req, res))
+        .then(() => reject(e));
+    }
+  });
 }

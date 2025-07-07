@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
-import * as config from "@/lib/config";
-import { CustomApiError } from "../utils/ApiError";
+import * as config from "@/config/env";
+import { CustomApiError } from "../types/CustomApiError";
 
 export interface IndexSpec {
   collectionId: string;

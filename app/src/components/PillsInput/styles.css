@@ -90,8 +90,7 @@
 }
 
 .components-PillsSelect .pills-container .pill.disabled {
-  width: calc(100% - 2 * var(--pad-1));
-  padding: 0 var(--pad-1);
+  padding: 0 var(--pad-2);
 }
 
 .components-PillsSelect .pills-container .pill-data {

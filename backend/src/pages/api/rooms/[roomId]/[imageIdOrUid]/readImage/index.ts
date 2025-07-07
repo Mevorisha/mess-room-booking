@@ -1,18 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { MultiSizeImageSz, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { gsPathToUrl } from "@/models/utils";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
-import HeaderTypes from "@/lib/utils/HeaderTypes";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { MultiSizeImageSz, StoragePaths } from "@/firebase/init";
+import { gsPathToUrl } from "@/models/utils/gsUrlManager";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
+import HeaderTypes from "@/types/HeaderTypes";
 
 /**
  * ```
  * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readImage?size=(small|medium|large)&b64=boolean"
- * response = "Content-Type: image/(jpeg|png)"
+ * response = text/plain (base64) is b64 = true, else image/*
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ROOM_IMAGE_READ(req, res))) return;
 
   // Only allow GET method

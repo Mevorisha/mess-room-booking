@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import * as config from "@/lib/config";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import HeaderTypes from "@/lib/utils/HeaderTypes";
+import * as config from "@/config/env";
+import { CustomApiError } from "@/types/CustomApiError";
+import HeaderTypes from "@/types/HeaderTypes";
 
 const AllowedOrigins: string[] = config.CORS_ALLOWED_ORIGINS;
 const AllowedMethods = ["POST", "GET", "PATCH", "DELETE"];

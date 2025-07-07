@@ -1,5 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
+import { respond } from "@/utils/respond";
+import { cors } from "@/middlewares/Cors";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+// import { CustomApiError } from "@/types/CustomApiError";
 
 /**
  * ```
@@ -10,6 +13,8 @@ import { respond } from "@/lib/utils/respond";
  * }
  * ```
  */
-export default async function GET(_req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  if (!(await cors(req, res))) return;
+  // throw new CustomApiError(500, "My shit is hot")
   return respond(res, { status: 200, message: "Hello World!" });
-}
+});

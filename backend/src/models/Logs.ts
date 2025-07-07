@@ -1,4 +1,4 @@
-import { FirestorePaths } from "@/lib/firebaseAdmin/init";
+import { FirestorePaths } from "@/firebase/init";
 import { ValueOf } from "next/dist/shared/lib/constants";
 
 export type LogType = "info" | "error" | "warn";

@@ -7,14 +7,14 @@ import { lang } from "@/modules/util/language";
 import SectionRoomDrafts from "./SectionRoomDrafts";
 import SectionRoomList from "./SectionRoomList";
 import SectionBookingList from "./SectionBookingList";
-import SectionRoomCreateForm from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
+import SectionRoomCreateForm from "@/pages/unparameterized/RoomViews/SectionRoomCreateForm";
 import { CachePaths } from "@/modules/util/caching";
 import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
-import type { CachableDraftFormData } from "@/pages/unparameterized/OwnerRooms/SectionRoomCreateForm";
-import type { Base64FileData } from "../../OwnerRooms/SectionRoomUpdateForm";
+import type { CachableDraftFormData } from "@/pages/unparameterized/RoomViews/SectionRoomCreateForm";
+import type { Base64FileData } from "../../RoomViews/SectionRoomUpdateForm";
 import type { RoomData } from "@/modules/networkTypes/Room";
 
 import "./styles.css";

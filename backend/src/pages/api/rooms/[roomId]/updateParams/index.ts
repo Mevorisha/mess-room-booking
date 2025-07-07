@@ -1,15 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { getLoggedInUser } from "@/middlewares/auth";
+import { respond } from "@/utils/respond";
+import { getLoggedInUser } from "@/middlewares/Auth";
 import Identity, { SchemaFields as IdentitySchemaFields } from "@/models/Identity";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import Room, { SchemaFields as RoomSchemaFields, RoomUpdateData } from "@/models/Room";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
+import Room, { SchemaFields as RoomSchemaFields, RoomUpdateData, SchemaFields } from "@/models/Room";
 import Joi from "joi";
-import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { resizeImageOneSz } from "@/lib/utils/dataConversion";
-import { RateLimits } from "@/middlewares/rateLimit";
-import { MultiSizePhoto } from "@/models/Identity";
+import { FirebaseStorage, StoragePaths } from "@/firebase/init";
+import { resizeImageOneSz } from "@/utils/dataConversion";
+import { RateLimits } from "@/middlewares/RateLimiter";
+import { MultiSizePhoto } from "@/models/types";
 
 export const config = {
   api: {
@@ -56,17 +56,17 @@ function validateRoomUpdateData(req: NextApiRequest): {
   });
   // Ensure at least one valid update field is provided (not just metadata fields)
   const updateFields = [
-    "acceptOccupation",
-    "searchTags",
-    "landmark",
-    "address",
-    "city",
-    "state",
-    "majorTags",
-    "minorTags",
-    "capacity",
-    "pricePerOccupant",
-    "isUnavailable",
+    SchemaFields.ACCEPT_OCCUPATION,
+    SchemaFields.SEARCH_TAGS,
+    SchemaFields.LANDMARK,
+    SchemaFields.ADDRESS,
+    SchemaFields.CITY,
+    SchemaFields.STATE,
+    SchemaFields.MAJOR_TAGS,
+    SchemaFields.MINOR_TAGS,
+    SchemaFields.CAPACITY,
+    SchemaFields.PRICE_PER_OCCUPANT,
+    SchemaFields.IS_UNAVAILABLE,
   ];
   const hasUpdateField = updateFields.some((field) => req.body[field] !== undefined);
   const hasFileChanges =
@@ -226,7 +226,7 @@ async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
  * response = { message: string, imagesUpdated: boolean }
  * ```
  */
-export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     throw CustomApiError.create(405, "Method Not Allowed");

@@ -1,15 +1,15 @@
 import fs from "fs";
 import formidable from "formidable";
-import { authenticate } from "@/middlewares/auth";
-import { FirebaseStorage, StoragePaths } from "@/lib/firebaseAdmin/init";
-import { resizeImage } from "@/lib/utils/dataConversion";
+import { authenticate } from "@/middlewares/Auth";
+import { FirebaseStorage, StoragePaths } from "@/firebase/init";
+import { resizeImage } from "@/utils/dataConversion";
 import Identity from "@/models/Identity";
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import FormParseResult from "@/lib/types/IFormParseResult";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { respond } from "@/utils/respond";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import FormParseResult from "@/types/IFormParseResult";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
 import PersistentFile from "formidable/PersistentFile";
 
 export const config = {
@@ -25,7 +25,7 @@ export const config = {
  * response = { message: string }
  * ```
  */
-export default withmiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Only allow PATCH method
   if (req.method !== "PATCH") {
     throw CustomApiError.create(405, "Method Not Allowed");

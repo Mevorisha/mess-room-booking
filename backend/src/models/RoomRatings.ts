@@ -1,4 +1,4 @@
-import { FirestorePaths } from "@/lib/firebaseAdmin/init";
+import { FirestorePaths } from "@/firebase/init";
 
 export interface RoomRatingsData {
   roomId: string;

@@ -1,10 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Room, { SchemaFields } from "@/models/Room";
-import { respond } from "@/lib/utils/respond";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { getLoggedInUser } from "@/middlewares/auth";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { respond } from "@/utils/respond";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { getLoggedInUser } from "@/middlewares/Auth";
+import { CustomApiError } from "@/types/CustomApiError";
+import { RateLimits } from "@/middlewares/RateLimiter";
 
 /**
  * ```
@@ -24,6 +24,7 @@ import { RateLimits } from "@/middlewares/rateLimit";
  *   majorTags: string[]
  *   minorTags: string[]
  *   capacity: number
+ *   rating: number
  *   pricePerOccupant: number
  *
  * < The following need authentication as room owner >
@@ -32,7 +33,7 @@ import { RateLimits } from "@/middlewares/rateLimit";
  * }
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ROOM_READ(req, res))) return;
 
   // Allow only GET requests
@@ -62,6 +63,7 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.OWNER_ID,
     SchemaFields.IS_UNAVAILABLE,
+    SchemaFields.RATING,
     SchemaFields.TTL,
   ];
 
@@ -71,14 +73,15 @@ export default withmiddleware(async function GET(req: NextApiRequest, res: NextA
     throw CustomApiError.create(404, "Room not found");
   }
 
+  // if the room is marked as unavailable, return 404
+  if (roomData.isUnavailable) {
+    throw CustomApiError.create(404, "Room not found");
+  }
+
   // If user is authenticated, check if they are the room owner, and if not, delete sensitive room data
-  // Additionally, if the room is marked isUnavailable, return 404
   const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
     if (authResult.getUid() !== roomData.ownerId) {
-      if (roomData.isUnavailable) {
-        throw CustomApiError.create(404, "Room not found");
-      }
       if (roomData.ttl) {
         throw CustomApiError.create(404, "Room not found");
       }

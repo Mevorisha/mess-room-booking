@@ -1,4 +1,4 @@
-import { extractIndexData, parseDataIntoIndexSpec, createFirestoreIndex } from "@/lib/firebaseAdmin";
+import { extractIndexData, parseDataIntoIndexSpec, createFirestoreIndex } from "@/firebase";
 
 /**
  * Handles Firebase errors by automatically creating missing indexes when possible

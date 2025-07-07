@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
+import { respond } from "@/utils/respond";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
 import RoomRatings from "@/models/RoomRatings";
-import { getLoggedInUser } from "@/middlewares/auth";
+import { getLoggedInUser } from "@/middlewares/Auth";
 import Room, { SchemaFields } from "@/models/Room";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { RateLimits } from "@/middlewares/RateLimiter";
 
 /**
  * ```
@@ -13,7 +13,7 @@ import { RateLimits } from "@/middlewares/rateLimit";
  * response = { rating: 0|1|2|3|4|5 }
  * ```
  */
-export default withmiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Only allow GET method
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");

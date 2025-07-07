@@ -1,7 +1,7 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { FirebaseFirestore, FirestorePaths } from "@/lib/firebaseAdmin/init";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { AutoSetFields } from "./utils";
+import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
+import { CustomApiError } from "@/types/CustomApiError";
+import { AutoSetFields } from "./types";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED";
 
@@ -21,10 +21,13 @@ export interface BookingData {
 
 // During create, only tenantId, roomId and occupantCount may be set
 type BookingCreateData = Pick<BookingData, "tenantId" | "roomId" | "occupantCount">;
+
 // During update, apart from AutoSetFields, tenantId, roomId & occupantCount MUST not be set
 type BookingUpdateData = Partial<Omit<BookingData, AutoSetFields | "tenantId" | "roomId" | "occupantCount">>;
+
 // During read, all data may be read
 type BookingReadData = Partial<BookingData & { isAccepted: boolean; isCancelled: boolean; isCleared: boolean }>;
+
 // Params to query a booking by
 export type BookingQueryParams = Partial<{
   tenantId: string;

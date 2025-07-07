@@ -1,11 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { respond } from "@/lib/utils/respond";
-import { getLoggedInUser } from "@/middlewares/auth";
+import { respond } from "@/utils/respond";
+import { getLoggedInUser } from "@/middlewares/Auth";
 import Identity from "@/models/Identity";
-import { withmiddleware } from "@/middlewares/withMiddleware";
-import { CustomApiError } from "@/lib/utils/ApiError";
-import { FirebaseAuth } from "@/lib/firebaseAdmin/init";
-import { RateLimits } from "@/middlewares/rateLimit";
+import { WithMiddleware } from "@/middlewares/WithMiddleware";
+import { CustomApiError } from "@/types/CustomApiError";
+import { FirebaseAuth } from "@/firebase/init";
+import { RateLimits } from "@/middlewares/RateLimiter";
 
 /**
  * ```
@@ -13,7 +13,7 @@ import { RateLimits } from "@/middlewares/rateLimit";
  * response = { uid: string }
  * ```
  */
-export default withmiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
+export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST method
   if (req.method !== "POST") {
     throw CustomApiError.create(405, "Method Not Allowed");
