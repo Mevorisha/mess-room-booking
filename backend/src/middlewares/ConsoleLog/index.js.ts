@@ -33,12 +33,5 @@ export function consoleLog(req: NextApiRequest, res: NextApiResponse): void {
 
   const logType = statusCode >= 500 ? "E" : "I";
 
-  function log(d: void | NextApiResponse | undefined) {
-    console.log(
-      `[${logType}] [${getFormattedDateTime()}] ${clientIp} ${method} ${url} ${colorStatusCode(statusCode)}`
-    );
-    return d;
-  }
-
-  log();
+  console.log(`[${logType}] [${getFormattedDateTime()}] ${clientIp} ${method} ${url} ${colorStatusCode(statusCode)}`);
 }
