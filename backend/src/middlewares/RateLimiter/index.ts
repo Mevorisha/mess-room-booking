@@ -1,3 +1,4 @@
+import { getPossibleClientIp } from "@/utils/getClientIp";
 import { LRUCache } from "lru-cache";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -28,7 +29,7 @@ export async function rateLimiter(
   res: NextApiResponse
 ): Promise<boolean> {
   // Use uid if provided, otherwise use IP address as identifier
-  const clientIp = req.socket.remoteAddress ?? "unknown";
+  const clientIp = getPossibleClientIp(req);
   // Extract the URL path to include in the rate limiting key
   const pathId = path || req.url || req.query["path"] || "/";
   // Create a unique identifier for rate limiting that includes both user/IP and path

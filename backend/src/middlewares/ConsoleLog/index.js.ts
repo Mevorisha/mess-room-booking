@@ -1,17 +1,11 @@
+import { getPossibleClientIp } from "@/utils/getClientIp";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export function consoleLog(req: NextApiRequest, res: NextApiResponse): void {
   const method = (req.method ?? "unknown").toUpperCase();
   const url = req.url ?? "unknown";
   const statusCode = res.statusCode;
-
-  function getClientIPv4or6() {
-    const ipv4Regex = /\b(\d{1,3}\.){3}\d{1,3}\b/;
-    const remoteAddress = req.socket.remoteAddress ?? "unknown";
-    const match = remoteAddress.match(ipv4Regex);
-    const extractedIp = match ? match[0] : remoteAddress;
-    return extractedIp;
-  }
+  const clientIp = getPossibleClientIp(req);
 
   function getFormattedDateTime() {
     const now = new Date();
@@ -41,7 +35,7 @@ export function consoleLog(req: NextApiRequest, res: NextApiResponse): void {
 
   function log(d: void | NextApiResponse | undefined) {
     console.log(
-      `[${logType}] [${getFormattedDateTime()}] ${getClientIPv4or6()} ${method} ${url} ${colorStatusCode(statusCode)}`
+      `[${logType}] [${getFormattedDateTime()}] ${clientIp} ${method} ${url} ${colorStatusCode(statusCode)}`
     );
     return d;
   }
