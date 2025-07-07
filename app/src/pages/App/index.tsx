@@ -67,11 +67,11 @@ function CompositeUsrProvider({ children }: { children: React.ReactNode }): Reac
 export default function App(): React.ReactNode {
   // prettier-ignore
   return (
-    <NotificationProvider>              {/* provide the notification context */}
-      <DialogBoxProvider>               {/* provide the dialog box context */}
-        <CompositeUsrProvider>          {/* provides multple functions; used to handle user state */}
-          <BrowserRouter>               {/* use the browser router to handle routing */}
-            <AuthCheck>                 {/* redirect to /home if user is logged in, else redirect to /auth */}
+    <BrowserRouter>                       {/* use the browser router to handle routing */}
+      <NotificationProvider>              {/* provide the notification context */}
+        <DialogBoxProvider>               {/* provide the dialog box context */}
+          <CompositeUsrProvider>          {/* provides multple functions; used to handle user state */}
+            <AuthCheck>                   {/* redirect to /home if user is logged in, else redirect to /auth */}
               <Routes>
                 <Route path={PagePaths[PageType.ROOT]} Component={HomePage} />
                 <Route path={PagePaths[PageType.ONBOARDING]} Component={OnboardingPage} />
@@ -86,9 +86,9 @@ export default function App(): React.ReactNode {
                 <Route path="*" Component={PageNotFound} />
               </Routes>
             </AuthCheck>
-          </BrowserRouter>
-        </CompositeUsrProvider>
-      </DialogBoxProvider>
-    </NotificationProvider>
+          </CompositeUsrProvider>
+        </DialogBoxProvider>
+      </NotificationProvider>
+    </BrowserRouter>
   );
 }
