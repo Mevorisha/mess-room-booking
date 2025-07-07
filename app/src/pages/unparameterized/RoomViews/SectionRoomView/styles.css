@@ -229,19 +229,18 @@
   padding: var(--pad-2) var(--pad-3);
   border-radius: var(--rounded-rad);
   font-size: 0.9rem;
-  font-weight: 500;
   color: #000000;
   white-space: nowrap;
 }
 
 .pages-OwnerRooms-SectionRoomForm .tag-pill.major-tag {
-  background-color: #a8c4ff;
-  border: 1px solid #5271b4;
+  background-color: #d2e5ff;
+  border: 1px solid #9ab2d3;
 }
 
 .pages-OwnerRooms-SectionRoomForm .tag-pill.minor-tag {
-  background-color: #84ffd8;
-  border: 1px solid #55cca6;
+  background-color: #cdffd3;
+  border: 1px solid #97ca9e;
 }
 
 .pages-OwnerRooms-SectionRoomForm .no-tags {
