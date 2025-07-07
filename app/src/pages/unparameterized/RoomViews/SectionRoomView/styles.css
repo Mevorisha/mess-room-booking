@@ -41,6 +41,18 @@
   }
 }
 
+.pages-OwnerRooms-SectionRoomForm .form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: var(--pad-1);
+  margin-top: var(--pad-2);
+  font-size: 0.9rem;
+}
+
+.pages-OwnerRooms-SectionRoomForm .form-label:first-child {
+  margin-top: 0;
+}
+
 .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container input:not([type="submit"]) {
   width: calc(100% - 2 * var(--pad-2));
   padding: var(--pad-3) var(--pad-2);
@@ -81,10 +93,17 @@
   background-color: var(--color-bg-secondary);
   border-radius: var(--rounded-rad);
   border: 1px solid var(--color-light);
+
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
 }
 
 .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:disabled {
   cursor: not-allowed;
+  color: #000;
 }
 
 .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:has(option[value=""]:checked) {
@@ -191,4 +210,86 @@
   + .checkbox-text {
   color: #888;
   cursor: not-allowed;
+}
+
+/* Tags Display Styles */
+.pages-OwnerRooms-SectionRoomForm .tags-display-container {
+  margin: var(--pad-1) 0;
+}
+
+.pages-OwnerRooms-SectionRoomForm .tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-1);
+  margin-top: var(--pad-1);
+}
+
+.pages-OwnerRooms-SectionRoomForm .tag-pill {
+  display: inline-block;
+  padding: var(--pad-2) var(--pad-3);
+  border-radius: var(--rounded-rad);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.pages-OwnerRooms-SectionRoomForm .tag-pill.major-tag {
+  background-color: #a8c4ff;
+  border: 1px solid #5271b4;
+}
+
+.pages-OwnerRooms-SectionRoomForm .tag-pill.minor-tag {
+  background-color: #84ffd8;
+  border: 1px solid #55cca6;
+}
+
+.pages-OwnerRooms-SectionRoomForm .no-tags {
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+
+/* Rating Display Styles */
+.pages-OwnerRooms-SectionRoomForm .rating-display {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-2);
+  padding: var(--pad-2);
+  background-color: #fff;
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.pages-OwnerRooms-SectionRoomForm .rating-value {
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.pages-OwnerRooms-SectionRoomForm .stars-display {
+  display: flex;
+  gap: 2px;
+}
+
+.pages-OwnerRooms-SectionRoomForm .star {
+  font-size: 1.5rem;
+  color: #bebebe;
+  transition: color 0.2s ease;
+}
+
+.pages-OwnerRooms-SectionRoomForm .star.filled {
+  color: #f1b500;
+}
+
+.pages-OwnerRooms-SectionRoomForm  .owner-details {
+  color: #555;
+  background-color: var(--color-bg-secondary);
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+
+.pages-OwnerRooms-SectionRoomForm  .owner-details:hover {
+  filter: brightness(0.95);
+  transition-duration: 200ms;
 }
