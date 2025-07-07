@@ -1,13 +1,7 @@
 import { FirestorePaths, StoragePaths } from "@/firebase/init";
 import { CustomApiError } from "@/types/CustomApiError";
 import { FieldValue } from "firebase-admin/firestore";
-import { ApiResponseUrlType, AutoSetFields } from "./types";
-
-export interface MultiSizePhoto {
-  small: string;
-  medium: string;
-  large: string;
-}
+import { ApiResponseUrlType, AutoSetFields, IdentityType, Language, MultiSizePhoto } from "./types";
 
 export interface IdentityPhotos {
   workId?: MultiSizePhoto;
@@ -15,10 +9,6 @@ export interface IdentityPhotos {
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
-
-export type Language = "ENGLISH" | "BANGLA" | "HINDI";
-
-export type IdentityType = "OWNER" | "TENANT";
 
 interface IdentityData {
   email: string;
@@ -37,8 +27,10 @@ interface IdentityData {
 
 // During create, only email & type may be set
 type IdentityCreateData = Pick<IdentityData, "email"> & { type: IdentityType | "EMPTY" };
+
 // During update, AutoSetFields MUST not be set
 type IdentityUpdateData = Partial<Omit<IdentityData, AutoSetFields>>;
+
 // During read, all data may be read
 type IdentityReadData = Partial<IdentityData & { displayName: string }>;
 
@@ -80,7 +72,7 @@ function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
       medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
       large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
     };
-    const ids: { workId?: MultiSizePhoto, govId?: MultiSizePhoto } = {};
+    const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
     if (dataToUpdate.identityPhotos.workId) ids.workId = workId;
     if (dataToUpdate.identityPhotos.govId) ids.govId = govId;
     dataToUpdate.identityPhotos = {
@@ -114,10 +106,7 @@ class Identity {
     if (!docSnapshot || !docSnapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
-    await ref.set(
-      { ...updateData, lastModifiedOn: FieldValue.serverTimestamp() },
-      { merge: true }
-    );
+    await ref.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
   }
 
   /**

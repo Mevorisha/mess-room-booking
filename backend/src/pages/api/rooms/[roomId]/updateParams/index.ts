@@ -4,12 +4,12 @@ import { getLoggedInUser } from "@/middlewares/Auth";
 import Identity, { SchemaFields as IdentitySchemaFields } from "@/models/Identity";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
-import Room, { SchemaFields as RoomSchemaFields, RoomUpdateData } from "@/models/Room";
+import Room, { SchemaFields as RoomSchemaFields, RoomUpdateData, SchemaFields } from "@/models/Room";
 import Joi from "joi";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { MultiSizePhoto } from "@/models/Identity";
+import { MultiSizePhoto } from "@/models/types";
 
 export const config = {
   api: {
@@ -56,17 +56,17 @@ function validateRoomUpdateData(req: NextApiRequest): {
   });
   // Ensure at least one valid update field is provided (not just metadata fields)
   const updateFields = [
-    "acceptOccupation",
-    "searchTags",
-    "landmark",
-    "address",
-    "city",
-    "state",
-    "majorTags",
-    "minorTags",
-    "capacity",
-    "pricePerOccupant",
-    "isUnavailable",
+    SchemaFields.ACCEPT_OCCUPATION,
+    SchemaFields.SEARCH_TAGS,
+    SchemaFields.LANDMARK,
+    SchemaFields.ADDRESS,
+    SchemaFields.CITY,
+    SchemaFields.STATE,
+    SchemaFields.MAJOR_TAGS,
+    SchemaFields.MINOR_TAGS,
+    SchemaFields.CAPACITY,
+    SchemaFields.PRICE_PER_OCCUPANT,
+    SchemaFields.IS_UNAVAILABLE,
   ];
   const hasUpdateField = updateFields.some((field) => req.body[field] !== undefined);
   const hasFileChanges =

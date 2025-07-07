@@ -9,7 +9,7 @@ import HeaderTypes from "@/types/HeaderTypes";
 /**
  * ```
  * request = "GET /api/rooms/[roomId]/[imageIdOrUid]/readImage?size=(small|medium|large)&b64=boolean"
- * response = "Content-Type: image/(jpeg|png)"
+ * response = text/plain (base64) is b64 = true, else image/*
  * ```
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {

@@ -1,10 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { authenticate } from "@/middlewares/Auth";
-import Identity, { IdentityType } from "@/models/Identity";
+import Identity from "@/models/Identity";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { IdentityType } from "@/models/types";
 
 /**
  * ```

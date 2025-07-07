@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Room, { AcceptGender, AcceptOccupation, RoomQueryParams, RoomReadDataWithId } from "@/models/Room";
+import Room, { RoomQueryParams, RoomReadDataWithId } from "@/models/Room";
+import { AcceptGender, AcceptOccupation } from "@/models/types";
 import { Timestamp } from "firebase-admin/firestore";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";

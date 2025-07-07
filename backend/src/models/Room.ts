@@ -1,13 +1,8 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { ApiResponseUrlType, AutoSetFields } from "./types";
-import { MultiSizePhoto } from "./Identity";
+import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhoto } from "./types";
 import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
-
-export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
-
-export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 
 export interface RoomData {
   ownerId: string;
@@ -35,11 +30,14 @@ export interface RoomData {
 
 // During create, apart from AutoSetFields, isUnavailable MUST not be set
 export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
+
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
 export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
+
 // During read, all data may be read
 export type RoomReadData = Partial<RoomData> & { sortPriority?: number };
 export type RoomReadDataWithId = RoomReadData & { id: string };
+
 // Params to query a room by
 export type RoomQueryParams = Partial<{
   self?: boolean;

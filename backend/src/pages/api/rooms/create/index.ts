@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
-import Identity, { MultiSizePhoto, SchemaFields } from "@/models/Identity";
+import Identity, { SchemaFields } from "@/models/Identity";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import Room, { RoomCreateData } from "@/models/Room";
@@ -9,6 +9,7 @@ import Joi from "joi";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { MultiSizePhoto } from "@/models/types";
 
 export const config = {
   api: {
