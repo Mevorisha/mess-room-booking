@@ -19,7 +19,14 @@ export function getPossibleClientIp(req: NextApiRequest): string {
 
   for (let candidate of forwardedIps) {
     if (ipv4Regex.test(candidate) || ipv6Regex.test(candidate)) {
-      ip = candidate;
+      let matchV4 = candidate.match(ipv4Regex);
+      if (matchV4) {
+        ip = matchV4[0];
+      } else if (ipv6Regex.test(candidate)) {
+        ip = candidate;
+      } else {
+        ip = "unknown";
+      }
       break;
     }
   }
