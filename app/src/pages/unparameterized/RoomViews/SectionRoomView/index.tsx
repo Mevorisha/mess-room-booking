@@ -77,14 +77,7 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
           />
 
           <label className="form-label">{lang("Address", "ঠিকানা", "पता")}</label>
-          <input
-            required
-            disabled={viewOnly}
-            type="text"
-            placeholder={lang("Address", "ঠিকানা", "पता")}
-            name="address"
-            value={roomData.address}
-          />
+          <div className="address">{roomData.address}</div>
 
           <label className="form-label">{lang("Location", "অবস্থান", "स्थान")}</label>
           <div className="pashapashi-container">
@@ -121,7 +114,7 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
           <label className="form-label">{lang("Room Details", "রুমের বিবরণ", "रूम विवरण")}</label>
           <div className="pashapashi-container">
             <span className="input-span">
-              <span className="text">{lang("No.", "নং", "सं.")}</span>
+              <span className="text">{lang("Capacity: ", "ক্ষমতা: ", "क्षमता: ")}</span>
               <input
                 required
                 disabled={viewOnly}
@@ -132,14 +125,14 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
               />
             </span>
             <span className="input-span">
-              <span className="text">₹</span>
+              <span className="text">{lang("Rate: ", "হার: ", "दर: ")}</span>
               <input
                 required
                 disabled={viewOnly}
-                type="number"
+                type="text"
                 placeholder={lang("Unit Rate", "একক হার", "इकाई दर")}
                 name="pricePerOccupant"
-                value={roomData.pricePerOccupant}
+                value={"₹ " + roomData.pricePerOccupant}
               />
             </span>
           </div>

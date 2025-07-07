@@ -61,6 +61,17 @@
   border: 1px solid var(--color-light);
 }
 
+.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container div.address {
+  width: calc(100% - 2 * var(--pad-2));
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+  text-wrap: wrap;
+  color: #444;
+  line-height: 1.5rem;
+}
+
 .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span {
   display: flex;
   flex-direction: row;
@@ -249,7 +260,6 @@
   font-size: 0.9rem;
 }
 
-
 /* Rating Display Styles */
 .pages-OwnerRooms-SectionRoomForm .rating-display {
   display: flex;
@@ -281,14 +291,14 @@
   color: #f1b500;
 }
 
-.pages-OwnerRooms-SectionRoomForm  .owner-details {
+.pages-OwnerRooms-SectionRoomForm .owner-details {
   color: #555;
   background-color: var(--color-bg-secondary);
   cursor: pointer;
   transition-duration: 200ms;
 }
 
-.pages-OwnerRooms-SectionRoomForm  .owner-details:hover {
+.pages-OwnerRooms-SectionRoomForm .owner-details:hover {
   filter: brightness(0.95);
   transition-duration: 200ms;
 }
