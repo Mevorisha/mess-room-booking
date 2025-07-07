@@ -24,6 +24,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *   majorTags: string[]
  *   minorTags: string[]
  *   capacity: number
+ *   rating: number
  *   pricePerOccupant: number
  *
  * < The following need authentication as room owner >
@@ -62,6 +63,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.OWNER_ID,
     SchemaFields.IS_UNAVAILABLE,
+    SchemaFields.RATING,
     SchemaFields.TTL,
   ];
 

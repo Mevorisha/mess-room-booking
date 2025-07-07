@@ -329,6 +329,9 @@ class Room {
     }
     // Execute query
     const snapshot = await query.get();
+
+    if (snapshot["rating"] == null) snapshot["rating"] = 0;
+
     const results: RoomReadDataWithId[] = [];
     // Process results and apply any tag filters in code
     for (const doc of snapshot.docs) {
@@ -432,6 +435,8 @@ class Room {
       return null;
     }
 
+    if (data["rating"] == null) data["rating"] = 0;
+
     // If no fields provided, send all params
     if (fields.length === 0) {
       // convert image paths to direct urls
@@ -442,7 +447,7 @@ class Room {
     // Filter params
     const result = {} as RoomReadData;
     for (const field of fields) {
-      (result as any)[field] = data[field] || null;
+      (result as any)[field] = data[field] ?? null;
     }
 
     // convert image paths to api uri if any
