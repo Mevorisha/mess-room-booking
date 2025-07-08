@@ -5,19 +5,50 @@ import useDialog from "@/hooks/dialogbox.js";
 import { lang } from "@/modules/util/language.js";
 import StringySet from "@/modules/classes/StringySet";
 import { RoomData } from "@/modules/networkTypes/Room";
+import { PagePaths, PageType } from "@/modules/util/pageUrls";
 
+import ButtonText from "@/components/ButtonText";
 import ImageFilesInput from "@/components/ImageFilesInput";
 import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
-import { PagePaths, PageType } from "@/modules/util/pageUrls";
+
+interface TagsDisplayProps {
+  tags: string[];
+  title: string;
+  colorClass: string;
+}
+
+function TagsDisplay({ tags, title, colorClass }: TagsDisplayProps): React.ReactNode {
+  return (
+    <div className="tags-display-container">
+      <label className="form-label">{title}</label>
+      <div className="tags-display">
+        {tags.length > 0 ? (
+          tags.map((tag, index) => (
+            <span key={index} className={`tag-pill ${colorClass}`}>
+              {tag}
+            </span>
+          ))
+        ) : (
+          <span className="no-tags">{lang("No tags", "কোনো ট্যাগ নেই", "कोई टैग नहीं")}</span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export interface SectionRoomViewProps {
   roomData: RoomData;
+  showBookingButton?: boolean;
   reloadApi?: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
 
-export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomViewProps): React.ReactNode {
+export default function SectionRoomView({
+  roomData,
+  showBookingButton = true,
+  reloadApi: _,
+}: SectionRoomViewProps): React.ReactNode {
   const viewOnly = true;
 
   const dialog = useDialog();
@@ -32,25 +63,6 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
     new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)))
   );
 
-  function TagsDisplay({ tags, title, colorClass }: { tags: string[]; title: string; colorClass: string }) {
-    return (
-      <div className="tags-display-container">
-        <label className="form-label">{title}</label>
-        <div className="tags-display">
-          {tags.length > 0 ? (
-            tags.map((tag, index) => (
-              <span key={index} className={`tag-pill ${colorClass}`}>
-                {tag}
-              </span>
-            ))
-          ) : (
-            <span className="no-tags">{lang("No tags", "কোনো ট্যাগ নেই", "कोई टैग नहीं")}</span>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   function handleOpenOwnerProfile() {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("id", roomData.ownerId);
@@ -61,8 +73,12 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
     dialog.hide();
   }
 
+  function handleRequestBooking(e: React.FormEvent<HTMLFormElement>): void {
+    e.preventDefault();
+  }
+
   return (
-    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => e.preventDefault()}>
+    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={handleRequestBooking}>
       <h1 className="heading">{lang("View Room Details", "রুমের তথ্য দেখুন", "रूम डिटेल्स देखें")}</h1>
 
       <div className="editable-container">
@@ -189,6 +205,19 @@ export default function SectionRoomView({ roomData, reloadApi: _ }: SectionRoomV
           <label className="form-label">{lang("Room Images", "রুমের ছবি", "रूम इमेज")}</label>
           <ImageFilesInput required disabled={viewOnly} minRequired={2} filesSet={filesSet} setFilesSet={setFilesSet} />
         </div>
+      </div>
+
+      <div className="submit-container">
+        {showBookingButton && (
+          <ButtonText
+            disabled={viewOnly}
+            width="15%"
+            name="submit"
+            title={lang("Ask for Room", "রুম চান", "रूम मांगें")}
+            rounded="all"
+            kind="primary"
+          />
+        )}
       </div>
 
       <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />

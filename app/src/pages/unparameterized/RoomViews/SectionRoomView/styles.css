@@ -156,6 +156,13 @@
   gap: var(--pad-2);
   padding: var(--pad-3);
   padding-top: var(--pad-0);
+  margin-top: var(--pad-5);
+}
+
+@media (max-width: 500px) {
+  .pages-OwnerRooms-SectionRoomForm .submit-container {
+    margin-top: var(--pad-0);
+  }
 }
 
 .pages-OwnerRooms-SectionRoomForm .btn-close {
