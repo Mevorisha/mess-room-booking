@@ -80,7 +80,7 @@ export default function SectionRoomView({
   }
 
   return (
-    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={handleRequestBooking}>
+    <form className="pages-RoomViews-SectionRoomView form-container" onSubmit={handleRequestBooking}>
       <h1 className="heading">{lang("View Room Details", "রুমের তথ্য দেখুন", "रूम डिटेल्स देखें")}</h1>
 
       <div className="editable-container">

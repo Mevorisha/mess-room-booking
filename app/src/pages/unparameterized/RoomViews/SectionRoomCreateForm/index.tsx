@@ -223,7 +223,7 @@ export default function SectionRoomCreateForm({
   }
 
   return (
-    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
+    <form className="pages-RoomViews-SectionRoomCreateForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
       <h1 className="heading">{lang("Create New Room", "নতুন রুম তৈরি করুন", "नया रूम बनाएं")}</h1>
 
       <div className="editable-container">

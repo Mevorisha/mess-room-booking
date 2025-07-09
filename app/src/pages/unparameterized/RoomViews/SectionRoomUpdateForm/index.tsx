@@ -129,7 +129,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   }
 
   return (
-    <form className="pages-OwnerRooms-SectionRoomForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
+    <form className="pages-RoomViews-SectionRoomUpdateForm form-container" onSubmit={(e) => handleSubmitSync(e)}>
       <h1 className="heading">{lang("Update Room", "রুম আপডেট করুন", "रूम अपडेट करें")}</h1>
 
       <div className="editable-container">

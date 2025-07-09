@@ -1,10 +1,10 @@
-.pages-OwnerRooms-SectionRoomForm {
+.pages-RoomViews-SectionRoomUpdateForm {
   min-width: 250px;
   display: flex;
   flex-direction: column;
 }
 
-.pages-OwnerRooms-SectionRoomForm .heading {
+.pages-RoomViews-SectionRoomUpdateForm .heading {
   padding: var(--pad-3);
   padding-top: var(--pad-4);
   padding-bottom: var(--pad-1);
@@ -13,20 +13,20 @@
   color: #333;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container {
   display: flex;
   flex-direction: row;
 }
 
 /* column wise on smaller displays */
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container {
+  .pages-RoomViews-SectionRoomUpdateForm .editable-container {
     display: flex;
     flex-direction: column;
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container {
   width: calc(70% - 2 * var(--pad-3));
   padding: var(--pad-3);
   display: flex;
@@ -35,13 +35,13 @@
 }
 
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container {
+  .pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container {
     width: calc(100% - 2 * var(--pad-3));
     padding: var(--pad-3);
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container input:not([type="submit"]) {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container input:not([type="submit"]) {
   width: calc(100% - 2 * var(--pad-2));
   padding: var(--pad-3) var(--pad-2);
   background-color: var(--color-bg-secondary);
@@ -49,7 +49,7 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .input-span {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -62,11 +62,11 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span .text {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .input-span .text {
   color: #424242;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span input:not([type="submit"]) {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .input-span input:not([type="submit"]) {
   width: 100%;
   padding: unset;
   background-color: unset;
@@ -75,7 +75,7 @@
   margin: unset;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container select {
   width: calc(100%);
   padding: var(--pad-3) var(--pad-2);
   background-color: var(--color-bg-secondary);
@@ -83,19 +83,19 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:disabled {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container select:disabled {
   cursor: not-allowed;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:has(option[value=""]:checked) {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container select:has(option[value=""]:checked) {
   color: #777;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select option {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container select option {
   color: #000;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .pashapashi-container {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .pashapashi-container {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -104,21 +104,21 @@
   align-items: center;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .filedit-container {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .filedit-container {
   width: calc(50% - var(--pad-3));
   padding: var(--pad-3);
   padding-left: var(--pad-0);
 }
 
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container .filedit-container {
+  .pages-RoomViews-SectionRoomUpdateForm .editable-container .filedit-container {
     width: calc(100% - 2 * var(--pad-3));
     padding: var(--pad-3);
     padding-top: var(--pad-0);
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .submit-container {
+.pages-RoomViews-SectionRoomUpdateForm .submit-container {
   display: flex;
   flex-direction: row;
   justify-content: end;
@@ -128,7 +128,7 @@
   padding-top: var(--pad-0);
 }
 
-.pages-OwnerRooms-SectionRoomForm .btn-close {
+.pages-RoomViews-SectionRoomUpdateForm .btn-close {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -152,30 +152,30 @@
   background-color: #0000005c;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-container {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .checkbox-container {
   margin: var(--pad-1) 0;
   display: flex;
   align-items: center;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-label {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-label input[type="checkbox"] {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .checkbox-label input[type="checkbox"] {
   width: auto;
   margin-right: var(--pad-2);
   cursor: pointer;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-text {
+.pages-RoomViews-SectionRoomUpdateForm .editable-container .textedit-container .checkbox-text {
   font-size: 0.9rem;
   color: #333;
 }
 
-.pages-OwnerRooms-SectionRoomForm
+.pages-RoomViews-SectionRoomUpdateForm
   .editable-container
   .textedit-container
   .checkbox-label
@@ -183,7 +183,7 @@
   cursor: not-allowed;
 }
 
-.pages-OwnerRooms-SectionRoomForm
+.pages-RoomViews-SectionRoomUpdateForm
   .editable-container
   .textedit-container
   .checkbox-label

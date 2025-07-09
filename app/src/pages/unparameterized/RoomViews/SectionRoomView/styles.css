@@ -1,10 +1,10 @@
-.pages-OwnerRooms-SectionRoomForm {
+.pages-RoomViews-SectionRoomView {
   min-width: 250px;
   display: flex;
   flex-direction: column;
 }
 
-.pages-OwnerRooms-SectionRoomForm .heading {
+.pages-RoomViews-SectionRoomView .heading {
   padding: var(--pad-3);
   padding-top: var(--pad-4);
   padding-bottom: var(--pad-1);
@@ -13,20 +13,20 @@
   color: #333;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container {
+.pages-RoomViews-SectionRoomView .editable-container {
   display: flex;
   flex-direction: row;
 }
 
 /* column wise on smaller displays */
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container {
+  .pages-RoomViews-SectionRoomView .editable-container {
     display: flex;
     flex-direction: column;
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container {
   width: calc(70% - 2 * var(--pad-3));
   padding: var(--pad-3);
   display: flex;
@@ -35,13 +35,13 @@
 }
 
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container {
+  .pages-RoomViews-SectionRoomView .editable-container .textedit-container {
     width: calc(100% - 2 * var(--pad-3));
     padding: var(--pad-3);
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .form-label {
+.pages-RoomViews-SectionRoomView .form-label {
   font-weight: 600;
   color: #333;
   margin-bottom: var(--pad-1);
@@ -49,11 +49,11 @@
   font-size: 0.9rem;
 }
 
-.pages-OwnerRooms-SectionRoomForm .form-label:first-child {
+.pages-RoomViews-SectionRoomView .form-label:first-child {
   margin-top: 0;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container input:not([type="submit"]) {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container input:not([type="submit"]) {
   width: calc(100% - 2 * var(--pad-2));
   padding: var(--pad-3) var(--pad-2);
   background-color: var(--color-bg-secondary);
@@ -61,7 +61,7 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container div.address {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container div.address {
   width: calc(100% - 2 * var(--pad-2));
   padding: var(--pad-3) var(--pad-2);
   background-color: var(--color-bg-secondary);
@@ -72,7 +72,7 @@
   line-height: 1.5rem;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .input-span {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -85,11 +85,11 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span .text {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .input-span .text {
   color: #424242;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .input-span input:not([type="submit"]) {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .input-span input:not([type="submit"]) {
   width: 100%;
   padding: unset;
   background-color: unset;
@@ -98,7 +98,7 @@
   margin: unset;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container select {
   width: calc(100%);
   padding: var(--pad-3) var(--pad-2);
   background-color: var(--color-bg-secondary);
@@ -112,20 +112,20 @@
   appearance: none;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:disabled {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container select:disabled {
   cursor: not-allowed;
   color: #000;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select:has(option[value=""]:checked) {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container select:has(option[value=""]:checked) {
   color: #777;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container select option {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container select option {
   color: #000;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .pashapashi-container {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .pashapashi-container {
   width: 100%;
   display: flex;
   flex-direction: row;
@@ -134,21 +134,21 @@
   align-items: center;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .filedit-container {
+.pages-RoomViews-SectionRoomView .editable-container .filedit-container {
   width: calc(50% - var(--pad-3));
   padding: var(--pad-3);
   padding-left: var(--pad-0);
 }
 
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .editable-container .filedit-container {
+  .pages-RoomViews-SectionRoomView .editable-container .filedit-container {
     width: calc(100% - 2 * var(--pad-3));
     padding: var(--pad-3);
     padding-top: var(--pad-0);
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .submit-container {
+.pages-RoomViews-SectionRoomView .submit-container {
   display: flex;
   flex-direction: row;
   justify-content: end;
@@ -160,12 +160,12 @@
 }
 
 @media (max-width: 500px) {
-  .pages-OwnerRooms-SectionRoomForm .submit-container {
+  .pages-RoomViews-SectionRoomView .submit-container {
     margin-top: var(--pad-0);
   }
 }
 
-.pages-OwnerRooms-SectionRoomForm .btn-close {
+.pages-RoomViews-SectionRoomView .btn-close {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -189,30 +189,30 @@
   background-color: #0000005c;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-container {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .checkbox-container {
   margin: var(--pad-1) 0;
   display: flex;
   align-items: center;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-label {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-label input[type="checkbox"] {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .checkbox-label input[type="checkbox"] {
   width: auto;
   margin-right: var(--pad-2);
   cursor: pointer;
 }
 
-.pages-OwnerRooms-SectionRoomForm .editable-container .textedit-container .checkbox-text {
+.pages-RoomViews-SectionRoomView .editable-container .textedit-container .checkbox-text {
   font-size: 0.9rem;
   color: #333;
 }
 
-.pages-OwnerRooms-SectionRoomForm
+.pages-RoomViews-SectionRoomView
   .editable-container
   .textedit-container
   .checkbox-label
@@ -220,7 +220,7 @@
   cursor: not-allowed;
 }
 
-.pages-OwnerRooms-SectionRoomForm
+.pages-RoomViews-SectionRoomView
   .editable-container
   .textedit-container
   .checkbox-label
@@ -231,18 +231,18 @@
 }
 
 /* Tags Display Styles */
-.pages-OwnerRooms-SectionRoomForm .tags-display-container {
+.pages-RoomViews-SectionRoomView .tags-display-container {
   margin: var(--pad-1) 0;
 }
 
-.pages-OwnerRooms-SectionRoomForm .tags-display {
+.pages-RoomViews-SectionRoomView .tags-display {
   display: flex;
   flex-wrap: wrap;
   gap: var(--pad-1);
   margin-top: var(--pad-1);
 }
 
-.pages-OwnerRooms-SectionRoomForm .tag-pill {
+.pages-RoomViews-SectionRoomView .tag-pill {
   display: inline-block;
   padding: var(--pad-2) var(--pad-3);
   border-radius: var(--rounded-rad);
@@ -251,24 +251,24 @@
   white-space: nowrap;
 }
 
-.pages-OwnerRooms-SectionRoomForm .tag-pill.major-tag {
+.pages-RoomViews-SectionRoomView .tag-pill.major-tag {
   background-color: #d2e5ff;
   border: 1px solid #9ab2d3;
 }
 
-.pages-OwnerRooms-SectionRoomForm .tag-pill.minor-tag {
+.pages-RoomViews-SectionRoomView .tag-pill.minor-tag {
   background-color: #cdffd3;
   border: 1px solid #97ca9e;
 }
 
-.pages-OwnerRooms-SectionRoomForm .no-tags {
+.pages-RoomViews-SectionRoomView .no-tags {
   color: #888;
   font-style: italic;
   font-size: 0.9rem;
 }
 
 /* Rating Display Styles */
-.pages-OwnerRooms-SectionRoomForm .rating-display {
+.pages-RoomViews-SectionRoomView .rating-display {
   display: flex;
   align-items: center;
   gap: var(--pad-2);
@@ -278,34 +278,34 @@
   border: 1px solid var(--color-light);
 }
 
-.pages-OwnerRooms-SectionRoomForm .rating-value {
+.pages-RoomViews-SectionRoomView .rating-value {
   color: #444;
   font-size: 0.95rem;
 }
 
-.pages-OwnerRooms-SectionRoomForm .stars-display {
+.pages-RoomViews-SectionRoomView .stars-display {
   display: flex;
   gap: 2px;
 }
 
-.pages-OwnerRooms-SectionRoomForm .star {
+.pages-RoomViews-SectionRoomView .star {
   font-size: 1.5rem;
   color: #bebebe;
   transition: color 0.2s ease;
 }
 
-.pages-OwnerRooms-SectionRoomForm .star.filled {
+.pages-RoomViews-SectionRoomView .star.filled {
   color: #f1b500;
 }
 
-.pages-OwnerRooms-SectionRoomForm .owner-details {
+.pages-RoomViews-SectionRoomView .owner-details {
   color: #555;
   background-color: var(--color-bg-secondary);
   cursor: pointer;
   transition-duration: 200ms;
 }
 
-.pages-OwnerRooms-SectionRoomForm .owner-details:hover {
+.pages-RoomViews-SectionRoomView .owner-details:hover {
   filter: brightness(0.95);
   transition-duration: 200ms;
 }
