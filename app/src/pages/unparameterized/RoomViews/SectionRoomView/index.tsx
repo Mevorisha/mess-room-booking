@@ -41,19 +41,21 @@ function TagsDisplay({ tags, title, colorClass }: TagsDisplayProps): React.React
 export interface SectionRoomViewProps {
   roomData: RoomData;
   showBookingButton?: boolean;
+  setIsRoomViewVisible?: (value: React.SetStateAction<boolean>) => void;
   reloadApi?: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
 
 export default function SectionRoomView({
   roomData,
   showBookingButton = true,
+  setIsRoomViewVisible,
   reloadApi: _,
 }: SectionRoomViewProps): React.ReactNode {
   const viewOnly = true;
 
   const dialog = useDialog();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [majorTagsSet, _1] = useState<Set<string>>(new Set<string>(roomData.majorTags));
   const [minorTagsSet, _2] = useState<Set<string>>(new Set<string>(roomData.minorTags));
@@ -66,11 +68,11 @@ export default function SectionRoomView({
   function handleOpenOwnerProfile() {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("id", roomData.ownerId);
+    dialog.hide();
     navigate({
       pathname: PagePaths[PageType.PROFILE],
       search: newSearchParams.toString(),
     });
-    dialog.hide();
   }
 
   function handleRequestBooking(e: React.FormEvent<HTMLFormElement>): void {
@@ -220,7 +222,20 @@ export default function SectionRoomView({
         )}
       </div>
 
-      <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />
+      <i
+        className="btn-close fa fa-close"
+        onClick={() => {
+          const newSearchParams = new URLSearchParams(searchParams);
+          if (newSearchParams.has("roomId")) {
+            newSearchParams.delete("roomId");
+          }
+          setSearchParams(newSearchParams);
+          if (setIsRoomViewVisible != null) {
+            setIsRoomViewVisible(false);
+          }
+          dialog.hide();
+        }}
+      />
     </form>
   );
 }
