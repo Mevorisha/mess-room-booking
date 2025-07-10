@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
-import useDialogBox, { DialogBoxHookType } from "@/hooks/dialogbox";
+import useDialog, { DialogBoxHookType } from "@/hooks/dialogbox";
 import { getLangCode, lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import ImageLoader from "@/components/ImageLoader";
@@ -140,7 +140,7 @@ export default function SectionRooms({
   setCurrentPage,
 }: SectionRoomsProps): React.ReactNode {
   const notify = useNotification();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   function handlePageChange(n: number): void {
     reloadApi({ page: n }).catch((e: Error) => notify(e, "error"));

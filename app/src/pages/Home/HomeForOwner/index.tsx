@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import ButtonText from "@/components/ButtonText";
 import CustomFab from "@/components/CustomFab";
 import NavBars from "@/components/NavBars";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 import { lang } from "@/modules/util/language";
 import SectionRoomDrafts from "./SectionRoomDrafts";
 import SectionRoomList from "./SectionRoomList";
@@ -35,7 +35,7 @@ export interface ReloadApiParams {
 }
 
 function TabRooms(): React.ReactNode {
-  const dialog = useDialogBox();
+  const dialog = useDialog();
   const notify = useNotification();
 
   const [drafts, setDrafts] = useState<DraftData[]>([]);

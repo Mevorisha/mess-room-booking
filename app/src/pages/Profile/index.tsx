@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import UploadedImage from "@/modules/classes/UploadedImage";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
 import IdentityNetworkType from "@/modules/networkTypes/Identity";
@@ -21,7 +21,7 @@ import dpGeneric from "@/assets/images/dpGeneric.png";
 
 export default function Profile(): React.ReactNode {
   const compUsr = useCompositeUser();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
   const notify = useNotification();
   const [searchParams] = useSearchParams();
 

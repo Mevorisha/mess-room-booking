@@ -8,7 +8,7 @@ import useCompositeUser from "@/hooks/compositeUser";
 import PagingContainer from "@/components/PagingContainer";
 import ImageLoader from "@/components/ImageLoader";
 import ButtonText from "@/components/ButtonText";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import { RoomQuery } from "@/modules/networkTypes/Room";
 import SectionRoomView from "@/pages/Home/sections/RoomView";
@@ -17,7 +17,7 @@ import "./styles.css";
 
 export default function SectionSearch(): React.ReactNode {
   const notify = useNotification();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
   const compUsr = useCompositeUser();
 
   // WARNING: setSearchParams should be called only in 2 places

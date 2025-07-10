@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import { RoomQuery } from "@/modules/networkTypes/Room";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 
 import "./styles.css";
 
@@ -19,7 +19,7 @@ export default function FilterSearch({
   handleFilterClear,
   isDialog = false,
 }: FilterSearchProps): React.ReactNode {
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   // Local state for filter values
   const [genderFilter, setGenderFilter] = useState<RoomQuery["acceptGender"]>(currentFilters.acceptGender);

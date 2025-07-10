@@ -1,30 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { EmailPasswdAuth } from "@/modules/firebase/auth.js";
 import { checkForEasterEgg } from "@/modules/util/easterEggs.js";
 
 import useNotification from "@/hooks/notification.js";
-import useDialogBox from "@/hooks/dialogbox.js";
+import useDialog from "@/hooks/dialogbox.js";
 
 import ButtonText from "@/components/ButtonText";
 
-function DialogContent({
-  email,
-  setResetButtonKind,
-}: {
-  email: string;
-  setResetButtonKind: (val: "primary" | "loading") => void;
-}): React.ReactNode {
+function DialogContent({ email }: { email: string }): React.ReactNode {
   const notify = useNotification();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   const [confirmButtonKind, setConfirmButtonKind] = useState<"primary" | "loading">("primary");
-
-  useEffect(() => {
-    // if dialog is gone or is going out, primary reset button, else loading button
-    if (dialog.isVisible) setResetButtonKind("loading");
-    else setResetButtonKind("primary");
-  }, [dialog.isVisible, setResetButtonKind]);
 
   function handleConfirmClick() {
     Promise.resolve()
@@ -67,9 +55,7 @@ function DialogContent({
 
 export default function ResetPasswdSection(): React.ReactNode {
   const notify = useNotification();
-  const dialog = useDialogBox();
-
-  const [resetButtonKind, setResetButtonKind] = useState<"primary" | "loading">("primary");
+  const dialog = useDialog();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -85,7 +71,7 @@ export default function ResetPasswdSection(): React.ReactNode {
     }
 
     return setTimeout(() => {
-      dialog.show(<DialogContent email={email ?? ""} setResetButtonKind={setResetButtonKind} />);
+      dialog.show(<DialogContent email={email ?? ""} />);
     }, waitForEasterEggTime);
   }
 
@@ -101,7 +87,7 @@ export default function ResetPasswdSection(): React.ReactNode {
         .
       </p>
       <div className="submit-container">
-        <ButtonText title="Reset Password" rounded="all" width="50%" kind={resetButtonKind} />
+        <ButtonText title="Reset Password" rounded="all" width="50%" kind="primary" />
       </div>
     </form>
   );

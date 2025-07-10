@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import ButtonText from "@/components/ButtonText";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 import { CachePaths } from "@/modules/util/caching";
 import { lang } from "@/modules/util/language";
 import SectionRoomCreateForm from "@/pages/Home/sections/RoomCreateForm";
@@ -38,7 +38,7 @@ export default function SectionDrafts({
   drafts,
 }: SectionDraftsProps): React.ReactNode {
   const notify = useNotification();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   function handleOpenDraft(draftUrl: string): void {
     dialog.show(
