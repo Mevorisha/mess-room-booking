@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useDialog from "@/hooks/dialogbox.js";
 
@@ -58,13 +58,11 @@ export default function SectionRoomView({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [majorTagsSet, _1] = useState<Set<string>>(new Set<string>(roomData.majorTags));
-  const [minorTagsSet, _2] = useState<Set<string>>(new Set<string>(roomData.minorTags));
+  const majorTagsSet = new Set<string>(roomData.majorTags);
+  const minorTagsSet = new Set<string>(roomData.minorTags);
 
   // Initialize filesSet with images from roomData
-  const [filesSet, setFilesSet] = useState(
-    new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)))
-  );
+  const filesSet = new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)));
 
   function handleOpenOwnerProfile() {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -206,12 +204,12 @@ export default function SectionRoomView({
 
         <div className="filedit-container">
           <label className="form-label">{lang("Room Images", "রুমের ছবি", "रूम इमेज")}</label>
-          <ImageFilesInput required disabled={viewOnly} minRequired={2} filesSet={filesSet} setFilesSet={setFilesSet} />
+          <ImageFilesInput required disabled={viewOnly} minRequired={2} filesSet={filesSet} setFilesSet={() => ({})} />
         </div>
       </div>
 
       <div className="submit-container">
-        { /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */ }
+        {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
         {showBookingButton && (
           <ButtonText
             disabled={viewOnly}
