@@ -48,7 +48,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const dialog = useDialog();
 
   // Replace all useRefs with state variables
-  const [acceptGender, _] = useState<GenderOptions>(roomData.acceptGender);
+  const acceptGender = roomData.acceptGender;
   const [acceptOccupation, setAcceptOccupation] = useState<OccupationOptions>(roomData.acceptOccupation);
   const [searchTagsSet, setSearchTagsSet] = useState<Set<string>>(new Set<string>(roomData.searchTags));
   const [landmark, setLandmark] = useState<string>(roomData.landmark);
