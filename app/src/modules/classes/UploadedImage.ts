@@ -1,4 +1,4 @@
-import { lang } from "../util/language";
+import { lang } from "@/modules/util/language";
 
 /**
  * @class

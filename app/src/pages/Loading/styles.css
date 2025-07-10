@@ -1,0 +1,40 @@
+.pages-Loading {
+  background-color: var(--color-bg-secondary);
+  width: 100%;
+  min-width: fit-content;
+  min-height: 100vh;
+  padding: var(--pad-0);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(
+      rgb(242, 242, 242),
+      rgba(220, 220, 220, 0.929)
+    ),
+    url("@/assets/images/payingGuest.jpeg");
+  background-position: center bottom;
+  background-size: cover;
+}
+
+/* if height is < 700px, set min-height to 700px */
+@media (max-height: 700px) {
+  .pages-Loading {
+    min-height: 700px;
+  }
+}
+
+.pages-Loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

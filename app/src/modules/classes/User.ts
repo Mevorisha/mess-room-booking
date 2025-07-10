@@ -1,6 +1,6 @@
-import { FirebaseAuth } from "../firebase/init";
-import { lang } from "../util/language";
-import UploadedImage from "./UploadedImage";
+import { FirebaseAuth } from "@/modules/firebase/init";
+import { lang } from "@/modules/util/language";
+import UploadedImage from "@/modules/classes/UploadedImage";
 
 export default class User {
   uid: string;

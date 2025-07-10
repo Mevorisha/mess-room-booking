@@ -1,6 +1,6 @@
 import React from "react";
 import useDialogBox from "@/hooks/dialogbox";
-import ButtonText from "../ButtonText";
+import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language";
 
 export interface ConfirmDialogProps {
