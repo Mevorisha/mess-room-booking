@@ -7,6 +7,7 @@ import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import PagingContainer from "@/components/PagingContainer";
 import ImageLoader from "@/components/ImageLoader";
+import LoadingAnimation from "@/components/LoadingAnimation";
 import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
@@ -163,19 +164,22 @@ export default function SectionSearch(): React.ReactNode {
         setUrlQueryParams(newParams);
       }
 
+      const roomViewDialogId = dialog.show(<LoadingAnimation />, "large");
+
       // call api
       apiGetOrDelete("GET", ApiPaths.Rooms.read(roomId))
         .then(({ json }) => json as RoomData)
-        .then((roomData) =>
-          dialog.show(
+        .then((roomData) => {
+          dialog.setContent(
+            roomViewDialogId,
             <SectionRoomView
               roomData={roomData}
               showBookingButton={userId !== roomData.ownerId}
               setIsRoomViewVisible={setIsRoomViewVisible}
             />,
             "uibox"
-          )
-        )
+          );
+        })
         .catch((error: Error) => notify(error, "error"));
     },
     [dialog, notify, compUsr, urlQueryParams, setUrlQueryParams, isRoomViewVisible, setIsRoomViewVisible]
