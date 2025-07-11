@@ -6,6 +6,7 @@ export interface DialogBoxHookType {
   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "uibox") => void;
   hideStacked: (id: string) => void;
   hideTopModal: () => void;
+  setContent: (id: string, content: React.ReactNode, size?: "small" | "large" | "uibox") => void;
   show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string;
   hide: () => void;
 }
@@ -14,10 +15,8 @@ export interface DialogBoxHookType {
  * Hook for using the dialog box system
  */
 export default function useDialog(): DialogBoxHookType {
-  const { addModal, removeModal, removeTopModal } = useContext(DialogBoxContext);
+  const { addModal, removeModal, removeTopModal, setContent } = useContext(DialogBoxContext);
   const idCounterRef = useRef(0);
-
-
 
   // Generate a unique ID for auto-generated modals
   const __mkAutoId = useCallback(() => {
@@ -93,6 +92,7 @@ export default function useDialog(): DialogBoxHookType {
     showStacked,
     hideStacked,
     hideTopModal,
+    setContent,
     // Legacy API
     show,
     hide,

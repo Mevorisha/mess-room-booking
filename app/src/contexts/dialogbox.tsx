@@ -13,11 +13,16 @@ const DialogBoxContext = createContext({
   modalStack: [] as ModalData[],
   addModal: ((): void => void 0) as (
     id: string,
-    children: React.ReactNode,
+    modalChildren: React.ReactNode,
     size: "small" | "large" | "uibox"
   ) => void,
   removeModal: ((): void => void 0) as (id: string) => void,
   removeTopModal: ((): void => void 0) as () => void,
+  setContent: ((): void => void 0) as (
+    id: string,
+    modalChildren: React.ReactNode,
+    size?: "small" | "large" | "uibox"
+  ) => void,
 });
 
 export default DialogBoxContext;
@@ -70,12 +75,23 @@ export function DialogBoxProvider({ children }: { children: React.ReactNode }): 
   /**
    * Remove the topmost modal from the stack
    */
-  const removeTopModal = () => {
+  function removeTopModal() {
     if (modalStack.length > 0) {
       const topModalId = modalStack[modalStack.length - 1]?.id ?? "";
       removeModal(topModalId);
     }
-  };
+  }
+
+  function setContent(id: string, modalChildren: React.ReactNode, size?: "small" | "large" | "uibox"): void {
+    setModalStack((oldSack) => {
+      const newStack = [...oldSack];
+      const idx = newStack.findIndex((v) => v.id === id);
+      if (idx === -1) return oldSack;
+      (newStack[idx] as ModalData).children = modalChildren;
+      (newStack[idx] as ModalData).size = size ?? (newStack[idx] as ModalData).size;
+      return newStack;
+    });
+  }
 
   return (
     <DialogBoxContext.Provider
@@ -84,6 +100,7 @@ export function DialogBoxProvider({ children }: { children: React.ReactNode }): 
         addModal,
         removeModal,
         removeTopModal,
+        setContent,
       }}
     >
       {children}
