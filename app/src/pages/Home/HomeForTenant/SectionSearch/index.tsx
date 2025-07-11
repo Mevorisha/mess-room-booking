@@ -298,12 +298,12 @@ export default function SectionSearch(): React.ReactNode {
                             {room.city}, {room.state}
                           </div>
                           <div className="item-tags">
-                            {room.searchTags.slice(0, 3).map((tag, idx) => (
+                            {room.majorTags.slice(0, 3).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag search-tag">
                                 {tag}
                               </span>
                             ))}
-                            {room.majorTags.slice(0, 1).map((tag, idx) => (
+                            {room.minorTags.slice(0, 1).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
