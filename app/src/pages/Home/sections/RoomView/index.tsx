@@ -52,7 +52,6 @@ export default function SectionRoomView({
   reloadApi: _,
 }: SectionRoomViewProps): React.ReactNode {
   const viewOnly = true;
-  showBookingButton = true;
 
   const dialog = useDialog();
   const navigate = useNavigate();
@@ -209,7 +208,6 @@ export default function SectionRoomView({
       </div>
 
       <div className="submit-container">
-        {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
         {showBookingButton && (
           <ButtonText
             disabled={viewOnly}
