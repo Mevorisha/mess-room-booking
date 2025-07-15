@@ -1,0 +1,311 @@
+.pages-Home-sections-RoomView {
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pages-Home-sections-RoomView .heading {
+  padding: var(--pad-3);
+  padding-top: var(--pad-4);
+  padding-bottom: var(--pad-1);
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.pages-Home-sections-RoomView .editable-container {
+  display: flex;
+  flex-direction: row;
+}
+
+/* column wise on smaller displays */
+@media (max-width: 500px) {
+  .pages-Home-sections-RoomView .editable-container {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container {
+  width: calc(70% - 2 * var(--pad-3));
+  padding: var(--pad-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pad-1);
+}
+
+@media (max-width: 500px) {
+  .pages-Home-sections-RoomView .editable-container .textedit-container {
+    width: calc(100% - 2 * var(--pad-3));
+    padding: var(--pad-3);
+  }
+}
+
+.pages-Home-sections-RoomView .form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: var(--pad-1);
+  margin-top: var(--pad-2);
+  font-size: 0.9rem;
+}
+
+.pages-Home-sections-RoomView .form-label:first-child {
+  margin-top: 0;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container input:not([type="submit"]) {
+  width: calc(100% - 2 * var(--pad-2));
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container div.address {
+  width: calc(100% - 2 * var(--pad-2));
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+  text-wrap: wrap;
+  color: #444;
+  line-height: 1.5rem;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .input-span {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  gap: var(--pad-1);
+  width: calc(100% - 2 * var(--pad-2) - 100px);
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .input-span .text {
+  color: #424242;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .input-span input:not([type="submit"]) {
+  width: 100%;
+  padding: unset;
+  background-color: unset;
+  border-radius: unset;
+  border: unset;
+  margin: unset;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container select {
+  width: calc(100%);
+  padding: var(--pad-3) var(--pad-2);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container select:disabled {
+  cursor: not-allowed;
+  color: #000;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container select:has(option[value=""]:checked) {
+  color: #777;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container select option {
+  color: #000;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .pashapashi-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: var(--pad-2);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pages-Home-sections-RoomView .editable-container .filedit-container {
+  width: calc(50% - var(--pad-3));
+  padding: var(--pad-3);
+  padding-left: var(--pad-0);
+}
+
+@media (max-width: 500px) {
+  .pages-Home-sections-RoomView .editable-container .filedit-container {
+    width: calc(100% - 2 * var(--pad-3));
+    padding: var(--pad-3);
+    padding-top: var(--pad-0);
+  }
+}
+
+.pages-Home-sections-RoomView .submit-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  gap: var(--pad-2);
+  padding: var(--pad-3);
+  padding-top: var(--pad-0);
+  margin-top: var(--pad-5);
+}
+
+@media (max-width: 500px) {
+  .pages-Home-sections-RoomView .submit-container {
+    margin-top: var(--pad-0);
+  }
+}
+
+.pages-Home-sections-RoomView .btn-close {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  width: 30px;
+  height: 30px;
+
+  margin: 0;
+  padding: var(--pad-1);
+
+  border-radius: 100%;
+
+  position: absolute;
+  top: var(--pad-2);
+  right: var(--pad-2);
+
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  background-color: #0000005c;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .checkbox-container {
+  margin: var(--pad-1) 0;
+  display: flex;
+  align-items: center;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin-right: var(--pad-2);
+  cursor: pointer;
+}
+
+.pages-Home-sections-RoomView .editable-container .textedit-container .checkbox-text {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.pages-Home-sections-RoomView
+  .editable-container
+  .textedit-container
+  .checkbox-label
+  input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.pages-Home-sections-RoomView
+  .editable-container
+  .textedit-container
+  .checkbox-label
+  input[type="checkbox"]:disabled
+  + .checkbox-text {
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* Tags Display Styles */
+.pages-Home-sections-RoomView .tags-display-container {
+  margin: var(--pad-1) 0;
+}
+
+.pages-Home-sections-RoomView .tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pad-1);
+  margin-top: var(--pad-1);
+}
+
+.pages-Home-sections-RoomView .tag-pill {
+  display: inline-block;
+  padding: var(--pad-2) var(--pad-3);
+  border-radius: var(--rounded-rad);
+  font-size: 0.9rem;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.pages-Home-sections-RoomView .tag-pill.major-tag {
+  background-color: #d2e5ff;
+  border: 1px solid #9ab2d3;
+}
+
+.pages-Home-sections-RoomView .tag-pill.minor-tag {
+  background-color: #cdffd3;
+  border: 1px solid #97ca9e;
+}
+
+.pages-Home-sections-RoomView .no-tags {
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Rating Display Styles */
+.pages-Home-sections-RoomView .rating-display {
+  display: flex;
+  align-items: center;
+  gap: var(--pad-2);
+  padding: var(--pad-2);
+  background-color: #fff;
+  border-radius: var(--rounded-rad);
+  border: 1px solid var(--color-light);
+}
+
+.pages-Home-sections-RoomView .rating-value {
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.pages-Home-sections-RoomView .stars-display {
+  display: flex;
+  gap: 2px;
+}
+
+.pages-Home-sections-RoomView .star {
+  font-size: 1.5rem;
+  color: #bebebe;
+  transition: color 0.2s ease;
+}
+
+.pages-Home-sections-RoomView .star.filled {
+  color: #f1b500;
+}
+
+.pages-Home-sections-RoomView .owner-details {
+  color: #555;
+  background-color: var(--color-bg-secondary);
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+
+.pages-Home-sections-RoomView .owner-details:hover {
+  filter: brightness(0.95);
+  transition-duration: 200ms;
+}

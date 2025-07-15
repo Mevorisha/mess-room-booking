@@ -8,8 +8,8 @@ export enum PageType {
   PAGE_NOT_FOUND = "/404",
 }
 
-export const PagePaths: Record<PageType, string> = {
-  [PageType.GO_BACK]: "-1",
+export const PagePaths = {
+  [PageType.GO_BACK]: -1,
   [PageType.ROOT]: "/",
   [PageType.HOME]: "/home",
   [PageType.AUTH]: "/auth",

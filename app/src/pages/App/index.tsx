@@ -14,12 +14,12 @@ import { LanguageProvider } from "@/contexts/language.jsx";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
-import PageNotFound from "@/pages/unparameterized/PageNotFound";
-import LoadingPage from "@/pages/unparameterized/Loading";
-import AuthPage from "@/pages/unparameterized/Auth";
-import HomePage from "@/pages/unparameterized/Home";
-import OnboardingPage from "@/pages/parameterized/Onboarding";
-import ProfilePage from "@/pages/parameterized/Profile";
+import PageNotFound from "@/pages/PageNotFound";
+import LoadingPage from "@/pages/Loading";
+import AuthPage from "@/pages/Auth";
+import HomePage from "@/pages/Home";
+import OnboardingPage from "@/pages/Onboarding";
+import ProfilePage from "@/pages/Profile";
 
 function AuthCheck({ children }: { children: React.ReactNode }): React.ReactNode {
   const compUsr = useCompositeUser();

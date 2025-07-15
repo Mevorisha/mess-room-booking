@@ -4,11 +4,11 @@ import { fileToDataUrl, sizehuman } from "@/modules/util/dataConversion";
 import { lang } from "@/modules/util/language.js";
 import FileRepr from "@/modules/classes/FileRepr";
 import useNotification from "@/hooks/notification";
-import useDialogBox from "@/hooks/dialogbox";
+import useDialog from "@/hooks/dialogbox";
 import StringySet from "@/modules/classes/StringySet";
-import ButtonText from "../ButtonText";
+import ButtonText from "@/components/ButtonText";
 import DialogImagePreview from "@/components/DialogImagePreview";
-import ImageLoader from "../ImageLoader";
+import ImageLoader from "@/components/ImageLoader";
 
 import "./styles.css";
 
@@ -92,7 +92,7 @@ function EmptyFilesInput(props: ImageFilesInputPropsExtended): React.ReactNode {
 function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.ReactNode {
   const { filesSet, handleItemAdd, handleItemRemove, handleClearAll, disabled } = props;
   const notify = useNotification();
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   const [fileReprToDataUrl, setFileReprToDataUrl] = useState<Record<string, string>>({});
 

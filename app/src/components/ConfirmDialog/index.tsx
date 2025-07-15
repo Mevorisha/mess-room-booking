@@ -1,6 +1,6 @@
 import React from "react";
-import useDialogBox from "@/hooks/dialogbox";
-import ButtonText from "../ButtonText";
+import useDialog from "@/hooks/dialogbox";
+import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language";
 
 export interface ConfirmDialogProps {
@@ -10,7 +10,7 @@ export interface ConfirmDialogProps {
 }
 
 export default function ConfirmDialog({ title, text, onConfirm: handleConfirmClick }: ConfirmDialogProps): React.ReactNode {
-  const dialog = useDialogBox();
+  const dialog = useDialog();
 
   return (
     <div className="form-container" style={{ padding: "var(--pad-5)" }}>

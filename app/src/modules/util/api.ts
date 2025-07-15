@@ -1,9 +1,9 @@
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
-import { MultiSizeImageSz } from "../networkTypes/MultiSizePhoto.js";
-import { RoomQuery } from "../networkTypes/Room.js";
-import JsonDataType from "../networkTypes/JsonData.js";
+import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
+import { RoomQuery } from "@/modules/networkTypes/Room.js";
+import JsonDataType from "@/modules/networkTypes/JsonData.js";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;

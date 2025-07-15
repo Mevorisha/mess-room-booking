@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef, useState } from "react";
+import { useCallback, useContext, useRef } from "react";
 import DialogBoxContext from "@/contexts/dialogbox.jsx";
 
 export interface DialogBoxHookType {
@@ -6,7 +6,7 @@ export interface DialogBoxHookType {
   showStacked: (id: string, children: React.JSX.Element, size?: "small" | "large" | "uibox") => void;
   hideStacked: (id: string) => void;
   hideTopModal: () => void;
-  isVisible: boolean;
+  setContent: (id: string, content: React.ReactNode, size?: "small" | "large" | "uibox") => void;
   show: (children: React.JSX.Element, size?: "small" | "large" | "uibox") => string;
   hide: () => void;
 }
@@ -14,11 +14,9 @@ export interface DialogBoxHookType {
 /**
  * Hook for using the dialog box system
  */
-export default function useDialogBox(): DialogBoxHookType {
-  const { addModal, removeModal, removeTopModal } = useContext(DialogBoxContext);
+export default function useDialog(): DialogBoxHookType {
+  const { addModal, removeModal, removeTopModal, setContent } = useContext(DialogBoxContext);
   const idCounterRef = useRef(0);
-
-  const [isVisible, setIsVisible] = useState(false);
 
   // Generate a unique ID for auto-generated modals
   const __mkAutoId = useCallback(() => {
@@ -38,7 +36,6 @@ export default function useDialogBox(): DialogBoxHookType {
      */
     (id: string, children: React.JSX.Element, size: "small" | "large" | "uibox" = "small") => {
       addModal(id, children, size);
-      setIsVisible(true);
     },
     [addModal]
   );
@@ -50,7 +47,6 @@ export default function useDialogBox(): DialogBoxHookType {
      */
     (id: string, onHide?: () => void) => {
       removeModal(id);
-      setIsVisible(false);
       if (onHide != null) onHide();
     },
     [removeModal]
@@ -67,7 +63,6 @@ export default function useDialogBox(): DialogBoxHookType {
     (children: React.JSX.Element, size: "small" | "large" | "uibox" = "small"): string => {
       const id = __mkAutoId();
       addModal(id, children, size);
-      setIsVisible(true);
       return id;
     },
     [addModal, __mkAutoId]
@@ -77,7 +72,6 @@ export default function useDialogBox(): DialogBoxHookType {
   const hide = useCallback(
     (onHide?: () => void) => {
       removeTopModal();
-      setIsVisible(false);
       if (onHide != null) onHide();
     },
     [removeTopModal]
@@ -87,7 +81,6 @@ export default function useDialogBox(): DialogBoxHookType {
   const hideTopModal = useCallback(
     (onHide?: () => void) => {
       removeTopModal();
-      setIsVisible(false);
       if (onHide != null) onHide();
     },
     [removeTopModal]
@@ -99,8 +92,8 @@ export default function useDialogBox(): DialogBoxHookType {
     showStacked,
     hideStacked,
     hideTopModal,
+    setContent,
     // Legacy API
-    isVisible,
     show,
     hide,
   };

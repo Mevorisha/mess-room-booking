@@ -35,7 +35,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const [animstate, setAnimState] = useState<"init" | "visible" | "gone">("init");
 
   /* this state is used to clear the display timeout */
-  const [notifDisplayTimeout, setNotifDisplayTimeout_] = useState(setTimeout(() => void 0, 0));
+  const [notifDisplayTimeout, _setNotifDisplayTimeout] = useState(setTimeout(() => void 0, 0));
 
   const showNotification = useCallback(
     () =>
@@ -46,11 +46,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   const setNotifDisplayTimeout = useCallback(
     (newVal: NodeJS.Timeout) =>
-      setNotifDisplayTimeout_((oldVal) => {
+      _setNotifDisplayTimeout((oldVal) => {
         clearTimeout(oldVal);
         return newVal;
       }),
-    [setNotifDisplayTimeout_]
+    [_setNotifDisplayTimeout]
   );
 
   const clearNotifDisplayTimeout = useCallback(

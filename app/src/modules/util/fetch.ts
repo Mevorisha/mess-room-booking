@@ -1,5 +1,5 @@
-import { IS_DEV } from "../config";
-import { FirebaseAuth } from "../firebase/init";
+import { IS_DEV } from "@/modules/config";
+import { FirebaseAuth } from "@/modules/firebase/init";
 import { errorHandlerWrapperOnCallApi } from "./api";
 import { CachePaths } from "./caching";
 import { fileToDataUrl } from "./dataConversion";
