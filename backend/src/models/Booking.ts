@@ -2,6 +2,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
 import { CustomApiError } from "@/types/CustomApiError";
 import Room from "./Room";
+import pickObjProps from "@/utils/pickObjProps";
 
 export type AcceptanceStatus = "ACCEPTED" | "REJECTED" | "UNSET";
 
@@ -77,6 +78,15 @@ class Booking {
    * Create a new booking document
    */
   static async create(bookingData: BookingCreateData): Promise<string> {
+    // for safety, ensure only the acceptable fields are present
+    bookingData = pickObjProps(bookingData, [
+      SchemaFields.TENANT_ID,
+      SchemaFields.ROOM_ID,
+      SchemaFields.OCCUPANT_COUNT,
+      SchemaFields.LINK_TO_WORK_ID,
+      SchemaFields.LINK_TO_GOV_ID,
+    ]) as BookingCreateData;
+
     const ref = FirebaseFirestore.collection(FirestorePaths.BOOKINGS);
     const docRef = await ref.add({
       ...bookingData,
@@ -97,6 +107,13 @@ class Booking {
    * Update an existing booking document
    */
   static async update(bookingId: string, updateData: BookingUpdateData): Promise<void> {
+    // for safety, ensure only the acceptable fields are present
+    updateData = pickObjProps(updateData, [
+      SchemaFields.OCCUPANT_COUNT,
+      SchemaFields.LINK_TO_WORK_ID,
+      SchemaFields.LINK_TO_GOV_ID,
+    ]) as BookingUpdateData;
+
     const docRef = FirestorePaths.Bookings(bookingId);
     const docSnapshot = await docRef.get();
 

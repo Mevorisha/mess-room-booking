@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhoto } from "./types";
 import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
+import pickObjProps from "@/utils/pickObjProps";
 
 export interface RoomData {
   ownerId: string;
@@ -29,7 +30,7 @@ export interface RoomData {
 }
 
 // During create, apart from AutoSetFields, isUnavailable MUST not be set
-export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "isUnavailable">;
+export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "rating" | "isUnavailable">;
 
 // During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
 export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
@@ -111,6 +112,22 @@ class Room {
    * Create a new room document
    */
   static async create(roomData: RoomCreateData): Promise<string> {
+    // for safety, ensure only the acceptable fields are present
+    roomData = pickObjProps(roomData, [
+      SchemaFields.OWNER_ID,
+      SchemaFields.ACCEPT_GENDER,
+      SchemaFields.ACCEPT_OCCUPATION,
+      SchemaFields.SEARCH_TAGS,
+      SchemaFields.LANDMARK,
+      SchemaFields.ADDRESS,
+      SchemaFields.CITY,
+      SchemaFields.STATE,
+      SchemaFields.MAJOR_TAGS,
+      SchemaFields.MINOR_TAGS,
+      SchemaFields.CAPACITY,
+      SchemaFields.PRICE_PER_OCCUPANT,
+    ]) as RoomCreateData;
+
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     const querySnapshot = await FirebaseFirestore.collection(FirestorePaths.ROOMS)
@@ -148,6 +165,22 @@ class Room {
    * Update an existing room document
    */
   static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
+    // for safety, ensure only the acceptable fields are present
+    updateData = pickObjProps(updateData, [
+      SchemaFields.IMAGES,
+      SchemaFields.RATING,
+      SchemaFields.ACCEPT_OCCUPATION,
+      SchemaFields.SEARCH_TAGS,
+      SchemaFields.LANDMARK,
+      SchemaFields.ADDRESS,
+      SchemaFields.CITY,
+      SchemaFields.STATE,
+      SchemaFields.MAJOR_TAGS,
+      SchemaFields.MINOR_TAGS,
+      SchemaFields.CAPACITY,
+      SchemaFields.PRICE_PER_OCCUPANT,
+    ]) as RoomUpdateData;
+
     const ref = FirestorePaths.Rooms(roomId);
 
     const updateDataFrstrFormat: Record<string, any> = {
