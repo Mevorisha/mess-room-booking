@@ -228,14 +228,10 @@ class Room {
    */
   static async hasBooking(roomId: string): Promise<boolean> {
     // Query for bookings with this roomId that are not cancelled and not cleared
-    const bookings = await Booking.queryAll({
-      roomId: roomId,
-      isCancelled: false,
-      isCleared: false,
-    });
+    const bookings = await Booking.queryAll({ queryIdType: "ROOM", id: roomId });
 
     // If we found any bookings, the room has active bookings
-    return bookings.length > 0;
+    return bookings.filter((b) => !b.isCancelled && !b.isCleared).length > 0;
   }
 
   static async queryAll(
