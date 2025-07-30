@@ -24,7 +24,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
 
   const _isUnavailable = req.body.isUnavailable;
-  if (_isUnavailable === void 0 || _isUnavailable === null) {
+  if (_isUnavailable == null) {
     throw CustomApiError.create(400, "Missing field 'isUnavailable: boolean'");
   }
   if (!["true", "false", true, false].includes(_isUnavailable)) {
