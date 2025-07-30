@@ -113,19 +113,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${genderFilter === "MALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "MALE" ? undefined : "MALE")}
+            onClick={() => setGenderFilter(genderFilter === "MALE" ? void 0 : "MALE")}
           >
             {lang("Male", "পুরুষ", "पुरुष")}
           </div>
           <div
             className={`filter-option ${genderFilter === "FEMALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "FEMALE" ? undefined : "FEMALE")}
+            onClick={() => setGenderFilter(genderFilter === "FEMALE" ? void 0 : "FEMALE")}
           >
             {lang("Female", "মহিলা", "महिला")}
           </div>
           <div
             className={`filter-option ${genderFilter === "OTHER" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "OTHER" ? undefined : "OTHER")}
+            onClick={() => setGenderFilter(genderFilter === "OTHER" ? void 0 : "OTHER")}
           >
             {lang("Other", "অন্যান্য", "अन्य")}
           </div>
@@ -137,19 +137,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${occupationFilter === "STUDENT" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "STUDENT" ? undefined : "STUDENT")}
+            onClick={() => setOccupationFilter(occupationFilter === "STUDENT" ? void 0 : "STUDENT")}
           >
             {lang("Student", "ছাত্র", "छात्र")}
           </div>
           <div
             className={`filter-option ${occupationFilter === "PROFESSIONAL" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "PROFESSIONAL" ? undefined : "PROFESSIONAL")}
+            onClick={() => setOccupationFilter(occupationFilter === "PROFESSIONAL" ? void 0 : "PROFESSIONAL")}
           >
             {lang("Professional", "পেশাদার", "पेशेवर")}
           </div>
           <div
             className={`filter-option ${occupationFilter === "ANY" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "ANY" ? undefined : "ANY")}
+            onClick={() => setOccupationFilter(occupationFilter === "ANY" ? void 0 : "ANY")}
           >
             {lang("Any", "যেকোনো", "कोई भी")}
           </div>
@@ -161,19 +161,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${capacityFilter === 1 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 1 ? undefined : 1)}
+            onClick={() => setCapacityFilter(capacityFilter === 1 ? void 0 : 1)}
           >
             1 {lang("Person", "জন", "व्यक्ति")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 2 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 2 ? undefined : 2)}
+            onClick={() => setCapacityFilter(capacityFilter === 2 ? void 0 : 2)}
           >
             2 {lang("People", "জন", "लोग")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 3 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 3 ? undefined : 3)}
+            onClick={() => setCapacityFilter(capacityFilter === 3 ? void 0 : 3)}
           >
             3+ {lang("People", "জন", "लोग")}
           </div>
