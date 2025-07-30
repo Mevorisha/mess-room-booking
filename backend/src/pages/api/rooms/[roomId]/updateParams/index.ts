@@ -73,7 +73,7 @@ function validateRoomUpdateData(req: NextApiRequest): {
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.IS_UNAVAILABLE,
   ];
-  const hasUpdateField = updateFields.some((field) => req.body[field] !== undefined);
+  const hasUpdateField = updateFields.some((field) => req.body[field] != null);
   const hasFileChanges =
     (req.body.keepFiles && req.body.keepFiles.length > 0) || (req.body.addFiles && req.body.addFiles.length > 0);
   if (!hasUpdateField && !hasFileChanges) {
