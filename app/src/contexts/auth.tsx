@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   /* listen for auth state changes and update the temporary user */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((user) => {
-      if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
+      if (user == null) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
         dispatchUser({ fromFirebaseAuth: user });
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         user != null ? User.fromFirebaseAuthUser(user) : null
       );
 
-      if (null == user) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
+      if (user == null) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
     });
 
     return () => unsubscribe();
