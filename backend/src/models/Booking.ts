@@ -37,8 +37,9 @@ type BookingUpdateData = Pick<BookingData, "occupantCount" | "linkToWorkId" | "l
 // During read, all data may be read
 type BookingReadData = Partial<BookingData>;
 
+export type BookingQueryIdType = "ROOM" | "TENANT" | "OWNER";
 export type BookingQueryParams = Partial<{
-  queryIdType?: "ROOM" | "TENANT" | "OWNER";
+  queryIdType?: BookingQueryIdType;
   id?: string;
 }>;
 
@@ -334,20 +335,22 @@ class Booking {
 
     const queryIdType = params.queryIdType ?? "NONE";
 
+    // owner views rooms using id of the room
     if (queryIdType === "ROOM" && params.id) {
       const query = ref.where(SchemaFields.ROOM_ID, "==", params.id).orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
       const snapshot = await query.get();
-      return snapshot.docs.map((doc) => ({
+      const bookings: BookingReadDataWithId[] = snapshot.docs.map((doc) => ({
         ...(doc.data() as BookingReadData),
         id: doc.id,
       }));
+      // filter out bookings that are not submitted (yet)
+      // coz the owner does not need to see unsubmitted bookings
+      return bookings.filter((booking) => booking.isSubmitted);
     }
 
     // Apply filter using tenant id if present
     if (queryIdType === "TENANT" && params.id) {
-      const query = ref
-        .where(SchemaFields.TENANT_ID, "==", params.id)
-        .orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
+      const query = ref.where(SchemaFields.TENANT_ID, "==", params.id).orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
 
       const snapshot = await query.get();
       return snapshot.docs.map((doc) => ({
@@ -389,7 +392,9 @@ class Booking {
         return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
       });
 
-      return bookings;
+      // filter out bookings that are not submitted (yet)
+      // coz the owner does not need to see unsubmitted bookings
+      return bookings.filter((booking) => booking.isSubmitted);
     }
 
     // If no filters are applied, return all bookings

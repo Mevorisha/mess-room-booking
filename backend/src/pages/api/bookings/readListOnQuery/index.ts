@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Booking, { BookingQueryParams } from "@/models/Booking";
+import Booking, { BookingQueryIdType, BookingQueryParams } from "@/models/Booking";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
@@ -164,7 +164,7 @@ function paginateResults(bookings: any[], page: number) {
  * Parses and validates query parameters from the request
  */
 function parseQueryParams(req: NextApiRequest): BookingQueryParams {
-  const queryIdType = (req.query["queryIdType"] as string).toUpperCase() as "TENANT" | "ROOM" | "OWNER" | null;
+  const queryIdType = (req.query["queryIdType"] as string).toUpperCase() as BookingQueryIdType | null;
   const id = req.query["id"] as string;
   if (!queryIdType || !id) return {};
   return { queryIdType, id };
