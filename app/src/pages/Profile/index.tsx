@@ -7,7 +7,7 @@ import useCompositeUser from "@/hooks/compositeUser";
 import useDialog from "@/hooks/dialogbox";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
-import IdentityNetworkType from "@/modules/networkTypes/Identity";
+import IdentityDTO from "@/modules/networkTypes/Identity";
 
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
@@ -41,7 +41,7 @@ export default function Profile(): React.ReactNode {
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
       .then(({ json }) => {
-        const data = json as IdentityNetworkType;
+        const data = json as IdentityDTO;
         let { firstName = "", lastName = "", profilePhotos } = data;
         const { mobile = "" } = data;
         // If no mobile no., the user is considered to not exist

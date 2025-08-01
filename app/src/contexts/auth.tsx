@@ -5,7 +5,7 @@ import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
-import IdentityNetworkType from "@/modules/networkTypes/Identity.js";
+import IdentityDTO from "@/modules/networkTypes/Identity.js";
 import User from "@/modules/classes/User.js";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
 
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     if (user.uid.length === 0) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    function updateLocalUser(onlineProfileData?: IdentityNetworkType) {
+    function updateLocalUser(onlineProfileData?: IdentityDTO) {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
       if (onlineProfileData == null) {
@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
      */
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(user.uid))
-      .then(({ json }) => updateLocalUser(json))
+      .then(({ json }) => updateLocalUser(json as IdentityDTO))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));
   }, [authState, user.uid, dispatchUser, notify, setLang]);
