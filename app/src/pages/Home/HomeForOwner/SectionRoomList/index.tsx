@@ -8,7 +8,7 @@ import SectionRoomUpdateForm from "@/pages/Home/sections/RoomUpdateForm";
 import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
-import { RoomData } from "@/modules/networkTypes/Room";
+import RoomDTO from "@/modules/networkTypes/Room";
 
 import "./styles.css";
 
@@ -29,7 +29,7 @@ function RatingDisplay({ rating, washout }: RatingDisplayProps): React.ReactNode
 
 export interface RestoreOrDeleteProps {
   dialog: DialogBoxHookType;
-  roomItem: RoomData;
+  roomItem: RoomDTO;
   handleRestoreRoom: (roomId: string) => void;
   handleDeleteRoom: (roomId: string, force?: boolean) => void;
 }
@@ -53,7 +53,7 @@ function RestoreOrDelete({
                 "রুম মুছে ফেলতে কনফার্ম চাপুন। মুছে ফেলা রুমগুলি ৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে, তারপর সেগুলি স্থায়ীভাবে সরানো হবে।",
                 "रूम हटाने के लिए कन्फर्म पर क्लिक करें। हटाए गए रूम 30 दिनों के भीतर रीस्टोर किए जा सकते हैं, उसके बाद वे स्थायी रूप से हटा दिए जाएंगे।"
               )}
-              onConfirm={() => handleDeleteRoom(roomItem.id ?? "unknown")}
+              onConfirm={() => handleDeleteRoom(roomItem.id)}
             />
           )
         }
@@ -80,7 +80,7 @@ function RestoreOrDelete({
                   "রুম পুনরুদ্ধার করতে কনফার্ম চাপুন। আপনার রুম ডেটা পুনরুদ্ধার করা হবে।",
                   "रूम रीस्टोर करने के लिए कन्फर्म पर क्लिक करें। आपका रूम डेटा वापस मिल जाएगा।"
                 )}
-                onConfirm={() => handleRestoreRoom(roomItem.id ?? "unknown")}
+                onConfirm={() => handleRestoreRoom(roomItem.id)}
               />
             )
           }
@@ -103,7 +103,7 @@ function RestoreOrDelete({
                   "সতর্কতা: এটি অবিলম্বে রুমটি স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না এবং সমস্ত ডেটা চিরতরে হারিয়ে যাবে।",
                   "चेतावनी: यह रूम को तुरंत स्थायी रूप से हटा देगा। यह कार्रवाई पूर्ववत नहीं की जा सकती है और सभी डेटा हमेशा के लिए खो जाएगा।"
                 )}
-                onConfirm={() => handleDeleteRoom(roomItem.id ?? "unknown", true)}
+                onConfirm={() => handleDeleteRoom(roomItem.id, true)}
               />
             )
           }
@@ -122,7 +122,7 @@ export interface SectionRoomsProps {
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
   isLoadingDrafts: boolean;
   isLoadingRooms: boolean;
-  rooms: RoomData[];
+  rooms: RoomDTO[];
   roomPages: number;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -146,7 +146,7 @@ export default function SectionRooms({
     reloadApi({ page: n }).catch((e: Error) => notify(e, "error"));
   }
 
-  function handleOpenRoom(roomData: RoomData): void {
+  function handleOpenRoom(roomData: RoomDTO): void {
     dialog.show(<SectionRoomUpdateForm roomData={roomData} reloadApi={reloadApi} />, "uibox");
   }
 
@@ -190,7 +190,7 @@ export default function SectionRooms({
         <>
           <ul className="content-list">
             {rooms.map((roomItem, index) => {
-              const washout = (roomItem.isDeleted ?? false) || roomItem.isUnavailable ? "washout" : "";
+              const washout = (roomItem.isDeleted ?? false) || (roomItem.isUnavailable ?? false) ? "washout" : "";
               return (
                 <li key={index} className="content-item">
                   <div className="item-preview">
@@ -209,21 +209,21 @@ export default function SectionRooms({
                         </div>
                         <div className="item-tags">
                           {/* Show only 2 search tags and 1 major tag */}
-                          {!roomItem.isUnavailable &&
+                          {!(roomItem.isUnavailable ?? false) &&
                             !(roomItem.isDeleted ?? false) &&
                             roomItem.searchTags.slice(0, 2).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag search-tag">
                                 {tag}
                               </span>
                             ))}
-                          {!roomItem.isUnavailable &&
+                          {!(roomItem.isUnavailable ?? false) &&
                             !(roomItem.isDeleted ?? false) &&
                             roomItem.majorTags.slice(0, 1).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
                             ))}
-                          {!(roomItem.isDeleted ?? false) && roomItem.isUnavailable && (
+                          {!(roomItem.isDeleted ?? false) && (roomItem.isUnavailable ?? false) && (
                             <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
                           )}
                           {(roomItem.isDeleted ?? false) && (

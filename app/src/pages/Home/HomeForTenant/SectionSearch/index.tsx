@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import { RoomData, RoomQueryParser } from "@/modules/networkTypes/Room";
+import RoomDTO, { RoomQueryParser } from "@/modules/networkTypes/Room";
 import { lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
@@ -31,7 +31,7 @@ export default function SectionSearch(): React.ReactNode {
   const [urlQueryParams, setUrlQueryParams] = useSearchParams();
 
   // State for rooms data
-  const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalResuts, setTotalResuts] = useState<number>(1);
@@ -151,7 +151,7 @@ export default function SectionSearch(): React.ReactNode {
     try {
       const response = await apiGetOrDelete("GET", apiUri);
       if (response.json != null) {
-        const data = response.json as { rooms: RoomData[]; totalPages: number; totalItems: number };
+        const data = response.json as { rooms: RoomDTO[]; totalPages: number; totalItems: number };
         setRooms(data.rooms);
         setTotalPages(data.totalPages);
         setTotalResuts(data.totalItems);
@@ -182,7 +182,7 @@ export default function SectionSearch(): React.ReactNode {
 
       // call api
       apiGetOrDelete("GET", ApiPaths.Rooms.read(roomId))
-        .then(({ json }) => json as RoomData)
+        .then(({ json }) => json as RoomDTO)
         .then((roomData) => {
           dialog.setContent(
             roomViewDialogId,
@@ -341,7 +341,7 @@ export default function SectionSearch(): React.ReactNode {
                           <ButtonText
                             rounded="all"
                             kind="secondary"
-                            onClick={() => handleViewRoom(room.id ?? "unknown")}
+                            onClick={() => handleViewRoom(room.id)}
                             title={lang("View", "দেখুন", "देखें")}
                           />
                         </div>
