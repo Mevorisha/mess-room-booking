@@ -83,11 +83,15 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
 
   // Handle authentication for self queries
   let uid: string | null = null;
-  if (isSelfQuery) {
-    const authResult = await getLoggedInUser(req);
-    if (!authResult.isSuccess()) {
+
+  const authResult = await getLoggedInUser(req);
+  if (!authResult.isSuccess()) {
+    if (isSelfQuery) {
       throw CustomApiError.create(401, "Authentication required");
+    } else {
+      uid = null;
     }
+  } else {
     uid = authResult.getUid();
   }
 
@@ -247,41 +251,29 @@ function formatRooms(roomsData: Partial<RoomDTO>[], authenticatedUserId: string 
 
     // Common room properties
     const formattedRoom: Partial<RoomDTO> = {};
-    if (room.id) formattedRoom.id = room.id;
-    if (room.ownerId) formattedRoom.ownerId = room.ownerId;
-    if (room.images) formattedRoom.images = room.images;
-    if (room.acceptGender) formattedRoom.acceptGender = room.acceptGender;
-    if (room.acceptOccupation) formattedRoom.acceptOccupation = room.acceptOccupation;
-    if (room.searchTags) formattedRoom.searchTags = Array.from(room.searchTags);
-    if (room.landmark) formattedRoom.landmark = room.landmark;
-    if (room.address) formattedRoom.address = room.address;
-    if (room.city) formattedRoom.city = room.city;
-    if (room.state) formattedRoom.state = room.state;
-    if (room.majorTags) formattedRoom.majorTags = Array.from(room.majorTags || []);
-    if (room.minorTags) formattedRoom.minorTags = Array.from(room.minorTags || []);
-    if (room.capacity) formattedRoom.capacity = room.capacity;
-    if (room.pricePerOccupant) formattedRoom.pricePerOccupant = room.pricePerOccupant;
-    if (room.rating) formattedRoom.rating = room.rating;
-
-    // Add timestamps if available
-    if (room.createdOn) {
-      formattedRoom.createdOn = room.createdOn;
-    }
-    if (room.lastModifiedOn) {
-      formattedRoom.lastModifiedOn = room.lastModifiedOn;
-    }
+    if (room.id != null) formattedRoom.id = room.id;
+    if (room.ownerId != null) formattedRoom.ownerId = room.ownerId;
+    if (room.images != null) formattedRoom.images = room.images;
+    if (room.acceptGender != null) formattedRoom.acceptGender = room.acceptGender;
+    if (room.acceptOccupation != null) formattedRoom.acceptOccupation = room.acceptOccupation;
+    if (room.searchTags != null) formattedRoom.searchTags = Array.from(room.searchTags);
+    if (room.landmark != null) formattedRoom.landmark = room.landmark;
+    if (room.address != null) formattedRoom.address = room.address;
+    if (room.city != null) formattedRoom.city = room.city;
+    if (room.state != null) formattedRoom.state = room.state;
+    if (room.majorTags != null) formattedRoom.majorTags = Array.from(room.majorTags || []);
+    if (room.minorTags != null) formattedRoom.minorTags = Array.from(room.minorTags || []);
+    if (room.capacity != null) formattedRoom.capacity = room.capacity;
+    if (room.pricePerOccupant != null) formattedRoom.pricePerOccupant = room.pricePerOccupant;
+    if (room.rating != null) formattedRoom.rating = room.rating;
+    if (room.createdOn != null) formattedRoom.createdOn = room.createdOn;
+    if (room.lastModifiedOn != null) formattedRoom.lastModifiedOn = room.lastModifiedOn;
 
     // Add owner-specific properties only if user is the owner
     if (isOwner) {
-      if (room.isUnavailable != null) {
-        formattedRoom.isUnavailable = room.isUnavailable;
-      }
-      if (room.isDeleted != null) {
-        formattedRoom.isDeleted = room.isDeleted;
-      }
-      if (room.ttl != null) {
-        formattedRoom.ttl = room.ttl;
-      }
+      formattedRoom.isUnavailable = room.isUnavailable ?? false;
+      formattedRoom.isDeleted = room.isDeleted ?? false;
+      formattedRoom.ttl = room.ttl ?? null;
     }
 
     return formattedRoom;
