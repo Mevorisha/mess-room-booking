@@ -31,8 +31,26 @@ type IdentityCreateData = Pick<IdentityData, "email"> & { type: IdentityType | "
 // During update, AutoSetFields MUST not be set
 type IdentityUpdateData = Partial<Omit<IdentityData, AutoSetFields>>;
 
-// During read, all data may be read
-type IdentityReadData = Partial<IdentityData & { displayName: string }>;
+/**
+ * Identity Data Transfer Object (DTO)
+ * Represents the structure of an identity object used in the application.
+ * This is based on backend/src/models/Identity.ts
+ */
+export interface IdentityDTO {
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  profilePhotos?: MultiSizePhoto;
+  // only for logged in user
+  email?: string;
+  type?: IdentityType;
+  identityPhotos?: IdentityPhotos;
+  language?: Language;
+  createdOn?: string;
+  lastModifiedOn?: string;
+  ttl?: string;
+}
 
 export enum SchemaFields {
   FIRST_NAME = "firstName",
@@ -52,7 +70,10 @@ export enum PsudoFields {
   DISPLAY_NAME = "displayName",
 }
 
-function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
+function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; identityPhotos?: IdentityPhotos }>(
+  dataToUpdate: T,
+  uid: string
+) {
   // convert image paths in profile photos to URLs
   if (dataToUpdate.profilePhotos) {
     dataToUpdate.profilePhotos = {
@@ -116,7 +137,7 @@ class Identity {
     uid: string,
     extUrls: ApiResponseUrlType,
     fields: (SchemaFields | PsudoFields)[] = []
-  ): Promise<IdentityReadData | null> {
+  ): Promise<IdentityDTO | null> {
     const ref = FirestorePaths.Identity(uid);
 
     const doc = await ref.get();
@@ -130,23 +151,44 @@ class Identity {
     }
 
     // Compose pseduo fields
-    data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
+    if (fields.includes(PsudoFields.DISPLAY_NAME)) {
+      data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
+    }
 
     // If no fields are provided, return the entire document
     if (fields.length === 0) {
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as IdentityData, uid);
-      else return data;
+      let result: Partial<IdentityDTO> | null = null;
+      if (extUrls === "API_URI") result = imgConvertGsPathToApiUri(data as IdentityDTO, uid);
+      else result = data as IdentityDTO;
+      return result;
     }
 
     // Return only requested fields
-    const result = {} as IdentityReadData;
+    const result = {} as IdentityDTO;
     for (const field of fields) {
       (result as any)[field] = data[field] || null;
     }
 
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "short",
+      year: "numeric",
+      day: "2-digit",
+    };
+
+    // convert timestamps to ISO Locale strings
+    if (result.createdOn != null) {
+      result.createdOn = data["createdOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+    if (result.lastModifiedOn != null) {
+      result.lastModifiedOn = data["lastModifiedOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+    if (result.ttl != null) {
+      result.ttl = data["ttl"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+
     // convert image paths to api uri if any
     if (extUrls === "API_URI") {
-      return imgConvertGsPathToApiUri(result as IdentityData, uid);
+      return imgConvertGsPathToApiUri(result, uid);
     } else {
       return result;
     }

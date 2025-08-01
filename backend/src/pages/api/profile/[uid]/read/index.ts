@@ -25,6 +25,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *
  * < The following need authentication >
  *
+ *   email?: string
  *   type?: IdentityType
  *   language?: Language
  *   identityPhotos?: {
@@ -41,6 +42,8 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *     workIdIsPrivate?: boolean
  *     govIdIsPrivate?: boolean
  *   }
+ *   createdOn?: string (ISO date)
+ *   lastModifiedOn?: string (ISO date)
  * }
  * ```
  */
@@ -70,7 +73,15 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (authResult.isSuccess()) {
     const loggedInUid = authResult.getUid();
     if (loggedInUid === uid) {
-      [SchemaFields.IDENTITY_PHOTOS, SchemaFields.LANGUAGE, SchemaFields.TYPE].forEach((type) => fields.push(type));
+      fields.push(
+        SchemaFields.EMAIL,
+        SchemaFields.TYPE,
+        SchemaFields.IDENTITY_PHOTOS,
+        SchemaFields.LANGUAGE,
+        SchemaFields.CREATED_ON,
+        SchemaFields.LAST_MODIFIED_ON,
+        SchemaFields.TTL
+      );
     }
   }
 
