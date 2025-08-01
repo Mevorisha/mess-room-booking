@@ -30,7 +30,7 @@ export default interface RoomDTO {
   lastModifiedOn: string;
   // shown only to room owner
   isUnavailable?: boolean;
-  ttl?: string;
+  ttl?: string | null;
   isDeleted?: boolean;
 }
 

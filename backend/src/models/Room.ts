@@ -57,7 +57,7 @@ export interface RoomDTO {
   lastModifiedOn: string;
   // shown only to room owner
   isUnavailable?: boolean;
-  ttl?: string;
+  ttl?: string | null;
   isDeleted?: boolean;
 }
 
@@ -314,37 +314,36 @@ class Room {
       return null;
     }
 
-    if (data["rating"] == null) data["rating"] = 0;
-
-    // add id field if necessary
-    if (fields.includes(PseudoFields.ID)) {
+    // add pseudo fields
+    if (fields.length === 0 || fields.includes(PseudoFields.ID)) {
       data["id"] = roomId;
     }
+    if (fields.length === 0 || fields.includes(PseudoFields.IS_DELETED)) {
+      if (data["ttl"] != null) data["isDeleted"] = true;
+      else data["isDeleted"] = false;
+    }
+    if (fields.length === 0 || fields.includes(SchemaFields.RATING)) {
+      // Set default rating if null
+      if (data["rating"] == null) data["rating"] = 0;
+    }
+
+    // convert timestamps to strings
+    Room.convertTimestamps(data);
 
     // If no fields provided, send all params
     if (fields.length === 0) {
       // convert image paths to direct urls
-      let result: Partial<RoomDTO> | null = null;
-      if (extUrls === "API_URI") result = imgConvertGsPathToApiUri(data as RoomDTO, roomId);
-      else result = data as RoomDTO;
-      // add pseudo fields
-      if (fields.includes(PseudoFields.IS_DELETED)) {
-        if (result.ttl != null) result.isDeleted = true;
-        else result.isDeleted = false;
+      if (extUrls === "API_URI") {
+        return imgConvertGsPathToApiUri(data, roomId);
+      } else {
+        return data;
       }
-      return result;
     }
 
     // Filter params
     const result = {} as Partial<RoomDTO>;
     for (const field of fields) {
       (result as any)[field] = data[field] ?? null;
-    }
-
-    // add pseudo fields
-    if (fields.includes(PseudoFields.IS_DELETED)) {
-      if (result.ttl != null) result.isDeleted = true;
-      else result.isDeleted = false;
     }
 
     // convert image paths to api uri if any
@@ -466,12 +465,6 @@ class Room {
     for (const doc of docs) {
       const roomData = doc.data() as RoomData;
 
-      // Skip TTL rooms for regular queries (unless ownerId is specified)
-      if (roomData.ttl && !params.ownerId) continue;
-
-      // Set default rating if null
-      if (roomData.rating == null) roomData.rating = 0;
-
       // Apply tag filtering if searchTags are provided
       if (params.searchTags && params.searchTags.size > 0) {
         const tagResult = Room.getTagMatchPriority(roomData, params.searchTags);
@@ -538,7 +531,7 @@ class Room {
       } else {
         // Filter data based on fields array
         for (const field of fields) {
-          if (field in SchemaFields && room.data[field as SchemaFields] != null) {
+          if (room.data[field as SchemaFields] != null) {
             processedData[field] = room.data[field as SchemaFields] ?? null;
           }
         }
@@ -550,6 +543,10 @@ class Room {
       }
       if (fields.length === 0 || fields.includes(PseudoFields.IS_DELETED)) {
         processedData.isDeleted = room.data.ttl != null;
+      }
+      if (fields.length === 0 || fields.includes(SchemaFields.RATING)) {
+        // Set default rating if null
+        if (processedData.rating == null) processedData.rating = 0;
       }
 
       // Convert timestamps to local date strings
@@ -568,6 +565,9 @@ class Room {
       month: "short",
       year: "numeric",
       day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     };
 
     if (data.createdOn) {
