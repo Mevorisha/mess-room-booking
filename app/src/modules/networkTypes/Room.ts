@@ -1,16 +1,20 @@
 import MultiSizePhoto from "./MultiSizePhoto";
 
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
-
 export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 
-export interface RoomData {
-  id?: string;
+/**
+ * Room Data Transfer Object (DTO)
+ * Represents the structure of a room object used in the application.
+ * This is based on backend/src/models/Room.ts
+ * Also see backend/src/pages/api/rooms/[roomId]/read/index.ts
+ */
+export default interface RoomDTO {
+  id: string;
+  // fields from backend/src/models/Room.ts
   ownerId: string;
-  images: MultiSizePhoto[];
-  isUnavailable: boolean;
-  acceptGender: AcceptGender | null;
-  acceptOccupation: AcceptOccupation | null;
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
   searchTags: string[];
   landmark: string;
   address: string;
@@ -20,21 +24,20 @@ export interface RoomData {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
+  images: MultiSizePhoto[];
   rating: number;
-  isDeleted?: boolean;
   createdOn: string;
   lastModifiedOn: string;
+  // shown only to room owner
+  isUnavailable?: boolean;
   ttl?: string;
+  isDeleted?: boolean;
 }
-
-type RoomNetworkType = Partial<RoomData>;
-
-export default RoomNetworkType;
 
 export interface RoomQuery {
   self?: boolean;
-  acceptGender?: "MALE" | "FEMALE" | "OTHER";
-  acceptOccupation?: "STUDENT" | "PROFESSIONAL" | "ANY";
+  acceptGender?: AcceptGender;
+  acceptOccupation?: AcceptOccupation;
   landmark?: string;
   city?: string;
   state?: string;

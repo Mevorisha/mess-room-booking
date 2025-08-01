@@ -214,7 +214,6 @@ async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
  *
  * ```
  * request = "PATCH /api/rooms/[roomId]/updateParams" {
- *   isUnavailable?: boolean
  *   acceptOccupation?: "STUDENT" | "PROFESSIONAL" | "ANY"
  *   searchTags?: Array<string>
  *   landmark?: string
@@ -225,6 +224,7 @@ async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
  *   minorTags?: Array<string>
  *   capacity?: number
  *   pricePerOccupant?: number
+ *   isUnavailable?: boolean
  *   keepFiles?: Array<string>
  *   addFiles?: Array<{ type: string, name: string, base64: string }>
  * }

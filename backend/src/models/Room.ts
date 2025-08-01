@@ -36,8 +36,30 @@ export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "rating" 
 export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
 
 // During read, all data may be read
-export type RoomReadData = Partial<RoomData> & { sortPriority?: number };
-export type RoomReadDataWithId = RoomReadData & { id: string };
+export interface RoomDTO {
+  id: string;
+  // fields from backend/src/models/Room.ts
+  ownerId: string;
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
+  searchTags: string[];
+  landmark: string;
+  address: string;
+  city: string;
+  state: string;
+  majorTags: string[];
+  minorTags: string[];
+  capacity: number;
+  pricePerOccupant: number;
+  images: MultiSizePhoto[];
+  rating: number;
+  createdOn: string;
+  lastModifiedOn: string;
+  // shown only to room owner
+  isUnavailable?: boolean;
+  ttl?: string;
+  isDeleted?: boolean;
+}
 
 // Params to query a room by
 export type RoomQueryParams = Partial<{
@@ -51,9 +73,10 @@ export type RoomQueryParams = Partial<{
   capacity: number;
   lowPrice: number;
   highPrice: number;
+  searchTags: Set<string>;
+  // probably not used
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
-  searchTags: Set<string>;
 }>;
 
 export enum SchemaFields {
@@ -77,7 +100,12 @@ export enum SchemaFields {
   TTL = "ttl",
 }
 
-function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomReadData {
+export enum PseudoFields {
+  ID = "id",
+  IS_DELETED = "isDeleted",
+}
+
+function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomData {
   let _data = { ...data };
   _data["searchTags"] = (_data["searchTags"] || []).map((tag: string) => tag.toLowerCase());
   _data["majorTags"] = (_data["majorTags"] || []).map((tag: string) => tag.toLowerCase());
@@ -91,12 +119,11 @@ function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomRe
     medium: img.medium,
     large: img.large,
   }));
-  _data = _data as RoomReadData;
-  return _data;
+  return _data as RoomData;
 }
 
-function imgConvertGsPathToApiUri(dataToBeUpdated: RoomReadData, roomId: string) {
-  if (dataToBeUpdated.images) {
+function imgConvertGsPathToApiUri<T extends { images?: MultiSizePhoto[] }>(dataToBeUpdated: T, roomId: string) {
+  if (dataToBeUpdated.images != null) {
     // prettier-ignore
     dataToBeUpdated.images = dataToBeUpdated.images.map((imgGsPaths: MultiSizePhoto) => ({
       small: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.small), "small"),
@@ -267,39 +294,101 @@ class Room {
     return bookings.filter((b) => !b.isCancelled && !b.isCleared).length > 0;
   }
 
+  /**
+   * Get specific fields from a room document
+   */
+  static async get(
+    roomId: string,
+    extUrls: ApiResponseUrlType,
+    fields: (SchemaFields | PseudoFields)[] = []
+  ): Promise<Partial<RoomDTO> | null> {
+    const ref = FirestorePaths.Rooms(roomId);
+
+    const doc = await ref.get();
+    if (!doc.exists) {
+      return null;
+    }
+
+    const data = doc.data();
+    if (!data) {
+      return null;
+    }
+
+    if (data["rating"] == null) data["rating"] = 0;
+
+    // add id field if necessary
+    if (fields.includes(PseudoFields.ID)) {
+      data["id"] = roomId;
+    }
+
+    // If no fields provided, send all params
+    if (fields.length === 0) {
+      // convert image paths to direct urls
+      let result: Partial<RoomDTO> | null = null;
+      if (extUrls === "API_URI") result = imgConvertGsPathToApiUri(data as RoomDTO, roomId);
+      else result = data as RoomDTO;
+      // add pseudo fields
+      if (fields.includes(PseudoFields.IS_DELETED)) {
+        if (result.ttl != null) result.isDeleted = true;
+        else result.isDeleted = false;
+      }
+      return result;
+    }
+
+    // Filter params
+    const result = {} as Partial<RoomDTO>;
+    for (const field of fields) {
+      (result as any)[field] = data[field] ?? null;
+    }
+
+    // add pseudo fields
+    if (fields.includes(PseudoFields.IS_DELETED)) {
+      if (result.ttl != null) result.isDeleted = true;
+      else result.isDeleted = false;
+    }
+
+    // convert image paths to api uri if any
+    if (extUrls === "API_URI") {
+      return imgConvertGsPathToApiUri(result, roomId);
+    } else {
+      return result;
+    }
+  }
+
   static async queryAll(
     params: RoomQueryParams,
     extUrls: ApiResponseUrlType,
     sortOn?: "capacity" | "rating" | "pricePerOccupant",
-    sortOrder?: "asc" | "desc"
-  ): Promise<RoomReadDataWithId[]> {
-    // For self queries, simplify and just get all rooms by owner, then sort
-    if (params.self && params.ownerId) {
-      const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-      const query = ref.where(SchemaFields.OWNER_ID, "==", params.ownerId);
-      const snapshot = await query.get();
-      const results: RoomReadDataWithId[] = [];
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        results.push({ ...data, id: doc.id });
-      }
-      if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
-      // Sort self results: non-TTL first, then by lastModifiedOn desc within each group
-      return results.sort((a, b) => {
-        // TTL rooms come last
-        if (a.ttl && !b.ttl) return 1;
-        if (!a.ttl && b.ttl) return -1;
-        // Within each group (TTL or non-TTL), sort by lastModifiedOn desc
-        if (a.lastModifiedOn && b.lastModifiedOn) {
-          return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
-        }
-        return 0;
-      });
-    }
+    sortOrder?: "asc" | "desc",
+    fields: (SchemaFields | PseudoFields)[] = []
+  ): Promise<Partial<RoomDTO>[]> {
+    // 1. QUERY - Build and execute Firestore query
+    const query = Room.buildFirestoreQuery(params, sortOn, sortOrder);
+    const snapshot = await query.get();
+    // 2. SORT ORDER - Apply tag-based filtering and initial sorting
+    const filteredRooms = Room.filterAndSortByTags(snapshot.docs, params);
+    // 3. FILTER OUT PROPS - Convert RoomData to RoomDTO with field filtering
+    // 4. ADD PSEUDO PROPS - Handled in convertToRoomDTOs
+    const roomDTOs = Room.convertToRoomDTOs(filteredRooms, fields);
+    // 5. CONVERT IMAGE LINKS - Transform image paths to API URIs if needed
+    const roomsWithImages = Room.convertImageLinks(roomDTOs, extUrls);
+    // 6. SORT THE RESULT - Apply final sorting logic
+    const sortedResults = Room.applySorting(roomsWithImages, params, sortOn);
+    // 7. RETURN
+    return sortedResults;
+  }
 
-    // Regular search query for non-self
+  // ----------------------------------------------- PRIVATE HELPER FUNCTIONS ----------------------------------------------------
+
+  // Helper function to build Firestore query
+  private static buildFirestoreQuery(
+    params: RoomQueryParams,
+    sortOn?: "capacity" | "rating" | "pricePerOccupant",
+    sortOrder?: "asc" | "desc"
+  ) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     let query: any = ref;
+
     // Apply filters for exact matches
     if (params.ownerId) {
       query = query.where(SchemaFields.OWNER_ID, "==", params.ownerId);
@@ -322,169 +411,235 @@ class Room {
     if (params.capacity) {
       query = query.where(SchemaFields.CAPACITY, ">=", params.capacity);
     }
-    // Price range filters
     if (params.lowPrice) {
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
     }
     if (params.highPrice) {
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
     }
-    // Timestamp filters
     if (params.createdOn) {
       query = query.where(SchemaFields.CREATED_ON, ">=", params.createdOn);
     }
     if (params.lastModifiedOn) {
       query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
     }
-    // Only available Rooms that are not to be deleted will appear in search results
+
+    // Only available rooms
     query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
+
     // Apply server-side sorting
     if (sortOn) {
-      const fieldToSort =
-        sortOn === "pricePerOccupant"
-          ? SchemaFields.PRICE_PER_OCCUPANT
-          : sortOn === "capacity"
-          ? SchemaFields.CAPACITY
-          : sortOn === "rating"
-          ? SchemaFields.RATING
-          : null;
+      const fieldToSort = Room.getFieldToSort(sortOn);
       if (fieldToSort) {
         const direction = sortOrder === "desc" ? "desc" : "asc";
         query = query.orderBy(fieldToSort, direction);
       }
     } else {
-      // Default sorting by lastModifiedOn if no sortOn specified
+      // Default sorting by lastModifiedOn
       query = query.orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
     }
-    // Execute query
-    const snapshot = await query.get();
 
-    if (snapshot["rating"] == null) snapshot["rating"] = 0;
+    return query;
+  }
 
-    const results: RoomReadDataWithId[] = [];
-    // Process results and apply any tag filters in code
-    for (const doc of snapshot.docs) {
-      const data = doc.data();
-      // Skip documents with TTL for non-self queries
-      if (data.ttl) continue;
-      // Filter by tags if specified
+  // Helper function to get the field to sort by
+  private static getFieldToSort(sortOn: "capacity" | "rating" | "pricePerOccupant"): SchemaFields | null {
+    switch (sortOn) {
+      case "pricePerOccupant":
+        return SchemaFields.PRICE_PER_OCCUPANT;
+      case "capacity":
+        return SchemaFields.CAPACITY;
+      case "rating":
+        return SchemaFields.RATING;
+      default:
+        return null;
+    }
+  }
+
+  // Helper function to filter by tags and apply tag-based sorting
+  private static filterAndSortByTags(
+    docs: FirebaseFirestore.QueryDocumentSnapshot[],
+    params: RoomQueryParams
+  ): { data: RoomData; sortPriority: number; docId: string }[] {
+    const results: { data: RoomData; sortPriority: number; docId: string }[] = [];
+
+    for (const doc of docs) {
+      const roomData = doc.data() as RoomData;
+
+      // Skip TTL rooms for regular queries (unless ownerId is specified)
+      if (roomData.ttl && !params.ownerId) continue;
+
+      // Set default rating if null
+      if (roomData.rating == null) roomData.rating = 0;
+
+      // Apply tag filtering if searchTags are provided
       if (params.searchTags && params.searchTags.size > 0) {
-        const roomReadData = fbDataToQueryableRoomData(data);
-        // Check if any tag in searchTags matches
-        let hasMatchingTag = false;
-        // Default to lowest priority
-        let sortPriority = Number.MAX_VALUE;
-        // Iterate through each tag in given searchTags
-        for (let tag of params.searchTags) {
-          // Convert tag to lowercase for case-insensitive comparison
-          tag = tag.toLowerCase();
-          // Check different fields for tag matches with different priorities
-          if (roomReadData.landmark?.includes(tag)) {
-            hasMatchingTag = true;
-            sortPriority = 1; // Highest priority
-            break;
-          } else if (roomReadData.city?.includes(tag)) {
-            hasMatchingTag = true;
-            sortPriority = 2;
-            break;
-          } else if (roomReadData.state?.includes(tag)) {
-            hasMatchingTag = true;
-            sortPriority = 3;
-            break;
-          } else if (roomReadData.address?.includes(tag)) {
-            hasMatchingTag = true;
-            sortPriority = 4;
-            break;
-          } else if (roomReadData.searchTags?.some((t) => t.includes(tag))) {
-            hasMatchingTag = true;
-            sortPriority = 5;
-            break;
-          } else if (roomReadData.majorTags?.some((t) => t.includes(tag))) {
-            hasMatchingTag = true;
-            sortPriority = 6;
-            break;
-          } else if (roomReadData.minorTags?.some((t) => t.includes(tag))) {
-            hasMatchingTag = true;
-            sortPriority = 7; // Lowest priority
-            break;
+        const tagResult = Room.getTagMatchPriority(roomData, params.searchTags);
+        if (!tagResult.hasMatch) continue;
+
+        results.push({
+          data: roomData,
+          sortPriority: tagResult.priority,
+          docId: doc.id,
+        });
+      } else {
+        results.push({
+          data: roomData,
+          sortPriority: 0,
+          docId: doc.id,
+        });
+      }
+    }
+
+    return results;
+  }
+
+  // Helper function to check tag matches and return priority
+  private static getTagMatchPriority(
+    roomData: RoomData,
+    searchTags: Set<string>
+  ): { hasMatch: boolean; priority: number } {
+    const queryableRoomData = fbDataToQueryableRoomData({ data: roomData, sortPriority: 0 });
+
+    for (let tag of searchTags) {
+      tag = tag.toLowerCase();
+
+      if (queryableRoomData.landmark?.includes(tag)) {
+        return { hasMatch: true, priority: 1 };
+      } else if (queryableRoomData.city?.includes(tag)) {
+        return { hasMatch: true, priority: 2 };
+      } else if (queryableRoomData.state?.includes(tag)) {
+        return { hasMatch: true, priority: 3 };
+      } else if (queryableRoomData.address?.includes(tag)) {
+        return { hasMatch: true, priority: 4 };
+      } else if (queryableRoomData.searchTags?.some((t) => t.includes(tag))) {
+        return { hasMatch: true, priority: 5 };
+      } else if (queryableRoomData.majorTags?.some((t) => t.includes(tag))) {
+        return { hasMatch: true, priority: 6 };
+      } else if (queryableRoomData.minorTags?.some((t) => t.includes(tag))) {
+        return { hasMatch: true, priority: 7 };
+      }
+    }
+
+    return { hasMatch: false, priority: Number.MAX_VALUE };
+  }
+
+  // Helper function to convert RoomData to RoomDTO with field filtering and pseudo fields
+  private static convertToRoomDTOs(
+    rooms: { data: RoomData; sortPriority: number; docId: string }[],
+    fields: (SchemaFields | PseudoFields)[]
+  ): { dto: Partial<RoomDTO>; sortPriority: number }[] {
+    return rooms.map((room) => {
+      let processedData: any = {};
+
+      if (fields.length === 0) {
+        // If no fields provided, include all data
+        processedData = { ...room.data };
+      } else {
+        // Filter data based on fields array
+        for (const field of fields) {
+          if (field in SchemaFields && room.data[field as SchemaFields] != null) {
+            processedData[field] = room.data[field as SchemaFields] ?? null;
           }
         }
-        if (!hasMatchingTag) {
-          continue; // Skip this document if no matching tags
-        }
-        // Store the sort priority for later sorting
-        data.sortPriority = sortPriority;
       }
-      results.push({ ...data, id: doc.id });
+
+      // Add pseudo fields
+      if (fields.length === 0 || fields.includes(PseudoFields.ID)) {
+        processedData.id = room.docId;
+      }
+      if (fields.length === 0 || fields.includes(PseudoFields.IS_DELETED)) {
+        processedData.isDeleted = room.data.ttl != null;
+      }
+
+      // Convert timestamps to local date strings
+      Room.convertTimestamps(processedData);
+
+      return {
+        dto: processedData,
+        sortPriority: room.sortPriority,
+      };
+    });
+  }
+
+  // Helper function to convert timestamps to date strings
+  private static convertTimestamps(data: any) {
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "short",
+      year: "numeric",
+      day: "2-digit",
+    };
+
+    if (data.createdOn) {
+      data.createdOn = (data.createdOn as FirebaseFirestore.Timestamp)
+        .toDate()
+        .toLocaleDateString("en-US", dateOptions);
     }
-    if (extUrls === "API_URI") results.map((roomData) => imgConvertGsPathToApiUri(roomData, roomData.id));
-    // Final sorting logic
-    return results.sort((a, b) => {
-      // If sortOn was specified, we've already done the primary sort in Firestore,
-      // but we need to maintain search tag priority as a stable secondary sort
+    if (data.lastModifiedOn) {
+      data.lastModifiedOn = (data.lastModifiedOn as FirebaseFirestore.Timestamp)
+        .toDate()
+        .toLocaleDateString("en-US", dateOptions);
+    }
+    if (data.ttl) {
+      data.ttl = (data.ttl as FirebaseFirestore.Timestamp).toDate().toLocaleDateString("en-US", dateOptions);
+    }
+  }
+
+  // Helper function to convert image links
+  private static convertImageLinks(
+    rooms: { dto: Partial<RoomDTO>; sortPriority: number }[],
+    extUrls: ApiResponseUrlType
+  ): { dto: Partial<RoomDTO>; sortPriority: number }[] {
+    if (extUrls === "API_URI") {
+      return rooms.map((room) => ({
+        ...room,
+        dto: imgConvertGsPathToApiUri(room.dto, room.dto.id!),
+      }));
+    }
+    return rooms;
+  }
+
+  // Helper function to apply final sorting
+  private static applySorting(
+    rooms: { dto: Partial<RoomDTO>; sortPriority: number }[],
+    params: RoomQueryParams,
+    sortOn?: "capacity" | "rating" | "pricePerOccupant"
+  ): Partial<RoomDTO>[] {
+    const sortedResults = rooms.sort((a, b) => {
+      // Handle owner queries: TTL rooms come last, then by lastModifiedOn desc
+      if (params.ownerId) {
+        if (a.dto.ttl && !b.dto.ttl) return 1;
+        if (!a.dto.ttl && b.dto.ttl) return -1;
+
+        if (a.dto.lastModifiedOn && b.dto.lastModifiedOn) {
+          return new Date(b.dto.lastModifiedOn).getTime() - new Date(a.dto.lastModifiedOn).getTime();
+        }
+        return 0;
+      }
+
+      // Regular search sorting
       if (sortOn) {
         // If search tags were used, use sortPriority as secondary sort
         if (params.searchTags && params.searchTags.size > 0) {
           return (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
         }
-        // Otherwise, results are already correctly sorted by the database
-        return 0;
+        return 0; // Database sorting already applied
       } else {
-        // No sortOn specified, sort primarily by search tag priority if used
+        // Sort primarily by search tag priority if used
         if (params.searchTags && params.searchTags.size > 0) {
           const priorityDiff = (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
           if (priorityDiff !== 0) return priorityDiff;
         }
-        // As secondary sort (or primary if no search tags), sort by lastModifiedOn desc
-        if (a.lastModifiedOn && b.lastModifiedOn) {
-          return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
+
+        // Secondary sort by lastModifiedOn desc
+        if (a.dto.lastModifiedOn && b.dto.lastModifiedOn) {
+          return new Date(b.dto.lastModifiedOn).getTime() - new Date(a.dto.lastModifiedOn).getTime();
         }
         return 0;
       }
     });
-  }
 
-  /**
-   * Get specific fields from a room document
-   */
-  static async get(
-    roomId: string,
-    extUrls: ApiResponseUrlType,
-    fields: SchemaFields[] = []
-  ): Promise<RoomReadData | null> {
-    const ref = FirestorePaths.Rooms(roomId);
-
-    const doc = await ref.get();
-    if (!doc.exists) {
-      return null;
-    }
-
-    const data = doc.data();
-    if (!data) {
-      return null;
-    }
-
-    if (data["rating"] == null) data["rating"] = 0;
-
-    // If no fields provided, send all params
-    if (fields.length === 0) {
-      // convert image paths to direct urls
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as RoomData, roomId);
-      else return data;
-    }
-
-    // Filter params
-    const result = {} as RoomReadData;
-    for (const field of fields) {
-      (result as any)[field] = data[field] ?? null;
-    }
-
-    // convert image paths to api uri if any
-    if (extUrls === "API_URI") {
-      return imgConvertGsPathToApiUri(result as RoomData, roomId);
-    } else {
-      return result;
-    }
+    return sortedResults.map((r) => r.dto);
   }
 }
 

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Room, { RoomQueryParams, RoomReadDataWithId } from "@/models/Room";
+import Room, { RoomQueryParams, RoomDTO, PseudoFields, SchemaFields } from "@/models/Room";
 import { AcceptGender, AcceptOccupation } from "@/models/types";
 import { Timestamp } from "firebase-admin/firestore";
 import { respond } from "@/utils/respond";
@@ -70,6 +70,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");
   }
+
   // Check if we're requesting self rooms
   const isSelfQuery = req.query["self"] === "true";
   // Parse pagination parameters
@@ -79,6 +80,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Parse sorting parameters
   const sortOn = req.query["sortOn"] as "capacity" | "rating" | "pricePerOccupant" | undefined;
   const sortOrder = req.query["sortOrder"] as "asc" | "desc" | undefined;
+
   // Handle authentication for self queries
   let uid: string | null = null;
   if (isSelfQuery) {
@@ -88,26 +90,58 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     }
     uid = authResult.getUid();
   }
+
   // Apply rate limiting
   if (!(await RateLimits.ROOM_SEARCH_READ(uid, req, res))) return;
+
   // Generate cache key by removing page parameter from the URL
   const cacheKey = generateCacheKey(req);
+
   // Try to get results from cache
   let formattedRooms = roomsCache.get(cacheKey);
+
   // If not in cache, fetch from database
   // Also, cache invalidation can be requested in query params
   if (!formattedRooms || invalidateCache) {
     // Parse query parameters
     const queryParams = parseQueryParams(req, isSelfQuery, uid);
-    // Execute the query with sorting
-    const roomsData = await Room.queryAll(queryParams, "API_URI", sortOn, sortOrder);
+
+    const fields = [
+      PseudoFields.ID,
+      SchemaFields.OWNER_ID,
+      SchemaFields.ACCEPT_GENDER,
+      SchemaFields.ACCEPT_OCCUPATION,
+      SchemaFields.SEARCH_TAGS,
+      SchemaFields.LANDMARK,
+      SchemaFields.ADDRESS,
+      SchemaFields.CITY,
+      SchemaFields.STATE,
+      SchemaFields.MAJOR_TAGS,
+      SchemaFields.MINOR_TAGS,
+      SchemaFields.CAPACITY,
+      SchemaFields.PRICE_PER_OCCUPANT,
+      SchemaFields.RATING,
+      SchemaFields.IMAGES,
+      SchemaFields.CREATED_ON,
+      SchemaFields.LAST_MODIFIED_ON,
+      SchemaFields.IS_UNAVAILABLE,
+      SchemaFields.TTL,
+      PseudoFields.IS_DELETED,
+    ];
+
+    // Execute the query - always fetch all fields, we'll filter in formatting
+    const roomsData = await Room.queryAll(queryParams, "API_URI", sortOn, sortOrder, fields);
+
     // Format the response
-    formattedRooms = formatRooms(roomsData, isSelfQuery);
+    formattedRooms = formatRooms(roomsData, uid);
+
     // Store in cache
     roomsCache.set(cacheKey, formattedRooms);
   }
+
   // Apply pagination
   const paginatedResponse = paginateResults(formattedRooms, page);
+
   return respond(res, { status: 200, json: paginatedResponse });
 });
 
@@ -151,81 +185,102 @@ function paginateResults(rooms: any[], page: number) {
 }
 
 /**
- * Parses and validates query parameters from the request
+ * Parses query parameters from the request
  */
 function parseQueryParams(req: NextApiRequest, isSelfQuery: boolean, ownerId: string | null): RoomQueryParams {
   const queryParams: RoomQueryParams = {};
-  // For self queries, we just need the owner ID
+
   if (isSelfQuery && ownerId) {
-    queryParams.self = true;
+    // For self queries, just filter by ownerId
     queryParams.ownerId = ownerId;
-    return queryParams;
+  } else {
+    // For non-self queries, parse all query parameters
+
+    // Handle gender filter
+    if (req.query["acceptGender"] && ["MALE", "FEMALE", "OTHER"].includes(req.query["acceptGender"] as string)) {
+      queryParams.acceptGender = req.query["acceptGender"] as AcceptGender;
+    }
+
+    // Handle occupation filter
+    if (
+      req.query["acceptOccupation"] &&
+      ["STUDENT", "PROFESSIONAL", "ANY"].includes(req.query["acceptOccupation"] as string)
+    ) {
+      queryParams.acceptOccupation = req.query["acceptOccupation"] as AcceptOccupation;
+    }
+
+    // Handle string filters
+    if (req.query["landmark"]) queryParams.landmark = req.query["landmark"] as string;
+    if (req.query["city"]) queryParams.city = req.query["city"] as string;
+    if (req.query["state"]) queryParams.state = req.query["state"] as string;
+
+    // Handle numeric filters
+    if (req.query["capacity"]) queryParams.capacity = parseInt(req.query["capacity"] as string, 10);
+    if (req.query["lowPrice"]) queryParams.lowPrice = parseFloat(req.query["lowPrice"] as string);
+    if (req.query["highPrice"]) queryParams.highPrice = parseFloat(req.query["highPrice"] as string);
+
+    // Handle search tags
+    if (req.query["searchTags"]) {
+      const tagsArray = (req.query["searchTags"] as string).split(",");
+      queryParams.searchTags = new Set(tagsArray);
+    }
+
+    // Handle timestamps if needed
+    if (req.query["createdAfter"]) {
+      queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
+    }
+    if (req.query["modifiedAfter"]) {
+      queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
+    }
   }
-  // Handle gender filter
-  if (req.query["acceptGender"] && ["MALE", "FEMALE", "OTHER"].includes(req.query["acceptGender"] as string)) {
-    queryParams.acceptGender = req.query["acceptGender"] as AcceptGender;
-  }
-  // Handle occupation filter
-  if (req.query["acceptOccupation"] && ["STUDENT", "PROFESSIONAL", "ANY"].includes(req.query["acceptOccupation"] as string)) {
-    queryParams.acceptOccupation = req.query["acceptOccupation"] as AcceptOccupation;
-  }
-  // Handle string filters
-  if (req.query["landmark"]) queryParams.landmark = req.query["landmark"] as string;
-  if (req.query["city"]) queryParams.city = req.query["city"] as string;
-  if (req.query["state"]) queryParams.state = req.query["state"] as string;
-  // Handle numeric filters
-  if (req.query["capacity"]) queryParams.capacity = parseInt(req.query["capacity"] as string, 10);
-  if (req.query["lowPrice"]) queryParams.lowPrice = parseFloat(req.query["lowPrice"] as string);
-  if (req.query["highPrice"]) queryParams.highPrice = parseFloat(req.query["highPrice"] as string);
-  // Handle search tags
-  if (req.query["searchTags"]) {
-    const tagsArray = (req.query["searchTags"] as string).split(",");
-    queryParams.searchTags = new Set(tagsArray);
-  }
-  // Handle timestamps if needed
-  if (req.query["createdAfter"]) {
-    queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
-  }
-  if (req.query["modifiedAfter"]) {
-    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
-  }
+
   return queryParams;
 }
 
 /**
- * Formats room data for the response and adds self specific fields
+ * Formats room data for the response and adds owner-specific fields if user is the owner
  */
-function formatRooms(roomsData: RoomReadDataWithId[], isSelfQuery: boolean): any[] {
-  return roomsData.map((room, index) => {
-    // Common room properties
-    const formattedRoom: any = {
-      id: room.id,
-      ownerId: room.ownerId || `unknown-${index}`,
-      images: room.images || [],
-      acceptGender: room.acceptGender,
-      acceptOccupation: room.acceptOccupation,
-      searchTags: Array.from(room.searchTags || []),
-      landmark: room.landmark,
-      address: room.address,
-      city: room.city,
-      state: room.state,
-      majorTags: Array.from(room.majorTags || []),
-      minorTags: Array.from(room.minorTags || []),
-      capacity: room.capacity,
-      pricePerOccupant: room.pricePerOccupant,
-      rating: room.rating,
-    };
+function formatRooms(roomsData: Partial<RoomDTO>[], authenticatedUserId: string | null): any[] {
+  return roomsData.map((room, _) => {
+    // Check if the authenticated user is the owner of this room
+    const isOwner = authenticatedUserId && room.ownerId === authenticatedUserId;
 
-    // Add self-specific properties
-    if (isSelfQuery) {
-      formattedRoom.isUnavailable = room.isUnavailable;
-      formattedRoom.isDeleted = !!room.ttl;
-      if (room.ttl) {
-        formattedRoom.ttl = room.ttl.toDate().toLocaleDateString("en-US", {
-          month: "short",
-          year: "numeric",
-          day: "2-digit",
-        });
+    // Common room properties
+    const formattedRoom: Partial<RoomDTO> = {};
+    if (room.id) formattedRoom.id = room.id;
+    if (room.ownerId) formattedRoom.ownerId = room.ownerId;
+    if (room.images) formattedRoom.images = room.images;
+    if (room.acceptGender) formattedRoom.acceptGender = room.acceptGender;
+    if (room.acceptOccupation) formattedRoom.acceptOccupation = room.acceptOccupation;
+    if (room.searchTags) formattedRoom.searchTags = Array.from(room.searchTags);
+    if (room.landmark) formattedRoom.landmark = room.landmark;
+    if (room.address) formattedRoom.address = room.address;
+    if (room.city) formattedRoom.city = room.city;
+    if (room.state) formattedRoom.state = room.state;
+    if (room.majorTags) formattedRoom.majorTags = Array.from(room.majorTags || []);
+    if (room.minorTags) formattedRoom.minorTags = Array.from(room.minorTags || []);
+    if (room.capacity) formattedRoom.capacity = room.capacity;
+    if (room.pricePerOccupant) formattedRoom.pricePerOccupant = room.pricePerOccupant;
+    if (room.rating) formattedRoom.rating = room.rating;
+
+    // Add timestamps if available
+    if (room.createdOn) {
+      formattedRoom.createdOn = room.createdOn;
+    }
+    if (room.lastModifiedOn) {
+      formattedRoom.lastModifiedOn = room.lastModifiedOn;
+    }
+
+    // Add owner-specific properties only if user is the owner
+    if (isOwner) {
+      if (room.isUnavailable != null) {
+        formattedRoom.isUnavailable = room.isUnavailable;
+      }
+      if (room.isDeleted != null) {
+        formattedRoom.isDeleted = room.isDeleted;
+      }
+      if (room.ttl != null) {
+        formattedRoom.ttl = room.ttl;
       }
     }
 
