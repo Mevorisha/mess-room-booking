@@ -4,7 +4,7 @@ import useDialog from "@/hooks/dialogbox.js";
 
 import { lang } from "@/modules/util/language.js";
 import StringySet from "@/modules/classes/StringySet";
-import { RoomData } from "@/modules/networkTypes/Room";
+import RoomDTO from "@/modules/networkTypes/Room";
 import { PagePaths, PageType } from "@/modules/util/pageUrls";
 
 import ButtonText from "@/components/ButtonText";
@@ -39,7 +39,7 @@ function TagsDisplay({ tags, title, colorClass }: TagsDisplayProps): React.React
 }
 
 export interface SectionRoomViewProps {
-  roomData: RoomData;
+  roomData: RoomDTO;
   showBookingButton?: boolean;
   setIsRoomViewVisible?: (value: React.SetStateAction<boolean>) => void;
   reloadApi?: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
@@ -155,14 +155,14 @@ export default function SectionRoomView({
           </div>
 
           <label className="form-label">{lang("Accepted Gender", "গ্রহণযোগ্য লিঙ্গ", "स्वीकृत लिंग")}</label>
-          <select disabled value={roomData.acceptGender ?? ""}>
+          <select disabled value={roomData.acceptGender}>
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
           </select>
 
           <label className="form-label">{lang("Accepted Occupation", "গ্রহণযোগ্য পেশা", "स्वीकृत पेशा")}</label>
-          <select disabled value={roomData.acceptOccupation ?? ""}>
+          <select disabled value={roomData.acceptOccupation}>
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>
             <option value="STUDENT">{lang("Student", "ছাত্র", "छात्र")}</option>
             <option value="PROFESSIONAL">{lang("Professional", "পেশাদার", "प्रोफेशनल")}</option>
