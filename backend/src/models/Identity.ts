@@ -151,39 +151,43 @@ class Identity {
     }
 
     // Compose pseduo fields
-    if (fields.includes(PsudoFields.DISPLAY_NAME)) {
+    if (fields.length === 0 || fields.includes(PsudoFields.DISPLAY_NAME)) {
       data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
-    }
-
-    // If no fields are provided, return the entire document
-    if (fields.length === 0) {
-      let result: Partial<IdentityDTO> | null = null;
-      if (extUrls === "API_URI") result = imgConvertGsPathToApiUri(data as IdentityDTO, uid);
-      else result = data as IdentityDTO;
-      return result;
-    }
-
-    // Return only requested fields
-    const result = {} as IdentityDTO;
-    for (const field of fields) {
-      (result as any)[field] = data[field] || null;
     }
 
     const dateOptions: Intl.DateTimeFormatOptions = {
       month: "short",
       year: "numeric",
       day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     };
 
     // convert timestamps to ISO Locale strings
-    if (result.createdOn != null) {
-      result.createdOn = data["createdOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    if (data["createdOn"] != null) {
+      data["createdOn"] = data["createdOn"].toDate().toLocaleDateString("en-US", dateOptions);
     }
-    if (result.lastModifiedOn != null) {
-      result.lastModifiedOn = data["lastModifiedOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    if (data["lastModifiedOn"] != null) {
+      data["lastModifiedOn"] = data["lastModifiedOn"].toDate().toLocaleDateString("en-US", dateOptions);
     }
-    if (result.ttl != null) {
-      result.ttl = data["ttl"].toDate().toLocaleDateString("en-US", dateOptions);
+    if (data["ttl"] != null) {
+      data["ttl"] = data["ttl"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+
+    // If no fields are provided, return the entire document
+    if (fields.length === 0) {
+      if (extUrls === "API_URI") {
+        return imgConvertGsPathToApiUri(data, uid);
+      } else {
+        return data;
+      }
+    }
+
+    // Return only requested fields
+    const result = {} as IdentityDTO;
+    for (const field of fields) {
+      (result as any)[field] = data[field] || null;
     }
 
     // convert image paths to api uri if any
