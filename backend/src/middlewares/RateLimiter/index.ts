@@ -31,86 +31,111 @@ export async function rateLimiter(
   // Use uid if provided, otherwise use IP address as identifier
   const clientIp = getPossibleClientIp(req);
   // Extract the URL path to include in the rate limiting key
-  const pathId = path || req.url || req.query["path"] || "/";
+  let queryPath = "/";
+  if (req.query["path"] instanceof Array) {
+    if (req.query["path"].length > 0) {
+      queryPath = req.query["path"].join(",");
+    } else {
+      queryPath = "/";
+    }
+  } else if (typeof req.query["path"] === "string") {
+    if (req.query["path"].length > 0) {
+      queryPath = req.query["path"];
+    } else {
+      queryPath = "/";
+    }
+  } else {
+    queryPath = "/";
+  }
+  const pathId = path ?? req.url ?? queryPath;
   // Create a unique identifier for rate limiting that includes both user/IP and path
-  const identifier = uid || String(clientIp);
+  const identifier = uid ?? String(clientIp);
   // Create a key with a prefix and path
   const key = `ratelimit:${identifier}:${pathId}`;
   // Get current count for this identifier and path combination
-  const currentCount = Number(rateCache.get(key)) || 0;
+  const currentCount = Number(rateCache.get(key) ?? 0);
   // If count exists and exceeds frequency, reject the request
-  if (currentCount && currentCount >= frequency) {
+  if (currentCount !== 0 && currentCount >= frequency) {
     res.status(429).json({
       error: "Too many requests, please try again later.",
     });
     console.log(`[W] [RateLimiter] blocked ${frequency} ${identifier} ${path}`);
-    return false;
+    return Promise.resolve(false);
   }
   // Increment the counter (or create if doesn't exist)
-  rateCache.set(key, (currentCount as number) + 1);
+  rateCache.set(key, currentCount + 1);
   // Request is allowed
-  return true;
+  return Promise.resolve(true);
 }
 
 export const RateLimits = {
   // Profile operations
-  PROFILE_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "PROFILE_CREATE", req, res),
-  PROFILE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "PROFILE_READ", req, res),
-  PROFILE_PHOTO_READ: (req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(60, null, "PROFILE_READ", req, res),
+  PROFILE_PHOTO_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, null, "PROFILE_PHOTO_READ", req, res),
-  PROFILE_LANG_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_LANG_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "PROFILE_LANG_UPDATE", req, res),
-  PROFILE_PHOTO_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_PHOTO_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "PROFILE_PHOTO_UPDATE", req, res),
-  PROFILE_MOBILE_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_MOBILE_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "PROFILE_MOBILE_UPDATE", req, res),
-  PROFILE_NAME_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_NAME_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "PROFILE_NAME_UPDATE", req, res),
-  PROFILE_TYPE_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  PROFILE_TYPE_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "PROFILE_TYPE_UPDATE", req, res),
 
   // ID document operations
-  ID_DOC_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(20, null, "ID_DOC_READ", req, res),
-  ID_DOC_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ID_DOC_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(20, null, "ID_DOC_READ", req, res),
+  ID_DOC_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "ID_DOC_UPDATE", req, res),
-  ID_DOC_VIS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ID_DOC_VIS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "ID_DOC_VIS_UPDATE", req, res),
 
   // Room operations
-  ROOM_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) => rateLimiter(5, uid, "ROOM_CREATE", req, res),
-  ROOM_DELETE: (uid: string, req: NextApiRequest, res: NextApiResponse) => rateLimiter(5, uid, "ROOM_DELETE", req, res),
-  ROOM_RESTORE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(5, uid, "ROOM_CREATE", req, res),
+  ROOM_DELETE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(5, uid, "ROOM_DELETE", req, res),
+  ROOM_RESTORE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "ROOM_RESTORE", req, res),
-  ROOM_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_READ", req, res),
-  ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(60, null, "ROOM_READ", req, res),
+  ROOM_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(60, uid, "ROOM_SEARCH_READ", req, res),
-  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(240, null, "ROOM_IMAGE_READ", req, res),
-  ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "ROOM_RATING_READ", req, res),
-  ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_IMAGE_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(240, null, "ROOM_IMAGE_READ", req, res),
+  ROOM_RATING_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(60, null, "ROOM_RATING_READ", req, res),
+  ROOM_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "ROOM_PARAMS_UPDATE", req, res),
-  ROOM_UNAVAILABLITY_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_UNAVAILABLITY_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "ROOM_UNAVAILABLITY_UPDATE", req, res),
-  ROOM_CLIENT_RATING_READ: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_CLIENT_RATING_READ: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(60, uid, "ROOM_CLIENT_RATING_READ", req, res),
-  ROOM_CLIENT_RATING_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  ROOM_CLIENT_RATING_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(20, uid, "ROOM_CLIENT_RATING_UPDATE", req, res),
 
   // Booking operations
-  BOOKING_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_CREATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "BOOKING_CREATE", req, res),
-  BOOKING_CANCEL: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_CANCEL: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(30, uid, "BOOKING_CANCEL", req, res),
-  BOOKING_CLEAR: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_CLEAR: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(5, uid, "BOOKING_CLEAR", req, res),
-  BOOKING_ACCEPT: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_ACCEPT: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(30, uid, "BOOKING_ACCEPT", req, res),
-  BOOKING_READ: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "BOOKING_READ", req, res),
-  BOOKING_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_READ: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(60, null, "BOOKING_READ", req, res),
+  BOOKING_SEARCH_READ: (uid: string | null, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(60, uid, "BOOKING_SEARCH_READ", req, res),
-  BOOKING_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse) =>
+  BOOKING_PARAMS_UPDATE: (uid: string, req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
     rateLimiter(30, uid, "BOOKING_PARAMS_UPDATE", req, res),
 
   // Logging
-  LOG_WRITE: (req: NextApiRequest, res: NextApiResponse) => rateLimiter(60, null, "LOG_WRITE", req, res),
+  LOG_WRITE: (req: NextApiRequest, res: NextApiResponse): Promise<boolean> =>
+    rateLimiter(60, null, "LOG_WRITE", req, res),
 };
