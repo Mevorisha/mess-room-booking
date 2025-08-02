@@ -12,7 +12,7 @@ const ExposedHeaders = [HeaderTypes.X_CONTENT_ENCODING, HeaderTypes.X_DECODED_CO
  * @returns {boolean} True if response can be continued, false if response has been ended
  * @throws {CustomApiError} If CORS checks fail
  */
-export function cors(req: NextApiRequest, res: NextApiResponse): boolean {
+export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
   const origin = req.headers.origin ?? ("" as string);
   if (
     config.CORS_ALLOW_EVERYTHING ||
@@ -35,9 +35,9 @@ export function cors(req: NextApiRequest, res: NextApiResponse): boolean {
   if (req.method === "OPTIONS") {
     res.status(204);
     res.end();
-    return false;
+    return Promise.resolve(false);
   }
 
   // Not to end response here and let it be end by handler
-  return true;
+  return Promise.resolve(true);
 }
