@@ -3,7 +3,7 @@ import { FirebaseFirestore } from "@/firebase/init";
 import Room from "@/models/Room";
 import RoomRatings from "@/models/RoomRatings";
 
-export async function updateRoomRatings() {
+export async function updateRoomRatings(): Promise<void> {
   const collRef = FirebaseFirestore.collection(FirestorePaths.ROOMS);
   const snapshot = await collRef.get();
   if (snapshot.empty) return;
@@ -16,5 +16,5 @@ export async function updateRoomRatings() {
     };
     updatePromises.push(mkUpdatePromise());
   });
-  return Promise.all(updatePromises);
+  return void Promise.all(updatePromises);
 }

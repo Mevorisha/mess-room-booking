@@ -5,8 +5,10 @@ import { logToDb } from "../LogToDb";
 import { handleFirebaseIndexError } from "./mkIndex";
 import { consoleLog } from "../ConsoleLog/index.js";
 
-async function handleErr(e: any, res: NextApiResponse) {
-  if (!e) {
+export type FirebaseIndexErrorType = Error & { code: number; details: string };
+
+async function handleErr(e: FirebaseIndexErrorType | null, res: NextApiResponse) {
+  if (e == null) {
     return respond(res, { status: 500, error: "Unknown Server Error" });
   }
   if (e instanceof CustomApiError) {
@@ -44,7 +46,7 @@ export function catchAll(
   req: NextApiRequest,
   res: NextApiResponse,
   handlerFn: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
-) {
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     try {
       const prom = handlerFn(req, res);
@@ -52,17 +54,18 @@ export function catchAll(
         prom
           .then(() => consoleLog(req, res))
           .then(() => resolve())
-          .catch((e) =>
+          .catch((e: FirebaseIndexErrorType) =>
             logToDb(e)
               .then(() => handleErr(e, res))
               .then(() => consoleLog(req, res))
               .then(() => reject(e))
           );
     } catch (e) {
-      logToDb(e as Error)
-        .then(() => handleErr(e, res))
+      const error = e as FirebaseIndexErrorType;
+      void logToDb(error)
+        .then(() => handleErr(error, res))
         .then(() => consoleLog(req, res))
-        .then(() => reject(e));
+        .then(() => reject(error));
     }
   });
 }

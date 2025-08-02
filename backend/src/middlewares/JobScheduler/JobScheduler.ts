@@ -4,6 +4,7 @@ type TimeUnits = "ms" | "sec" | "min" | "hr" | "day" | "mon";
 
 export interface Job {
   intervalMs: number;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   jobFunction: Function;
 }
 
@@ -23,13 +24,13 @@ export default class JobScheduler {
 
   private constructor() {
     this.#jobs = new Map<string, Job>();
-    if (JobScheduler.#instance) {
+    if (JobScheduler.#instance != null) {
       return JobScheduler.#instance;
     }
     JobScheduler.#instance = this;
   }
 
-  static getInstance() {
+  static getInstance(): JobScheduler {
     return new JobScheduler();
   }
 
@@ -50,7 +51,8 @@ export default class JobScheduler {
    * @param {TimeUnits} unit - Time unit for frequency (ms, sec, min, hr, day, mon)
    * @param {Function} jobFunction - The function to execute
    */
-  addJob(jobId: string, frequency: number, unit: TimeUnits, jobFunction: Function) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  addJob(jobId: string, frequency: number, unit: TimeUnits, jobFunction: Function): this {
     if (frequency <= 0) {
       throw new Error("Frequency must be a positive number");
     }
@@ -73,13 +75,14 @@ export default class JobScheduler {
       // Process each job
       for (const [jobId, job] of this.#jobs.entries()) {
         // Get the last execution time from the map
-        const lastRunTime = lastRunTimes.get(jobId) || 0;
+        const lastRunTime = lastRunTimes.get(jobId) ?? 0;
         // Check if job should run
         if (lastRunTime + job.intervalMs <= currentTime) {
           // Create a promise for this job and add to array
           const mkJobPromise = async () => {
             try {
               // Execute job
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-call
               await job.jobFunction();
               // Update last run time in DB
               await SchedulerTimes.set(jobId, currentTime);
@@ -102,7 +105,7 @@ export default class JobScheduler {
    * Remove a job from the scheduler
    * @param {string} jobId - ID of the job to remove
    */
-  removeJob(jobId: string) {
+  removeJob(jobId: string): boolean {
     if (this.#jobs.has(jobId)) {
       this.#jobs.delete(jobId);
       return true;

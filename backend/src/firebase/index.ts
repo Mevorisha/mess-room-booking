@@ -5,10 +5,10 @@ import { CustomApiError } from "../types/CustomApiError";
 export interface IndexSpec {
   collectionId: string;
   queryScope?: "COLLECTION" | "COLLECTION_GROUP";
-  fields: Array<{
+  fields: {
     fieldPath: string;
     mode?: "ASCENDING" | "DESCENDING";
-  }>;
+  }[];
 }
 
 /**
@@ -21,13 +21,13 @@ export function extractIndexData(errorDetails: string): string {
     /You can create it here: (https:\/\/console\.firebase\.google\.com\/v1\/r\/project\/.*\/firestore\/indexes\?create_composite=.*)/
   );
   // extract the URL from the match
-  const url = match ? match[1] ?? null : null;
-  if (!url) {
+  const url = match != null ? match[1] ?? null : null;
+  if (url == null) {
     throw new Error("Could not extract index URL from error details");
   }
   // Extract the create_composite parameter from the URL
   const data = new URL(url).searchParams.get("create_composite");
-  if (!data) {
+  if (data == null) {
     throw new Error("Could not extract index data from URL");
   }
   return data;
@@ -50,8 +50,8 @@ export function parseDataIntoIndexSpec(data: string): {
   const asString = buffer.toString();
 
   // Extract collection path details
-  const pathMatch = asString.match(/projects\/([^\/]+)\/databases\/([^\/]+)\/collectionGroups\/([^\/]+)\/indexes/);
-  if (!pathMatch) {
+  const pathMatch = asString.match(/projects\/([^/]+)\/databases\/([^/]+)\/collectionGroups\/([^/]+)\/indexes/);
+  if (pathMatch == null) {
     throw new Error("Invalid Firestore index protobuf string format");
   }
 
@@ -122,10 +122,11 @@ export function parseDataIntoIndexSpec(data: string): {
   }
   if (fields.length === 0) {
     // Try a fallback method - extract via regex from the visible patterns
+    // eslint-disable-next-line no-control-regex
     const fieldMatches = asString.matchAll(/\x1A[\s\S]{1,20}([\w_]+)\x10(\x01|\x02)/g);
 
     for (const match of fieldMatches) {
-      if (match[1]) {
+      if (match[1] != null) {
         const fieldPath = match[1];
         const mode = match[2] === "\x01" ? "ASCENDING" : "DESCENDING";
         fields.push({ fieldPath, mode });
@@ -135,7 +136,7 @@ export function parseDataIntoIndexSpec(data: string): {
   if (fields.length === 0) {
     throw new Error("No fields found in protobuf string");
   }
-  if (!collectionId) {
+  if (collectionId == null) {
     throw new Error("No collection ID found in protobuf string");
   }
   // Create the result object in Firestore API format
@@ -153,7 +154,8 @@ export async function createFirestoreIndex(
   projectId: string | null,
   databaseId: string | null,
   indexSpec: IndexSpec
-): Promise<any> {
+): Promise<object> {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
   if (!indexSpec || !indexSpec.collectionId || !indexSpec.fields) {
     throw new Error("Invalid index specification");
   }
@@ -183,8 +185,9 @@ export async function createFirestoreIndex(
       const response = responses[0];
       return response;
     })
-    .catch((error) => {
-      if (error.code === 6 || error.code === 9) {
+    .catch((e) => {
+      const error = e as Error & { code?: number };
+      if (error.code != null && (error.code === 6 || error.code === 9)) {
         console.error(`[E] [CreateFirestoreIndex] Failed to create index: ${error.message}\nOn request: ${JSON.stringify(request, null, 2)}`); // prettier-ignore
         throw CustomApiError.create(500, "Server busy. Please try again later.");
       } else {

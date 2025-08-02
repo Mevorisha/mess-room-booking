@@ -2,7 +2,7 @@ import admin from "firebase-admin";
 import { App, getApp, initializeApp } from "firebase-admin/app";
 import { Auth, getAuth } from "firebase-admin/auth";
 import { Database, getDatabase } from "firebase-admin/database";
-import { Firestore, getFirestore } from "firebase-admin/firestore";
+import { CollectionReference, DocumentReference, Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "../config/env";
 
@@ -35,12 +35,14 @@ try {
   );
 
   alreadyInit = false;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 } catch (e) {
   FirebaseApp = getApp(config.FIREBASE_PROJECT_ID);
 
   alreadyInit = true;
 } finally {
   if (FirebaseApp == null) {
+    // eslint-disable-next-line no-unsafe-finally
     throw new Error("FirebaseApp is null");
   }
   FirebaseAuth = getAuth(FirebaseApp);
@@ -65,19 +67,20 @@ class FirestorePaths {
   static SCHEDULER_TIMES = !config.IS_DEV ? "/fstr_SchedulerTimes" : "/preview_fstr_SchedulerTimes";
   static ROOM_RATINGS = !config.IS_DEV ? "/fstr_RoomRatings" : "/preview_fstr_RoomRatings";
 
-  static Identity = (uid: string) => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
+  static Identity = (uid: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
 
-  static Logs = (uid: string) => FirebaseFirestore.collection(FirestorePaths.LOGS).doc(uid);
+  static Logs = (uid: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.LOGS).doc(uid);
 
-  static Feedback = () => FirebaseFirestore.collection(FirestorePaths.FEEDBACK);
+  static Feedback = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.FEEDBACK);
 
-  static Rooms = (roomId: string) => FirebaseFirestore.collection(FirestorePaths.ROOMS).doc(roomId);
+  static Rooms = (roomId: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.ROOMS).doc(roomId);
 
-  static Bookings = (bookingId: string) => FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
+  static Bookings = (bookingId: string): DocumentReference =>
+    FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
 
-  static SchedulerTimes = () => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
+  static SchedulerTimes = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
 
-  static RoomRatings = () => FirebaseFirestore.collection(FirestorePaths.ROOM_RATINGS);
+  static RoomRatings = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.ROOM_RATINGS);
 }
 
 /**
@@ -100,7 +103,7 @@ class StoragePaths {
     gsBucket: (uid: string, type: "WORK_ID" | "GOV_ID", w: number, h: number): string =>
       `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${w}/${h}`,
 
-    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz, b64 = true) =>
+    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
   };
 
