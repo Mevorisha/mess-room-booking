@@ -21,6 +21,7 @@ class SchedulerTimes {
     const doc = await ref.get();
     if (!doc.exists) return null;
     const data = doc.data() as SchedulerTimesData;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (!data) return null;
     return data.lastRunTime;
   }
@@ -35,6 +36,7 @@ class SchedulerTimes {
     if (snapshot.empty) return result;
     snapshot.forEach((doc) => {
       const data = doc.data() as SchedulerTimesData;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
       if (data && typeof data.lastRunTime === "number") {
         result.set(doc.id, data.lastRunTime);
       }

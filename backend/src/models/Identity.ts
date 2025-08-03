@@ -75,14 +75,14 @@ function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; id
   uid: string
 ) {
   // convert image paths in profile photos to URLs
-  if (dataToUpdate.profilePhotos) {
+  if (dataToUpdate.profilePhotos != null) {
     dataToUpdate.profilePhotos = {
       small: StoragePaths.ProfilePhotos.apiUri(uid, "small"),
       medium: StoragePaths.ProfilePhotos.apiUri(uid, "medium"),
       large: StoragePaths.ProfilePhotos.apiUri(uid, "large"),
     };
   }
-  if (dataToUpdate.identityPhotos) {
+  if (dataToUpdate.identityPhotos != null) {
     const workId = {
       small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
       medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
@@ -94,8 +94,8 @@ function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; id
       large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
     };
     const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
-    if (dataToUpdate.identityPhotos.workId) ids.workId = workId;
-    if (dataToUpdate.identityPhotos.govId) ids.govId = govId;
+    if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;
+    if (dataToUpdate.identityPhotos.govId != null) ids.govId = govId;
     dataToUpdate.identityPhotos = {
       ...ids,
       workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate ?? true,
@@ -124,6 +124,7 @@ class Identity {
   static async update(uid: string, updateData: IdentityUpdateData): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const docSnapshot = await ref.get();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (!docSnapshot || !docSnapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
@@ -146,7 +147,7 @@ class Identity {
     }
 
     const data = doc.data();
-    if (!data) {
+    if (data == null) {
       return null;
     }
 
@@ -166,12 +167,15 @@ class Identity {
 
     // convert timestamps to ISO Locale strings
     if (data["createdOn"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       data["createdOn"] = data["createdOn"].toDate().toLocaleDateString("en-US", dateOptions);
     }
     if (data["lastModifiedOn"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       data["lastModifiedOn"] = data["lastModifiedOn"].toDate().toLocaleDateString("en-US", dateOptions);
     }
     if (data["ttl"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       data["ttl"] = data["ttl"].toDate().toLocaleDateString("en-US", dateOptions);
     }
 
@@ -187,6 +191,7 @@ class Identity {
     // Return only requested fields
     const result = {} as IdentityDTO;
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/strict-boolean-expressions
       (result as any)[field] = data[field] || null;
     }
 

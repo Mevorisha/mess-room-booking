@@ -10,6 +10,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { LRUCache } from "lru-cache";
 
 // Configure LRU cache
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const roomsCache = new LRUCache<string, any[]>({
   maxSize: 50 * 1024 * 1024, // Maximum size of the cache in bytes (50 MB)
   sizeCalculation: (value) => JSON.stringify(value).length, // Calculate size based on JSON string length
@@ -74,6 +75,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Check if we're requesting self rooms
   const isSelfQuery = req.query["self"] === "true";
   // Parse pagination parameters
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   const page = parseInt(req.query["page"] as string, 10) || 1;
   // Cache invalidation
   const invalidateCache = req.query["invalidateCache"] === "true" ? true : false;
@@ -106,7 +108,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
 
   // If not in cache, fetch from database
   // Also, cache invalidation can be requested in query params
-  if (!formattedRooms || invalidateCache) {
+  if (formattedRooms == null || invalidateCache) {
     // Parse query parameters
     const queryParams = parseQueryParams(req, isSelfQuery, uid);
 
@@ -161,6 +163,7 @@ function generateCacheKey(req: NextApiRequest): string {
   // Convert to a sorted string to ensure consistent keys
   const queryString = Object.entries(queryParams)
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     .map(([key, value]) => `${key}=${value}`)
     .join("&");
   // Construct the cache key
@@ -170,6 +173,7 @@ function generateCacheKey(req: NextApiRequest): string {
 /**
  * Paginates the results based on the requested page
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function paginateResults(rooms: any[], page: number) {
   const totalRooms = rooms.length;
   const totalPages = Math.ceil(totalRooms / PAGE_SIZE);
@@ -194,46 +198,49 @@ function paginateResults(rooms: any[], page: number) {
 function parseQueryParams(req: NextApiRequest, isSelfQuery: boolean, ownerId: string | null): RoomQueryParams {
   const queryParams: RoomQueryParams = {};
 
-  if (isSelfQuery && ownerId) {
+  if (isSelfQuery && ownerId != null) {
     // For self queries, just filter by ownerId
     queryParams.ownerId = ownerId;
   } else {
     // For non-self queries, parse all query parameters
 
     // Handle gender filter
-    if (req.query["acceptGender"] && ["MALE", "FEMALE", "OTHER"].includes(req.query["acceptGender"] as string)) {
+    if (
+      req.query["acceptGender"] != null &&
+      ["MALE", "FEMALE", "OTHER"].includes(req.query["acceptGender"] as string)
+    ) {
       queryParams.acceptGender = req.query["acceptGender"] as AcceptGender;
     }
 
     // Handle occupation filter
     if (
-      req.query["acceptOccupation"] &&
+      req.query["acceptOccupation"] != null &&
       ["STUDENT", "PROFESSIONAL", "ANY"].includes(req.query["acceptOccupation"] as string)
     ) {
       queryParams.acceptOccupation = req.query["acceptOccupation"] as AcceptOccupation;
     }
 
     // Handle string filters
-    if (req.query["landmark"]) queryParams.landmark = req.query["landmark"] as string;
-    if (req.query["city"]) queryParams.city = req.query["city"] as string;
-    if (req.query["state"]) queryParams.state = req.query["state"] as string;
+    if (req.query["landmark"] != null) queryParams.landmark = req.query["landmark"] as string;
+    if (req.query["city"] != null) queryParams.city = req.query["city"] as string;
+    if (req.query["state"] != null) queryParams.state = req.query["state"] as string;
 
     // Handle numeric filters
-    if (req.query["capacity"]) queryParams.capacity = parseInt(req.query["capacity"] as string, 10);
-    if (req.query["lowPrice"]) queryParams.lowPrice = parseFloat(req.query["lowPrice"] as string);
-    if (req.query["highPrice"]) queryParams.highPrice = parseFloat(req.query["highPrice"] as string);
+    if (req.query["capacity"] != null) queryParams.capacity = parseInt(req.query["capacity"] as string, 10);
+    if (req.query["lowPrice"] != null) queryParams.lowPrice = parseFloat(req.query["lowPrice"] as string);
+    if (req.query["highPrice"] != null) queryParams.highPrice = parseFloat(req.query["highPrice"] as string);
 
     // Handle search tags
-    if (req.query["searchTags"]) {
+    if (req.query["searchTags"] != null) {
       const tagsArray = (req.query["searchTags"] as string).split(",");
       queryParams.searchTags = new Set(tagsArray);
     }
 
     // Handle timestamps if needed
-    if (req.query["createdAfter"]) {
+    if (req.query["createdAfter"] != null) {
       queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
     }
-    if (req.query["modifiedAfter"]) {
+    if (req.query["modifiedAfter"] != null) {
       queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
     }
   }
@@ -244,10 +251,11 @@ function parseQueryParams(req: NextApiRequest, isSelfQuery: boolean, ownerId: st
 /**
  * Formats room data for the response and adds owner-specific fields if user is the owner
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatRooms(roomsData: Partial<RoomDTO>[], authenticatedUserId: string | null): any[] {
   return roomsData.map((room, _) => {
     // Check if the authenticated user is the owner of this room
-    const isOwner = authenticatedUserId && room.ownerId === authenticatedUserId;
+    const isOwner = authenticatedUserId != null && room.ownerId === authenticatedUserId;
 
     // Common room properties
     const formattedRoom: Partial<RoomDTO> = {};
@@ -261,8 +269,8 @@ function formatRooms(roomsData: Partial<RoomDTO>[], authenticatedUserId: string 
     if (room.address != null) formattedRoom.address = room.address;
     if (room.city != null) formattedRoom.city = room.city;
     if (room.state != null) formattedRoom.state = room.state;
-    if (room.majorTags != null) formattedRoom.majorTags = Array.from(room.majorTags || []);
-    if (room.minorTags != null) formattedRoom.minorTags = Array.from(room.minorTags || []);
+    if (room.majorTags != null) formattedRoom.majorTags = Array.from(room.majorTags ?? []);
+    if (room.minorTags != null) formattedRoom.minorTags = Array.from(room.minorTags ?? []);
     if (room.capacity != null) formattedRoom.capacity = room.capacity;
     if (room.pricePerOccupant != null) formattedRoom.pricePerOccupant = room.pricePerOccupant;
     if (room.rating != null) formattedRoom.rating = room.rating;

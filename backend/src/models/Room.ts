@@ -19,7 +19,7 @@ export interface RoomData {
   capacity: number;
   pricePerOccupant: number;
   // Set later on
-  images?: Array<MultiSizePhoto>;
+  images?: MultiSizePhoto[];
   isUnavailable?: boolean;
   // 0 to 5
   rating: number;
@@ -63,7 +63,6 @@ export interface RoomDTO {
 
 // Params to query a room by
 export type RoomQueryParams = Partial<{
-  self?: boolean;
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -106,19 +105,29 @@ export enum PseudoFields {
 }
 
 function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomData {
-  let _data = { ...data };
-  _data["searchTags"] = (_data["searchTags"] || []).map((tag: string) => tag.toLowerCase());
-  _data["majorTags"] = (_data["majorTags"] || []).map((tag: string) => tag.toLowerCase());
-  _data["minorTags"] = (_data["minorTags"] || []).map((tag: string) => tag.toLowerCase());
-  _data["landmark"] = _data["landmark"]?.toLowerCase();
-  _data["city"] = _data["city"]?.toLowerCase();
-  _data["state"] = _data["state"]?.toLowerCase();
-  _data["address"] = _data["address"]?.toLowerCase();
-  _data["images"] = _data["images"]?.map((img: MultiSizePhoto) => ({
-    small: img.small,
-    medium: img.medium,
-    large: img.large,
-  }));
+  const _data = { ...data };
+  {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+    _data["searchTags"] = (_data["searchTags"] || []).map((tag: string) => tag.toLowerCase());
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+    _data["majorTags"] = (_data["majorTags"] || []).map((tag: string) => tag.toLowerCase());
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
+    _data["minorTags"] = (_data["minorTags"] || []).map((tag: string) => tag.toLowerCase());
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    _data["landmark"] = _data["landmark"]?.toLowerCase();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    _data["city"] = _data["city"]?.toLowerCase();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    _data["state"] = _data["state"]?.toLowerCase();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    _data["address"] = _data["address"]?.toLowerCase();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    _data["images"] = _data["images"]?.map((img: MultiSizePhoto) => ({
+      small: img.small,
+      medium: img.medium,
+      large: img.large,
+    }));
+  }
   return _data as RoomData;
 }
 
@@ -173,8 +182,11 @@ class Room {
     const createData = {
       ...roomData,
       // Convert sets to array
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       searchTags: Array.from(roomData.searchTags ?? []),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       majorTags: Array.from(roomData.majorTags ?? []),
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       minorTags: Array.from(roomData.minorTags ?? []),
       // Intialise
       rating: 0,
@@ -210,6 +222,7 @@ class Room {
 
     const ref = FirestorePaths.Rooms(roomId);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateDataFrstrFormat: Record<string, any> = {
       ...updateData,
       lastModifiedOn: FieldValue.serverTimestamp(),
@@ -217,13 +230,17 @@ class Room {
 
     // Convert sets to array
     // Make sure u update the array type fields only if they exist in given data
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (updateDataFrstrFormat["searchTags"]) updateDataFrstrFormat["searchTags"] = Array.from(updateData.searchTags ?? []); // prettier-ignore
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (updateDataFrstrFormat["majorTags"]) updateDataFrstrFormat["majorTags"] = Array.from(updateData.majorTags ?? []);
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (updateDataFrstrFormat["minorTags"]) updateDataFrstrFormat["minorTags"] = Array.from(updateData.minorTags ?? []);
 
     try {
       // Throws error if room doesn't exist
       await ref.update(updateDataFrstrFormat);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
@@ -239,6 +256,7 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
@@ -250,12 +268,13 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
   }
 
-  static async forceDelete(roomId: string) {
+  static async forceDelete(roomId: string): Promise<void> {
     if (await Room.hasBooking(roomId)) {
       throw CustomApiError.create(409, "Room is in use");
     }
@@ -263,12 +282,13 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.delete();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
   }
 
-  static async setUnavailability(roomId: string, isUnavailable: boolean) {
+  static async setUnavailability(roomId: string, isUnavailable: boolean): Promise<void> {
     if (await Room.hasBooking(roomId)) {
       throw CustomApiError.create(409, "Room is in use");
     }
@@ -276,6 +296,7 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Room not found");
     }
@@ -291,7 +312,7 @@ class Room {
     const bookings = await Booking.queryAll({ queryIdType: "ROOM", id: roomId });
 
     // If we found any bookings, the room has active bookings
-    return bookings.filter((b) => !b.isCancelled && !b.isCleared).length > 0;
+    return bookings.filter((b) => !(b.isCancelled ?? false) && !(b.isCleared ?? false)).length > 0;
   }
 
   /**
@@ -310,7 +331,7 @@ class Room {
     }
 
     const data = doc.data();
-    if (!data) {
+    if (data == null) {
       return null;
     }
 
@@ -343,6 +364,7 @@ class Room {
     // Filter params
     const result = {} as Partial<RoomDTO>;
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (result as any)[field] = data[field] ?? null;
     }
 
@@ -362,9 +384,12 @@ class Room {
     fields: (SchemaFields | PseudoFields)[] = []
   ): Promise<Partial<RoomDTO>[]> {
     // 1. QUERY - Build and execute Firestore query
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const query = Room.buildFirestoreQuery(params, sortOn, sortOrder);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const snapshot = await query.get();
     // 2. SORT ORDER - Apply tag-based filtering and initial sorting
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const filteredRooms = Room.filterAndSortByTags(snapshot.docs, params);
     // 3. FILTER OUT PROPS - Convert RoomData to RoomDTO with field filtering
     // 4. ADD PSEUDO PROPS - Handled in convertToRoomDTOs
@@ -386,58 +411,74 @@ class Room {
     sortOrder?: "asc" | "desc"
   ) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query: any = ref;
 
     // Apply filters for exact matches
-    if (params.ownerId) {
+    if (params.ownerId != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.OWNER_ID, "==", params.ownerId);
     }
-    if (params.acceptGender) {
+    if (params.acceptGender != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.ACCEPT_GENDER, "==", params.acceptGender);
     }
-    if (params.acceptOccupation) {
+    if (params.acceptOccupation != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.ACCEPT_OCCUPATION, "==", params.acceptOccupation);
     }
-    if (params.landmark) {
+    if (params.landmark != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.LANDMARK, "==", params.landmark);
     }
-    if (params.city) {
+    if (params.city != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.CITY, "==", params.city);
     }
-    if (params.state) {
+    if (params.state != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.STATE, "==", params.state);
     }
-    if (params.capacity) {
+    if (params.capacity != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.CAPACITY, ">=", params.capacity);
     }
-    if (params.lowPrice) {
+    if (params.lowPrice != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, ">=", params.lowPrice);
     }
-    if (params.highPrice) {
+    if (params.highPrice != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.PRICE_PER_OCCUPANT, "<=", params.highPrice);
     }
-    if (params.createdOn) {
+    if (params.createdOn != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.CREATED_ON, ">=", params.createdOn);
     }
-    if (params.lastModifiedOn) {
+    if (params.lastModifiedOn != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
     }
 
     // Only available rooms
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     query = query.where(SchemaFields.IS_UNAVAILABLE, "==", false);
 
     // Apply server-side sorting
-    if (sortOn) {
+    if (sortOn != null) {
       const fieldToSort = Room.getFieldToSort(sortOn);
-      if (fieldToSort) {
+      if (fieldToSort != null) {
         const direction = sortOrder === "desc" ? "desc" : "asc";
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         query = query.orderBy(fieldToSort, direction);
       }
     } else {
       // Default sorting by lastModifiedOn
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       query = query.orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return query;
   }
 
@@ -466,7 +507,7 @@ class Room {
       const roomData = doc.data() as RoomData;
 
       // Apply tag filtering if searchTags are provided
-      if (params.searchTags && params.searchTags.size > 0) {
+      if (params.searchTags != null && params.searchTags.size > 0) {
         const tagResult = Room.getTagMatchPriority(roomData, params.searchTags);
         if (!tagResult.hasMatch) continue;
 
@@ -497,18 +538,25 @@ class Room {
     for (let tag of searchTags) {
       tag = tag.toLowerCase();
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (queryableRoomData.landmark?.includes(tag)) {
         return { hasMatch: true, priority: 1 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.city?.includes(tag)) {
         return { hasMatch: true, priority: 2 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.state?.includes(tag)) {
         return { hasMatch: true, priority: 3 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.address?.includes(tag)) {
         return { hasMatch: true, priority: 4 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.searchTags?.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 5 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.majorTags?.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 6 };
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       } else if (queryableRoomData.minorTags?.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 7 };
       }
@@ -523,6 +571,7 @@ class Room {
     fields: (SchemaFields | PseudoFields)[]
   ): { dto: Partial<RoomDTO>; sortPriority: number }[] {
     return rooms.map((room) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let processedData: any = {};
 
       if (fields.length === 0) {
@@ -532,6 +581,7 @@ class Room {
         // Filter data based on fields array
         for (const field of fields) {
           if (room.data[field as SchemaFields] != null) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             processedData[field] = room.data[field as SchemaFields] ?? null;
           }
         }
@@ -539,13 +589,16 @@ class Room {
 
       // Add pseudo fields
       if (fields.length === 0 || fields.includes(PseudoFields.ID)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         processedData.id = room.docId;
       }
       if (fields.length === 0 || fields.includes(PseudoFields.IS_DELETED)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         processedData.isDeleted = room.data.ttl != null;
       }
       if (fields.length === 0 || fields.includes(SchemaFields.RATING)) {
         // Set default rating if null
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (processedData.rating == null) processedData.rating = 0;
       }
 
@@ -553,6 +606,7 @@ class Room {
       Room.convertTimestamps(processedData);
 
       return {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         dto: processedData,
         sortPriority: room.sortPriority,
       };
@@ -560,6 +614,7 @@ class Room {
   }
 
   // Helper function to convert timestamps to date strings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static convertTimestamps(data: any) {
     const dateOptions: Intl.DateTimeFormatOptions = {
       month: "short",
@@ -570,17 +625,23 @@ class Room {
       second: "2-digit",
     };
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
     if (data.createdOn) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       data.createdOn = (data.createdOn as FirebaseFirestore.Timestamp)
         .toDate()
         .toLocaleDateString("en-US", dateOptions);
     }
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
     if (data.lastModifiedOn) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       data.lastModifiedOn = (data.lastModifiedOn as FirebaseFirestore.Timestamp)
         .toDate()
         .toLocaleDateString("en-US", dateOptions);
     }
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
     if (data.ttl) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       data.ttl = (data.ttl as FirebaseFirestore.Timestamp).toDate().toLocaleDateString("en-US", dateOptions);
     }
   }
@@ -593,6 +654,7 @@ class Room {
     if (extUrls === "API_URI") {
       return rooms.map((room) => ({
         ...room,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         dto: imgConvertGsPathToApiUri(room.dto, room.dto.id!),
       }));
     }
@@ -607,32 +669,34 @@ class Room {
   ): Partial<RoomDTO>[] {
     const sortedResults = rooms.sort((a, b) => {
       // Handle owner queries: TTL rooms come last, then by lastModifiedOn desc
-      if (params.ownerId) {
-        if (a.dto.ttl && !b.dto.ttl) return 1;
-        if (!a.dto.ttl && b.dto.ttl) return -1;
+      if (params.ownerId != null) {
+        if (a.dto.ttl != null && b.dto.ttl == null) return 1;
+        if (a.dto.ttl == null && b.dto.ttl != null) return -1;
 
-        if (a.dto.lastModifiedOn && b.dto.lastModifiedOn) {
+        if (a.dto.lastModifiedOn != null && b.dto.lastModifiedOn != null) {
           return new Date(b.dto.lastModifiedOn).getTime() - new Date(a.dto.lastModifiedOn).getTime();
         }
         return 0;
       }
 
       // Regular search sorting
-      if (sortOn) {
+      if (sortOn != null) {
         // If search tags were used, use sortPriority as secondary sort
-        if (params.searchTags && params.searchTags.size > 0) {
+        if (params.searchTags != null && params.searchTags.size > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           return (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
         }
         return 0; // Database sorting already applied
       } else {
         // Sort primarily by search tag priority if used
-        if (params.searchTags && params.searchTags.size > 0) {
+        if (params.searchTags != null && params.searchTags.size > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const priorityDiff = (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
           if (priorityDiff !== 0) return priorityDiff;
         }
 
         // Secondary sort by lastModifiedOn desc
-        if (a.dto.lastModifiedOn && b.dto.lastModifiedOn) {
+        if (a.dto.lastModifiedOn != null && b.dto.lastModifiedOn != null) {
           return new Date(b.dto.lastModifiedOn).getTime() - new Date(a.dto.lastModifiedOn).getTime();
         }
         return 0;

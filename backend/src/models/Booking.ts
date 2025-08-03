@@ -127,6 +127,7 @@ class Booking {
         ...updateData,
         lastModifiedOn: FieldValue.serverTimestamp(),
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found");
     }
@@ -152,7 +153,7 @@ class Booking {
     }
 
     const data = docSnapshot.data() as BookingReadData | undefined;
-    if (!data) {
+    if (data == null) {
       throw CustomApiError.create(404, "Booking not found");
     }
 
@@ -162,11 +163,11 @@ class Booking {
           // submit i.e. the tenant has confirmed their booking and is ready to occupy the room - this will await acceptance or rejection by owner
           // in other words, tenant can exercise this when the booking is created for the first time
           // cancelled bookings cannot be submitted
-          if (data["isCancelled"]) {
+          if (data["isCancelled"] ?? false) {
             throw CustomApiError.create(409, "Cancelled booking cannot be submitted");
           }
           // cleared bookings cannot be submitted
-          if (data["isCleared"]) {
+          if (data["isCleared"] ?? false) {
             throw CustomApiError.create(409, "Cleared booking cannot be submitted");
           }
           // accepted or rejected bookings cannot be submitted as they have already been submitted
@@ -175,7 +176,7 @@ class Booking {
             throw CustomApiError.create(409, "Accepted or rejected booking cannot be submitted");
           }
           // submitted bookings cannot be submitted again
-          if (data["isSubmitted"]) {
+          if (data["isSubmitted"] ?? false) {
             throw CustomApiError.create(409, "Booking already submitted");
           }
           // update the booking
@@ -190,11 +191,11 @@ class Booking {
           // cancel i.e. the tenant does not wish to occupy the room anymore - this will free up the room for new tenants
           // in other words, tenant can exercise this only if they have submitted but their booking is not accepted yet
           // unsubmitted bookings does not need to be cancelled
-          if (!data["isSubmitted"]) {
+          if (!(data["isSubmitted"] ?? false)) {
             throw CustomApiError.create(409, "Unsubmitted booking does not need to be cancelled");
           }
           // cleared bookings does not need to be cancelled
-          if (data["isCleared"]) {
+          if (data["isCleared"] ?? false) {
             throw CustomApiError.create(409, "Cleared booking does not need to be cancelled");
           }
           // accepted bookings needs to be cleared, not cancelled
@@ -206,7 +207,7 @@ class Booking {
             throw CustomApiError.create(409, "Rejected booking does not need to be cancelled");
           }
           // cancelled bookings cannot be cancelled again
-          if (data["isCancelled"]) {
+          if (data["isCancelled"] ?? false) {
             throw CustomApiError.create(409, "Booking already cancelled");
           }
           // update the booking
@@ -221,11 +222,11 @@ class Booking {
           // clear i.e. the tenant is leaving - this will free up the room for new tenants
           // in other words, tenant can exercise this only after the booking is accepted
           // unsubmitted bookings does not need to be cleared
-          if (!data["isSubmitted"]) {
+          if (!(data["isSubmitted"] ?? false)) {
             throw CustomApiError.create(409, "Unsubmitted booking does not need to be cleared");
           }
           // cancelled bookings does not need to be cleared
-          if (data["isCancelled"]) {
+          if (data["isCancelled"] ?? false) {
             throw CustomApiError.create(409, "Cancelled booking does not need to be cleared");
           }
           // unset or rejected bookings cannot be cleared
@@ -236,7 +237,7 @@ class Booking {
             throw CustomApiError.create(409, "Rejected booking cannot be cleared");
           }
           // cleared bookings cannot be cleared again
-          if (data["isCleared"]) {
+          if (data["isCleared"] ?? false) {
             throw CustomApiError.create(409, "Booking already cleared");
           }
           // update the booking
@@ -251,15 +252,15 @@ class Booking {
           // accept or reject a booking - this is done only by the owner, accepting means room is occupied by occupantCount
           // in other words, owner can exercise this only if the booking is submitted
           // unsubmitted bookings does not need to be accepted or rejected
-          if (!data["isSubmitted"]) {
+          if (!(data["isSubmitted"] ?? false)) {
             throw CustomApiError.create(409, "Unsubmitted booking does not need to be accepted or rejected");
           }
           // cancelled bookings does not need to be accepted or rejected
-          if (data["isCancelled"]) {
+          if (data["isCancelled"] ?? false) {
             throw CustomApiError.create(409, "Cancelled booking does not need to be accepted or rejected");
           }
           // cleared bookings does not need to be accepted or rejected
-          if (data["isCleared"]) {
+          if (data["isCleared"] ?? false) {
             throw CustomApiError.create(409, "Cleared booking does not need to be accepted or rejected");
           }
           // accepted bookings cannot be accepted again
@@ -292,6 +293,7 @@ class Booking {
         default:
           throw CustomApiError.create(400, "Invalid status type");
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found");
     }
@@ -309,7 +311,7 @@ class Booking {
     }
 
     const data = doc.data();
-    if (!data) {
+    if (data == null) {
       return null;
     }
 
@@ -321,6 +323,7 @@ class Booking {
     // Filter params
     const result = {} as BookingReadData;
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/strict-boolean-expressions
       (result as any)[field] = data[field] || null;
     }
 
@@ -336,7 +339,7 @@ class Booking {
     const queryIdType = params.queryIdType ?? "NONE";
 
     // owner views rooms using id of the room
-    if (queryIdType === "ROOM" && params.id) {
+    if (queryIdType === "ROOM" && params.id != null) {
       const query = ref.where(SchemaFields.ROOM_ID, "==", params.id).orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
       const snapshot = await query.get();
       const bookings: BookingReadDataWithId[] = snapshot.docs.map((doc) => ({
@@ -345,11 +348,11 @@ class Booking {
       }));
       // filter out bookings that are not submitted (yet)
       // coz the owner does not need to see unsubmitted bookings
-      return bookings.filter((booking) => booking.isSubmitted);
+      return bookings.filter((booking) => booking.isSubmitted ?? false);
     }
 
     // Apply filter using tenant id if present
-    if (queryIdType === "TENANT" && params.id) {
+    if (queryIdType === "TENANT" && params.id != null) {
       const query = ref.where(SchemaFields.TENANT_ID, "==", params.id).orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
 
       const snapshot = await query.get();
@@ -360,7 +363,7 @@ class Booking {
     }
 
     // Apply filters using room ids of the owner if present
-    else if (queryIdType === "OWNER" && params.id) {
+    else if (queryIdType === "OWNER" && params.id != null) {
       const roomsByOwner = await Room.queryAll({ ownerId: params.id }, "API_URI");
       const roomIds = roomsByOwner.map((room) => room.id);
 
@@ -386,7 +389,7 @@ class Booking {
       // Sort all results by lastModifiedOn in descending order
       bookings.sort((a, b) => {
         // Handle undefined dates
-        if (!a.lastModifiedOn || !b.lastModifiedOn) {
+        if (a.lastModifiedOn == null || b.lastModifiedOn == null) {
           return 0;
         }
         return b.lastModifiedOn.toMillis() - a.lastModifiedOn.toMillis();
@@ -394,7 +397,7 @@ class Booking {
 
       // filter out bookings that are not submitted (yet)
       // coz the owner does not need to see unsubmitted bookings
-      return bookings.filter((booking) => booking.isSubmitted);
+      return bookings.filter((booking) => booking.isSubmitted ?? false);
     }
 
     // If no filters are applied, return all bookings
@@ -412,7 +415,7 @@ class Booking {
    */
   static async markForDelete(bookingId: string): Promise<number> {
     const data = await Booking.get(bookingId, [SchemaFields.IS_CANCELLED, SchemaFields.IS_CLEARED]);
-    if (!data?.isCleared && !data?.isCancelled) {
+    if (!(data?.isCleared ?? false) && !(data?.isCancelled ?? false)) {
       throw CustomApiError.create(409, "Cannot delete active booking. Needs to be cleared or cancelled first");
     }
     const daysToLive = 30;
@@ -423,6 +426,7 @@ class Booking {
         ttl,
         lastModifiedOn: FieldValue.serverTimestamp(),
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found");
     }
@@ -440,6 +444,7 @@ class Booking {
         ttl: FieldValue.delete(),
         lastModifiedOn: FieldValue.serverTimestamp(),
       });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found");
     }
@@ -450,12 +455,13 @@ class Booking {
    */
   static async forceDelete(bookingId: string): Promise<void> {
     const data = await Booking.get(bookingId, [SchemaFields.IS_CANCELLED, SchemaFields.IS_CLEARED]);
-    if (!data?.isCleared && !data?.isCancelled) {
+    if (!(data?.isCleared ?? false) && !(data?.isCancelled ?? false)) {
       throw CustomApiError.create(409, "Cannot delete active booking. Needs to be cleared or cancelled first");
     }
     const ref = FirestorePaths.Bookings(bookingId);
     try {
       await ref.delete();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found");
     }
