@@ -2,13 +2,15 @@ import { NextApiResponse } from "next";
 
 export function respond(
   res: NextApiResponse,
-  result: { status: number; message?: string; error?: string; json?: Object }
+  result: { status: number; message?: string; error?: string; json?: object }
 ): void {
-  result.json
-    ? res.status(result.status).json(result.json)
-    : res.status(result.status).json({
-        status: result.status,
-        message: result.message ?? result.error ?? "Unknown error occurred",
-      });
+  if (result.json != null) {
+    res.status(result.status).json(result.json);
+  } else {
+    res.status(result.status).json({
+      status: result.status,
+      message: result.message ?? result.error ?? "Unknown error occurred",
+    });
+  }
   res.end();
 }
