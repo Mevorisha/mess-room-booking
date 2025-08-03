@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       }
 
       if (onlineProfileData.email != null) {
-        dispatchUser({ mobile: onlineProfileData.email });
+        dispatchUser({ email: onlineProfileData.email });
       }
 
       if (onlineProfileData.mobile != null) {
