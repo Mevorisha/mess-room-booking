@@ -533,7 +533,7 @@ class Room {
     roomData: RoomData,
     searchTags: Set<string>
   ): { hasMatch: boolean; priority: number } {
-    const queryableRoomData = fbDataToQueryableRoomData({ data: roomData, sortPriority: 0 });
+    const queryableRoomData = fbDataToQueryableRoomData(roomData);
 
     for (let tag of searchTags) {
       tag = tag.toLowerCase();
