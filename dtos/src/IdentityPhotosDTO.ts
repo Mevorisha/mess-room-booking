@@ -1,8 +1,15 @@
 import { Type } from "class-transformer";
 import { IsOptional, ValidateNested, IsBoolean } from "class-validator";
-import MultiSizePhotoDTO from "./MultiSizePhotoDTO";
+import MultiSizePhotoDTO, { MultiSizePhoto } from "./MultiSizePhotoDTO";
 import ADataTransferObj from "./types/abstract/ADataTransferObj";
 import IdentityValidationErrors from "./types/errors/IdentityValidationErrors";
+
+export interface IdentityPhotos {
+  workId?: MultiSizePhoto;
+  govId?: MultiSizePhoto;
+  workIdIsPrivate?: boolean;
+  govIdIsPrivate?: boolean;
+}
 
 export class IdentityPhotosDTO extends ADataTransferObj {
   @IsOptional()

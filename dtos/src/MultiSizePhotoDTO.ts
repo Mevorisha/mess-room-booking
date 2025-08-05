@@ -2,6 +2,12 @@ import { IsString } from "class-validator";
 
 const IMAGES_INVALID = "Images must be valid photo objects";
 
+export interface MultiSizePhoto {
+  small: string;
+  medium: string;
+  large: string;
+}
+
 export default class MultiSizePhotoDTO {
   @IsString({ message: IMAGES_INVALID })
   small: string;
