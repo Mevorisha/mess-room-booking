@@ -1,7 +1,5 @@
 import js from "@eslint/js";
 import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -23,14 +21,8 @@ export default tseslint.config(
         sourceType: "module",
       },
     },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
     rules: {
       // Existing rules
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "error",
 
       // Enhanced type safety rules
       "@typescript-eslint/no-explicit-any": "error",
@@ -62,7 +54,6 @@ export default tseslint.config(
       "prefer-const": "error",
 
       // Disable rules causing issues
-      "react-refresh/only-export-components": "off",
       "@typescript-eslint/ban-ts-comment": [
         "warn",
         {

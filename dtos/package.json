@@ -12,7 +12,18 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2"
   },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {}
+  },
   "devDependencies": {
-    "typescript": "^5.9.2"
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^20",
+    "globals": "^15.15.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.29.0"
   }
 }

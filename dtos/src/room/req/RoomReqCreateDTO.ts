@@ -114,6 +114,9 @@ export default class RoomReqCreateDTO extends ADataTransferObj {
     rating: number;
     createdOn: string;
     lastModifiedOn: string;
+    isUnavailable?: boolean;
+    ttl?: string;
+    isDeleted?: boolean;
   }) {
     super();
 
@@ -134,5 +137,14 @@ export default class RoomReqCreateDTO extends ADataTransferObj {
     this.rating = data.rating;
     this.createdOn = data.createdOn;
     this.lastModifiedOn = data.lastModifiedOn;
+    if (data.isUnavailable != null) {
+      this.isUnavailable = data.isUnavailable;
+    }
+    if (data.ttl != null) {
+      this.ttl = data.ttl;
+    }
+    if (data.isDeleted != null) {
+      this.isDeleted = data.isDeleted;
+    }
   }
 }

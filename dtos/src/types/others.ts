@@ -4,3 +4,4 @@ export type Language = "ENGLISH" | "BANGLA" | "HINDI";
 export type IdentityType = "OWNER" | "TENANT";
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
+export type BookingStatus = "ACCEPTED" | "REJECTED" | "UNSET";
