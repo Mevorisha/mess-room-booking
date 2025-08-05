@@ -1,14 +1,15 @@
 import { IsString } from "class-validator";
-import RoomValidationErrors from "./types/errors/RoomValidationErrors";
+
+const IMAGES_INVALID = "Images must be valid photo objects";
 
 export default class MultiSizePhotoDTO {
-  @IsString({ message: RoomValidationErrors.IMAGES_INVALID })
+  @IsString({ message: IMAGES_INVALID })
   small: string;
 
-  @IsString({ message: RoomValidationErrors.IMAGES_INVALID })
+  @IsString({ message: IMAGES_INVALID })
   medium: string;
 
-  @IsString({ message: RoomValidationErrors.IMAGES_INVALID })
+  @IsString({ message: IMAGES_INVALID })
   large: string;
 
   constructor(data: { small: string; medium: string; large: string }) {
