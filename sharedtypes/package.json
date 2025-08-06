@@ -1,5 +1,5 @@
 {
-  "name": "dtos",
+  "name": "sharedtypes",
   "version": "1.0.0",
   "description": "Data transfer objects for Mevorisha Mess Booking App",
   "main": "src/index.ts",
