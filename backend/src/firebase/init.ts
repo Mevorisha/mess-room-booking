@@ -5,7 +5,7 @@ import { Database, getDatabase } from "firebase-admin/database";
 import { CollectionReference, DocumentReference, Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "@/config/env";
-import { MultiSizeImageSz } from "sharedtypes/types/others";
+import { MultiSizeImageSz } from "sharedtypes/types/MultiSizePhotoDTO";
 
 let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;

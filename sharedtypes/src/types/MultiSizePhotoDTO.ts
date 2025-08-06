@@ -9,6 +9,8 @@ export interface MultiSizePhoto {
   large: string;
 }
 
+export type MultiSizeImageSz = keyof MultiSizePhoto;
+
 export default class MultiSizePhotoDTO extends ADataTransferObj implements MultiSizePhoto {
   @IsString({ message: IMAGES_INVALID })
   small: string;

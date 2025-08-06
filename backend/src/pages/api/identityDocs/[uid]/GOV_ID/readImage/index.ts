@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
-import { MultiSizeImageSz } from "sharedtypes/types/others";
+import { MultiSizeImageSz } from "sharedtypes/types/MultiSizePhotoDTO";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
