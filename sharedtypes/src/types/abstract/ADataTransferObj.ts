@@ -1,4 +1,4 @@
-import NetworkType from "@/NetworkType";
+import NetworkType from "@/types/NetworkType";
 import { ClassConstructor, instanceToPlain, plainToInstance } from "class-transformer";
 
 export default abstract class ADataTransferObj {

@@ -1,6 +1,6 @@
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import { AcceptGender, AcceptOccupation } from "@/types/others";
-import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
+import MultiSizePhotoDTO from "@/types/MultiSizePhotoDTO";
 import RoomResValidationErrors from "@/types/errors/res/RoomResValidationErrors";
 import {
   IsString,

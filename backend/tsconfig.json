@@ -46,7 +46,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "dtos/*": ["../dtos/src/*"]
+      "sharedtypes/*": ["../sharedtypes/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -1,5 +1,5 @@
-import { IdentityPhotosDTO } from "@/IdentityPhotosDTO";
-import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
+import { IdentityPhotosDTO } from "@/types/IdentityPhotosDTO";
+import MultiSizePhotoDTO from "@/types/MultiSizePhotoDTO";
 import IdentityResValidationErrors from "@/types/errors/res/IdentityResValidationErrors";
 import { IdentityType, Language } from "@/types/others";
 import { Type } from "class-transformer";

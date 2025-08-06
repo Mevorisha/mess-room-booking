@@ -1,4 +1,4 @@
-import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
+import MultiSizePhotoDTO from "@/types/MultiSizePhotoDTO";
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 import IdentityResValidationErrors from "@/types/errors/res/IdentityResValidationErrors";

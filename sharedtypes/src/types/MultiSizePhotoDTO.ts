@@ -1,5 +1,5 @@
 import { IsString } from "class-validator";
-import ADataTransferObj from "./types/abstract/ADataTransferObj";
+import ADataTransferObj from "./abstract/ADataTransferObj";
 
 const IMAGES_INVALID = "Images must be valid photo objects";
 
