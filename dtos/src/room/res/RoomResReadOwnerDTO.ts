@@ -2,10 +2,10 @@ import { AcceptGender, AcceptOccupation } from "@/types/others";
 import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
 import RoomValidationErrors from "@/types/errors/RoomValidationErrors";
 import { IsString, IsBoolean, IsOptional, validateSync } from "class-validator";
-import RoomReqReadNotOwnerDTO from "./RoomReqReadNotOwnerDTO";
+import RoomResReadNotOwnerDTO from "./RoomResReadNotOwnerDTO";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
-export default class RoomReqReadOwnerDTO extends RoomReqReadNotOwnerDTO {
+export default class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
   @IsBoolean({ message: RoomValidationErrors.IS_UNAVAILABLE_INVALID })
   isUnavailable: boolean;
 

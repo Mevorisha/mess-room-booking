@@ -16,7 +16,7 @@ import {
 import { Type } from "class-transformer";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
-export default class RoomReqReadNotOwnerDTO extends ADataTransferObj {
+export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
   @IsString({ message: RoomValidationErrors.ID_REQUIRED })
   id: string;
 

@@ -13,10 +13,10 @@ import {
   IsBoolean,
   validateSync,
 } from "class-validator";
-import IdentityReqReadNoAuthDTO from "./IdentityReqReadNoAuthDTO";
+import IdentityResReadNoAuthDTO from "./IdentityResReadNoAuthDTO";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
-export class IdentityReqReadWithAuthDTO extends IdentityReqReadNoAuthDTO {
+export class IdentityResReadWithAuthDTO extends IdentityResReadNoAuthDTO {
   @IsEmail({}, { message: IdentityValidationErrors.EMAIL_INVALID })
   email: string;
 

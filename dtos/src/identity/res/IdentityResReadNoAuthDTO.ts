@@ -5,7 +5,7 @@ import IdentityValidationErrors from "@/types/errors/IdentityValidationErrors";
 import { Type } from "class-transformer";
 import { IsOptional, IsString, ValidateNested, validateSync } from "class-validator";
 
-export default class IdentityReqReadNoAuthDTO extends ADataTransferObj {
+export default class IdentityResReadNoAuthDTO extends ADataTransferObj {
   @IsOptional()
   @IsString({ message: IdentityValidationErrors.DISPLAY_NAME_INVALID })
   displayName?: string;

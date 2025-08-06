@@ -13,7 +13,7 @@ import {
 } from "class-validator";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
-export default class BookingReqCreateDTO extends ADataTransferObj {
+export default class BookingResCreateDTO extends ADataTransferObj {
   @IsString({ message: BookingValidationErrors.ID_REQUIRED })
   id: string;
 
