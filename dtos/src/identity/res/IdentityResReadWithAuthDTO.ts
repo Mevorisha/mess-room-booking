@@ -1,6 +1,6 @@
 import { IdentityPhotosDTO } from "@/IdentityPhotosDTO";
 import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
-import IdentityValidationErrors from "@/types/errors/IdentityValidationErrors";
+import IdentityResValidationErrors from "@/types/errors/res/IdentityResValidationErrors";
 import { IdentityType, Language } from "@/types/others";
 import { Type } from "class-transformer";
 import {
@@ -17,31 +17,31 @@ import IdentityResReadNoAuthDTO from "./IdentityResReadNoAuthDTO";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
 export class IdentityResReadWithAuthDTO extends IdentityResReadNoAuthDTO {
-  @IsEmail({}, { message: IdentityValidationErrors.EMAIL_INVALID })
+  @IsEmail({}, { message: IdentityResValidationErrors.EMAIL_INVALID })
   email: string;
 
-  @IsEnum(["OWNER", "TENANT"], { message: IdentityValidationErrors.INVALID_IDENTITY_TYPE })
+  @IsEnum(["OWNER", "TENANT"], { message: IdentityResValidationErrors.INVALID_IDENTITY_TYPE })
   type: IdentityType = "TENANT";
 
   @ValidateNested()
   @Type(() => IdentityPhotosDTO)
   identityPhotos: IdentityPhotosDTO;
 
-  @IsEnum(["ENGLISH", "BANGLA", "HINDI"], { message: IdentityValidationErrors.INVALID_LANGUAGE })
+  @IsEnum(["ENGLISH", "BANGLA", "HINDI"], { message: IdentityResValidationErrors.INVALID_LANGUAGE })
   language: Language = "ENGLISH";
 
-  @IsDateString({}, { message: IdentityValidationErrors.CREATED_ON_INVALID })
+  @IsDateString({}, { message: IdentityResValidationErrors.CREATED_ON_INVALID })
   createdOn: string;
 
-  @IsDateString({}, { message: IdentityValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString({}, { message: IdentityResValidationErrors.LAST_MODIFIED_ON_INVALID })
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsString({ message: IdentityValidationErrors.TTL_INVALID })
+  @IsString({ message: IdentityResValidationErrors.TTL_INVALID })
   ttl?: string;
 
   @IsOptional()
-  @IsBoolean({ message: IdentityValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean({ message: IdentityResValidationErrors.IS_DELETED_INVALID })
   isDeleted: boolean;
 
   constructor(data: {

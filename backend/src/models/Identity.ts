@@ -1,14 +1,9 @@
 import { FirestorePaths, StoragePaths } from "@/firebase/init";
 import { CustomApiError } from "@/types/CustomApiError";
 import { FieldValue } from "firebase-admin/firestore";
-import { ApiResponseUrlType, AutoSetFields, IdentityType, Language, MultiSizePhoto } from "./types";
-
-export interface IdentityPhotos {
-  workId?: MultiSizePhoto;
-  govId?: MultiSizePhoto;
-  workIdIsPrivate?: boolean;
-  govIdIsPrivate?: boolean;
-}
+import { ApiResponseUrlType, AutoSetFields, IdentityType, Language } from "dtos/types/others";
+import { MultiSizePhoto } from "dtos/MultiSizePhotoDTO";
+import { IdentityPhotos } from "dtos/IdentityPhotosDTO";
 
 interface IdentityData {
   email: string;

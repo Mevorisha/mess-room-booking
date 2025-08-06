@@ -1,19 +1,19 @@
 import { AcceptGender, AcceptOccupation } from "@/types/others";
 import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
-import RoomValidationErrors from "@/types/errors/RoomValidationErrors";
+import RoomResValidationErrors from "@/types/errors/res/RoomResValidationErrors";
 import { IsString, IsBoolean, IsOptional, validateSync } from "class-validator";
 import RoomResReadNotOwnerDTO from "./RoomResReadNotOwnerDTO";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
 export default class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
-  @IsBoolean({ message: RoomValidationErrors.IS_UNAVAILABLE_INVALID })
+  @IsBoolean({ message: RoomResValidationErrors.IS_UNAVAILABLE_INVALID })
   isUnavailable: boolean;
 
   @IsOptional()
-  @IsString({ message: RoomValidationErrors.TTL_INVALID })
+  @IsString({ message: RoomResValidationErrors.TTL_INVALID })
   ttl?: string;
 
-  @IsBoolean({ message: RoomValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean({ message: RoomResValidationErrors.IS_DELETED_INVALID })
   isDeleted: boolean;
 
   constructor(data: {

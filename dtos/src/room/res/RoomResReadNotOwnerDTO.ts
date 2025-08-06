@@ -1,7 +1,7 @@
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import { AcceptGender, AcceptOccupation } from "@/types/others";
 import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
-import RoomValidationErrors from "@/types/errors/RoomValidationErrors";
+import RoomResValidationErrors from "@/types/errors/res/RoomResValidationErrors";
 import {
   IsString,
   IsEnum,
@@ -17,55 +17,55 @@ import { Type } from "class-transformer";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
 export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
-  @IsString({ message: RoomValidationErrors.ID_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.ID_REQUIRED })
   id: string;
 
-  @IsString({ message: RoomValidationErrors.OWNER_ID_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.OWNER_ID_REQUIRED })
   ownerId: string;
 
   @IsEnum(["MALE", "FEMALE", "OTHER"], {
-    message: RoomValidationErrors.INVALID_GENDER,
+    message: RoomResValidationErrors.INVALID_GENDER,
   })
   acceptGender: AcceptGender;
 
   @IsEnum(["STUDENT", "PROFESSIONAL", "ANY"], {
-    message: RoomValidationErrors.INVALID_OCCUPATION,
+    message: RoomResValidationErrors.INVALID_OCCUPATION,
   })
   acceptOccupation: AcceptOccupation;
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomValidationErrors.SEARCH_TAGS_EMPTY })
-  @IsString({ each: true, message: RoomValidationErrors.SEARCH_TAGS_NOT_STRING })
+  @ArrayNotEmpty({ message: RoomResValidationErrors.SEARCH_TAGS_EMPTY })
+  @IsString({ each: true, message: RoomResValidationErrors.SEARCH_TAGS_NOT_STRING })
   searchTags: string[];
 
-  @IsString({ message: RoomValidationErrors.LANDMARK_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.LANDMARK_REQUIRED })
   landmark: string;
 
-  @IsString({ message: RoomValidationErrors.ADDRESS_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.ADDRESS_REQUIRED })
   address: string;
 
-  @IsString({ message: RoomValidationErrors.CITY_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.CITY_REQUIRED })
   city: string;
 
-  @IsString({ message: RoomValidationErrors.STATE_REQUIRED })
+  @IsString({ message: RoomResValidationErrors.STATE_REQUIRED })
   state: string;
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomValidationErrors.MAJOR_TAGS_EMPTY })
+  @ArrayNotEmpty({ message: RoomResValidationErrors.MAJOR_TAGS_EMPTY })
   @IsString({ each: true })
   majorTags: string[];
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomValidationErrors.MINOR_TAGS_EMPTY })
+  @ArrayNotEmpty({ message: RoomResValidationErrors.MINOR_TAGS_EMPTY })
   @IsString({ each: true })
   minorTags: string[];
 
-  @IsNumber({}, { message: RoomValidationErrors.CAPACITY_POSITIVE })
-  @IsPositive({ message: RoomValidationErrors.CAPACITY_POSITIVE })
+  @IsNumber({}, { message: RoomResValidationErrors.CAPACITY_POSITIVE })
+  @IsPositive({ message: RoomResValidationErrors.CAPACITY_POSITIVE })
   capacity: number;
 
-  @IsNumber({}, { message: RoomValidationErrors.PRICE_POSITIVE })
-  @IsPositive({ message: RoomValidationErrors.PRICE_POSITIVE })
+  @IsNumber({}, { message: RoomResValidationErrors.PRICE_POSITIVE })
+  @IsPositive({ message: RoomResValidationErrors.PRICE_POSITIVE })
   pricePerOccupant: number;
 
   @IsArray()
@@ -73,13 +73,13 @@ export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
   @Type(() => MultiSizePhotoDTO)
   images: MultiSizePhotoDTO[];
 
-  @IsNumber({}, { message: RoomValidationErrors.RATING_REQUIRED })
+  @IsNumber({}, { message: RoomResValidationErrors.RATING_REQUIRED })
   rating: number;
 
-  @IsDateString({}, { message: RoomValidationErrors.CREATED_ON_INVALID })
+  @IsDateString({}, { message: RoomResValidationErrors.CREATED_ON_INVALID })
   createdOn: string;
 
-  @IsDateString({}, { message: RoomValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString({}, { message: RoomResValidationErrors.LAST_MODIFIED_ON_INVALID })
   lastModifiedOn: string;
 
   constructor(data: {

@@ -1,6 +1,6 @@
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import { BookingStatus } from "@/types/others";
-import BookingValidationErrors from "@/types/errors/BookingValidationErrors";
+import BookingResValidationErrors from "@/types/errors/res/BookingResValidationErrors";
 import {
   IsString,
   IsEnum,
@@ -14,69 +14,69 @@ import {
 import DtoValidationError from "@/types/errors/DtoValidationError";
 
 export default class BookingResCreateDTO extends ADataTransferObj {
-  @IsString({ message: BookingValidationErrors.ID_REQUIRED })
+  @IsString({ message: BookingResValidationErrors.ID_REQUIRED })
   id: string;
 
-  @IsString({ message: BookingValidationErrors.TENANT_ID_REQUIRED })
+  @IsString({ message: BookingResValidationErrors.TENANT_ID_REQUIRED })
   tenantId: string;
 
-  @IsString({ message: BookingValidationErrors.ROOM_ID_REQUIRED })
+  @IsString({ message: BookingResValidationErrors.ROOM_ID_REQUIRED })
   roomId: string;
 
-  @IsNumber({}, { message: BookingValidationErrors.OCCUPANT_COUNT_INVALID })
-  @IsPositive({ message: BookingValidationErrors.OCCUPANT_COUNT_POSITIVE })
+  @IsNumber({}, { message: BookingResValidationErrors.OCCUPANT_COUNT_INVALID })
+  @IsPositive({ message: BookingResValidationErrors.OCCUPANT_COUNT_POSITIVE })
   occupantCount: number;
 
   @IsOptional()
-  @IsString({ message: BookingValidationErrors.LINK_TO_WORK_ID_INVALID })
+  @IsString({ message: BookingResValidationErrors.LINK_TO_WORK_ID_INVALID })
   linkToWorkId?: string;
 
   @IsOptional()
-  @IsString({ message: BookingValidationErrors.LINK_TO_GOV_ID_INVALID })
+  @IsString({ message: BookingResValidationErrors.LINK_TO_GOV_ID_INVALID })
   linkToGovId?: string;
 
   @IsEnum(["ACCEPTED", "REJECTED", "UNSET"], {
-    message: BookingValidationErrors.INVALID_ACCEPTANCE_STATUS,
+    message: BookingResValidationErrors.INVALID_ACCEPTANCE_STATUS,
   })
   acceptanceStatus: BookingStatus = "UNSET";
 
   @IsOptional()
-  @IsDateString({}, { message: BookingValidationErrors.ACCEPTED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.ACCEPTED_ON_INVALID })
   acceptedOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingValidationErrors.SUBMITTED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.SUBMITTED_ON_INVALID })
   submittedOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingValidationErrors.CANCELLED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.CANCELLED_ON_INVALID })
   cancelledOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingValidationErrors.CLEARED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.CLEARED_ON_INVALID })
   clearedOn?: string;
 
-  @IsBoolean({ message: BookingValidationErrors.IS_SUBMITTED_INVALID })
+  @IsBoolean({ message: BookingResValidationErrors.IS_SUBMITTED_INVALID })
   isSubmitted = false;
 
-  @IsBoolean({ message: BookingValidationErrors.IS_CANCELLED_INVALID })
+  @IsBoolean({ message: BookingResValidationErrors.IS_CANCELLED_INVALID })
   isCancelled = false;
 
-  @IsBoolean({ message: BookingValidationErrors.IS_CLEARED_INVALID })
+  @IsBoolean({ message: BookingResValidationErrors.IS_CLEARED_INVALID })
   isCleared = false;
 
-  @IsDateString({}, { message: BookingValidationErrors.CREATED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.CREATED_ON_INVALID })
   createdOn: string;
 
-  @IsDateString({}, { message: BookingValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString({}, { message: BookingResValidationErrors.LAST_MODIFIED_ON_INVALID })
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsString({ message: BookingValidationErrors.TTL_INVALID })
+  @IsString({ message: BookingResValidationErrors.TTL_INVALID })
   ttl?: string;
 
   @IsOptional()
-  @IsBoolean({ message: BookingValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean({ message: BookingResValidationErrors.IS_DELETED_INVALID })
   isDeleted = false;
 
   constructor(data: {

@@ -1,6 +1,7 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhoto } from "./types";
+import { ApiResponseUrlType, AutoSetFields, AcceptGender, AcceptOccupation } from "dtos/types/others";
+import { MultiSizePhoto } from "dtos/MultiSizePhotoDTO";
 import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
 import pickObjProps from "@/utils/pickObjProps";

@@ -5,3 +5,5 @@ export type IdentityType = "OWNER" | "TENANT";
 export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
 export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 export type BookingStatus = "ACCEPTED" | "REJECTED" | "UNSET";
+export type MultiSizeImageSz = "small" | "medium" | "large";
+export type NextJsReqQuery = Partial<Record<string, string | string[]>>;

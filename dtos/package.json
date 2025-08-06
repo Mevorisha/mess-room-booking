@@ -2,11 +2,14 @@
   "name": "dtos",
   "version": "1.0.0",
   "description": "Data transfer objects for Mevorisha Mess Booking App",
-  "main": "index.js",
+  "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": [
+    "Aviruk Basak"
+  ],
   "license": "ISC",
   "dependencies": {
     "class-transformer": "^0.5.1",
