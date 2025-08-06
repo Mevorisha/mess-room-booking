@@ -1,8 +1,9 @@
 import MultiSizePhotoDTO from "@/MultiSizePhotoDTO";
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
+import DtoValidationError from "@/types/errors/DtoValidationError";
 import IdentityValidationErrors from "@/types/errors/IdentityValidationErrors";
 import { Type } from "class-transformer";
-import { IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsOptional, IsString, ValidateNested, validateSync } from "class-validator";
 
 export default class IdentityReqReadNoAuthDTO extends ADataTransferObj {
   @IsOptional()
@@ -50,6 +51,11 @@ export default class IdentityReqReadNoAuthDTO extends ADataTransferObj {
       if (data.profilePhotos != null) {
         this.profilePhotos = data.profilePhotos;
       }
+    }
+
+    const errors = validateSync(this);
+    if (errors.length > 0) {
+      throw new DtoValidationError(errors);
     }
   }
 }

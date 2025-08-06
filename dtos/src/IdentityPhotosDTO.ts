@@ -7,11 +7,11 @@ import IdentityValidationErrors from "./types/errors/IdentityValidationErrors";
 export interface IdentityPhotos {
   workId?: MultiSizePhoto;
   govId?: MultiSizePhoto;
-  workIdIsPrivate?: boolean;
-  govIdIsPrivate?: boolean;
+  workIdIsPrivate: boolean;
+  govIdIsPrivate: boolean;
 }
 
-export class IdentityPhotosDTO extends ADataTransferObj {
+export class IdentityPhotosDTO extends ADataTransferObj implements IdentityPhotos {
   @IsOptional()
   @ValidateNested()
   @Type(() => MultiSizePhotoDTO)
@@ -24,11 +24,11 @@ export class IdentityPhotosDTO extends ADataTransferObj {
 
   @IsOptional()
   @IsBoolean({ message: IdentityValidationErrors.WORK_ID_PRIVATE_INVALID })
-  workIdIsPrivate?: boolean;
+  workIdIsPrivate = false;
 
   @IsOptional()
   @IsBoolean({ message: IdentityValidationErrors.GOV_ID_PRIVATE_INVALID })
-  govIdIsPrivate?: boolean;
+  govIdIsPrivate = false;
 
   constructor(data?: {
     workId?: MultiSizePhotoDTO;

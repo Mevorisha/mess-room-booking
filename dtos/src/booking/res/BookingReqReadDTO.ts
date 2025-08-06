@@ -1,7 +1,17 @@
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import { BookingStatus } from "@/types/others";
 import BookingValidationErrors from "@/types/errors/BookingValidationErrors";
-import { IsString, IsEnum, IsNumber, IsPositive, IsOptional, IsBoolean, IsDateString } from "class-validator";
+import {
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsPositive,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  validateSync,
+} from "class-validator";
+import DtoValidationError from "@/types/errors/DtoValidationError";
 
 export default class BookingReqCreateDTO extends ADataTransferObj {
   @IsString({ message: BookingValidationErrors.ID_REQUIRED })
@@ -25,27 +35,18 @@ export default class BookingReqCreateDTO extends ADataTransferObj {
   @IsString({ message: BookingValidationErrors.LINK_TO_GOV_ID_INVALID })
   linkToGovId?: string;
 
-  @IsBoolean({ message: BookingValidationErrors.IS_SUBMITTED_INVALID })
-  isSubmitted: boolean;
-
   @IsEnum(["ACCEPTED", "REJECTED", "UNSET"], {
     message: BookingValidationErrors.INVALID_ACCEPTANCE_STATUS,
   })
-  acceptanceStatus: BookingStatus;
-
-  @IsBoolean({ message: BookingValidationErrors.IS_CANCELLED_INVALID })
-  isCancelled: boolean;
-
-  @IsBoolean({ message: BookingValidationErrors.IS_CLEARED_INVALID })
-  isCleared: boolean;
-
-  @IsOptional()
-  @IsDateString({}, { message: BookingValidationErrors.SUBMITTED_ON_INVALID })
-  submittedOn?: string;
+  acceptanceStatus: BookingStatus = "UNSET";
 
   @IsOptional()
   @IsDateString({}, { message: BookingValidationErrors.ACCEPTED_ON_INVALID })
   acceptedOn?: string;
+
+  @IsOptional()
+  @IsDateString({}, { message: BookingValidationErrors.SUBMITTED_ON_INVALID })
+  submittedOn?: string;
 
   @IsOptional()
   @IsDateString({}, { message: BookingValidationErrors.CANCELLED_ON_INVALID })
@@ -54,6 +55,15 @@ export default class BookingReqCreateDTO extends ADataTransferObj {
   @IsOptional()
   @IsDateString({}, { message: BookingValidationErrors.CLEARED_ON_INVALID })
   clearedOn?: string;
+
+  @IsBoolean({ message: BookingValidationErrors.IS_SUBMITTED_INVALID })
+  isSubmitted = false;
+
+  @IsBoolean({ message: BookingValidationErrors.IS_CANCELLED_INVALID })
+  isCancelled = false;
+
+  @IsBoolean({ message: BookingValidationErrors.IS_CLEARED_INVALID })
+  isCleared = false;
 
   @IsDateString({}, { message: BookingValidationErrors.CREATED_ON_INVALID })
   createdOn: string;
@@ -67,27 +77,27 @@ export default class BookingReqCreateDTO extends ADataTransferObj {
 
   @IsOptional()
   @IsBoolean({ message: BookingValidationErrors.IS_DELETED_INVALID })
-  isDeleted?: boolean;
+  isDeleted = false;
 
   constructor(data: {
     id: string;
     tenantId: string;
     roomId: string;
     occupantCount: number;
+
     linkToWorkId?: string;
     linkToGovId?: string;
-    isSubmitted: boolean;
-    acceptanceStatus: BookingStatus;
-    isCancelled: boolean;
-    isCleared: boolean;
     submittedOn?: string;
+
+    acceptanceStatus: BookingStatus;
     acceptedOn?: string;
+
     cancelledOn?: string;
     clearedOn?: string;
+
     createdOn: string;
     lastModifiedOn: string;
     ttl?: string;
-    isDeleted?: boolean;
   }) {
     super();
 
@@ -95,21 +105,25 @@ export default class BookingReqCreateDTO extends ADataTransferObj {
     this.tenantId = data.tenantId;
     this.roomId = data.roomId;
     this.occupantCount = data.occupantCount;
+
     if (data.linkToWorkId != null) {
       this.linkToWorkId = data.linkToWorkId;
     }
     if (data.linkToGovId != null) {
       this.linkToGovId = data.linkToGovId;
     }
-    this.isSubmitted = data.isSubmitted;
+
+    this.isSubmitted = data.submittedOn != null;
+
     this.acceptanceStatus = data.acceptanceStatus;
-    this.isCancelled = data.isCancelled;
-    this.isCleared = data.isCleared;
-    if (data.submittedOn != null) {
-      this.submittedOn = data.submittedOn;
-    }
     if (data.acceptedOn != null) {
       this.acceptedOn = data.acceptedOn;
+    }
+
+    this.isCancelled = data.cancelledOn != null;
+    this.isCleared = data.clearedOn != null;
+    if (data.submittedOn != null) {
+      this.submittedOn = data.submittedOn;
     }
     if (data.cancelledOn != null) {
       this.cancelledOn = data.cancelledOn;
@@ -117,13 +131,18 @@ export default class BookingReqCreateDTO extends ADataTransferObj {
     if (data.clearedOn != null) {
       this.clearedOn = data.clearedOn;
     }
+
     this.createdOn = data.createdOn;
     this.lastModifiedOn = data.lastModifiedOn;
     if (data.ttl != null) {
       this.ttl = data.ttl;
     }
-    if (data.isDeleted != null) {
-      this.isDeleted = data.isDeleted;
+
+    this.isDeleted = data.ttl != null;
+
+    const errors = validateSync(this);
+    if (errors.length > 0) {
+      throw new DtoValidationError(errors);
     }
   }
 }

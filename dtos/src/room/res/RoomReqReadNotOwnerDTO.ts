@@ -11,12 +11,12 @@ import {
   IsPositive,
   ValidateNested,
   IsDateString,
-  IsOptional,
-  IsBoolean,
+  validateSync,
 } from "class-validator";
 import { Type } from "class-transformer";
+import DtoValidationError from "@/types/errors/DtoValidationError";
 
-export default class RoomReqCreateDTO extends ADataTransferObj {
+export default class RoomReqReadNotOwnerDTO extends ADataTransferObj {
   @IsString({ message: RoomValidationErrors.ID_REQUIRED })
   id: string;
 
@@ -82,18 +82,6 @@ export default class RoomReqCreateDTO extends ADataTransferObj {
   @IsDateString({}, { message: RoomValidationErrors.LAST_MODIFIED_ON_INVALID })
   lastModifiedOn: string;
 
-  @IsOptional()
-  @IsBoolean({ message: RoomValidationErrors.IS_UNAVAILABLE_INVALID })
-  isUnavailable?: boolean;
-
-  @IsOptional()
-  @IsString({ message: RoomValidationErrors.TTL_INVALID })
-  ttl?: string | null;
-
-  @IsOptional()
-  @IsBoolean({ message: RoomValidationErrors.IS_DELETED_INVALID })
-  isDeleted?: boolean;
-
   constructor(data: {
     // additional field
     id: string;
@@ -114,9 +102,6 @@ export default class RoomReqCreateDTO extends ADataTransferObj {
     rating: number;
     createdOn: string;
     lastModifiedOn: string;
-    isUnavailable?: boolean;
-    ttl?: string;
-    isDeleted?: boolean;
   }) {
     super();
 
@@ -137,14 +122,10 @@ export default class RoomReqCreateDTO extends ADataTransferObj {
     this.rating = data.rating;
     this.createdOn = data.createdOn;
     this.lastModifiedOn = data.lastModifiedOn;
-    if (data.isUnavailable != null) {
-      this.isUnavailable = data.isUnavailable;
-    }
-    if (data.ttl != null) {
-      this.ttl = data.ttl;
-    }
-    if (data.isDeleted != null) {
-      this.isDeleted = data.isDeleted;
+
+    const errors = validateSync(this);
+    if (errors.length > 0) {
+      throw new DtoValidationError(errors);
     }
   }
 }
