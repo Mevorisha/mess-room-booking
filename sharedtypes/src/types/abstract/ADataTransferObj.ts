@@ -5,15 +5,15 @@ import DtoValidationError from "../errors/DtoValidationError";
 import { validateSync } from "class-validator";
 
 export default abstract class ADataTransferObj {
-  static create(_: unknown): Result<ADataTransferObj, DtoValidationError> {
+  static create(_: object): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }
 
-  static fromJson(_: NetworkType): Result<ADataTransferObj, DtoValidationError> {
+  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }
 
-  static toJson(_: ADataTransferObj): NetworkType {
+  static toJson(_: ADataTransferObj): unknown {
     throw new Error("Unimplemented");
   }
 
