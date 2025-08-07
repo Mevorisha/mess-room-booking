@@ -1,7 +1,9 @@
 import { IsString } from "class-validator";
 import ADataTransferObj from "./abstract/ADataTransferObj";
 
-const IMAGES_INVALID = "Images must be valid photo objects";
+export enum MultiSizePhotoErrors {
+  INVALID_URL = "Image URL should be a string"
+}
 
 export interface MultiSizePhoto {
   small: string;
@@ -12,13 +14,13 @@ export interface MultiSizePhoto {
 export type MultiSizeImageSz = keyof MultiSizePhoto;
 
 export default class MultiSizePhotoDTO extends ADataTransferObj implements MultiSizePhoto {
-  @IsString({ message: IMAGES_INVALID })
+  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
   small: string;
 
-  @IsString({ message: IMAGES_INVALID })
+  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
   medium: string;
 
-  @IsString({ message: IMAGES_INVALID })
+  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
   large: string;
 
   constructor(data: { small: string; medium: string; large: string }) {
