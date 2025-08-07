@@ -18,7 +18,7 @@ export default abstract class ADataTransferObj {
   }
 
   protected static _create<T extends ADataTransferObj>(obj: T): Result<T, DtoValidationError> {
-    const errors = validateSync(this);
+    const errors = validateSync(obj);
     if (errors.length > 0) {
       return Result.err(new DtoValidationError(errors));
     } else {
