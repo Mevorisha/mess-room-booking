@@ -1,17 +1,31 @@
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import { BookingStatus } from "@/types/others";
 import BookingResValidationErrors from "@/types/errors/res/BookingResValidationErrors";
-import {
-  IsString,
-  IsEnum,
-  IsNumber,
-  IsPositive,
-  IsOptional,
-  IsBoolean,
-  IsDateString,
-  validateSync,
-} from "class-validator";
+import { IsString, IsEnum, IsNumber, IsPositive, IsOptional, IsBoolean, IsDateString } from "class-validator";
 import DtoValidationError from "@/types/errors/DtoValidationError";
+import Result from "@/types/Result";
+import NetworkType from "@/types/NetworkType";
+
+interface ConstructorParams {
+  id: string;
+  tenantId: string;
+  roomId: string;
+  occupantCount: number;
+
+  linkToWorkId?: string;
+  linkToGovId?: string;
+  submittedOn?: string;
+
+  acceptanceStatus: BookingStatus;
+  acceptedOn?: string;
+
+  cancelledOn?: string;
+  clearedOn?: string;
+
+  createdOn: string;
+  lastModifiedOn: string;
+  ttl?: string;
+}
 
 export default class BookingResCreateDTO extends ADataTransferObj {
   @IsString({ message: BookingResValidationErrors.ID_REQUIRED })
@@ -79,26 +93,7 @@ export default class BookingResCreateDTO extends ADataTransferObj {
   @IsBoolean({ message: BookingResValidationErrors.IS_DELETED_INVALID })
   isDeleted = false;
 
-  constructor(data: {
-    id: string;
-    tenantId: string;
-    roomId: string;
-    occupantCount: number;
-
-    linkToWorkId?: string;
-    linkToGovId?: string;
-    submittedOn?: string;
-
-    acceptanceStatus: BookingStatus;
-    acceptedOn?: string;
-
-    cancelledOn?: string;
-    clearedOn?: string;
-
-    createdOn: string;
-    lastModifiedOn: string;
-    ttl?: string;
-  }) {
+  private constructor(data: ConstructorParams) {
     super();
 
     this.id = data.id;
@@ -139,10 +134,17 @@ export default class BookingResCreateDTO extends ADataTransferObj {
     }
 
     this.isDeleted = data.ttl != null;
+  }
 
-    const errors = validateSync(this);
-    if (errors.length > 0) {
-      throw new DtoValidationError(errors);
-    }
+  static override create(data: ConstructorParams): Result<BookingResCreateDTO, DtoValidationError> {
+    return ADataTransferObj._create(new this(data));
+  }
+
+  static override fromJson(data: NetworkType): Result<BookingResCreateDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
+  }
+
+  static override toJson(obj: BookingResCreateDTO): NetworkType {
+    return ADataTransferObj._toJson(obj);
   }
 }
