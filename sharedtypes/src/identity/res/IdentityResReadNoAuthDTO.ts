@@ -1,9 +1,19 @@
 import MultiSizePhotoDTO from "@/types/MultiSizePhotoDTO";
+import NetworkType from "@/types/NetworkType";
+import Result from "@/types/Result";
 import ADataTransferObj from "@/types/abstract/ADataTransferObj";
 import DtoValidationError from "@/types/errors/DtoValidationError";
 import IdentityResValidationErrors from "@/types/errors/res/IdentityResValidationErrors";
 import { Type } from "class-transformer";
-import { IsOptional, IsString, ValidateNested, validateSync } from "class-validator";
+import { IsOptional, IsString, ValidateNested } from "class-validator";
+
+interface ConstructorParams {
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  profilePhotos?: MultiSizePhotoDTO;
+}
 
 export default class IdentityResReadNoAuthDTO extends ADataTransferObj {
   @IsOptional()
@@ -27,13 +37,7 @@ export default class IdentityResReadNoAuthDTO extends ADataTransferObj {
   @Type(() => MultiSizePhotoDTO)
   profilePhotos?: MultiSizePhotoDTO;
 
-  constructor(data?: {
-    displayName?: string;
-    firstName?: string;
-    lastName?: string;
-    mobile?: string;
-    profilePhotos?: MultiSizePhotoDTO;
-  }) {
+  protected constructor(data?: ConstructorParams) {
     super();
     if (data != null) {
       if (data.displayName != null) {
@@ -52,10 +56,17 @@ export default class IdentityResReadNoAuthDTO extends ADataTransferObj {
         this.profilePhotos = data.profilePhotos;
       }
     }
+  }
 
-    const errors = validateSync(this);
-    if (errors.length > 0) {
-      throw new DtoValidationError(errors);
-    }
+  static override create(data: ConstructorParams): Result<IdentityResReadNoAuthDTO, DtoValidationError> {
+    return ADataTransferObj._create(new this(data));
+  }
+
+  static override fromJson(data: NetworkType): Result<IdentityResReadNoAuthDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
+  }
+
+  static override toJson(obj: IdentityResReadNoAuthDTO): NetworkType {
+    return ADataTransferObj._toJson(obj);
   }
 }

@@ -11,10 +11,33 @@ import {
   IsPositive,
   ValidateNested,
   IsDateString,
-  validateSync,
 } from "class-validator";
 import { Type } from "class-transformer";
 import DtoValidationError from "@/types/errors/DtoValidationError";
+import NetworkType from "@/types/NetworkType";
+import Result from "@/types/Result";
+
+interface ConstructorParams {
+  // additional field
+  id: string;
+  // fields from backend/src/models/Room.ts
+  ownerId: string;
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
+  searchTags: string[];
+  landmark: string;
+  address: string;
+  city: string;
+  state: string;
+  majorTags: string[];
+  minorTags: string[];
+  capacity: number;
+  pricePerOccupant: number;
+  images: MultiSizePhotoDTO[];
+  rating: number;
+  createdOn: string;
+  lastModifiedOn: string;
+}
 
 export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
   @IsString({ message: RoomResValidationErrors.ID_REQUIRED })
@@ -82,27 +105,7 @@ export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
   @IsDateString({}, { message: RoomResValidationErrors.LAST_MODIFIED_ON_INVALID })
   lastModifiedOn: string;
 
-  constructor(data: {
-    // additional field
-    id: string;
-    // fields from backend/src/models/Room.ts
-    ownerId: string;
-    acceptGender: AcceptGender;
-    acceptOccupation: AcceptOccupation;
-    searchTags: string[];
-    landmark: string;
-    address: string;
-    city: string;
-    state: string;
-    majorTags: string[];
-    minorTags: string[];
-    capacity: number;
-    pricePerOccupant: number;
-    images: MultiSizePhotoDTO[];
-    rating: number;
-    createdOn: string;
-    lastModifiedOn: string;
-  }) {
+  protected constructor(data: ConstructorParams) {
     super();
 
     this.id = data.id;
@@ -122,10 +125,17 @@ export default class RoomResReadNotOwnerDTO extends ADataTransferObj {
     this.rating = data.rating;
     this.createdOn = data.createdOn;
     this.lastModifiedOn = data.lastModifiedOn;
+  }
 
-    const errors = validateSync(this);
-    if (errors.length > 0) {
-      throw new DtoValidationError(errors);
-    }
+  static override create(data: ConstructorParams): Result<RoomResReadNotOwnerDTO, DtoValidationError> {
+    return ADataTransferObj._create(new this(data));
+  }
+
+  static override fromJson(data: NetworkType): Result<RoomResReadNotOwnerDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
+  }
+
+  static override toJson(obj: RoomResReadNotOwnerDTO): NetworkType {
+    return ADataTransferObj._toJson(obj);
   }
 }

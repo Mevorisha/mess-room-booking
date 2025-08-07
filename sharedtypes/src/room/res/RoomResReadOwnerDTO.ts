@@ -1,9 +1,37 @@
 import { AcceptGender, AcceptOccupation } from "@/types/others";
 import MultiSizePhotoDTO from "@/types/MultiSizePhotoDTO";
 import RoomResValidationErrors from "@/types/errors/res/RoomResValidationErrors";
-import { IsString, IsBoolean, IsOptional, validateSync } from "class-validator";
+import { IsString, IsBoolean, IsOptional } from "class-validator";
 import RoomResReadNotOwnerDTO from "./RoomResReadNotOwnerDTO";
 import DtoValidationError from "@/types/errors/DtoValidationError";
+import NetworkType from "@/types/NetworkType";
+import Result from "@/types/Result";
+import ADataTransferObj from "@/types/abstract/ADataTransferObj";
+
+interface ConstructorParams {
+  // additional field
+  id: string;
+  // fields from backend/src/models/Room.ts
+  ownerId: string;
+  acceptGender: AcceptGender;
+  acceptOccupation: AcceptOccupation;
+  searchTags: string[];
+  landmark: string;
+  address: string;
+  city: string;
+  state: string;
+  majorTags: string[];
+  minorTags: string[];
+  capacity: number;
+  pricePerOccupant: number;
+  images: MultiSizePhotoDTO[];
+  rating: number;
+  createdOn: string;
+  lastModifiedOn: string;
+  // only shown to owners
+  isUnavailable: boolean;
+  ttl?: string;
+}
 
 export default class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
   @IsBoolean({ message: RoomResValidationErrors.IS_UNAVAILABLE_INVALID })
@@ -16,30 +44,7 @@ export default class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
   @IsBoolean({ message: RoomResValidationErrors.IS_DELETED_INVALID })
   isDeleted: boolean;
 
-  constructor(data: {
-    // additional field
-    id: string;
-    // fields from backend/src/models/Room.ts
-    ownerId: string;
-    acceptGender: AcceptGender;
-    acceptOccupation: AcceptOccupation;
-    searchTags: string[];
-    landmark: string;
-    address: string;
-    city: string;
-    state: string;
-    majorTags: string[];
-    minorTags: string[];
-    capacity: number;
-    pricePerOccupant: number;
-    images: MultiSizePhotoDTO[];
-    rating: number;
-    createdOn: string;
-    lastModifiedOn: string;
-    // only shown to owners
-    isUnavailable: boolean;
-    ttl?: string;
-  }) {
+  private constructor(data: ConstructorParams) {
     const { isUnavailable, ttl, ...notOwnerData } = data;
     super(notOwnerData);
 
@@ -48,10 +53,17 @@ export default class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
       this.ttl = ttl;
     }
     this.isDeleted = ttl != null;
+  }
 
-    const errors = validateSync(this);
-    if (errors.length > 0) {
-      throw new DtoValidationError(errors);
-    }
+  static override create(data: ConstructorParams): Result<RoomResReadOwnerDTO, DtoValidationError> {
+    return ADataTransferObj._create(new this(data));
+  }
+
+  static override fromJson(data: NetworkType): Result<RoomResReadOwnerDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
+  }
+
+  static override toJson(obj: RoomResReadOwnerDTO): NetworkType {
+    return ADataTransferObj._toJson(obj);
   }
 }
