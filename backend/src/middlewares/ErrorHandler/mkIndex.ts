@@ -10,7 +10,7 @@ export async function handleFirebaseIndexError(error: { code: number; details: s
   // Check if this is an index-related error (code 9 with specific details)
   if (
     error.code === 9 &&
-    error.details &&
+    (error.details.length > 0) &&
     typeof error.details === "string" &&
     error.details.includes("The query requires an index. That index is currently building and cannot be used yet.")
   ) {
@@ -18,7 +18,7 @@ export async function handleFirebaseIndexError(error: { code: number; details: s
   }
   if (
     error.code !== 9 ||
-    !error.details ||
+    (error.details.length === 0) ||
     typeof error.details !== "string" ||
     !error.details.includes("The query requires an index. You can create it here:")
   ) {
@@ -27,9 +27,11 @@ export async function handleFirebaseIndexError(error: { code: number; details: s
   }
   // Extract the index creation URL from the error
   const indexDataString = extractIndexData(error.details);
+  // eslint-disable-next-line no-useless-catch
   try {
     // Parse the index specification from the URL
     const { projectId, databaseId, spec: indexSpec } = parseDataIntoIndexSpec(indexDataString);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (!indexSpec) {
       throw new Error("Could not parse index specification from URL");
     }

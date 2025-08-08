@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Room, { SchemaFields } from "@/models/Room";
+import Room, { PseudoFields, SchemaFields } from "@/models/Room";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
@@ -13,7 +13,6 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  * response = {
  *   id: string
  *   ownerId: string
- *   images: Array<{ small: string, medium: string, large: string }>
  *   acceptGender: "MALE" | "FEMALE" | "OTHER"
  *   acceptOccupation: "STUDENT" | "PROFESSIONAL" | "ANY"
  *   searchTags: string[]
@@ -24,12 +23,17 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *   majorTags: string[]
  *   minorTags: string[]
  *   capacity: number
- *   rating: number
  *   pricePerOccupant: number
+ *   images: Array<{ small: string, medium: string, large: string }>
+ *   rating: number
+ *   createdOn: string (ISO date)
+ *   lastModifiedOn: string (ISO date)
  *
- * < The following need authentication as room owner >
+ * < shown only to room owner >
  *
  *   isUnavailable?: boolean
+ *   ttl?: string (ISO date)
+ *   isDeleted?: boolean (true if ttl is set, false otherwise)
  * }
  * ```
  */
@@ -49,7 +53,8 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
 
   // Define fields to fetch
   const fields = [
-    SchemaFields.IMAGES,
+    PseudoFields.ID,
+    SchemaFields.OWNER_ID,
     SchemaFields.ACCEPT_GENDER,
     SchemaFields.ACCEPT_OCCUPATION,
     SchemaFields.SEARCH_TAGS,
@@ -61,10 +66,13 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     SchemaFields.MINOR_TAGS,
     SchemaFields.CAPACITY,
     SchemaFields.PRICE_PER_OCCUPANT,
-    SchemaFields.OWNER_ID,
-    SchemaFields.IS_UNAVAILABLE,
     SchemaFields.RATING,
+    SchemaFields.IMAGES,
+    SchemaFields.CREATED_ON,
+    SchemaFields.LAST_MODIFIED_ON,
+    SchemaFields.IS_UNAVAILABLE,
     SchemaFields.TTL,
+    PseudoFields.IS_DELETED
   ];
 
   // Get room data
@@ -82,18 +90,20 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
     if (authResult.getUid() !== roomData.ownerId) {
-      if (roomData.ttl) {
+      if (roomData.isDeleted) {
         throw CustomApiError.create(404, "Room not found");
       }
       delete roomData.isUnavailable;
       delete roomData.ttl;
+      delete roomData.isDeleted;
     }
   }
 
   // Format response
   const response = {
-    id: roomId,
     ...roomData,
+    // unnecessary, already included in roomData
+    id: roomId,
     // Convert Sets back to arrays if they aren't already
     searchTags: Array.from(roomData.searchTags || []),
     majorTags: Array.from(roomData.majorTags || []),

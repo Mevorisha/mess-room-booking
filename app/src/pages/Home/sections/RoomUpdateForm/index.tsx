@@ -6,9 +6,9 @@ import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import { RoomData } from "@/modules/networkTypes/Room";
+import RoomDTO from "@/modules/networkTypes/Room";
 import { Base64FileData } from "@/modules/util/dataConversion.js";
-import { AcceptGender, AcceptOccupation } from "@/modules/networkTypes/Room";
+import { AcceptOccupation } from "@/modules/networkTypes/Room";
 
 import PillsInput from "@/components/PillsInput";
 import ButtonText from "@/components/ButtonText";
@@ -17,11 +17,15 @@ import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
-export type GenderOptions = AcceptGender | null;
-export type OccupationOptions = AcceptOccupation | null;
+type OccupationOptions = AcceptOccupation | "";
 
-export interface RoomUpdateData {
-  isUnavailable: boolean;
+/**
+ * Not a DTO but the schema of form data.
+ * That's why we don't inherit from RoomDTO but define our own type.
+ * See backend/src/pages/api/rooms/[roomId]/updateParams/index.ts for the API schema.
+ */
+export interface RoomUpdateFormData {
+  // these go to room/[roomId]/update
   acceptOccupation: OccupationOptions;
   searchTags: string[];
   landmark: string;
@@ -32,12 +36,16 @@ export interface RoomUpdateData {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
+  // this is not set at room/[roomId]/updateUnavailability, but at  room/[roomId]/update
+  // originally was supposed to have its own endpoint, but life happened and now it's here
+  isUnavailable: boolean;
+  // files to keep or add
   keepFiles: string[];
   addFiles: Base64FileData[];
 }
 
 export interface SectionRoomUpdateFormProps {
-  roomData: RoomData;
+  roomData: RoomDTO;
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
 
@@ -59,7 +67,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>(roomData.minorTags));
   const [capacity, setCapacity] = useState<string>("" + roomData.capacity);
   const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
-  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
+  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable ?? false);
 
   // Initialize filesSet with images from roomData
   const [filesSet, setFilesSet] = useState(
@@ -81,7 +89,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
     const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
 
-    const formData: RoomUpdateData = {
+    const formData: RoomUpdateFormData = {
       isUnavailable,
       acceptOccupation,
       searchTags: Array.from(searchTagsSet),
@@ -111,7 +119,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       "info"
     );
 
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id ?? "unknown"), formData)
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
       .then((data) => data as { roomId: string })
       .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
       .then(() => setSubmitButtonKind("primary"))
@@ -220,7 +228,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
             </span>
           </div>
 
-          <select disabled value={acceptGender ?? ""}>
+          <select disabled value={acceptGender}>
             <option value="MALE">{lang("Male", "পুরুষ", "पुरुष")}</option>
             <option value="FEMALE">{lang("Female", "মহিলা", "महिला")}</option>
             <option value="OTHER">{lang("Other", "অন্যান্য", "अन्य")}</option>
@@ -228,7 +236,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
           <select
             required
-            value={acceptOccupation ?? ""}
+            value={acceptOccupation}
             onChange={(e) => setAcceptOccupation(e.target.value as OccupationOptions)}
           >
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>

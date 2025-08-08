@@ -2,14 +2,19 @@ import { FirestorePaths } from "@/firebase/init";
 import { ValueOf } from "next/dist/shared/lib/constants";
 
 export type LogType = "info" | "error" | "warn";
-export type DateTimeRange = { from: Date; to: Date };
 
-export interface LogData {
-  [timestamp: string]: {
+export interface DateTimeRange {
+  from: Date;
+  to: Date;
+}
+
+export type LogData = Record<
+  string,
+  {
     message: string;
     type: string;
-  };
-}
+  }
+>;
 
 class Logs {
   /**
@@ -34,17 +39,19 @@ class Logs {
     }
 
     const data = doc.data();
-    if (!data) {
+    if (data == null) {
       return null;
     }
 
     let result = {} as LogData;
     // If range given, filter, else all
-    if (range) {
+    if (range != null) {
       Object.keys(data).forEach((timestamp) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const messageObj = data[timestamp];
         const messageDate = new Date(timestamp);
         if (messageDate >= range.from && messageDate <= range.to) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           result[timestamp] = messageObj;
         }
       });
@@ -60,6 +67,7 @@ class Logs {
     if (types.length > 0) {
       Object.keys(bkpResult).forEach((timestamp) => {
         const messageObj = bkpResult[timestamp] as ValueOf<LogData>;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         const messageType = messageObj?.type ?? "error";
         if (types.includes(messageType as LogType)) {
           result[timestamp] = messageObj;

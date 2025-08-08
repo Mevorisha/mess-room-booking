@@ -26,6 +26,7 @@ class RoomRatings {
     const doc = await ref.get();
     if (!doc.exists) return null;
     const data = doc.data() as RoomRatingsData;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (!data) return null;
     return data.ratingOn5;
   }
@@ -43,6 +44,7 @@ class RoomRatings {
     if (snapshot.empty) return result;
     snapshot.forEach((doc) => {
       const data = doc.data() as RoomRatingsData;
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
       if (data && typeof data.ratingOn5 === "number") {
         // Extract uid from the composite key
         const compositeKey = doc.id;

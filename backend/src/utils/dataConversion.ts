@@ -1,6 +1,9 @@
 import sharp from "sharp";
 
-export type ImgWithSz<N> = { img: Buffer; sz: N };
+export interface ImgWithSz<N> {
+  img: Buffer;
+  sz: N;
+}
 
 export async function resizeImage(
   imageBuffer: Buffer

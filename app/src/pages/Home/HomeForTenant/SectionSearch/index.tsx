@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import { RoomData, RoomQueryParser } from "@/modules/networkTypes/Room";
+import RoomDTO, { RoomQueryParser } from "@/modules/networkTypes/Room";
 import { lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
@@ -31,14 +31,20 @@ export default function SectionSearch(): React.ReactNode {
   const [urlQueryParams, setUrlQueryParams] = useSearchParams();
 
   // State for rooms data
-  const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [rooms, setRooms] = useState<RoomDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalResuts, setTotalResuts] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
-  const [searchQuery, setSearchQuery] = useState<RoomQuery>(RoomQueryParser.from(urlQueryParams));
+  const [searchQuery, setSearchQuery] = useState<RoomQuery>({
+    invalidateCache: true, // always invalidate cache on initial load unless overridden
+    page: 1, // start from page 1 on initial load unless overridden
+
+    // parse the query params from the URL and override the defaults
+    ...RoomQueryParser.from(urlQueryParams),
+  });
   const apiUri = ApiPaths.Rooms.readListOnQuery(searchQuery);
 
   // State for search input
@@ -78,15 +84,23 @@ export default function SectionSearch(): React.ReactNode {
     const searchStrLength = searchStr.length;
     if (searchStrLength > 0) {
       // Set searchTags in query and reset page to 1
-      setSearchQuery((oldQuery) => ({ ...oldQuery, searchTags: searchStr.split(" "), page: 1 }));
+      // also remove invalidateCache param if present
+      setSearchQuery(({ invalidateCache: _, ...oldQuery }) => ({
+        ...oldQuery,
+        searchTags: searchStr.split(" "),
+        page: 1,
+      }));
     } else {
       // Remove searchTags from query and remove page
       setSearchQuery((oldQuery) => {
         delete oldQuery.searchTags;
         delete oldQuery.page;
+        // unconditionally remove invalidateCache param
+        delete oldQuery.invalidateCache;
         return { ...oldQuery };
       });
     }
+    // Update has filters
   }, [searchInput, setSearchQuery]);
 
   // Function to handle filter changes
@@ -137,7 +151,7 @@ export default function SectionSearch(): React.ReactNode {
     try {
       const response = await apiGetOrDelete("GET", apiUri);
       if (response.json != null) {
-        const data = response.json as { rooms: RoomData[]; totalPages: number; totalItems: number };
+        const data = response.json as { rooms: RoomDTO[]; totalPages: number; totalItems: number };
         setRooms(data.rooms);
         setTotalPages(data.totalPages);
         setTotalResuts(data.totalItems);
@@ -168,7 +182,7 @@ export default function SectionSearch(): React.ReactNode {
 
       // call api
       apiGetOrDelete("GET", ApiPaths.Rooms.read(roomId))
-        .then(({ json }) => json as RoomData)
+        .then(({ json }) => json as RoomDTO)
         .then((roomData) => {
           dialog.setContent(
             roomViewDialogId,
@@ -307,7 +321,7 @@ export default function SectionSearch(): React.ReactNode {
                                 {tag}
                               </span>
                             ))}
-                            {room.minorTags.slice(0, 1).map((tag, idx) => (
+                            {room.minorTags.slice(0, 2).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
@@ -327,7 +341,7 @@ export default function SectionSearch(): React.ReactNode {
                           <ButtonText
                             rounded="all"
                             kind="secondary"
-                            onClick={() => handleViewRoom(room.id ?? "unknown")}
+                            onClick={() => handleViewRoom(room.id)}
                             title={lang("View", "দেখুন", "देखें")}
                           />
                         </div>

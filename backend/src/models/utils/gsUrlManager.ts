@@ -10,7 +10,7 @@ const UrlCache = new Map<string, UrlCacheData>();
 
 export async function gsPathToUrl(path: string): Promise<string> {
   const accessDelay = /* 2 min */ 2 * 60 * 1000;
-  if (UrlCache.has(path) && UrlCache.get(path)) {
+  if (UrlCache.has(path) && (UrlCache.get(path) != null)) {
     const { url, expires } = UrlCache.get(path) as UrlCacheData;
     if (Date.now() < expires - accessDelay) {
       const lastUsed = Date.now();

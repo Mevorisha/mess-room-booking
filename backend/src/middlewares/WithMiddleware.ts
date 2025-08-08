@@ -7,7 +7,7 @@ import { scheduleJobs } from "@/middlewares/JobScheduler";
 
 export function WithMiddleware(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
-) {
+): (req: NextApiRequest, res: NextApiResponse) => Promise<void> {
   // wrap API handler in catchAll
   const res = async (req: NextApiRequest, res: NextApiResponse) =>
     catchAll(req, res, async (req: NextApiRequest, res: NextApiResponse) => {

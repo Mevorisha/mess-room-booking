@@ -8,24 +8,25 @@ export interface IdentityPhotos {
 }
 
 export type Language = "ENGLISH" | "BANGLA" | "HINDI";
-
 export type IdentityType = "OWNER" | "TENANT";
 
-export interface IdentityData {
-  email: string;
-  type: IdentityType;
+/**
+ * Identity Data Transfer Object (DTO)
+ * Represents the structure of an identity object used in the application.
+ * This is based on backend/src/models/Identity.ts
+ */
+export default interface IdentityDTO {
+  displayName?: string;
   firstName?: string;
   lastName?: string;
-  displayName?: string;
   mobile?: string;
-  language?: Language;
   profilePhotos?: MultiSizePhoto;
+  // only for logged in user
+  email?: string;
+  type?: IdentityType;
   identityPhotos?: IdentityPhotos;
-  createdOn: string;
-  lastModifiedOn: string;
+  language?: Language;
+  createdOn?: string;
+  lastModifiedOn?: string;
   ttl?: string;
 }
-
-type IdentityNetworkType = Partial<IdentityData>;
-
-export default IdentityNetworkType;

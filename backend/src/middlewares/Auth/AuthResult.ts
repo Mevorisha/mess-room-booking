@@ -14,28 +14,28 @@ export class AuthResult {
     }
   }
 
-  static create(status: AuthStatus, uid?: string) {
+  static create(status: AuthStatus, uid?: string): AuthResult {
     return new AuthResult(status, uid);
   }
 
   /**
    * If a valid auth token is found
    */
-  isSuccess() {
+  isSuccess(): boolean {
     return this.#status === "USER_FOUND";
   }
 
   /**
    * If auth token is not valid
    */
-  isNotFound() {
+  isNotFound(): boolean {
     return this.#status === "USER_NOT_FOUND";
   }
 
   /**
    * If no auth token is found
    */
-  isMissingCreds() {
+  isMissingCreds(): boolean {
     return this.#status === "MISSING_CREDS";
   }
 

@@ -30,7 +30,7 @@ function validateRoomUpdateData(req: NextApiRequest): {
   addFiles: Array<{ type: string; name: string; base64: string }>;
 } {
   const roomUpdateSchema = Joi.object({
-    isUnavailable: Joi.boolean(),
+    // following are handled by Room.update method of Room model
     acceptOccupation: Joi.string().valid("STUDENT", "PROFESSIONAL", "ANY"),
     searchTags: Joi.array().items(Joi.string().trim()),
     landmark: Joi.string().trim(),
@@ -41,6 +41,11 @@ function validateRoomUpdateData(req: NextApiRequest): {
     minorTags: Joi.array().items(Joi.string().trim()),
     capacity: Joi.number().integer().positive(),
     pricePerOccupant: Joi.number().positive(),
+
+    // above doesn't pass rating to Room.update since rating is auto-calculated and passed by a scheduled job
+
+    // following are handled via different methods of Room model
+    isUnavailable: Joi.boolean(),
     keepFiles: Joi.array().items(Joi.string().trim()).default([]),
     addFiles: Joi.array()
       .items(
@@ -68,7 +73,7 @@ function validateRoomUpdateData(req: NextApiRequest): {
     SchemaFields.PRICE_PER_OCCUPANT,
     SchemaFields.IS_UNAVAILABLE,
   ];
-  const hasUpdateField = updateFields.some((field) => req.body[field] !== undefined);
+  const hasUpdateField = updateFields.some((field) => req.body[field] != null);
   const hasFileChanges =
     (req.body.keepFiles && req.body.keepFiles.length > 0) || (req.body.addFiles && req.body.addFiles.length > 0);
   if (!hasUpdateField && !hasFileChanges) {
@@ -209,7 +214,6 @@ async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
  *
  * ```
  * request = "PATCH /api/rooms/[roomId]/updateParams" {
- *   isUnavailable?: boolean
  *   acceptOccupation?: "STUDENT" | "PROFESSIONAL" | "ANY"
  *   searchTags?: Array<string>
  *   landmark?: string
@@ -220,6 +224,7 @@ async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
  *   minorTags?: Array<string>
  *   capacity?: number
  *   pricePerOccupant?: number
+ *   isUnavailable?: boolean
  *   keepFiles?: Array<string>
  *   addFiles?: Array<{ type: string, name: string, base64: string }>
  * }

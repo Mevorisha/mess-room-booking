@@ -13,16 +13,16 @@ const ExposedHeaders = [HeaderTypes.X_CONTENT_ENCODING, HeaderTypes.X_DECODED_CO
  * @throws {CustomApiError} If CORS checks fail
  */
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const origin = req.headers.origin || ("" as string);
+  const origin = req.headers.origin ?? ("" as string);
   if (
     config.CORS_ALLOW_EVERYTHING ||
     AllowedOrigins.includes(origin) ||
-    /mess-booking-app-serverless-[a-z0-9\-]+.web.app/.test(origin)
+    /mess-booking-app-serverless-[a-z0-9-]+.web.app/.test(origin)
   ) {
     if (config.IS_DEV) console.log("[I] [CORS] allowed origin:", origin);
     res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
   } else {
-    if (origin) console.error("[E] [CORS] blocked origin:", origin);
+    if (origin.length > 0) console.error("[E] [CORS] blocked origin:", origin);
     else console.error("[E] [CORS] no origin header found");
     throw CustomApiError.create(403, "Origin not allowed");
   }
@@ -35,9 +35,9 @@ export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<b
   if (req.method === "OPTIONS") {
     res.status(204);
     res.end();
-    return false;
+    return Promise.resolve(false);
   }
 
   // Not to end response here and let it be end by handler
-  return true;
+  return Promise.resolve(true);
 }

@@ -6,7 +6,7 @@ export function getPossibleClientIp(req: NextApiRequest): string {
 
   let ip;
 
-  let forwarded = req.headers["x-forwarded-for"];
+  const forwarded = req.headers["x-forwarded-for"];
 
   let forwardedIps: string[] = [];
 
@@ -17,10 +17,10 @@ export function getPossibleClientIp(req: NextApiRequest): string {
     forwardedIps = forwarded.map((ip) => ip.trim());
   }
 
-  for (let candidate of forwardedIps) {
+  for (const candidate of forwardedIps) {
     if (ipv4Regex.test(candidate) || ipv6Regex.test(candidate)) {
-      let matchV4 = candidate.match(ipv4Regex);
-      if (matchV4) {
+      const matchV4 = candidate.match(ipv4Regex);
+      if (matchV4 != null) {
         ip = matchV4[0];
       } else if (ipv6Regex.test(candidate)) {
         ip = candidate;
@@ -32,10 +32,10 @@ export function getPossibleClientIp(req: NextApiRequest): string {
   }
 
   // Fallback to remoteAddress
-  if (!ip) {
-    const remoteAddress = req.socket?.remoteAddress || "unknown";
-    let matchV4 = remoteAddress.match(ipv4Regex);
-    if (matchV4) {
+  if (ip == null) {
+    const remoteAddress = req.socket.remoteAddress ?? "unknown";
+    const matchV4 = remoteAddress.match(ipv4Regex);
+    if (matchV4 != null) {
       ip = matchV4[0];
     } else if (ipv6Regex.test(remoteAddress)) {
       ip = remoteAddress;

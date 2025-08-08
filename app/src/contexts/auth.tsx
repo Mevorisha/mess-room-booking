@@ -5,7 +5,7 @@ import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
-import IdentityNetworkType from "@/modules/networkTypes/Identity.js";
+import IdentityDTO from "@/modules/networkTypes/Identity.js";
 import User from "@/modules/classes/User.js";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
 
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   /* listen for auth state changes and update the temporary user */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((user) => {
-      if (null == user) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
+      if (user == null) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
         dispatchUser({ fromFirebaseAuth: user });
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         user != null ? User.fromFirebaseAuthUser(user) : null
       );
 
-      if (null == user) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
+      if (user == null) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
     });
 
     return () => unsubscribe();
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     if (user.uid.length === 0) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    function updateLocalUser(onlineProfileData?: IdentityNetworkType) {
+    function updateLocalUser(onlineProfileData?: IdentityDTO) {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
       if (onlineProfileData == null) {
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       }
 
       if (onlineProfileData.email != null) {
-        dispatchUser({ mobile: onlineProfileData.email });
+        dispatchUser({ email: onlineProfileData.email });
       }
 
       if (onlineProfileData.mobile != null) {
@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
      */
 
     apiGetOrDelete("GET", ApiPaths.Profile.read(user.uid))
-      .then(({ json }) => updateLocalUser(json))
+      .then(({ json }) => updateLocalUser(json as IdentityDTO))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));
   }, [authState, user.uid, dispatchUser, notify, setLang]);

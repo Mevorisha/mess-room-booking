@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Booking, { AcceptanceStatus, BookingQueryParams } from "@/models/Booking";
-import { Timestamp } from "firebase-admin/firestore";
+import Booking, { BookingQueryIdType, BookingQueryParams } from "@/models/Booking";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { LRUCache } from "lru-cache";
+import Room, { SchemaFields } from "@/models/Room";
 
 // Configure LRU cache
 const bookingsCache = new LRUCache<string, any[]>({
@@ -22,15 +22,8 @@ const PAGE_SIZE = 8;
 /**
  * ```
  * request = "GET /api/bookings/readListOnQuery
- *   &self=true|false
- *   &tenantId=string
- *   &roomId=string
- *   &acceptance=ACCEPTED|REJECTED
- *   &isAccepted=true|false
- *   &isCancelled=true|false
- *   &isCleared=true|false
- *   &createdAfter=ISODateString
- *   &modifiedAfter=ISODateString
+ *   &queryIdType=TENANT | ROOM | OWNER
+ *   &id=string (tenantId, roomId, or ownerId based on queryIdType)
  *   &page=number
  *   &invalidateCache=boolean
  * "
@@ -44,16 +37,18 @@ const PAGE_SIZE = 8;
  *     tenantId: string
  *     roomId: string
  *     occupantCount: number
- *     acceptance?: "ACCEPTED" | "REJECTED"
+ *     isSubmitted: boolean
+ *     acceptanceStatus?: "UNSET" | "ACCEPTED" | "REJECTED"
+ *     isCancelled: boolean
+ *     isCleared: boolean
+ *     submittedOn?: string (ISO date)
  *     acceptedOn?: string (ISO date)
  *     cancelledOn?: string (ISO date)
  *     clearedOn?: string (ISO date)
- *     isAccepted: boolean
- *     isCancelled: boolean
- *     isCleared: boolean
  *     createdOn: string (ISO date)
  *     lastModifiedOn: string (ISO date)
- *     ttl?: string (ISO date, only included when self=true)
+ *     ttl?: string (ISO date, only included when uid is owner or roomId)
+ *     isDeleted?: boolean (true if ttl is set, false otherwise, hidden from tenants)
  *   }>
  * }
  * ```
@@ -63,8 +58,6 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (req.method !== "GET") {
     throw CustomApiError.create(405, "Method Not Allowed");
   }
-  // Check if we're requesting self bookings
-  const isSelfQuery = req.query["self"] === "true";
   // Parse pagination parameters
   const page = parseInt(req.query["page"] as string, 10) || 1;
   // Cache invalidation
@@ -85,11 +78,41 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Also, cache invalidation can be requested in query params
   if (!formattedBookings || invalidateCache) {
     // Parse query parameters
-    const queryParams = parseQueryParams(req, uid, isSelfQuery);
+    const queryParams = parseQueryParams(req);
+    let uidIsRoomOwner = false;
+    // ensure the owner or tenant whoever is viewing the bookings is logged in as themselves
+    if (queryParams.queryIdType === "OWNER") {
+      if (queryParams.id !== uid) {
+        throw CustomApiError.create(403, "Owner ID does not match logged-in user");
+      } else {
+        uidIsRoomOwner = true;
+      }
+    } else if (queryParams.queryIdType === "ROOM") {
+      // user should be looged in as room owner to view bookings of a room
+      const roomId = queryParams.id;
+      if (!roomId) {
+        throw CustomApiError.create(400, "Room ID is required for ROOM queryIdType");
+      }
+      const room = await Room.get(roomId, "API_URI", [SchemaFields.OWNER_ID]);
+      if (!room) {
+        throw CustomApiError.create(404, "Room not found");
+      }
+      if (room.ownerId !== uid) {
+        throw CustomApiError.create(403, "You are not the owner of this room");
+      }
+      uidIsRoomOwner = true;
+    } else if (queryParams.queryIdType === "TENANT") {
+      if (queryParams.id !== uid) {
+        throw CustomApiError.create(403, "Tenant ID does not match logged-in user");
+      }
+      uidIsRoomOwner = false; // Tenant is not a room owner
+    } else {
+      throw CustomApiError.create(400, "Invalid queryIdType. Must be TENANT, ROOM, or OWNER");
+    }
     // Execute the query
     const bookingsData = await Booking.queryAll(queryParams);
     // Format the response
-    formattedBookings = formatBookings(bookingsData, isSelfQuery);
+    formattedBookings = formatBookings(bookingsData, uidIsRoomOwner);
     // Store in cache
     bookingsCache.set(cacheKey, formattedBookings);
   }
@@ -140,58 +163,22 @@ function paginateResults(bookings: any[], page: number) {
 /**
  * Parses and validates query parameters from the request
  */
-function parseQueryParams(req: NextApiRequest, uid: string, isSelfQuery: boolean): BookingQueryParams {
-  const queryParams: BookingQueryParams = {};
-  // For self queries, we just need the user ID as tenantId
-  if (isSelfQuery) {
-    queryParams.tenantId = uid;
-  } else if (req.query["tenantId"]) {
-    // For non-self queries, filter by tenantId if provided
-    queryParams.tenantId = req.query["tenantId"] as string;
-  }
-  // Handle roomId filter
-  if (req.query["roomId"]) {
-    queryParams.roomId = req.query["roomId"] as string;
-  }
-  // Handle acceptance filter
-  if (req.query["acceptance"] && ["ACCEPTED", "REJECTED"].includes(req.query["acceptance"] as string)) {
-    queryParams.acceptance = req.query["acceptance"] as AcceptanceStatus;
-  }
-  // Handle boolean status filters
-  if (req.query["isAccepted"]) {
-    queryParams.isAccepted = req.query["isAccepted"] === "true";
-  }
-  if (req.query["isCancelled"]) {
-    queryParams.isCancelled = req.query["isCancelled"] === "true";
-  }
-  if (req.query["isCleared"]) {
-    queryParams.isCleared = req.query["isCleared"] === "true";
-  }
-  // Handle timestamps if needed
-  if (req.query["createdAfter"]) {
-    queryParams.createdOn = Timestamp.fromDate(new Date(req.query["createdAfter"] as string));
-  }
-  if (req.query["modifiedAfter"]) {
-    queryParams.lastModifiedOn = Timestamp.fromDate(new Date(req.query["modifiedAfter"] as string));
-  }
-  return queryParams;
+function parseQueryParams(req: NextApiRequest): BookingQueryParams {
+  const queryIdType = (req.query["queryIdType"] as string).toUpperCase() as BookingQueryIdType | null;
+  const id = req.query["id"] as string;
+  if (!queryIdType || !id) return {};
+  return { queryIdType, id };
 }
 
 /**
  * Formats booking data for the response and adds self specific fields
  */
-function formatBookings(bookingsData: Array<any>, isSelfQuery: boolean): any[] {
+function formatBookings(bookingsData: Array<any>, uidIsRoomOwner: boolean): any[] {
   return bookingsData.map((booking) => {
     // Common booking properties
     const formattedBooking: any = {
-      id: booking.id,
       tenantId: booking.tenantId,
       roomId: booking.roomId,
-      occupantCount: booking.occupantCount,
-      acceptance: booking.acceptance,
-      isAccepted: booking.isAccepted,
-      isCancelled: booking.isCancelled,
-      isCleared: booking.isCleared,
     };
     // Format timestamps to ISO strings when they exist
     if (booking.acceptedOn) {
@@ -210,7 +197,7 @@ function formatBookings(bookingsData: Array<any>, isSelfQuery: boolean): any[] {
       formattedBooking.lastModifiedOn = booking.lastModifiedOn.toDate().toISOString();
     }
     // Add ttl info for self-queries
-    if (isSelfQuery && booking.ttl) {
+    if (uidIsRoomOwner && booking.ttl) {
       formattedBooking.ttl = booking.ttl.toDate().toISOString();
       formattedBooking.isDeleted = true;
     } else {

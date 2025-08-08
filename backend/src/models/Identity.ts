@@ -31,8 +31,26 @@ type IdentityCreateData = Pick<IdentityData, "email"> & { type: IdentityType | "
 // During update, AutoSetFields MUST not be set
 type IdentityUpdateData = Partial<Omit<IdentityData, AutoSetFields>>;
 
-// During read, all data may be read
-type IdentityReadData = Partial<IdentityData & { displayName: string }>;
+/**
+ * Identity Data Transfer Object (DTO)
+ * Represents the structure of an identity object used in the application.
+ * This is based on backend/src/models/Identity.ts
+ */
+export interface IdentityDTO {
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  profilePhotos?: MultiSizePhoto;
+  // only for logged in user
+  email?: string;
+  type?: IdentityType;
+  identityPhotos?: IdentityPhotos;
+  language?: Language;
+  createdOn?: string;
+  lastModifiedOn?: string;
+  ttl?: string;
+}
 
 export enum SchemaFields {
   FIRST_NAME = "firstName",
@@ -52,16 +70,19 @@ export enum PsudoFields {
   DISPLAY_NAME = "displayName",
 }
 
-function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
+function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; identityPhotos?: IdentityPhotos }>(
+  dataToUpdate: T,
+  uid: string
+) {
   // convert image paths in profile photos to URLs
-  if (dataToUpdate.profilePhotos) {
+  if (dataToUpdate.profilePhotos != null) {
     dataToUpdate.profilePhotos = {
       small: StoragePaths.ProfilePhotos.apiUri(uid, "small"),
       medium: StoragePaths.ProfilePhotos.apiUri(uid, "medium"),
       large: StoragePaths.ProfilePhotos.apiUri(uid, "large"),
     };
   }
-  if (dataToUpdate.identityPhotos) {
+  if (dataToUpdate.identityPhotos != null) {
     const workId = {
       small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
       medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
@@ -73,8 +94,8 @@ function imgConvertGsPathToApiUri(dataToUpdate: IdentityData, uid: string) {
       large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
     };
     const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
-    if (dataToUpdate.identityPhotos.workId) ids.workId = workId;
-    if (dataToUpdate.identityPhotos.govId) ids.govId = govId;
+    if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;
+    if (dataToUpdate.identityPhotos.govId != null) ids.govId = govId;
     dataToUpdate.identityPhotos = {
       ...ids,
       workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate ?? true,
@@ -103,6 +124,7 @@ class Identity {
   static async update(uid: string, updateData: IdentityUpdateData): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const docSnapshot = await ref.get();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
     if (!docSnapshot || !docSnapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
@@ -116,7 +138,7 @@ class Identity {
     uid: string,
     extUrls: ApiResponseUrlType,
     fields: (SchemaFields | PsudoFields)[] = []
-  ): Promise<IdentityReadData | null> {
+  ): Promise<IdentityDTO | null> {
     const ref = FirestorePaths.Identity(uid);
 
     const doc = await ref.get();
@@ -125,28 +147,57 @@ class Identity {
     }
 
     const data = doc.data();
-    if (!data) {
+    if (data == null) {
       return null;
     }
 
     // Compose pseduo fields
-    data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
+    if (fields.length === 0 || fields.includes(PsudoFields.DISPLAY_NAME)) {
+      data["displayName"] = [data["firstName"], data["lastName"]].filter(Boolean).join(" ");
+    }
+
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "short",
+      year: "numeric",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    };
+
+    // convert timestamps to ISO Locale strings
+    if (data["createdOn"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      data["createdOn"] = data["createdOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+    if (data["lastModifiedOn"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      data["lastModifiedOn"] = data["lastModifiedOn"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
+    if (data["ttl"] != null) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      data["ttl"] = data["ttl"].toDate().toLocaleDateString("en-US", dateOptions);
+    }
 
     // If no fields are provided, return the entire document
     if (fields.length === 0) {
-      if (extUrls === "API_URI") return imgConvertGsPathToApiUri(data as IdentityData, uid);
-      else return data;
+      if (extUrls === "API_URI") {
+        return imgConvertGsPathToApiUri(data, uid);
+      } else {
+        return data;
+      }
     }
 
     // Return only requested fields
-    const result = {} as IdentityReadData;
+    const result = {} as IdentityDTO;
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/strict-boolean-expressions
       (result as any)[field] = data[field] || null;
     }
 
     // convert image paths to api uri if any
     if (extUrls === "API_URI") {
-      return imgConvertGsPathToApiUri(result as IdentityData, uid);
+      return imgConvertGsPathToApiUri(result, uid);
     } else {
       return result;
     }

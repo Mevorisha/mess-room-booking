@@ -5,10 +5,11 @@ import { AuthResult } from "./AuthResult";
 
 export async function getLoggedInUser(req: NextApiRequest): Promise<AuthResult> {
   try {
-    const token = req.headers["x-firebase-token"] as string;
-    if (!token) {
+    const tokenFromHeader = req.headers["x-firebase-token"];
+    if (tokenFromHeader == null || tokenFromHeader.length === 0) {
       return AuthResult.create("MISSING_CREDS");
     }
+    const token: string = tokenFromHeader instanceof Array ? (tokenFromHeader[0] as string) : tokenFromHeader;
     const decodedToken = await FirebaseAuth.verifyIdToken(token);
     const loggedInUid = decodedToken.uid;
     req.query["auth.uid"] = loggedInUid;
@@ -36,7 +37,7 @@ export async function authenticate(req: NextApiRequest, expectedUid?: string): P
       throw CustomApiError.create(401, "Invalid auth credentials");
     }
   } else {
-    if (loggedInUid) return loggedInUid;
+    if (loggedInUid.length > 0) return loggedInUid;
     else throw CustomApiError.create(500, "Authentication failure");
   }
 }
