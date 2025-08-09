@@ -3,10 +3,22 @@ import { ValidationError } from "class-validator";
 export class DtoValidationError extends Error {
   public readonly validationErrors: ValidationError[];
 
-  constructor(errors: ValidationError[]) {
-    super(DtoValidationError.formatMessage(errors));
+  apiStatusCode = 400;
+
+  constructor(errors: ValidationError[] | { apiStatusCode?: number; message: string }) {
+    super();
     this.name = "DtoValidationError";
-    this.validationErrors = errors;
+
+    if (!(errors instanceof Array)) {
+      this.message = errors.message;
+      if (errors.apiStatusCode != null) {
+        this.apiStatusCode = errors.apiStatusCode;
+      }
+      this.validationErrors = [];
+    } else {
+      this.message = DtoValidationError.formatMessage(errors);
+      this.validationErrors = errors;
+    }
   }
 
   private static formatMessage(errors: ValidationError[]): string {
