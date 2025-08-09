@@ -5,11 +5,11 @@ import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { validateSync } from "class-validator";
 
 export abstract class ADataTransferObj {
-  static create(_: object): Result<unknown, DtoValidationError> {
+  static create(_: object): Result<unknown, DtoValidationError> | Promise<Result<unknown, DtoValidationError>> {
     throw new Error("Unimplemented");
   }
 
-  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
+  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> | Promise<Result<unknown, DtoValidationError>> {
     throw new Error("Unimplemented");
   }
 
