@@ -1,6 +1,6 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
-import { IdentityImageReqValidationErrors } from "@/types/errors/req/IdentityImageReqValidationErrors";
+import { IdentityReqValidationErrors } from "@/types/errors/req/IdentityReqValidationErrors";
 import { MultiSizeImageSz } from "@/types/MultiSizePhotoDTO";
 import { NetworkType } from "@/types/NetworkType";
 import { NextJsReqQuery } from "@/types/others";
@@ -8,13 +8,13 @@ import { Result } from "@/types/Result";
 import { IsBoolean, IsEnum, IsString } from "class-validator";
 
 export class IdentityReqReadImage extends ADataTransferObj {
-  @IsString({ message: IdentityImageReqValidationErrors.MISSING_UID })
+  @IsString({ message: IdentityReqValidationErrors.MISSING_UID })
   uid: string;
 
-  @IsEnum(["small", "medium", "large"], { message: IdentityImageReqValidationErrors.IMAGE_SIZE_INVALID })
+  @IsEnum(["small", "medium", "large"], { message: IdentityReqValidationErrors.IMAGE_SIZE_INVALID })
   size: MultiSizeImageSz;
 
-  @IsBoolean({ message: IdentityImageReqValidationErrors.INVALID_B64_FLAG })
+  @IsBoolean({ message: IdentityReqValidationErrors.INVALID_B64_FLAG })
   b64 = false;
 
   constructor(data: NextJsReqQuery) {
