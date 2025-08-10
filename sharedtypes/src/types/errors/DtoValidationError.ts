@@ -1,23 +1,19 @@
 import { ValidationError } from "class-validator";
 
 export class DtoValidationError extends Error {
-  public readonly validationErrors: ValidationError[];
+  readonly apiStatusCode: number = 400;
 
-  apiStatusCode = 400;
-
-  constructor(errors: ValidationError[] | { apiStatusCode?: number; message: string }) {
+  constructor(error: ValidationError[] | { apiStatusCode?: number; message: string }) {
     super();
     this.name = "DtoValidationError";
 
-    if (!(errors instanceof Array)) {
-      this.message = errors.message;
-      if (errors.apiStatusCode != null) {
-        this.apiStatusCode = errors.apiStatusCode;
+    if (!(error instanceof Array)) {
+      this.message = error.message;
+      if (error.apiStatusCode != null) {
+        this.apiStatusCode = error.apiStatusCode;
       }
-      this.validationErrors = [];
     } else {
-      this.message = DtoValidationError.formatMessage(errors);
-      this.validationErrors = errors;
+      this.message = DtoValidationError.formatMessage(error);
     }
   }
 
