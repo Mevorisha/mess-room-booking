@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import Identity, { SchemaFields } from "@/models/Identity";
 import { getLoggedInUser } from "@/middlewares/Auth";
@@ -6,7 +7,7 @@ import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import HeaderTypes from "@/types/HeaderTypes";
-import { IdentityReqReadImageQuery } from "sharedtypes";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 
 /**
  * ```
@@ -17,17 +18,16 @@ import { IdentityReqReadImageQuery } from "sharedtypes";
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ID_DOC_READ(req, res))) return;
 
-  // Only allow GET method
-  if (req.method !== "GET") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
   // Extract query params from request
-  const queryResult = IdentityReqReadImageQuery.create(req);
-  if (queryResult.isErr) {
-    throw CustomApiError.create(queryResult.error.apiStatusCode, queryResult.error.message);
-  }
-  const { uid, size, b64 } = queryResult.value;
+  const { uid, size, b64 } = RequestValidationParser.parse({
+    req,
+    method: "GET",
+    validation: z.object({
+      uid: RequestValidationParser.CommonSchema.UID,
+      size: RequestValidationParser.CommonSchema.IMAGE_SIZE,
+      b64: RequestValidationParser.CommonSchema.OPTIONAL_BOOL,
+    }),
+  });
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
   if (profile?.identityPhotos?.govId == null || profile.identityPhotos.govId[size] === "") {

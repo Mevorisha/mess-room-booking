@@ -1,13 +1,15 @@
+import z from "zod";
+import { NextApiRequest, NextApiResponse } from "next";
 import { authenticate } from "@/middlewares/Auth";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImage } from "@/utils/dataConversion";
 import Identity from "@/models/Identity";
-import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
-import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { IdentityReqUpdateImageBody, MultiSizeImageSz, MultiSizePhoto } from "sharedtypes";
+import { MultiSizeImageSz, MultiSizePhoto } from "sharedtypes";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { ReuqestImageBodyParser } from "@/parsers/ReuqestImageBodyParser";
 
 export const config = {
   api: {
@@ -23,28 +25,21 @@ export const config = {
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  if (typeof req.query["uid"] !== "string" || req.query["uid"].length === 0) {
-    throw CustomApiError.create(400, "Missing or invalid field 'uid: string'");
-  }
-
-  const uid = req.query["uid"];
+  // Extract query params from request
+  const { uid } = RequestValidationParser.parse({
+    req,
+    method: "PATCH",
+    validation: z.object({
+      uid: RequestValidationParser.CommonSchema.UID,
+    }),
+  });
 
   // Require authentication middleware
   await authenticate(req, uid);
 
   if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
-  const uploadReqResult = await IdentityReqUpdateImageBody.create(req);
-  if (uploadReqResult.isErr) {
-    throw CustomApiError.create(uploadReqResult.error.apiStatusCode, uploadReqResult.error.message);
-  }
-
-  const { buffer: fileBuffer } = uploadReqResult.value.file;
+  const { buffer: fileBuffer } = await ReuqestImageBodyParser.parse(req);
 
   const resizedImages = await resizeImage(fileBuffer);
   const bucket = FirebaseStorage.bucket();
