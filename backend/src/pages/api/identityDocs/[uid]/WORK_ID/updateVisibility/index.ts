@@ -5,6 +5,7 @@ import Identity from "@/models/Identity";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { IdentityReqReadImageVisibilityQuery } from "sharedtypes";
 
 /**
  * ```
@@ -18,22 +19,22 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(405, "Method Not Allowed");
   }
 
-  const uid = req.query["uid"] as string;
-  if (!uid) {
-    throw CustomApiError.create(400, "Missing field 'uid: string'");
+  if (typeof req.query["uid"] !== "string" || req.query["uid"].length === 0) {
+    throw CustomApiError.create(400, "Missing or invalid field 'uid: string'");
   }
+
+  const uid = req.query["uid"];
+
   // Require authentication middleware
   await authenticate(req, uid);
 
   if (!(await RateLimits.ID_DOC_VIS_UPDATE(uid, req, res))) return;
 
-  const visibility = req.body["visibility"] as "PUBLIC" | "PRIVATE";
-  if (!visibility) {
-    throw CustomApiError.create(400, "Missing field 'visibility: PUBLIC | PRIVATE'");
+  const queryResult = IdentityReqReadImageVisibilityQuery.create(req);
+  if (queryResult.isErr) {
+    throw CustomApiError.create(queryResult.error.apiStatusCode, queryResult.error.message);
   }
-  if (!["PUBLIC", "PRIVATE"].includes(visibility)) {
-    throw CustomApiError.create(400, "Invalid field 'visibility: PUBLIC | PRIVATE'");
-  }
+  const { visibility } = queryResult.value;
 
   await Identity.update(uid, { identityPhotos: { workIdIsPrivate: visibility === "PRIVATE" } });
   return respond(res, { status: 200, message: `Governemnt ID made ${visibility.toLowerCase()}` });

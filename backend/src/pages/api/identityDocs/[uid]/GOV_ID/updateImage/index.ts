@@ -28,11 +28,11 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(405, "Method Not Allowed");
   }
 
-  if (req.query["uid"] == null) {
-    throw CustomApiError.create(400, "Missing field 'uid: string'");
+  if (typeof req.query["uid"] !== "string" || req.query["uid"].length === 0) {
+    throw CustomApiError.create(400, "Missing or invalid field 'uid: string'");
   }
 
-  const uid = req.query["uid"] as string;
+  const uid = req.query["uid"];
 
   // Require authentication middleware
   await authenticate(req, uid);
