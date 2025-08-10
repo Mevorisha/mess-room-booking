@@ -23,9 +23,6 @@ export * from "./room/res/RoomResReadOwnerDTO.js";
 export * from "./room/res/RoomResReadNotOwnerDTO.js";
 
 // Identity DTOs
-export * from "./identity/req/IdentityReqReadImageQuery.js";
-export * from "./identity/req/IdentityReqUpdateImageBody.js";
-export * from "./identity/req/IdentityReqReadImageVisibilityQuery.js"
 export * from "./identity/res/IdentityResReadWithAuthDTO.js";
 export * from "./identity/res/IdentityResReadNoAuthDTO.js";
 
