@@ -9,7 +9,7 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { MultiSizeImageSz, MultiSizePhoto } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { ReuqestImageBodyParser } from "@/parsers/ReuqestImageBodyParser";
+import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
 
 export const config = {
   api: {
@@ -39,7 +39,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
-  const { buffer: fileBuffer } = await ReuqestImageBodyParser.parse(req);
+  const { buffer: fileBuffer } = await RequestImageBodyParser.parse(req);
 
   const resizedImages = await resizeImage(fileBuffer);
   const bucket = FirebaseStorage.bucket();
@@ -50,6 +50,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
     const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
     imagePaths[size as MultiSizeImageSz] = filePath;
     const fileRef = bucket.file(filePath);
+    // always save jpeg for consistency and security
     return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
   });
 

@@ -11,7 +11,7 @@ interface ImageUploadData {
   buffer: Buffer<ArrayBufferLike>;
 }
 
-export class ReuqestImageBodyParser {
+export class RequestImageBodyParser {
   static async parse(req: NextApiRequest): Promise<ImageUploadData> {
     // Parse form data
     const form: IncomingForm = formidable({ multiples: true });
