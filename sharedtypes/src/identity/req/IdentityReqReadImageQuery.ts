@@ -2,12 +2,11 @@ import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { IdentityReqValidationErrors } from "@/types/errors/req/IdentityReqValidationErrors";
 import { MultiSizeImageSz } from "@/types/MultiSizePhotoDTO";
-import { NetworkType } from "@/types/NetworkType";
-import { NextJsReqQuery } from "@/types/others";
+import { NextJsApiReq, NextJsReqQuery } from "@/types/NextJsTypes";
 import { Result } from "@/types/Result";
 import { IsBoolean, IsEnum, IsString } from "class-validator";
 
-export class IdentityReqReadImage extends ADataTransferObj {
+export class IdentityReqReadImageQuery extends ADataTransferObj {
   @IsString({ message: IdentityReqValidationErrors.MISSING_UID })
   uid: string;
 
@@ -25,15 +24,7 @@ export class IdentityReqReadImage extends ADataTransferObj {
     this.b64 = data["b64"] !== "true" ? true : false;
   }
 
-  static override create(data: NextJsReqQuery): Result<IdentityReqReadImage, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
-  }
-
-  static override fromJson(data: NetworkType): Result<IdentityReqReadImage, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data));
-  }
-
-  static override toJson(obj: IdentityReqReadImage): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override create(req: NextJsApiReq): Result<IdentityReqReadImageQuery, DtoValidationError> {
+    return ADataTransferObj._create(new this(req.query));
   }
 }

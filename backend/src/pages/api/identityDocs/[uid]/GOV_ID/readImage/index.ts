@@ -6,7 +6,7 @@ import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import HeaderTypes from "@/types/HeaderTypes";
-import { IdentityReqReadImage } from "sharedtypes";
+import { IdentityReqReadImageQuery } from "sharedtypes";
 
 /**
  * ```
@@ -23,11 +23,11 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   }
 
   // Extract query params from request
-  const queryRes = IdentityReqReadImage.create(req.query);
-  if (queryRes.isErr) {
-    throw CustomApiError.create(400, queryRes.error.message);
+  const queryResult = IdentityReqReadImageQuery.create(req);
+  if (queryResult.isErr) {
+    throw CustomApiError.create(queryResult.error.apiStatusCode, queryResult.error.message);
   }
-  const { uid, size, b64 } = queryRes.value;
+  const { uid, size, b64 } = queryResult.value;
 
   const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
   if (profile?.identityPhotos?.govId == null || profile.identityPhotos.govId[size] === "") {
