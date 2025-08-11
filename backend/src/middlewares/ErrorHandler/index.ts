@@ -13,7 +13,7 @@ async function handleErr(e: FirebaseIndexErrorType | null, res: NextApiResponse)
   }
   if (e instanceof CustomApiError) {
     respond(res, { status: e.status, error: e.message });
-    console.error(e.status, e.message);
+    console.error(e);
   } else {
     try {
       const isErrorHandled = await handleFirebaseIndexError(e);
@@ -32,7 +32,7 @@ async function handleErr(e: FirebaseIndexErrorType | null, res: NextApiResponse)
       if (e instanceof CustomApiError) {
         // Index related error is a CustomApiError
         respond(res, { status: e.status, error: e.message });
-        console.error(e.status, e.message);
+        console.error(e);
       } else {
         // Anything else
         respond(res, { status: 500, error: "Internal Server Error" });

@@ -1,16 +1,13 @@
 export class CustomApiError extends Error {
-  status = 500;
+  status: number;
 
-  constructor(status: number, message: string) {
-    super(message);
+  private constructor(status: number, message: string, cause?: Error) {
+    super(message, { cause });
+    this.name = `CustomApiError [${status}]`;
     this.status = status;
   }
 
-  static create(status: number, message: string): CustomApiError {
-    return new CustomApiError(status, message);
-  }
-
-  override toString(): string {
-    return this.message;
+  static create(status: number, message: string, cause?: Error): CustomApiError {
+    return new CustomApiError(status, message, cause);
   }
 }

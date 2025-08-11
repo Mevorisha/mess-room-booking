@@ -37,8 +37,7 @@ export class RequestValidationParser {
       return validation.parse(req.query) as z.infer<T>;
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.message;
-        throw CustomApiError.create(400, `Invalid request: ${errorMessages}`);
+        throw CustomApiError.create(400, "Bad Request", error);
       }
 
       // Re-throw unexpected errors
