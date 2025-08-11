@@ -22,6 +22,9 @@ export * from "./room/RoomGetResBodyNotOwnerDTO.js";
 export * from "./identity/IdentityGetResBodyWithAuthDTO.js";
 export * from "./identity/IdentityGetResBodyNoAuthDTO.js";
 
+// Logs DTOs
+export * from "./logs/LogPostReqBodyDTO.js";
+
 // Re-export commonly used validator decorators for convenience
 export {
   IsString,

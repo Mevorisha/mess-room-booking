@@ -8,6 +8,7 @@ export class RequestValidationParser {
   static readonly CommonSchema = {
     UID: z.string().nonempty(),
     IMAGE_SIZE: z.enum(["small", "medium", "large"]),
+    LOG_TYPE: z.enum(["info", "warn", "error"]),
     OPTIONAL_BOOL: z.boolean().optional().default(false),
     DOC_VISIBILITY: z.enum(["PRIVATE", "PUBLIC"]).optional().default("PRIVATE"),
   };
