@@ -1,1 +1,2 @@
-export type NetworkType = object;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NetworkType = any;
