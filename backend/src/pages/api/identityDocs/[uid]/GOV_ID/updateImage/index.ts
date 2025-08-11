@@ -29,7 +29,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { uid } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    validation: z.object({
+    params: z.object({
       uid: RequestValidationParser.CommonSchema.UID,
     }),
   });

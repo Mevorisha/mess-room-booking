@@ -22,7 +22,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   const { uid, size, b64 } = RequestValidationParser.parse({
     req,
     method: "GET",
-    validation: z.object({
+    params: z.object({
       uid: RequestValidationParser.CommonSchema.UID,
       size: RequestValidationParser.CommonSchema.IMAGE_SIZE,
       b64: RequestValidationParser.CommonSchema.OPTIONAL_BOOL,

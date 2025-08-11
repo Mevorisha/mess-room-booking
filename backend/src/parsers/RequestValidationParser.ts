@@ -23,11 +23,11 @@ export class RequestValidationParser {
   static parse<T extends z.ZodSchema>({
     req,
     method,
-    validation,
+    params,
   }: {
     req: NextApiRequest;
     method: MethodTypes;
-    validation: T;
+    params: T;
   }): z.infer<T> {
     if (req.method !== method) {
       throw CustomApiError.create(405, "Method Not Allowed");
@@ -35,7 +35,7 @@ export class RequestValidationParser {
 
     try {
       // Parse the query parameters with the provided schema
-      return validation.parse(req.query) as z.infer<T>;
+      return params.parse(req.query) as z.infer<T>;
     } catch (e) {
       if (e instanceof ZodError) {
         throw CustomApiError.create(400, "Bad Request", e);

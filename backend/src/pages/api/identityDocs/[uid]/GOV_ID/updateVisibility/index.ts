@@ -18,7 +18,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { uid, visibility } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    validation: z.object({
+    params: z.object({
       uid: RequestValidationParser.CommonSchema.UID,
       visibility: RequestValidationParser.CommonSchema.DOC_VISIBILITY,
     }),
