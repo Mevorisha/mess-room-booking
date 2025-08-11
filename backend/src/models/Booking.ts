@@ -293,9 +293,8 @@ class Booking {
         default:
           throw CustomApiError.create(400, "Invalid status type");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Booking not found");
+      throw CustomApiError.create(404, "Booking not found", e);
     }
   }
 
@@ -426,9 +425,8 @@ class Booking {
         ttl,
         lastModifiedOn: FieldValue.serverTimestamp(),
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Booking not found");
+      throw CustomApiError.create(404, "Booking not found", e);
     }
 
     return daysToLive;
@@ -444,9 +442,8 @@ class Booking {
         ttl: FieldValue.delete(),
         lastModifiedOn: FieldValue.serverTimestamp(),
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Booking not found");
+      throw CustomApiError.create(404, "Booking not found", e);
     }
   }
 
@@ -461,9 +458,8 @@ class Booking {
     const ref = FirestorePaths.Bookings(bookingId);
     try {
       await ref.delete();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Booking not found");
+      throw CustomApiError.create(404, "Booking not found", e);
     }
   }
 }

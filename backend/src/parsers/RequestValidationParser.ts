@@ -35,13 +35,13 @@ export class RequestValidationParser {
     try {
       // Parse the query parameters with the provided schema
       return validation.parse(req.query) as z.infer<T>;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw CustomApiError.create(400, "Bad Request", error);
+    } catch (e) {
+      if (e instanceof ZodError) {
+        throw CustomApiError.create(400, "Bad Request", e);
       }
 
       // Re-throw unexpected errors
-      throw error;
+      throw e;
     }
   }
 }

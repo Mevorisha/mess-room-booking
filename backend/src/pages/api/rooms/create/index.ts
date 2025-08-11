@@ -191,9 +191,9 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
       const imagePaths = await uploadRoomImages(files, roomId);
       // Update the room with image paths
       await Room.update(roomId, { images: imagePaths });
-    } catch (error) {
+    } catch (e) {
       // If image upload fails, still return success but log the error
-      console.error("Error uploading room images:", error);
+      console.error("Error uploading room images:", e);
       return respond(res, {
         status: 201,
         json: {

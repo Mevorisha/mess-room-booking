@@ -240,9 +240,8 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update(updateDataFrstrFormat);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Room not found");
+      throw CustomApiError.create(404, "Room not found", e);
     }
   }
 
@@ -256,9 +255,8 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Room not found");
+      throw CustomApiError.create(404, "Room not found", e);
     }
     return daysToLive;
   }
@@ -268,9 +266,8 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Room not found");
+      throw CustomApiError.create(404, "Room not found", e);
     }
   }
 
@@ -282,9 +279,8 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.delete();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Room not found");
+      throw CustomApiError.create(404, "Room not found", e);
     }
   }
 
@@ -296,9 +292,8 @@ class Room {
     try {
       // Throws error if room doesn't exist
       await ref.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      throw CustomApiError.create(404, "Room not found");
+      throw CustomApiError.create(404, "Room not found", e);
     }
   }
 

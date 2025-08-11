@@ -15,6 +15,6 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await cors(req, res))) return;
-  // throw new CustomApiError(500, "My shit is hot")
+  // throw CustomApiError.create(500, "My shit is hot");
   return respond(res, { status: 200, message: "Hello World!" });
 });
