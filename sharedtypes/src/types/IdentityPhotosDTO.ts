@@ -2,7 +2,6 @@ import { Type } from "class-transformer";
 import { IsOptional, ValidateNested, IsBoolean } from "class-validator";
 import { MultiSizePhotoDTO, MultiSizePhoto } from "./MultiSizePhotoDTO";
 import { ADataTransferObj } from "./abstract/ADataTransferObj";
-import { IdentityResValidationErrors } from "./errors/res/IdentityResValidationErrors";
 
 export interface IdentityPhotos {
   workId?: MultiSizePhoto;
@@ -22,10 +21,10 @@ export class IdentityPhotosDTO extends ADataTransferObj implements IdentityPhoto
   @Type(() => MultiSizePhotoDTO)
   govId?: MultiSizePhotoDTO;
 
-  @IsBoolean({ message: IdentityResValidationErrors.WORK_ID_PRIVATE_INVALID })
+  @IsBoolean()
   workIdIsPrivate = true;
 
-  @IsBoolean({ message: IdentityResValidationErrors.GOV_ID_PRIVATE_INVALID })
+  @IsBoolean()
   govIdIsPrivate = true;
 
   constructor(data?: {

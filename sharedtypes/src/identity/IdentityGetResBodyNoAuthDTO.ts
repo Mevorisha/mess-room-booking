@@ -3,7 +3,6 @@ import { NetworkType } from "@/types/NetworkType";
 import { Result } from "@/types/Result";
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
-import { IdentityResValidationErrors } from "@/types/errors/res/IdentityResValidationErrors";
 import { Type } from "class-transformer";
 import { IsOptional, IsString, ValidateNested } from "class-validator";
 
@@ -15,21 +14,21 @@ interface ConstructorParams {
   profilePhotos?: MultiSizePhotoDTO;
 }
 
-export class IdentityResReadNoAuthDTO extends ADataTransferObj {
+export class IdentityGetResBodyNoAuthDTO extends ADataTransferObj {
   @IsOptional()
-  @IsString({ message: IdentityResValidationErrors.DISPLAY_NAME_INVALID })
+  @IsString()
   displayName?: string;
 
   @IsOptional()
-  @IsString({ message: IdentityResValidationErrors.FIRST_NAME_INVALID })
+  @IsString()
   firstName?: string;
 
   @IsOptional()
-  @IsString({ message: IdentityResValidationErrors.LAST_NAME_INVALID })
+  @IsString()
   lastName?: string;
 
   @IsOptional()
-  @IsString({ message: IdentityResValidationErrors.MOBILE_INVALID })
+  @IsString()
   mobile?: string;
 
   @IsOptional()
@@ -58,15 +57,15 @@ export class IdentityResReadNoAuthDTO extends ADataTransferObj {
     }
   }
 
-  static override create(data: ConstructorParams): Result<IdentityResReadNoAuthDTO, DtoValidationError> {
+  static override create(data: ConstructorParams): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
     return ADataTransferObj._create(new this(data));
   }
 
-  static override fromJson(data: NetworkType): Result<IdentityResReadNoAuthDTO, DtoValidationError> {
+  static override fromJson(data: NetworkType): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(data as ConstructorParams));
   }
 
-  static override toJson(obj: IdentityResReadNoAuthDTO): NetworkType {
+  static override toJson(obj: IdentityGetResBodyNoAuthDTO): NetworkType {
     return ADataTransferObj._toJson(obj);
   }
 }

@@ -1,10 +1,9 @@
 import { IdentityPhotosDTO } from "@/types/IdentityPhotosDTO";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
-import { IdentityResValidationErrors } from "@/types/errors/res/IdentityResValidationErrors";
 import { IdentityType, Language } from "@/types/others";
 import { Type } from "class-transformer";
-import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsString, IsBoolean } from "class-validator";
-import { IdentityResReadNoAuthDTO } from "./IdentityResReadNoAuthDTO";
+import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean } from "class-validator";
+import { IdentityGetResBodyNoAuthDTO } from "./IdentityGetResBodyNoAuthDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
 import { Result } from "@/types/Result";
@@ -19,7 +18,7 @@ interface ConstructorParams {
 
   email: string;
   type: IdentityType;
-  identityPhotos: IdentityPhotosDTO;
+  identityPhotos?: IdentityPhotosDTO;
   language: Language;
 
   createdOn: string;
@@ -28,32 +27,33 @@ interface ConstructorParams {
   ttl?: string;
 }
 
-export class IdentityResReadWithAuthDTO extends IdentityResReadNoAuthDTO {
-  @IsEmail({}, { message: IdentityResValidationErrors.EMAIL_INVALID })
+export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
+  @IsEmail()
   email: string;
 
-  @IsEnum(["OWNER", "TENANT"], { message: IdentityResValidationErrors.INVALID_IDENTITY_TYPE })
+  @IsEnum(["OWNER", "TENANT"])
   type: IdentityType = "TENANT";
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => IdentityPhotosDTO)
-  identityPhotos: IdentityPhotosDTO;
+  identityPhotos?: IdentityPhotosDTO;
 
-  @IsEnum(["ENGLISH", "BANGLA", "HINDI"], { message: IdentityResValidationErrors.INVALID_LANGUAGE })
+  @IsEnum(["ENGLISH", "BANGLA", "HINDI"])
   language: Language = "ENGLISH";
 
-  @IsDateString({}, { message: IdentityResValidationErrors.CREATED_ON_INVALID })
+  @IsDateString()
   createdOn: string;
 
-  @IsDateString({}, { message: IdentityResValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString()
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsString({ message: IdentityResValidationErrors.TTL_INVALID })
+  @IsDateString()
   ttl?: string;
 
   @IsOptional()
-  @IsBoolean({ message: IdentityResValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean()
   isDeleted: boolean;
 
   private constructor(data: ConstructorParams) {
@@ -62,7 +62,9 @@ export class IdentityResReadWithAuthDTO extends IdentityResReadNoAuthDTO {
 
     this.email = email;
     this.type = type;
-    this.identityPhotos = identityPhotos;
+    if (identityPhotos != null) {
+      this.identityPhotos = identityPhotos;
+    }
     this.language = language;
     this.createdOn = createdOn;
     this.lastModifiedOn = lastModifiedOn;
@@ -72,15 +74,15 @@ export class IdentityResReadWithAuthDTO extends IdentityResReadNoAuthDTO {
     this.isDeleted = ttl != null;
   }
 
-  static override create(data: ConstructorParams): Result<IdentityResReadWithAuthDTO, DtoValidationError> {
+  static override create(data: ConstructorParams): Result<IdentityGetResBodyWithAuthDTO, DtoValidationError> {
     return ADataTransferObj._create(new this(data));
   }
 
-  static override fromJson(data: NetworkType): Result<IdentityResReadWithAuthDTO, DtoValidationError> {
+  static override fromJson(data: NetworkType): Result<IdentityGetResBodyWithAuthDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(data as ConstructorParams));
   }
 
-  static override toJson(obj: IdentityResReadWithAuthDTO): NetworkType {
+  static override toJson(obj: IdentityGetResBodyWithAuthDTO): NetworkType {
     return ADataTransferObj._toJson(obj);
   }
 }

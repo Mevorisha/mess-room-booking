@@ -10,21 +10,17 @@ export * from "./types/abstract/ADataTransferObj.js";
 
 // Error types
 export * from "./types/errors/DtoValidationError.js";
-export * from "./types/errors/req/IdentityReqValidationErrors.js";
-export * from "./types/errors/res/IdentityResValidationErrors.js";
-export * from "./types/errors/res/RoomResValidationErrors.js";
-export * from "./types/errors/res/BookingResValidationErrors.js";
 
 // Booking DTOs
-export * from "./booking/res/BookingResReadDTO.js";
+export * from "./booking/BookingGetResBodyDTO.js";
 
 // Room DTOs
-export * from "./room/res/RoomResReadOwnerDTO.js";
-export * from "./room/res/RoomResReadNotOwnerDTO.js";
+export * from "./room/RoomGetResBodyOwnerDTO.js";
+export * from "./room/RoomGetResBodyNotOwnerDTO.js";
 
 // Identity DTOs
-export * from "./identity/res/IdentityResReadWithAuthDTO.js";
-export * from "./identity/res/IdentityResReadNoAuthDTO.js";
+export * from "./identity/IdentityGetResBodyWithAuthDTO.js";
+export * from "./identity/IdentityGetResBodyNoAuthDTO.js";
 
 // Re-export commonly used validator decorators for convenience
 export {

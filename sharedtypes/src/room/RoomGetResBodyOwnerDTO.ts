@@ -1,8 +1,7 @@
 import { AcceptGender, AcceptOccupation } from "@/types/others";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
-import { RoomResValidationErrors } from "@/types/errors/res/RoomResValidationErrors";
-import { IsString, IsBoolean, IsOptional } from "class-validator";
-import { RoomResReadNotOwnerDTO } from "./RoomResReadNotOwnerDTO";
+import { IsBoolean, IsDateString, IsOptional } from "class-validator";
+import { RoomGetResBodyNotOwnerDTO } from "./RoomGetResBodyNotOwnerDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
 import { Result } from "@/types/Result";
@@ -33,15 +32,15 @@ interface ConstructorParams {
   ttl?: string;
 }
 
-export class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
-  @IsBoolean({ message: RoomResValidationErrors.IS_UNAVAILABLE_INVALID })
+export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
+  @IsBoolean()
   isUnavailable: boolean;
 
   @IsOptional()
-  @IsString({ message: RoomResValidationErrors.TTL_INVALID })
+  @IsDateString()
   ttl?: string;
 
-  @IsBoolean({ message: RoomResValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean()
   isDeleted: boolean;
 
   private constructor(data: ConstructorParams) {
@@ -55,15 +54,15 @@ export class RoomResReadOwnerDTO extends RoomResReadNotOwnerDTO {
     this.isDeleted = ttl != null;
   }
 
-  static override create(data: ConstructorParams): Result<RoomResReadOwnerDTO, DtoValidationError> {
+  static override create(data: ConstructorParams): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
     return ADataTransferObj._create(new this(data));
   }
 
-  static override fromJson(data: NetworkType): Result<RoomResReadOwnerDTO, DtoValidationError> {
+  static override fromJson(data: NetworkType): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(data as ConstructorParams));
   }
 
-  static override toJson(obj: RoomResReadOwnerDTO): NetworkType {
+  static override toJson(obj: RoomGetResBodyOwnerDTO): NetworkType {
     return ADataTransferObj._toJson(obj);
   }
 }

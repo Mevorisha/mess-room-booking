@@ -1,7 +1,6 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { AcceptGender, AcceptOccupation } from "@/types/others";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
-import { RoomResValidationErrors } from "@/types/errors/res/RoomResValidationErrors";
 import {
   IsString,
   IsEnum,
@@ -11,6 +10,8 @@ import {
   IsPositive,
   ValidateNested,
   IsDateString,
+  IsNotEmpty,
+  IsInt,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
@@ -39,56 +40,61 @@ interface ConstructorParams {
   lastModifiedOn: string;
 }
 
-export class RoomResReadNotOwnerDTO extends ADataTransferObj {
-  @IsString({ message: RoomResValidationErrors.ID_REQUIRED })
+export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
+  @IsString()
+  @IsNotEmpty()
   id: string;
 
-  @IsString({ message: RoomResValidationErrors.OWNER_ID_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   ownerId: string;
 
-  @IsEnum(["MALE", "FEMALE", "OTHER"], {
-    message: RoomResValidationErrors.INVALID_GENDER,
-  })
+  @IsEnum(["MALE", "FEMALE", "OTHER"])
   acceptGender: AcceptGender;
 
-  @IsEnum(["STUDENT", "PROFESSIONAL", "ANY"], {
-    message: RoomResValidationErrors.INVALID_OCCUPATION,
-  })
+  @IsEnum(["STUDENT", "PROFESSIONAL", "ANY"])
   acceptOccupation: AcceptOccupation;
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomResValidationErrors.SEARCH_TAGS_EMPTY })
-  @IsString({ each: true, message: RoomResValidationErrors.SEARCH_TAGS_NOT_STRING })
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
   searchTags: string[];
 
-  @IsString({ message: RoomResValidationErrors.LANDMARK_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   landmark: string;
 
-  @IsString({ message: RoomResValidationErrors.ADDRESS_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   address: string;
 
-  @IsString({ message: RoomResValidationErrors.CITY_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   city: string;
 
-  @IsString({ message: RoomResValidationErrors.STATE_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   state: string;
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomResValidationErrors.MAJOR_TAGS_EMPTY })
+  @ArrayNotEmpty()
   @IsString({ each: true })
+  @IsNotEmpty({ each: true })
   majorTags: string[];
 
   @IsArray()
-  @ArrayNotEmpty({ message: RoomResValidationErrors.MINOR_TAGS_EMPTY })
+  @ArrayNotEmpty()
   @IsString({ each: true })
+  @IsNotEmpty({ each: true })
   minorTags: string[];
 
-  @IsNumber({}, { message: RoomResValidationErrors.CAPACITY_POSITIVE })
-  @IsPositive({ message: RoomResValidationErrors.CAPACITY_POSITIVE })
+  @IsInt()
+  @IsPositive()
   capacity: number;
 
-  @IsNumber({}, { message: RoomResValidationErrors.PRICE_POSITIVE })
-  @IsPositive({ message: RoomResValidationErrors.PRICE_POSITIVE })
+  @IsNumber()
+  @IsPositive()
   pricePerOccupant: number;
 
   @IsArray()
@@ -96,13 +102,14 @@ export class RoomResReadNotOwnerDTO extends ADataTransferObj {
   @Type(() => MultiSizePhotoDTO)
   images: MultiSizePhotoDTO[];
 
-  @IsNumber({}, { message: RoomResValidationErrors.RATING_REQUIRED })
+  @IsNumber()
+  @IsPositive()
   rating: number;
 
-  @IsDateString({}, { message: RoomResValidationErrors.CREATED_ON_INVALID })
+  @IsDateString()
   createdOn: string;
 
-  @IsDateString({}, { message: RoomResValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString()
   lastModifiedOn: string;
 
   protected constructor(data: ConstructorParams) {
@@ -127,15 +134,15 @@ export class RoomResReadNotOwnerDTO extends ADataTransferObj {
     this.lastModifiedOn = data.lastModifiedOn;
   }
 
-  static override create(data: ConstructorParams): Result<RoomResReadNotOwnerDTO, DtoValidationError> {
+  static override create(data: ConstructorParams): Result<RoomGetResBodyNotOwnerDTO, DtoValidationError> {
     return ADataTransferObj._create(new this(data));
   }
 
-  static override fromJson(data: NetworkType): Result<RoomResReadNotOwnerDTO, DtoValidationError> {
+  static override fromJson(data: NetworkType): Result<RoomGetResBodyNotOwnerDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(data as ConstructorParams));
   }
 
-  static override toJson(obj: RoomResReadNotOwnerDTO): NetworkType {
+  static override toJson(obj: RoomGetResBodyNotOwnerDTO): NetworkType {
     return ADataTransferObj._toJson(obj);
   }
 }

@@ -1,7 +1,6 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { BookingStatus } from "@/types/others";
-import { BookingResValidationErrors } from "@/types/errors/res/BookingResValidationErrors";
-import { IsString, IsEnum, IsNumber, IsPositive, IsOptional, IsBoolean, IsDateString } from "class-validator";
+import { IsString, IsEnum, IsPositive, IsOptional, IsBoolean, IsDateString, IsNotEmpty, IsInt } from "class-validator";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { Result } from "@/types/Result";
 import { NetworkType } from "@/types/NetworkType";
@@ -27,70 +26,71 @@ interface ConstructorParams {
   ttl?: string;
 }
 
-export class BookingResCreateDTO extends ADataTransferObj {
-  @IsString({ message: BookingResValidationErrors.ID_REQUIRED })
+export class BookingGetResBodyDTO extends ADataTransferObj {
+  @IsString()
+  @IsNotEmpty()
   id: string;
 
-  @IsString({ message: BookingResValidationErrors.TENANT_ID_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   tenantId: string;
 
-  @IsString({ message: BookingResValidationErrors.ROOM_ID_REQUIRED })
+  @IsString()
+  @IsNotEmpty()
   roomId: string;
 
-  @IsNumber({}, { message: BookingResValidationErrors.OCCUPANT_COUNT_INVALID })
-  @IsPositive({ message: BookingResValidationErrors.OCCUPANT_COUNT_POSITIVE })
+  @IsInt()
+  @IsPositive()
   occupantCount: number;
 
   @IsOptional()
-  @IsString({ message: BookingResValidationErrors.LINK_TO_WORK_ID_INVALID })
+  @IsString()
   linkToWorkId?: string;
 
   @IsOptional()
-  @IsString({ message: BookingResValidationErrors.LINK_TO_GOV_ID_INVALID })
+  @IsString()
+  @IsNotEmpty()
   linkToGovId?: string;
 
-  @IsEnum(["ACCEPTED", "REJECTED", "UNSET"], {
-    message: BookingResValidationErrors.INVALID_ACCEPTANCE_STATUS,
-  })
+  @IsEnum(["ACCEPTED", "REJECTED", "UNSET"])
   acceptanceStatus: BookingStatus = "UNSET";
 
   @IsOptional()
-  @IsDateString({}, { message: BookingResValidationErrors.ACCEPTED_ON_INVALID })
+  @IsDateString()
   acceptedOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingResValidationErrors.SUBMITTED_ON_INVALID })
+  @IsDateString()
   submittedOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingResValidationErrors.CANCELLED_ON_INVALID })
+  @IsDateString()
   cancelledOn?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: BookingResValidationErrors.CLEARED_ON_INVALID })
+  @IsDateString()
   clearedOn?: string;
 
-  @IsBoolean({ message: BookingResValidationErrors.IS_SUBMITTED_INVALID })
+  @IsBoolean()
   isSubmitted = false;
 
-  @IsBoolean({ message: BookingResValidationErrors.IS_CANCELLED_INVALID })
+  @IsBoolean()
   isCancelled = false;
 
-  @IsBoolean({ message: BookingResValidationErrors.IS_CLEARED_INVALID })
+  @IsBoolean()
   isCleared = false;
 
-  @IsDateString({}, { message: BookingResValidationErrors.CREATED_ON_INVALID })
+  @IsDateString()
   createdOn: string;
 
-  @IsDateString({}, { message: BookingResValidationErrors.LAST_MODIFIED_ON_INVALID })
+  @IsDateString()
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsString({ message: BookingResValidationErrors.TTL_INVALID })
+  @IsDateString()
   ttl?: string;
 
-  @IsOptional()
-  @IsBoolean({ message: BookingResValidationErrors.IS_DELETED_INVALID })
+  @IsBoolean()
   isDeleted = false;
 
   private constructor(data: ConstructorParams) {
@@ -136,15 +136,15 @@ export class BookingResCreateDTO extends ADataTransferObj {
     this.isDeleted = data.ttl != null;
   }
 
-  static override create(data: ConstructorParams): Result<BookingResCreateDTO, DtoValidationError> {
+  static override create(data: ConstructorParams): Result<BookingGetResBodyDTO, DtoValidationError> {
     return ADataTransferObj._create(new this(data));
   }
 
-  static override fromJson(data: NetworkType): Result<BookingResCreateDTO, DtoValidationError> {
+  static override fromJson(data: NetworkType): Result<BookingGetResBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(data as ConstructorParams));
   }
 
-  static override toJson(obj: BookingResCreateDTO): NetworkType {
+  static override toJson(obj: BookingGetResBodyDTO): NetworkType {
     return ADataTransferObj._toJson(obj);
   }
 }

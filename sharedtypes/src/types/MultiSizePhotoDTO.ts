@@ -1,12 +1,8 @@
-import { IsString } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 import { ADataTransferObj } from "./abstract/ADataTransferObj";
 import { DtoValidationError } from "./errors/DtoValidationError";
 import { Result } from "./Result";
 import { NetworkType } from "./NetworkType";
-
-export enum MultiSizePhotoErrors {
-  INVALID_URL = "Image URL should be a string",
-}
 
 interface ConstructorParams {
   small: string;
@@ -18,13 +14,16 @@ export type MultiSizePhoto = ConstructorParams;
 export type MultiSizeImageSz = keyof MultiSizePhoto;
 
 export class MultiSizePhotoDTO extends ADataTransferObj implements MultiSizePhoto {
-  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
+  @IsString()
+  @IsNotEmpty()
   small: string;
 
-  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
+  @IsString()
+  @IsNotEmpty()
   medium: string;
 
-  @IsString({ message: MultiSizePhotoErrors.INVALID_URL })
+  @IsString()
+  @IsNotEmpty()
   large: string;
 
   private constructor(data: ConstructorParams) {
