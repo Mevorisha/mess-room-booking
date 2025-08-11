@@ -9,7 +9,7 @@ export abstract class ADataTransferObj {
     throw new Error("Unimplemented");
   }
 
-  static fromJson(_: NetworkType): Result<unknown, DtoValidationError>{
+  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }
 
@@ -18,6 +18,14 @@ export abstract class ADataTransferObj {
   }
 
   protected static _create<T extends ADataTransferObj>(obj: T): Result<T, DtoValidationError> {
+    // Using `whitelist: true` might seem like a good idea since it removes extra fields from the DTO.
+    // However, it also strips any property that does not have a `class-validator` decorator.
+    // This means you’d need to add `@Allow` for every field that doesn’t require validation
+    // (e.g., computed fields).
+    // In our case, `whitelist: true` is unnecessary because we explicitly assign allowed fields
+    // in the constructor instead of using `class-transformer`’s `plainToInstance()` to populate the object.
+
+    // const errors = validateSync(obj, { whitelist: true }); <-- DO NOT DO THIS
     const errors = validateSync(obj);
     if (errors.length > 0) {
       return Result.err(new DtoValidationError(errors));
