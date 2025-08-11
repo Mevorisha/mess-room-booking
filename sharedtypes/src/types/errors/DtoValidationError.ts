@@ -11,24 +11,19 @@ export class DtoValidationError extends Error {
     const messages: string[] = [];
 
     for (const error of errors) {
+      const property = error.property;
+
       if (error.constraints == null) {
-        continue; // skip if no constraints present
+        messages.push(`Invalid '${property}'`);
+        continue;
       }
 
-      const property = error.property;
-      const constraints = Object.values(error.constraints);
-
-      for (const constraint of constraints) {
-        if (constraint.length > 0 && constraint.length > 0) {
-          if (constraint.startsWith("Invalid")) {
-            // Full custom message
-            messages.push(constraint);
-          } else {
-            // Our formatted message
-            messages.push(`Invalid '${property}'. ${constraint}`);
-          }
+      for (const k of Object.keys(error.constraints)) {
+        const kMsg = error.constraints[k];
+        if (kMsg == null || kMsg.length === 0) {
+          messages.push(`Invalid '${property}'. Failed constraint: ${k}`);
         } else {
-          messages.push(`Invalid '${property}'`);
+          messages.push(`Invalid '${property}'. Failed constraint: ${k} (${error.constraints[k]})`);
         }
       }
     }

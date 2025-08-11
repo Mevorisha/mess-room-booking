@@ -6,16 +6,10 @@ export type MethodTypes = "POST" | "GET" | "PATCH" | "DELETE";
 
 export class RequestValidationParser {
   static readonly CommonSchema = {
-    UID: z.string({ error: "UID should be a string" }).nonempty({ error: "UID cannot be empty" }),
-
-    OPTIONAL_BOOL: z.boolean({ error: "b64 flag should be boolean" }).optional().default(false),
-
-    IMAGE_SIZE: z.enum(["small", "medium", "large"], { error: "Image size should be 'small', 'medium' or 'large'" }),
-
-    DOC_VISIBILITY: z
-      .enum(["PRIVATE", "PUBLIC"], { error: "Visibility should be 'PRIVATE' or 'PUBLIC'" })
-      .optional()
-      .default("PRIVATE"),
+    UID: z.string().nonempty(),
+    IMAGE_SIZE: z.enum(["small", "medium", "large"]),
+    OPTIONAL_BOOL: z.boolean().optional().default(false),
+    DOC_VISIBILITY: z.enum(["PRIVATE", "PUBLIC"]).optional().default("PRIVATE"),
   };
 
   /**
