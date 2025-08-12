@@ -2,7 +2,7 @@ import { IdentityPhotosDTO } from "@/types/IdentityPhotosDTO";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
 import { IdentityType, Language } from "@/types/others";
 import { Type } from "class-transformer";
-import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean } from "class-validator";
+import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean, IsString } from "class-validator";
 import { IdentityGetResBodyNoAuthDTO } from "./IdentityGetResBodyNoAuthDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
@@ -28,6 +28,27 @@ interface ConstructorParams {
 }
 
 export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
+  @IsOptional()
+  @IsString()
+  override displayName?: string;
+
+  @IsOptional()
+  @IsString()
+  override firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  override lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  override mobile?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MultiSizePhotoDTO)
+  override profilePhotos?: MultiSizePhotoDTO;
+  
   @IsEmail()
   email: string;
 
