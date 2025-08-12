@@ -57,15 +57,16 @@ export class IdentityGetResBodyNoAuthDTO extends ADataTransferObj {
     }
   }
 
-  static override create(data: ConstructorParams): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
+  static override fromJson(json: NetworkType): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
+    const buildFieldResult = this._buildDtoFields(json, { profilePhotos: MultiSizePhotoDTO });
+    if (buildFieldResult.isErr) {
+      return Result.err(buildFieldResult.error);
+    }
+
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
 
-  static override fromJson(data: NetworkType): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
-  }
-
-  static override toJson(obj: IdentityGetResBodyNoAuthDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override toJson(dto: IdentityGetResBodyNoAuthDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

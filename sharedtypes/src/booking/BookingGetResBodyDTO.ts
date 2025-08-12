@@ -136,15 +136,11 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
     this.isDeleted = data.ttl != null;
   }
 
-  static override create(data: ConstructorParams): Result<BookingGetResBodyDTO, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
+  static override fromJson(json: NetworkType): Result<BookingGetResBodyDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
 
-  static override fromJson(data: NetworkType): Result<BookingGetResBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
-  }
-
-  static override toJson(obj: BookingGetResBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override toJson(dto: BookingGetResBodyDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

@@ -1,16 +1,19 @@
 import { Type } from "class-transformer";
 import { IsOptional, ValidateNested, IsBoolean } from "class-validator";
-import { MultiSizePhotoDTO, MultiSizePhoto } from "./MultiSizePhotoDTO";
+import { MultiSizePhotoDTO } from "./MultiSizePhotoDTO";
 import { ADataTransferObj } from "./abstract/ADataTransferObj";
+import { NetworkType } from "./NetworkType";
+import { Result } from "./Result";
+import { DtoValidationError } from "./errors/DtoValidationError";
 
-export interface IdentityPhotos {
-  workId?: MultiSizePhoto;
-  govId?: MultiSizePhoto;
+interface ConstructorParams {
+  workId?: MultiSizePhotoDTO;
+  govId?: MultiSizePhotoDTO;
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
 
-export class IdentityPhotosDTO extends ADataTransferObj implements IdentityPhotos {
+export class IdentityPhotosDTO extends ADataTransferObj {
   @IsOptional()
   @ValidateNested()
   @Type(() => MultiSizePhotoDTO)
@@ -27,12 +30,7 @@ export class IdentityPhotosDTO extends ADataTransferObj implements IdentityPhoto
   @IsBoolean()
   govIdIsPrivate = true;
 
-  constructor(data?: {
-    workId?: MultiSizePhotoDTO;
-    govId?: MultiSizePhotoDTO;
-    workIdIsPrivate?: boolean;
-    govIdIsPrivate?: boolean;
-  }) {
+  private constructor(data?: ConstructorParams) {
     super();
 
     if (data != null) {
@@ -49,5 +47,22 @@ export class IdentityPhotosDTO extends ADataTransferObj implements IdentityPhoto
         this.govIdIsPrivate = data.govIdIsPrivate;
       }
     }
+  }
+
+  static override fromJson(json: NetworkType): Result<IdentityPhotosDTO, DtoValidationError> {
+    const buildFieldResult = this._buildDtoFields(json, {
+      workId: MultiSizePhotoDTO,
+      govId: MultiSizePhotoDTO,
+    });
+
+    if (buildFieldResult.isErr) {
+      return Result.err(buildFieldResult.error);
+    }
+
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
+  }
+
+  static override toJson(dto: IdentityPhotosDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

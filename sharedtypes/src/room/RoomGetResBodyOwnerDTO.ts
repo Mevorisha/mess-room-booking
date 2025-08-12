@@ -54,15 +54,16 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
     this.isDeleted = ttl != null;
   }
 
-  static override create(data: ConstructorParams): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
+  static override fromJson(json: NetworkType): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
+    const buildFieldResult = this._buildDtoFields(json, { images: MultiSizePhotoDTO });
+    if (buildFieldResult.isErr) {
+      return Result.err(buildFieldResult.error);
+    }
+
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
 
-  static override fromJson(data: NetworkType): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
-  }
-
-  static override toJson(obj: RoomGetResBodyOwnerDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override toJson(dto: RoomGetResBodyOwnerDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

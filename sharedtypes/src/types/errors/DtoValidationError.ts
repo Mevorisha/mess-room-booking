@@ -1,10 +1,14 @@
 import { ValidationError } from "class-validator";
 
 export class DtoValidationError extends Error {
-  constructor(error: ValidationError[]) {
+  constructor(error: string | ValidationError[]) {
     super();
     this.name = "DtoValidationError";
-    this.message = DtoValidationError.formatMessage(error);
+    if (typeof error === "string") {
+      this.message = error;
+    } else {
+      this.message = DtoValidationError.formatMessage(error);
+    }
   }
 
   private static formatMessage(errors: ValidationError[]): string {

@@ -10,10 +10,7 @@ interface ConstructorParams {
   large: string;
 }
 
-export type MultiSizePhoto = ConstructorParams;
-export type MultiSizeImageSz = keyof MultiSizePhoto;
-
-export class MultiSizePhotoDTO extends ADataTransferObj implements MultiSizePhoto {
+export class MultiSizePhotoDTO extends ADataTransferObj {
   @IsString()
   @IsNotEmpty()
   small: string;
@@ -34,15 +31,11 @@ export class MultiSizePhotoDTO extends ADataTransferObj implements MultiSizePhot
     this.large = data.large;
   }
 
-  static override create(data: ConstructorParams): Result<MultiSizePhotoDTO, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
-  }
-
   static override fromJson(json: NetworkType): Result<MultiSizePhotoDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as MultiSizePhoto));
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
 
-  static override toJson(obj: MultiSizePhotoDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override toJson(dto: MultiSizePhotoDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

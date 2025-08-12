@@ -134,15 +134,16 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
     this.lastModifiedOn = data.lastModifiedOn;
   }
 
-  static override create(data: ConstructorParams): Result<RoomGetResBodyNotOwnerDTO, DtoValidationError> {
-    return ADataTransferObj._create(new this(data));
+  static override fromJson(json: NetworkType): Result<RoomGetResBodyNotOwnerDTO, DtoValidationError> {
+    const buildFieldResult = this._buildDtoFields(json, { images: MultiSizePhotoDTO });
+    if (buildFieldResult.isErr) {
+      return Result.err(buildFieldResult.error);
+    }
+
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
 
-  static override fromJson(data: NetworkType): Result<RoomGetResBodyNotOwnerDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
-  }
-
-  static override toJson(obj: RoomGetResBodyNotOwnerDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
+  static override toJson(dto: RoomGetResBodyNotOwnerDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
   }
 }

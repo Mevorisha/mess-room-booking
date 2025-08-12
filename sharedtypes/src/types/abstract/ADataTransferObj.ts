@@ -5,10 +5,6 @@ import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { validateSync } from "class-validator";
 
 export abstract class ADataTransferObj {
-  static create(_: object): Result<unknown, DtoValidationError> {
-    throw new Error("Unimplemented");
-  }
-
   static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }
@@ -17,7 +13,7 @@ export abstract class ADataTransferObj {
     throw new Error("Unimplemented");
   }
 
-  protected static _create<T extends ADataTransferObj>(obj: T): Result<T, DtoValidationError> {
+  protected static _fromJson<T extends ADataTransferObj>(dto: T): Result<T, DtoValidationError> {
     // Using `whitelist: true` might seem like a good idea since it removes extra fields from the DTO.
     // However, it also strips any property that does not have a `class-validator` decorator.
     // This means you’d need to add `@Allow` for every field that doesn’t require validation
@@ -26,19 +22,119 @@ export abstract class ADataTransferObj {
     // in the constructor instead of using `class-transformer`’s `plainToInstance()` to populate the object.
 
     // const errors = validateSync(obj, { whitelist: true }); <-- DO NOT DO THIS
-    const errors = validateSync(obj);
+    const errors = validateSync(dto);
     if (errors.length > 0) {
       return Result.err(new DtoValidationError(errors));
     } else {
-      return Result.ok(obj);
+      return Result.ok(dto);
     }
   }
 
-  protected static _fromJson<T extends ADataTransferObj>(obj: T): Result<T, DtoValidationError> {
-    return ADataTransferObj._create(obj);
+  protected static _toJson<T extends ADataTransferObj>(dto: T): NetworkType {
+    return instanceToPlain(dto);
+  }
+  /**
+   * Processes and validates nested DTO fields in a JSON object.
+   * Automatically detects and handles both single objects and arrays of objects.
+   * Each field is transformed using the provided DTO class's fromJson method.
+   *
+   * @param json - The raw JSON object containing fields to be processed
+   * @param fields - Record mapping field names to their corresponding DTO classes
+   * @returns Result<void, DtoValidationError> - Success (void) or validation error
+   *
+   * @example
+   * ```typescript
+   * // Single object field
+   * const buildFieldResult = this._buildDtoFields(json, {
+   *   profilePhotos: MultiSizePhotoDTO
+   * });
+   * if (buildFieldResult.isErr) {
+   *   return Result.err(buildFieldResult.error);
+   * }
+   * // json.profilePhotos is now a validated MultiSizePhotoDTO instance
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Array of objects field
+   * const buildFieldResult = this._buildDtoFields(json, {
+   *   images: MultiSizePhotoDTO
+   * });
+   * if (buildFieldResult.isErr) {
+   *   return Result.err(buildFieldResult.error);
+   * }
+   * // json.images is now an array of validated MultiSizePhotoDTO instances
+   * ```
+   *
+   * @example
+   * ```typescript
+   * // Multiple fields with mixed types
+   * const buildFieldResult = this._buildDtoFields(json, {
+   *   profilePhotos: MultiSizePhotoDTO,    // Single object
+   *   images: MultiSizePhotoDTO,           // Could be single or array - auto-detected
+   *   documents: DocumentDTO,              // Another DTO type
+   *   metadata: MetadataDTO
+   * });
+   * if (buildFieldResult.isErr) {
+   *   return Result.err(buildFieldResult.error);
+   * }
+   * ```
+   */
+  protected static _buildDtoFields(
+    json: NetworkType,
+    fields: Record<string, { fromJson(json: NetworkType): Result<unknown, DtoValidationError> }>
+  ): Result<void, DtoValidationError> {
+    for (const field of Object.keys(fields)) {
+      if (fields[field] == null) {
+        continue;
+      }
+      const result = this._buildDtoField(json, field, fields[field]);
+      if (result.isErr) {
+        return Result.err(result.error);
+      }
+    }
+    return Result.ok(void 0);
   }
 
-  protected static _toJson<T extends ADataTransferObj>(obj: T): NetworkType {
-    return instanceToPlain(obj);
+  private static _buildDtoField<T>(
+    json: NetworkType,
+    fieldName: string,
+    DtoClass: { fromJson(json: NetworkType): Result<T, DtoValidationError> }
+  ): Result<void, DtoValidationError> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (json[fieldName] == null) {
+      return Result.ok(void 0);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (Array.isArray(json[fieldName])) {
+      // Handle array of DTOs
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const arrayData = json[fieldName];
+
+      const transformedArray: T[] = [];
+
+      for (const el of arrayData) {
+        const result = DtoClass.fromJson(el);
+        if (result.isErr) {
+          return Result.err(result.error);
+        }
+        transformedArray.push(result.value);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      json[fieldName] = transformedArray;
+    } else {
+      // Handle single DTO object
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const result = DtoClass.fromJson(json[fieldName]);
+      if (result.isErr) {
+        return Result.err(result.error);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      json[fieldName] = result.value;
+    }
+
+    return Result.ok(void 0);
   }
 }
