@@ -11,41 +11,6 @@ import { FieldValue } from "firebase-admin/firestore";
 import { MultiSizePhoto } from "@/models/types";
 import { CustomApiError } from "@/types/CustomApiError";
 
-function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; identityPhotos?: IdentityPhotosModel }>(
-  dataToUpdate: T,
-  uid: string
-) {
-  // convert image paths in profile photos to URLs
-  if (dataToUpdate.profilePhotos != null) {
-    dataToUpdate.profilePhotos = {
-      small: StoragePaths.ProfilePhotos.apiUri(uid, "small"),
-      medium: StoragePaths.ProfilePhotos.apiUri(uid, "medium"),
-      large: StoragePaths.ProfilePhotos.apiUri(uid, "large"),
-    };
-  }
-  if (dataToUpdate.identityPhotos != null) {
-    const workId = {
-      small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
-      medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
-      large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
-    };
-    const govId = {
-      small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
-      medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
-      large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
-    };
-    const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
-    if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;
-    if (dataToUpdate.identityPhotos.govId != null) ids.govId = govId;
-    dataToUpdate.identityPhotos = {
-      ...ids,
-      workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate ?? true,
-      govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate ?? true,
-    };
-  }
-  return dataToUpdate;
-}
-
 export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
@@ -111,4 +76,39 @@ export class IdentityRepo {
       return jsonResult.value;
     }
   }
+}
+
+function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; identityPhotos?: IdentityPhotosModel }>(
+  dataToUpdate: T,
+  uid: string
+) {
+  // convert image paths in profile photos to URLs
+  if (dataToUpdate.profilePhotos != null) {
+    dataToUpdate.profilePhotos = {
+      small: StoragePaths.ProfilePhotos.apiUri(uid, "small"),
+      medium: StoragePaths.ProfilePhotos.apiUri(uid, "medium"),
+      large: StoragePaths.ProfilePhotos.apiUri(uid, "large"),
+    };
+  }
+  if (dataToUpdate.identityPhotos != null) {
+    const workId = {
+      small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
+    };
+    const govId = {
+      small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
+    };
+    const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
+    if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;
+    if (dataToUpdate.identityPhotos.govId != null) ids.govId = govId;
+    dataToUpdate.identityPhotos = {
+      ...ids,
+      workIdIsPrivate: dataToUpdate.identityPhotos.workIdIsPrivate ?? true,
+      govIdIsPrivate: dataToUpdate.identityPhotos.govIdIsPrivate ?? true,
+    };
+  }
+  return dataToUpdate;
 }
