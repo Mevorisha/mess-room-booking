@@ -5,7 +5,6 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { FirebaseAuth } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import z from "zod";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityPostReqBodyDTO } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
@@ -17,10 +16,9 @@ import { CustomApiError } from "@/types/CustomApiError";
  * ```
  */
 export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
-  void RequestValidationParser.parse({
+  RequestValidationParser.parse({
     req,
     method: "POST",
-    params: z.object({}),
   });
 
   // Auth middleware to get user

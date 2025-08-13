@@ -27,13 +27,16 @@ export class RequestValidationParser {
   }: {
     req: NextApiRequest;
     method: MethodTypes;
-    params: T;
+    params?: T;
   }): z.infer<T> {
     if (req.method !== method) {
       throw CustomApiError.create(405, "Method Not Allowed");
     }
 
     try {
+      if (params == null) {
+        return z.object({}).parse(req.query) as z.infer<T>;
+      }
       // Parse the query parameters with the provided schema
       return params.parse(req.query) as z.infer<T>;
     } catch (e) {
