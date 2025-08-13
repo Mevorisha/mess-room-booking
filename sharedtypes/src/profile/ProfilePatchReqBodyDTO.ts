@@ -124,5 +124,3 @@ export const ProfilePatchReqBodyDTO = {
   name: ProfilePatchNameReqBodyDTO,
   type: ProfilePatchTypeReqBodyDTO,
 } as const;
-
-export type ProfilePatchReqBodyDTO<T extends ProfilePatchParams> = (typeof ProfilePatchReqBodyDTO)[T];
