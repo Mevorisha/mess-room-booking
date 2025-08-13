@@ -29,7 +29,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.PROFILE_LANG_UPDATE(uid, req, res))) return;
 
-  const bodyResult = ProfilePatchReqBodyDTO["language"].fromJson(req.body);
+  const bodyResult = ProfilePatchReqBodyDTO.Language.fromJson(req.body);
   if (bodyResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", bodyResult.error);
   }

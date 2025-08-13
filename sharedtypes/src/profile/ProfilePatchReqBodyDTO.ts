@@ -119,8 +119,8 @@ export class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
  * TYPE MAPPING — alias to get correct DTO based on T
  */
 export const ProfilePatchReqBodyDTO = {
-  language: ProfilePatchLanguageReqBodyDTO,
-  mobile: ProfilePatchMobileReqBodyDTO,
-  name: ProfilePatchNameReqBodyDTO,
-  type: ProfilePatchTypeReqBodyDTO,
+  Language: ProfilePatchLanguageReqBodyDTO,
+  Mobile: ProfilePatchMobileReqBodyDTO,
+  Name: ProfilePatchNameReqBodyDTO,
+  Type: ProfilePatchTypeReqBodyDTO,
 } as const;
