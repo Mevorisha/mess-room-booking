@@ -24,6 +24,9 @@ export * from "./identity/IdentityGetResBodyNoAuthDTO.js";
 export * from "./identity/IdentityPatchImageVisibilityDTO.js";
 export * from "./identity/IdentityPostReqBodyDTO.js";
 
+// Profile DTOs
+export * from "./profile/ProfilePatchReqBodyDTO.js";
+
 // Logs DTOs
 export * from "./logs/LogPostReqBodyDTO.js";
 
