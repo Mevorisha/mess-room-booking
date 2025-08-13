@@ -1,5 +1,5 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
-import Identity, { SchemaFields } from "@/models/Identity";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import HeaderTypes from "@/types/HeaderTypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import z from "zod";
+import { IdentityRepo } from "@/repo/IdentityRepo";
 
 /**
  * ```
@@ -29,12 +29,15 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     }),
   });
 
-  const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.IDENTITY_PHOTOS]);
-  if (profile?.identityPhotos?.workId == null || profile.identityPhotos.workId[size] === "") {
-    throw CustomApiError.create(404, "Image not found");
+  const profile = await IdentityRepo.findById(uid, "GS_PATH", { auth: true });
+  if (profile == null) {
+    throw CustomApiError.create(404, "User profile not found");
+  }
+  if (profile.identityPhotos?.workId == null) {
+    throw CustomApiError.create(404, "Work ID not found");
   }
 
-  if (profile.identityPhotos.workIdIsPrivate ?? false) {
+  if (profile.identityPhotos.workIdIsPrivate) {
     // Require authentication middleware
     const authResult = await getLoggedInUser(req);
     if (authResult.isSuccess() && authResult.getUid() !== uid) {

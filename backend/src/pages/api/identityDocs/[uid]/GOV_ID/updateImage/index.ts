@@ -3,13 +3,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { authenticate } from "@/middlewares/Auth";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImage } from "@/utils/dataConversion";
-import Identity from "@/models/Identity";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { MultiSizeImageSz, MultiSizePhoto } from "sharedtypes";
+import { MultiSizeImageSz } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
+import { IdentityRepo } from "@/repo/IdentityRepo";
+import { MultiSizePhotoModel } from "@/models/types";
 
 export const config = {
   api: {
@@ -45,7 +46,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const bucket = FirebaseStorage.bucket();
 
   // Create upload promise and get image paths
-  const imagePaths: MultiSizePhoto = { small: "", medium: "", large: "" };
+  const imagePaths: MultiSizePhotoModel = { small: "", medium: "", large: "" };
   const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
     const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
     imagePaths[size as MultiSizeImageSz] = filePath;
@@ -58,7 +59,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   await Promise.all(uploadPromises);
 
   // Update Firestore with image paths
-  await Identity.update(uid, {
+  await IdentityRepo.update(uid, {
     identityPhotos: {
       govId: {
         small: imagePaths.small,
