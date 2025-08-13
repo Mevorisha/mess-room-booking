@@ -6,6 +6,8 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
+import { CustomApiError } from "@/types/CustomApiError";
+import { IdentityPatchImageVisibilityDTO } from "sharedtypes";
 
 /**
  * ```
@@ -15,19 +17,22 @@ import { IdentityRepo } from "@/repo/IdentityRepo";
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   // Extract query params from request
-  const { uid, visibility } = RequestValidationParser.parse({
+  const { uid } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    params: z.object({
-      uid: RequestValidationParser.CommonSchema.UID,
-      visibility: RequestValidationParser.CommonSchema.DOC_VISIBILITY,
-    }),
+    params: z.object({ uid: RequestValidationParser.CommonSchema.UID }),
   });
 
   // Require authentication middleware
   await authenticate(req, uid);
 
   if (!(await RateLimits.ID_DOC_VIS_UPDATE(uid, req, res))) return;
+
+  const bodyResult = IdentityPatchImageVisibilityDTO.fromJson(req.body);
+  if (bodyResult.isErr) {
+    throw CustomApiError.create(400, "Bad Request", bodyResult.error);
+  }
+  const { visibility } = bodyResult.value;
 
   await IdentityRepo.update(uid, { identityPhotos: { govIdIsPrivate: visibility === "PRIVATE" } });
   return respond(res, { status: 200, message: `Governemnt ID made ${visibility.toLowerCase()}` });

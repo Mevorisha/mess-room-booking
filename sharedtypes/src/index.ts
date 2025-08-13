@@ -21,6 +21,7 @@ export * from "./room/RoomGetResBodyNotOwnerDTO.js";
 // Identity DTOs
 export * from "./identity/IdentityGetResBodyWithAuthDTO.js";
 export * from "./identity/IdentityGetResBodyNoAuthDTO.js";
+export * from "./identity/IdentityPatchImageVisibilityDTO.js";
 export * from "./identity/IdentityPostReqBodyDTO.js";
 
 // Logs DTOs
