@@ -1,4 +1,4 @@
-export interface MultiSizePhoto {
+export interface MultiSizePhotoModel {
   small: string;
   medium: string;
   large: string;

@@ -8,7 +8,7 @@ import {
   IdentityPostReqBodyDTO,
 } from "sharedtypes";
 import { FieldValue } from "firebase-admin/firestore";
-import { MultiSizePhoto } from "@/models/types";
+import { MultiSizePhotoModel } from "@/models/types";
 import { CustomApiError } from "@/types/CustomApiError";
 
 export class IdentityRepo {
@@ -78,7 +78,7 @@ export class IdentityRepo {
   }
 }
 
-function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; identityPhotos?: IdentityPhotosModel }>(
+function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhotoModel; identityPhotos?: IdentityPhotosModel }>(
   dataToUpdate: T,
   uid: string
 ) {
@@ -101,7 +101,7 @@ function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhoto; id
       medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
       large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
     };
-    const ids: { workId?: MultiSizePhoto; govId?: MultiSizePhoto } = {};
+    const ids: { workId?: MultiSizePhotoModel; govId?: MultiSizePhotoModel } = {};
     if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;
     if (dataToUpdate.identityPhotos.govId != null) ids.govId = govId;
     dataToUpdate.identityPhotos = {

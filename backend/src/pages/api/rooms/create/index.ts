@@ -9,7 +9,7 @@ import Joi from "joi";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { MultiSizePhoto } from "@/models/types";
+import { MultiSizePhotoModel } from "@/models/types";
 
 export const config = {
   api: {
@@ -94,9 +94,9 @@ function validateImageFile(file: { type: string; base64: string }): void {
 async function uploadRoomImages(
   files: Array<{ type: string; name: string; base64: string }>,
   roomId: string
-): Promise<MultiSizePhoto[]> {
+): Promise<MultiSizePhotoModel[]> {
   const bucket = FirebaseStorage.bucket();
-  const imagePaths: MultiSizePhoto[] = [];
+  const imagePaths: MultiSizePhotoModel[] = [];
 
   // Process 3 images at a time to avoid memory issues
   const BATCH_SIZE = 3;

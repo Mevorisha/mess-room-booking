@@ -9,7 +9,7 @@ import Joi from "joi";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { MultiSizePhoto } from "@/models/types";
+import { MultiSizePhotoModel } from "@/models/types";
 
 export const config = {
   api: {
@@ -123,12 +123,12 @@ function validateImageFile(file: { type: string; base64: string }): void {
  * Process the images to keep and delete based on user request
  */
 function processExistingImages(
-  existingImageGsPaths: MultiSizePhoto[],
+  existingImageGsPaths: MultiSizePhotoModel[],
   keepFiles: Set<string>,
   roomId: string
-): { imagesToKeep: MultiSizePhoto[]; imagesToDelete: MultiSizePhoto[] } {
-  const imagesToKeep: MultiSizePhoto[] = [];
-  const imagesToDelete: MultiSizePhoto[] = [];
+): { imagesToKeep: MultiSizePhotoModel[]; imagesToDelete: MultiSizePhotoModel[] } {
+  const imagesToKeep: MultiSizePhotoModel[] = [];
+  const imagesToDelete: MultiSizePhotoModel[] = [];
   for (const imageGsPath of existingImageGsPaths) {
     // Extract the image ID from the path
     const imageId = StoragePaths.RoomPhotos.getImageIdFromGsPath(imageGsPath.small);
@@ -153,9 +153,9 @@ function processExistingImages(
 async function uploadNewImages(
   addFiles: Array<{ type: string; name: string; base64: string }>,
   roomId: string
-): Promise<MultiSizePhoto[]> {
+): Promise<MultiSizePhotoModel[]> {
   const bucket = FirebaseStorage.bucket();
-  const newImages: MultiSizePhoto[] = [];
+  const newImages: MultiSizePhotoModel[] = [];
 
   // Process 3 images at a time to avoid memory issues
   const BATCH_SIZE = 3;
@@ -196,7 +196,7 @@ async function uploadNewImages(
 /**
  * Delete images that are no longer needed
  */
-async function deleteImages(imagesToDelete: MultiSizePhoto[]): Promise<void> {
+async function deleteImages(imagesToDelete: MultiSizePhotoModel[]): Promise<void> {
   const bucket = FirebaseStorage.bucket();
   const deletePromises: Promise<unknown>[] = [];
   for (const image of imagesToDelete) {
@@ -275,7 +275,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { imagesToKeep, imagesToDelete } = processExistingImages(existingImageGsPaths, keepFiles, roomId);
 
   // Upload new images (if any)
-  let newImages: MultiSizePhoto[] = [];
+  let newImages: MultiSizePhotoModel[] = [];
   if (addFiles.length > 0) {
     newImages = await uploadNewImages(addFiles, roomId);
   }

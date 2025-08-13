@@ -1,6 +1,6 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhoto } from "./types";
+import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhotoModel } from "./types";
 import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
 import pickObjProps from "@/utils/pickObjProps";
@@ -19,7 +19,7 @@ export interface RoomData {
   capacity: number;
   pricePerOccupant: number;
   // Set later on
-  images?: MultiSizePhoto[];
+  images?: MultiSizePhotoModel[];
   isUnavailable?: boolean;
   // 0 to 5
   rating: number;
@@ -51,7 +51,7 @@ export interface RoomDTO {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
-  images: MultiSizePhoto[];
+  images: MultiSizePhotoModel[];
   rating: number;
   createdOn: string;
   lastModifiedOn: string;
@@ -122,7 +122,7 @@ function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomDa
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     _data["address"] = _data["address"]?.toLowerCase();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    _data["images"] = _data["images"]?.map((img: MultiSizePhoto) => ({
+    _data["images"] = _data["images"]?.map((img: MultiSizePhotoModel) => ({
       small: img.small,
       medium: img.medium,
       large: img.large,
@@ -131,10 +131,10 @@ function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomDa
   return _data as RoomData;
 }
 
-function imgConvertGsPathToApiUri<T extends { images?: MultiSizePhoto[] }>(dataToBeUpdated: T, roomId: string) {
+function imgConvertGsPathToApiUri<T extends { images?: MultiSizePhotoModel[] }>(dataToBeUpdated: T, roomId: string) {
   if (dataToBeUpdated.images != null) {
     // prettier-ignore
-    dataToBeUpdated.images = dataToBeUpdated.images.map((imgGsPaths: MultiSizePhoto) => ({
+    dataToBeUpdated.images = dataToBeUpdated.images.map((imgGsPaths: MultiSizePhotoModel) => ({
       small: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.small), "small"),
       medium: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.medium), "medium"),
       large: StoragePaths.RoomPhotos.apiUri(roomId, StoragePaths.RoomPhotos.getImageIdFromGsPath(imgGsPaths.large), "large"),

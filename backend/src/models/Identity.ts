@@ -1,9 +1,9 @@
 import { IdentityType, Language } from "sharedtypes";
-import { MultiSizePhoto } from "./types";
+import { MultiSizePhotoModel } from "./types";
 
 export interface IdentityPhotosModel {
-  workId?: MultiSizePhoto;
-  govId?: MultiSizePhoto;
+  workId?: MultiSizePhotoModel;
+  govId?: MultiSizePhotoModel;
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
@@ -15,7 +15,7 @@ export interface IdentityModel {
   lastName?: string;
   mobile?: string;
   language?: Language;
-  profilePhotos?: MultiSizePhoto;
+  profilePhotos?: MultiSizePhotoModel;
   identityPhotos?: IdentityPhotosModel;
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
