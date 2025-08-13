@@ -2,12 +2,12 @@ import { z } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
-import Logs from "@/models/Logs";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { LogPostReqBodyDTO } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { LogsRepo } from "@/repo/LogsRepo";
 
 /**
  * ```
@@ -34,6 +34,6 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   const authResult = await getLoggedInUser(req);
   const uid = authResult.isSuccess() ? authResult.getUid() : "[NO_USER]";
 
-  await Logs.put(uid, { timestamp, message, type });
+  await LogsRepo.put(uid, { timestamp, message, type });
   return respond(res, { status: 200, message: `Log added on ${timestamp}` });
 });
