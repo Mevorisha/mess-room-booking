@@ -101,16 +101,18 @@ export abstract class ADataTransferObj {
     fieldName: string,
     DtoClass: { fromJson(json: NetworkType): Result<T, DtoValidationError> }
   ): Result<void, DtoValidationError> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+    const data = json as any;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (json[fieldName] == null) {
+    if (data[fieldName] == null) {
       return Result.ok(void 0);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (Array.isArray(json[fieldName])) {
+    if (Array.isArray(data[fieldName])) {
       // Handle array of DTOs
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const arrayData = json[fieldName];
+      const arrayData = data[fieldName];
 
       const transformedArray: T[] = [];
 
@@ -123,16 +125,16 @@ export abstract class ADataTransferObj {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      json[fieldName] = transformedArray;
+      data[fieldName] = transformedArray;
     } else {
       // Handle single DTO object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const result = DtoClass.fromJson(json[fieldName]);
+      const result = DtoClass.fromJson(data[fieldName]);
       if (result.isErr) {
         return Result.err(result.error);
       }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      json[fieldName] = result.value;
+      data[fieldName] = result.value;
     }
 
     return Result.ok(void 0);

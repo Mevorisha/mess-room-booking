@@ -1,8 +1,9 @@
 import { NextApiResponse } from "next";
+import { NetworkType } from "sharedtypes";
 
 export function respond(
   res: NextApiResponse,
-  result: { status: number; message?: string; error?: string; json?: object }
+  result: { status: number; message?: string; error?: string; json?: NetworkType }
 ): void {
   if (result.json != null) {
     res.status(result.status).json(result.json);
