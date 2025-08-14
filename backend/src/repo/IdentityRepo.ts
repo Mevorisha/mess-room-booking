@@ -58,7 +58,7 @@ export class IdentityRepo {
       return null;
     }
 
-    if (extUrls === "API_URI") {
+    if (extUrls === ApiResponseUrlType.API_URI) {
       data = imgConvertGsPathToApiUri(data, uid);
     }
 

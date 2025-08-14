@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { IdentityGetResBodyNoAuthDTO, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
+import { ApiResponseUrlType, IdentityGetResBodyNoAuthDTO, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
 
 /**
  * ```
@@ -66,7 +66,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (authResult.isSuccess()) {
     const loggedInUid = authResult.getUid();
     if (loggedInUid === uid) {
-      const result = await IdentityRepo.findById(uid, "API_URI", { auth: true });
+      const result = await IdentityRepo.findById(uid, ApiResponseUrlType.API_URI, { auth: true });
       if (result == null) {
         throw CustomApiError.create(404, "User not found");
       }
@@ -75,7 +75,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     }
   }
 
-  const result = await IdentityRepo.findById(uid, "API_URI", { auth: false });
+  const result = await IdentityRepo.findById(uid, ApiResponseUrlType.API_URI, { auth: false });
   if (result == null) {
     throw CustomApiError.create(404, "User not found");
   }

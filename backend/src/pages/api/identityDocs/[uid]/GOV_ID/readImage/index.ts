@@ -8,6 +8,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import HeaderTypes from "@/types/HeaderTypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
+import { ApiResponseUrlType } from "sharedtypes";
 
 /**
  * ```
@@ -29,7 +30,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     }),
   });
 
-  const profile = await IdentityRepo.findById(uid, "GS_PATH", { auth: true });
+  const profile = await IdentityRepo.findById(uid, ApiResponseUrlType.GS_PATH, { auth: true });
   if (profile == null) {
     throw CustomApiError.create(404, "User profile not found");
   }

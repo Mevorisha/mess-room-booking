@@ -1,4 +1,8 @@
-export type LogType = "info" | "error" | "warn";
+export enum LogType {
+  INFO = "info",
+  WARN = "warn",
+  ERROR = "error",
+}
 
 export interface DateTimeRange {
   from: Date;

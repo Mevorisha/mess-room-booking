@@ -7,7 +7,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { CustomApiError } from "@/types/CustomApiError";
-import { IdentityPatchImageVisibilityDTO } from "sharedtypes";
+import { DocVisibility, IdentityPatchImageVisibilityDTO } from "sharedtypes";
 
 /**
  * ```
@@ -34,6 +34,6 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   const { visibility } = bodyResult.value;
 
-  await IdentityRepo.update(uid, { identityPhotos: { govIdIsPrivate: visibility === "PRIVATE" } });
+  await IdentityRepo.update(uid, { identityPhotos: { govIdIsPrivate: visibility === DocVisibility.PRIVATE } });
   return respond(res, { status: 200, message: `Governemnt ID made ${visibility.toLowerCase()}` });
 });

@@ -1,6 +1,7 @@
 import { NextApiRequest } from "next";
 import { CustomApiError } from "@/types/CustomApiError";
 import { z, ZodError } from "zod";
+import { LogType } from "@/models/Logs";
 
 export type MethodTypes = "POST" | "GET" | "PATCH" | "DELETE";
 
@@ -8,7 +9,7 @@ export class RequestValidationParser {
   static readonly CommonSchema = {
     UID: z.string().nonempty(),
     IMAGE_SIZE: z.enum(["small", "medium", "large"]),
-    LOG_TYPE: z.enum(["info", "warn", "error"]),
+    LOG_TYPE: z.enum([LogType.INFO, LogType.WARN, LogType.ERROR]),
     OPTIONAL_BOOL: z.boolean().optional().default(false),
   };
 

@@ -6,7 +6,7 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { IdentityPatchImageVisibilityDTO } from "sharedtypes";
+import { DocVisibility, IdentityPatchImageVisibilityDTO } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
 
 /**
@@ -34,6 +34,6 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   }
   const { visibility } = bodyResult.value;
 
-  await IdentityRepo.update(uid, { identityPhotos: { workIdIsPrivate: visibility === "PRIVATE" } });
+  await IdentityRepo.update(uid, { identityPhotos: { workIdIsPrivate: visibility === DocVisibility.PRIVATE } });
   return respond(res, { status: 200, message: `Work ID made ${visibility.toLowerCase()}` });
 });
