@@ -1,7 +1,7 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
-import { DocVisibility } from "@/types/others";
+import { DocVisibility } from "@/types/typeEnums";
 import { Result } from "@/types/Result";
 import { IsEnum } from "class-validator";
 
@@ -10,8 +10,8 @@ interface ConstructorParams {
 }
 
 export class IdentityPatchImageVisibilityDTO extends ADataTransferObj {
-  @IsEnum(["PRIVATE", "PUBLIC"])
-  visibility: DocVisibility = "PRIVATE";
+  @IsEnum([DocVisibility.PRIVATE, DocVisibility.PUBLIC])
+  visibility: DocVisibility = DocVisibility.PRIVATE;
 
   constructor(data: ConstructorParams) {
     super();

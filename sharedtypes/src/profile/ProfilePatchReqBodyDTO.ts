@@ -1,11 +1,16 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
-import { IdentityType, Language } from "@/types/others";
+import { IdentityType, Language } from "@/types/typeEnums";
 import { Result } from "@/types/Result";
 import { IsString, IsNotEmpty, IsMobilePhone, IsEnum } from "class-validator";
 
-export type ProfilePatchParams = "language" | "mobile" | "name" | "type";
+export enum ProfilePatchParams {
+  LANGUAGE,
+  MOBILE,
+  NAME,
+  TYPE,
+}
 
 interface BaseParams {
   language: Language;
@@ -15,13 +20,13 @@ interface BaseParams {
   type: IdentityType;
 }
 
-type ConditionalParams<T extends ProfilePatchParams> = T extends "language"
+type ConditionalParams<T extends ProfilePatchParams> = T extends ProfilePatchParams.LANGUAGE
   ? Pick<BaseParams, "language">
-  : T extends "mobile"
+  : T extends ProfilePatchParams.MOBILE
   ? Pick<BaseParams, "mobile">
-  : T extends "name"
+  : T extends ProfilePatchParams.NAME
   ? Pick<BaseParams, "firstName" | "lastName">
-  : T extends "type"
+  : T extends ProfilePatchParams.TYPE
   ? Pick<BaseParams, "type">
   : never;
 
@@ -29,16 +34,16 @@ type ConditionalParams<T extends ProfilePatchParams> = T extends "language"
  * LANGUAGE DTO
  */
 export class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
-  @IsEnum(["ENGLISH", "BANGLA", "HINDI"])
+  @IsEnum([Language.ENGLISH, Language.BANGLA, Language.HINDI])
   language: Language;
 
-  constructor(data: ConditionalParams<"language">) {
+  constructor(data: ConditionalParams<ProfilePatchParams.LANGUAGE>) {
     super();
     this.language = data.language;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchLanguageReqBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"language">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.LANGUAGE>));
   }
 
   static override toJson(dto: ProfilePatchLanguageReqBodyDTO): NetworkType {
@@ -53,13 +58,13 @@ export class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
   @IsMobilePhone()
   mobile: string;
 
-  constructor(data: ConditionalParams<"mobile">) {
+  constructor(data: ConditionalParams<ProfilePatchParams.MOBILE>) {
     super();
     this.mobile = data.mobile;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchMobileReqBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"mobile">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.MOBILE>));
   }
 
   static override toJson(dto: ProfilePatchMobileReqBodyDTO): NetworkType {
@@ -79,14 +84,14 @@ export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
   @IsNotEmpty()
   lastName: string;
 
-  constructor(data: ConditionalParams<"name">) {
+  constructor(data: ConditionalParams<ProfilePatchParams.NAME>) {
     super();
     this.firstName = data.firstName;
     this.lastName = data.lastName;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchNameReqBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"name">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.NAME>));
   }
 
   static override toJson(dto: ProfilePatchNameReqBodyDTO): NetworkType {
@@ -98,16 +103,16 @@ export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
  * TYPE DTO
  */
 export class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
-  @IsEnum(["OWNER", "TENANT"])
+  @IsEnum([IdentityType.OWNER, IdentityType.TENANT])
   type: IdentityType;
 
-  constructor(data: ConditionalParams<"type">) {
+  constructor(data: ConditionalParams<ProfilePatchParams.TYPE>) {
     super();
     this.type = data.type;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchTypeReqBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"type">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.TYPE>));
   }
 
   static override toJson(dto: ProfilePatchLanguageReqBodyDTO): NetworkType {

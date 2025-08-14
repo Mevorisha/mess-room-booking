@@ -1,8 +1,8 @@
 import { IdentityPhotosDTO } from "@/types/IdentityPhotosDTO";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
-import { IdentityType, Language } from "@/types/others";
+import { IdentityType, Language } from "@/types/typeEnums";
 import { Type } from "class-transformer";
-import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean, IsString } from "class-validator";
+import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean } from "class-validator";
 import { IdentityGetResBodyNoAuthDTO } from "./IdentityGetResBodyNoAuthDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
@@ -31,16 +31,16 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @IsEmail()
   email: string;
 
-  @IsEnum(["OWNER", "TENANT"])
-  type: IdentityType = "TENANT";
+  @IsEnum([IdentityType.OWNER, IdentityType.TENANT])
+  type: IdentityType = IdentityType.TENANT;
 
   @IsOptional()
   @ValidateNested()
   @Type(() => IdentityPhotosDTO)
   identityPhotos?: IdentityPhotosDTO;
 
-  @IsEnum(["ENGLISH", "BANGLA", "HINDI"])
-  language: Language = "ENGLISH";
+  @IsEnum([Language.ENGLISH, Language.BANGLA, Language.HINDI])
+  language: Language = Language.ENGLISH;
 
   @IsDateString()
   createdOn: string;

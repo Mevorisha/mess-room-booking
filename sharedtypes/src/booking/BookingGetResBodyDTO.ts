@@ -1,5 +1,5 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
-import { BookingStatus } from "@/types/others";
+import { BookingStatus } from "@/types/typeEnums";
 import { IsString, IsEnum, IsPositive, IsOptional, IsBoolean, IsDateString, IsNotEmpty, IsInt } from "class-validator";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { Result } from "@/types/Result";
@@ -52,8 +52,8 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
   @IsNotEmpty()
   linkToGovId?: string;
 
-  @IsEnum(["ACCEPTED", "REJECTED", "UNSET"])
-  acceptanceStatus: BookingStatus = "UNSET";
+  @IsEnum([BookingStatus.ACCEPTED, BookingStatus.REJECTED, BookingStatus.UNSET])
+  acceptanceStatus: BookingStatus = BookingStatus.UNSET;
 
   @IsOptional()
   @IsDateString()

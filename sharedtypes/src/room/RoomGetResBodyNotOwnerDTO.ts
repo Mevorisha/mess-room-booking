@@ -1,5 +1,5 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
-import { AcceptGender, AcceptOccupation } from "@/types/others";
+import { AcceptGender, AcceptOccupation } from "@/types/typeEnums";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
 import {
   IsString,
@@ -49,10 +49,10 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @IsNotEmpty()
   ownerId: string;
 
-  @IsEnum(["MALE", "FEMALE", "OTHER"])
+  @IsEnum([AcceptGender.MALE, AcceptGender.FEMALE, AcceptGender.OTHER])
   acceptGender: AcceptGender;
 
-  @IsEnum(["STUDENT", "PROFESSIONAL", "ANY"])
+  @IsEnum([AcceptOccupation.STUDENT, AcceptOccupation.PROFESSIONAL, AcceptOccupation.ANY])
   acceptOccupation: AcceptOccupation;
 
   @IsArray()

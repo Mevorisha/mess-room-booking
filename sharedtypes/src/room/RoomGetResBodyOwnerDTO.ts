@@ -1,4 +1,4 @@
-import { AcceptGender, AcceptOccupation } from "@/types/others";
+import { AcceptGender, AcceptOccupation } from "@/types/typeEnums";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
 import { IsBoolean, IsDateString, IsOptional } from "class-validator";
 import { RoomGetResBodyNotOwnerDTO } from "./RoomGetResBodyNotOwnerDTO";
