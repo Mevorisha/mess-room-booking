@@ -34,7 +34,7 @@ type ConditionalParams<T extends ProfilePatchParams> = T extends ProfilePatchPar
  * LANGUAGE DTO
  */
 export class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
-  @IsEnum([Language.ENGLISH, Language.BANGLA, Language.HINDI])
+  @IsEnum(Language)
   language: Language;
 
   constructor(data: ConditionalParams<ProfilePatchParams.LANGUAGE>) {
@@ -103,7 +103,7 @@ export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
  * TYPE DTO
  */
 export class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
-  @IsEnum([IdentityType.OWNER, IdentityType.TENANT])
+  @IsEnum(IdentityType)
   type: IdentityType;
 
   constructor(data: ConditionalParams<ProfilePatchParams.TYPE>) {

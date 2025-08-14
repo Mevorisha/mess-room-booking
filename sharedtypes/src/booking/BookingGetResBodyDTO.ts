@@ -52,7 +52,7 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
   @IsNotEmpty()
   linkToGovId?: string;
 
-  @IsEnum([BookingStatus.ACCEPTED, BookingStatus.REJECTED, BookingStatus.UNSET])
+  @IsEnum(BookingStatus)
   acceptanceStatus: BookingStatus = BookingStatus.UNSET;
 
   @IsOptional()

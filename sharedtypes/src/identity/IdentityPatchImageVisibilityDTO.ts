@@ -10,7 +10,7 @@ interface ConstructorParams {
 }
 
 export class IdentityPatchImageVisibilityDTO extends ADataTransferObj {
-  @IsEnum([DocVisibility.PRIVATE, DocVisibility.PUBLIC])
+  @IsEnum(DocVisibility)
   visibility: DocVisibility = DocVisibility.PRIVATE;
 
   constructor(data: ConstructorParams) {

@@ -49,10 +49,10 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @IsNotEmpty()
   ownerId: string;
 
-  @IsEnum([AcceptGender.MALE, AcceptGender.FEMALE, AcceptGender.OTHER])
+  @IsEnum(AcceptGender)
   acceptGender: AcceptGender;
 
-  @IsEnum([AcceptOccupation.STUDENT, AcceptOccupation.PROFESSIONAL, AcceptOccupation.ANY])
+  @IsEnum(AcceptOccupation)
   acceptOccupation: AcceptOccupation;
 
   @IsArray()

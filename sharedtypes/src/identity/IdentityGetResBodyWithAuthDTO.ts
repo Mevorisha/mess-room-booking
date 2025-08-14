@@ -31,7 +31,7 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @IsEmail()
   email: string;
 
-  @IsEnum([IdentityType.OWNER, IdentityType.TENANT])
+  @IsEnum(IdentityType)
   type: IdentityType = IdentityType.TENANT;
 
   @IsOptional()
@@ -39,7 +39,7 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @Type(() => IdentityPhotosDTO)
   identityPhotos?: IdentityPhotosDTO;
 
-  @IsEnum([Language.ENGLISH, Language.BANGLA, Language.HINDI])
+  @IsEnum(Language)
   language: Language = Language.ENGLISH;
 
   @IsDateString()
