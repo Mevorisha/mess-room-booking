@@ -28,27 +28,6 @@ interface ConstructorParams {
 }
 
 export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
-  @IsOptional()
-  @IsString()
-  override displayName?: string;
-
-  @IsOptional()
-  @IsString()
-  override firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  override lastName?: string;
-
-  @IsOptional()
-  @IsString()
-  override mobile?: string;
-
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MultiSizePhotoDTO)
-  override profilePhotos?: MultiSizePhotoDTO;
-  
   @IsEmail()
   email: string;
 
