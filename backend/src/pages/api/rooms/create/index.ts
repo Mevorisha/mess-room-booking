@@ -1,15 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
-import Identity, { SchemaFields } from "@/models/Identity";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
-import Room, { RoomCreateData } from "@/models/Room";
-import Joi from "joi";
+import Room from "@/models/Room";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { MultiSizePhotoModel } from "@/models/types";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { RoomPhotoUploadDTO, RoomPostReqBodyDTO } from "sharedtypes";
+import { IdentityRepo } from "@/repo/IdentityRepo";
+import { ApiResponseUrlType, IdentityType } from "sharedtypes/dist/types/typeEnums";
 
 export const config = {
   api: {
@@ -20,68 +22,15 @@ export const config = {
 };
 
 /**
- * Validates room creation input data
- * @throws {CustomApiError} On joi validation failure
- */
-function validateRoomCreateData(req: NextApiRequest): {
-  roomCreateData: RoomCreateData;
-  files: Array<{ type: string; name: string; base64: string }>;
-} {
-  const roomCreateSchema = Joi.object({
-    ownerId: Joi.string().trim().required(),
-    acceptGender: Joi.string().valid("MALE", "FEMALE", "OTHER").required(),
-    acceptOccupation: Joi.string().valid("STUDENT", "PROFESSIONAL", "ANY").required(),
-    searchTags: Joi.array().items(Joi.string().trim().required()).required(),
-    landmark: Joi.string().trim().required(),
-    address: Joi.string().trim().required(),
-    city: Joi.string().trim().required(),
-    state: Joi.string().trim().required(),
-    majorTags: Joi.array().items(Joi.string().trim().required()).required(),
-    minorTags: Joi.array().items(Joi.string().trim()).min(0).required(),
-    capacity: Joi.number().integer().positive().required(),
-    pricePerOccupant: Joi.number().positive().required(),
-    files: Joi.array()
-      .items(
-        Joi.object({
-          type: Joi.string().required(),
-          name: Joi.string().required(),
-          base64: Joi.string()
-            .pattern(/^[A-Za-z0-9+/=]+$/)
-            .required(),
-        })
-      )
-      .min(0)
-      .required(),
-  });
-
-  const { error, value } = roomCreateSchema.validate(req.body);
-
-  if (error) {
-    throw CustomApiError.create(400, `Validation error: ${error.message}`);
-  }
-
-  const roomCreateData = {
-    ...value,
-    searchTags: new Set(value.searchTags),
-    majorTags: new Set(value.majorTags),
-    minorTags: new Set(value.minorTags),
-  };
-
-  delete roomCreateData.files;
-
-  return { roomCreateData, files: value.files };
-}
-
-/**
  * Validates image file types and performs additional security checks
  */
-function validateImageFile(file: { type: string; base64: string }): void {
+function validateImageFile(file: RoomPhotoUploadDTO): void {
   if (!/^image\/(jpeg|png|jpg)$/.test(file.type)) {
     throw CustomApiError.create(400, `Invalid file type '${file.type}'. Only jpeg, png and jpg are allowed.`);
   }
   // Additional validation for base64 data
   const base64Data = file.base64;
-  if (!base64Data || base64Data.length < 100) {
+  if (base64Data.length === 0 || base64Data.length < 100) {
     // Very basic check - empty or too small to be real image
     throw CustomApiError.create(400, "Invalid image data");
   }
@@ -91,10 +40,7 @@ function validateImageFile(file: { type: string; base64: string }): void {
 /**
  * Upload new images in parallel batches to optimize performance
  */
-async function uploadRoomImages(
-  files: Array<{ type: string; name: string; base64: string }>,
-  roomId: string
-): Promise<MultiSizePhotoModel[]> {
+async function uploadRoomImages(files: RoomPhotoUploadDTO[], roomId: string): Promise<MultiSizePhotoModel[]> {
   const bucket = FirebaseStorage.bucket();
   const imagePaths: MultiSizePhotoModel[] = [];
 
@@ -156,33 +102,38 @@ async function uploadRoomImages(
  * ```
  */
 export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow POST method
-  if (req.method !== "POST") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
+  RequestValidationParser.parse({
+    req,
+    method: "POST",
+  });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
+
+  // Automatically throws ApiError and is caught by catchAll (middleware)
   const uid = authResult.getUid();
 
   // Apply rate limiting
   if (!(await RateLimits.ROOM_CREATE(uid, req, res))) return;
 
   // Verify user is an OWNER
-  const profile = await Identity.get(uid, "GS_PATH", [SchemaFields.TYPE]);
-  if (!profile) {
+  const profile = await IdentityRepo.findById(uid, ApiResponseUrlType.GS_PATH, { auth: true });
+  if (profile == null) {
     throw CustomApiError.create(404, "User not found");
   }
-  if (profile.type !== "OWNER") {
+  if (profile.type !== IdentityType.OWNER) {
     throw CustomApiError.create(403, "Please switch profile type to OWNER before creating a room");
   }
 
   // Set owner ID and validate input data
-  req.body.ownerId = uid;
-  const { roomCreateData, files } = validateRoomCreateData(req);
+  const postResult = RoomPostReqBodyDTO.fromJson({ ownerId: uid, ...req.body });
+  if (postResult.isErr) {
+    throw CustomApiError.create(400, "Bad Request", postResult.error);
+  }
+  const  files = postResult.value.getFiles();
 
   // Create the room in the database first
-  const roomId = await Room.create(roomCreateData);
+  const roomId = await Room.create(postResult.value.omitFiles());
 
   // Process and upload images if any
   if (files.length > 0) {
