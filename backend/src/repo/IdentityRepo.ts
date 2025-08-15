@@ -14,8 +14,9 @@ import { CustomApiError } from "@/types/CustomApiError";
 export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
+    const json = IdentityPostReqBodyDTO.toJson(dto) as object;
     await ref.set(
-      { ...dto, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { ...json, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }
     );
   }
