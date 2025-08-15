@@ -16,9 +16,8 @@ export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const createData = pickObjProps(dto, ["email", "type"]);
-    const json = IdentityPostReqBodyDTO.toJson(createData) as object;
     await ref.set(
-      { ...json, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      { ...createData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }
     );
   }
