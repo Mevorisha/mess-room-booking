@@ -26,7 +26,7 @@ export class IdentityRepo {
   /**
    * Update an existing identity document
    */
-  static async update(uid: string, dto: Partial<Omit<IdentityModel, AutoSetFields>>): Promise<void> {
+  static async update(uid: string, dto: Partial<Omit<IdentityModel, AutoSetFields | "email">>): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const snapshot = await ref.get();
     if (!snapshot.exists) {
@@ -90,9 +90,9 @@ export class IdentityRepo {
   }
 }
 
-function imgConvertGsPathToApiUri
-  <T extends { profilePhotos?: MultiSizePhotoModel; identityPhotos?: IdentityPhotosModel }>
-  (dataToUpdate: T, uid: string) {
+function imgConvertGsPathToApiUri<
+  T extends { profilePhotos?: MultiSizePhotoModel; identityPhotos?: IdentityPhotosModel }
+>(dataToUpdate: T, uid: string) {
   // convert image paths in profile photos to URLs
   if (dataToUpdate.profilePhotos != null) {
     dataToUpdate.profilePhotos = {
