@@ -18,7 +18,7 @@ import {
 import { RoomPhotoUploadDTO } from "./RoomPhotoUploadDTO";
 import { Type } from "class-transformer";
 
-interface ConstructorParams {
+interface ConstructorParamsNoFiles {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -31,10 +31,17 @@ interface ConstructorParams {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
+}
+
+interface ConstructorParamsWithFiles extends ConstructorParamsNoFiles {
   files: RoomPhotoUploadDTO[];
 }
 
-export class RoomPostReqBodyDTO extends ADataTransferObj {
+type ConstructorParams<T extends "files" | "nofiles"> = T extends "nofiles"
+  ? ConstructorParamsNoFiles
+  : ConstructorParamsWithFiles;
+
+export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
   @IsOptional()
   @IsString()
   ownerId: string;
@@ -87,13 +94,7 @@ export class RoomPostReqBodyDTO extends ADataTransferObj {
   @IsPositive()
   pricePerOccupant: number;
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RoomPhotoUploadDTO)
-  files: RoomPhotoUploadDTO[];
-
-  private constructor(data: ConstructorParams) {
+  protected constructor(data: ConstructorParams<"nofiles">) {
     super();
 
     this.ownerId = data.ownerId;
@@ -108,14 +109,45 @@ export class RoomPostReqBodyDTO extends ADataTransferObj {
     this.minorTags = data.minorTags;
     this.capacity = data.capacity;
     this.pricePerOccupant = data.pricePerOccupant;
+  }
+
+  static override fromJson(json: NetworkType): Result<RoomPostReqBodyOmitFilesDTO, DtoValidationError> {
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams<"nofiles">));
+  }
+
+  static override toJson(dto: RoomPostReqBodyOmitFilesDTO): NetworkType {
+    return ADataTransferObj._toJson(dto);
+  }
+}
+
+export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RoomPhotoUploadDTO)
+  files: RoomPhotoUploadDTO[];
+
+  private constructor(data: ConstructorParams<"files">) {
+    super(data);
     this.files = data.files;
   }
 
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
+    const buildResult = ADataTransferObj._buildDtoFields(json, { files: RoomPhotoUploadDTO });
+    if (buildResult.isErr) {
+      throw buildResult.error;
+    }
+    return ADataTransferObj._fromJson(new this(json as ConstructorParams<"files">));
   }
 
   static override toJson(dto: RoomPostReqBodyDTO): NetworkType {
     return ADataTransferObj._toJson(dto);
+  }
+
+  getFiles(): RoomPhotoUploadDTO[] {
+    return this.files;
+  }
+
+  omitFiles(): RoomPostReqBodyOmitFilesDTO {
+    return new RoomPostReqBodyOmitFilesDTO(this);
   }
 }
