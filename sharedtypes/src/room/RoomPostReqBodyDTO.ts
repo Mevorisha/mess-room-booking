@@ -13,7 +13,10 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  ValidateNested,
 } from "class-validator";
+import { RoomPhotoUploadDTO } from "./RoomPhotoUploadDTO";
+import { Type } from "class-transformer";
 
 interface ConstructorParams {
   ownerId: string;
@@ -28,6 +31,7 @@ interface ConstructorParams {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
+  files: RoomPhotoUploadDTO[];
 }
 
 export class RoomPostReqBodyDTO extends ADataTransferObj {
@@ -83,6 +87,12 @@ export class RoomPostReqBodyDTO extends ADataTransferObj {
   @IsPositive()
   pricePerOccupant: number;
 
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RoomPhotoUploadDTO)
+  files: RoomPhotoUploadDTO[];
+
   private constructor(data: ConstructorParams) {
     super();
 
@@ -98,6 +108,7 @@ export class RoomPostReqBodyDTO extends ADataTransferObj {
     this.minorTags = data.minorTags;
     this.capacity = data.capacity;
     this.pricePerOccupant = data.pricePerOccupant;
+    this.files = data.files;
   }
 
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyDTO, DtoValidationError> {
