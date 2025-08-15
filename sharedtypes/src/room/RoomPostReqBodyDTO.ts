@@ -79,7 +79,7 @@ export class RoomPostReqBodyDTO extends ADataTransferObj {
   @IsPositive()
   capacity: number;
 
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @IsPositive()
   pricePerOccupant: number;
 

@@ -196,7 +196,7 @@ export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
  * RATING DTO
  */
 export class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
-  @IsInt()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @Max(5)
   @Min(0)
   rating: number;

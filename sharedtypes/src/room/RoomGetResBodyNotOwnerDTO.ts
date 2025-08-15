@@ -12,6 +12,8 @@ import {
   IsDateString,
   IsNotEmpty,
   IsInt,
+  Max,
+  Min,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
@@ -93,7 +95,7 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @IsPositive()
   capacity: number;
 
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @IsPositive()
   pricePerOccupant: number;
 
@@ -102,8 +104,9 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @Type(() => MultiSizePhotoDTO)
   images: MultiSizePhotoDTO[];
 
-  @IsNumber()
-  @IsPositive()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Max(5)
+  @Min(0)
   rating: number;
 
   @IsDateString()
