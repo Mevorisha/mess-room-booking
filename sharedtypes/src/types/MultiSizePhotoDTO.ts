@@ -25,7 +25,7 @@ export class MultiSizePhotoDTO extends ADataTransferObj {
   @IsNotEmpty()
   large: string;
 
-  private constructor(data: ConstructorParams) {
+  protected constructor(data: ConstructorParams) {
     super();
 
     this.small = data.small;

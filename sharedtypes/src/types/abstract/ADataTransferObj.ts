@@ -45,7 +45,7 @@ export abstract class ADataTransferObj {
    * @example
    * ```typescript
    * // Single object field
-   * const buildFieldResult = this._buildDtoFields(json, {
+   * const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
    *   profilePhotos: MultiSizePhotoDTO
    * });
    * if (buildFieldResult.isErr) {
@@ -57,7 +57,7 @@ export abstract class ADataTransferObj {
    * @example
    * ```typescript
    * // Array of objects field
-   * const buildFieldResult = this._buildDtoFields(json, {
+   * const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
    *   images: MultiSizePhotoDTO
    * });
    * if (buildFieldResult.isErr) {
@@ -69,7 +69,7 @@ export abstract class ADataTransferObj {
    * @example
    * ```typescript
    * // Multiple fields with mixed types
-   * const buildFieldResult = this._buildDtoFields(json, {
+   * const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
    *   profilePhotos: MultiSizePhotoDTO,    // Single object
    *   images: MultiSizePhotoDTO,           // Could be single or array - auto-detected
    *   documents: DocumentDTO,              // Another DTO type
@@ -88,7 +88,7 @@ export abstract class ADataTransferObj {
       if (fields[field] == null) {
         continue;
       }
-      const result = this._buildDtoField(json, field, fields[field]);
+      const result = ADataTransferObj._buildDtoField(json, field, fields[field]);
       if (result.isErr) {
         return Result.err(result.error);
       }

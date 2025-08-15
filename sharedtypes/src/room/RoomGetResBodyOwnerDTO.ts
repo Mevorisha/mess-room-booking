@@ -55,7 +55,7 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
   }
 
   static override fromJson(json: NetworkType): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
-    const buildFieldResult = this._buildDtoFields(json, { images: MultiSizePhotoDTO });
+    const buildFieldResult = ADataTransferObj._buildDtoFields(json, { images: MultiSizePhotoDTO });
     if (buildFieldResult.isErr) {
       return Result.err(buildFieldResult.error);
     }

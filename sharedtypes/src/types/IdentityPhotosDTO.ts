@@ -30,7 +30,7 @@ export class IdentityPhotosDTO extends ADataTransferObj {
   @IsBoolean()
   govIdIsPrivate = true;
 
-  private constructor(data?: ConstructorParams) {
+  protected constructor(data?: ConstructorParams) {
     super();
 
     if (data != null) {
@@ -50,7 +50,7 @@ export class IdentityPhotosDTO extends ADataTransferObj {
   }
 
   static override fromJson(json: NetworkType): Result<IdentityPhotosDTO, DtoValidationError> {
-    const buildFieldResult = this._buildDtoFields(json, {
+    const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
       workId: MultiSizePhotoDTO,
       govId: MultiSizePhotoDTO,
     });

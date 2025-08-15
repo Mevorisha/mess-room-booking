@@ -58,7 +58,7 @@ export class IdentityGetResBodyNoAuthDTO extends ADataTransferObj {
   }
 
   static override fromJson(json: NetworkType): Result<IdentityGetResBodyNoAuthDTO, DtoValidationError> {
-    const buildFieldResult = this._buildDtoFields(json, { profilePhotos: MultiSizePhotoDTO });
+    const buildFieldResult = ADataTransferObj._buildDtoFields(json, { profilePhotos: MultiSizePhotoDTO });
     if (buildFieldResult.isErr) {
       return Result.err(buildFieldResult.error);
     }
