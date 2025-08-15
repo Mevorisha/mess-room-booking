@@ -10,11 +10,13 @@ import {
 import { FieldValue } from "firebase-admin/firestore";
 import { MultiSizePhotoModel } from "@/models/types";
 import { CustomApiError } from "@/types/CustomApiError";
+import pickObjProps from "@/utils/pickObjProps";
 
 export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
-    const json = IdentityPostReqBodyDTO.toJson(dto) as object;
+    const createData = pickObjProps(dto, ["email", "type"]);
+    const json = IdentityPostReqBodyDTO.toJson(createData) as object;
     await ref.set(
       { ...json, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }
@@ -24,12 +26,21 @@ export class IdentityRepo {
   /**
    * Update an existing identity document
    */
-  static async update(uid: string, updateData: Partial<Omit<IdentityModel, AutoSetFields>>): Promise<void> {
+  static async update(uid: string, dto: Partial<Omit<IdentityModel, AutoSetFields>>): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
     const snapshot = await ref.get();
     if (!snapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
+    const updateData = pickObjProps(dto, [
+      "type",
+      "firstName",
+      "lastName",
+      "mobile",
+      "language",
+      "profilePhotos",
+      "identityPhotos",
+    ]);
     await ref.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
   }
 
@@ -79,10 +90,9 @@ export class IdentityRepo {
   }
 }
 
-function imgConvertGsPathToApiUri<T extends { profilePhotos?: MultiSizePhotoModel; identityPhotos?: IdentityPhotosModel }>(
-  dataToUpdate: T,
-  uid: string
-) {
+function imgConvertGsPathToApiUri
+  <T extends { profilePhotos?: MultiSizePhotoModel; identityPhotos?: IdentityPhotosModel }>
+  (dataToUpdate: T, uid: string) {
   // convert image paths in profile photos to URLs
   if (dataToUpdate.profilePhotos != null) {
     dataToUpdate.profilePhotos = {
