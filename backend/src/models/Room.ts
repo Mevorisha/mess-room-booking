@@ -1,11 +1,18 @@
 import { FirebaseFirestore, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { AcceptGender, AcceptOccupation, ApiResponseUrlType, AutoSetFields, MultiSizePhotoModel } from "./types";
+import {
+  AcceptGender,
+  AcceptOccupation,
+  ApiResponseUrlType,
+  AutoSetFields,
+  RoomPostReqBodyOmitFilesDTO,
+} from "sharedtypes";
+import { MultiSizePhotoModel } from "./types";
 import { CustomApiError } from "@/types/CustomApiError";
 import Booking from "./Booking";
 import pickObjProps from "@/utils/pickObjProps";
 
-export interface RoomData {
+export interface RoomModel {
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -28,12 +35,6 @@ export interface RoomData {
   lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
-
-// During create, apart from AutoSetFields, isUnavailable MUST not be set
-export type RoomCreateData = Omit<RoomData, AutoSetFields | "images" | "rating" | "isUnavailable">;
-
-// During update, apart from AutoSetFields, ownerId & acceptGender may not be changed
-export type RoomUpdateData = Partial<Omit<RoomData, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>;
 
 // During read, all data may be read
 export interface RoomDTO {
@@ -104,7 +105,7 @@ export enum PseudoFields {
   IS_DELETED = "isDeleted",
 }
 
-function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomData {
+function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomModel {
   const _data = { ...data };
   {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-call, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unsafe-member-access
@@ -128,7 +129,7 @@ function fbDataToQueryableRoomData(data: FirebaseFirestore.DocumentData): RoomDa
       large: img.large,
     }));
   }
-  return _data as RoomData;
+  return _data as RoomModel;
 }
 
 function imgConvertGsPathToApiUri<T extends { images?: MultiSizePhotoModel[] }>(dataToBeUpdated: T, roomId: string) {
@@ -147,23 +148,7 @@ class Room {
   /**
    * Create a new room document
    */
-  static async create(roomData: RoomCreateData): Promise<string> {
-    // for safety, ensure only the acceptable fields are present
-    roomData = pickObjProps(roomData, [
-      SchemaFields.OWNER_ID,
-      SchemaFields.ACCEPT_GENDER,
-      SchemaFields.ACCEPT_OCCUPATION,
-      SchemaFields.SEARCH_TAGS,
-      SchemaFields.LANDMARK,
-      SchemaFields.ADDRESS,
-      SchemaFields.CITY,
-      SchemaFields.STATE,
-      SchemaFields.MAJOR_TAGS,
-      SchemaFields.MINOR_TAGS,
-      SchemaFields.CAPACITY,
-      SchemaFields.PRICE_PER_OCCUPANT,
-    ]) as RoomCreateData;
-
+  static async create(roomData: RoomPostReqBodyOmitFilesDTO): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     const querySnapshot = await FirebaseFirestore.collection(FirestorePaths.ROOMS)
@@ -179,15 +164,24 @@ class Room {
       throw CustomApiError.create(409, "Room w/ same address, price and capacity already exists");
     }
 
+    // for safety, ensure only the acceptable fields are present
+    roomData = pickObjProps(roomData, [
+      "ownerId",
+      "acceptGender",
+      "acceptOccupation",
+      "searchTags",
+      "landmark",
+      "address",
+      "city",
+      "state",
+      "majorTags",
+      "minorTags",
+      "capacity",
+      "pricePerOccupant",
+    ]);
+
     const createData = {
       ...roomData,
-      // Convert sets to array
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      searchTags: Array.from(roomData.searchTags ?? []),
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      majorTags: Array.from(roomData.majorTags ?? []),
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      minorTags: Array.from(roomData.minorTags ?? []),
       // Intialise
       rating: 0,
       isUnavailable: false,
@@ -203,43 +197,31 @@ class Room {
   /**
    * Update an existing room document
    */
-  static async update(roomId: string, updateData: RoomUpdateData): Promise<void> {
+  static async update(
+    roomId: string,
+    updateData: Partial<Omit<RoomModel, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>
+  ): Promise<void> {
     // for safety, ensure only the acceptable fields are present
     updateData = pickObjProps(updateData, [
-      SchemaFields.IMAGES,
-      SchemaFields.RATING,
-      SchemaFields.ACCEPT_OCCUPATION,
-      SchemaFields.SEARCH_TAGS,
-      SchemaFields.LANDMARK,
-      SchemaFields.ADDRESS,
-      SchemaFields.CITY,
-      SchemaFields.STATE,
-      SchemaFields.MAJOR_TAGS,
-      SchemaFields.MINOR_TAGS,
-      SchemaFields.CAPACITY,
-      SchemaFields.PRICE_PER_OCCUPANT,
-    ]) as RoomUpdateData;
+      "images",
+      "rating",
+      "acceptOccupation",
+      "searchTags",
+      "landmark",
+      "address",
+      "city",
+      "state",
+      "majorTags",
+      "minorTags",
+      "capacity",
+      "pricePerOccupant",
+    ]);
 
     const ref = FirestorePaths.Rooms(roomId);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateDataFrstrFormat: Record<string, any> = {
-      ...updateData,
-      lastModifiedOn: FieldValue.serverTimestamp(),
-    };
-
-    // Convert sets to array
-    // Make sure u update the array type fields only if they exist in given data
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (updateDataFrstrFormat["searchTags"]) updateDataFrstrFormat["searchTags"] = Array.from(updateData.searchTags ?? []); // prettier-ignore
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (updateDataFrstrFormat["majorTags"]) updateDataFrstrFormat["majorTags"] = Array.from(updateData.majorTags ?? []);
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (updateDataFrstrFormat["minorTags"]) updateDataFrstrFormat["minorTags"] = Array.from(updateData.minorTags ?? []);
-
     try {
       // Throws error if room doesn't exist
-      await ref.update(updateDataFrstrFormat);
+      await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found", e);
     }
@@ -349,7 +331,7 @@ class Room {
     // If no fields provided, send all params
     if (fields.length === 0) {
       // convert image paths to direct urls
-      if (extUrls === "API_URI") {
+      if (extUrls === ApiResponseUrlType.API_URI) {
         return imgConvertGsPathToApiUri(data, roomId);
       } else {
         return data;
@@ -364,7 +346,7 @@ class Room {
     }
 
     // convert image paths to api uri if any
-    if (extUrls === "API_URI") {
+    if (extUrls === ApiResponseUrlType.API_URI) {
       return imgConvertGsPathToApiUri(result, roomId);
     } else {
       return result;
@@ -495,11 +477,11 @@ class Room {
   private static filterAndSortByTags(
     docs: FirebaseFirestore.QueryDocumentSnapshot[],
     params: RoomQueryParams
-  ): { data: RoomData; sortPriority: number; docId: string }[] {
-    const results: { data: RoomData; sortPriority: number; docId: string }[] = [];
+  ): { data: RoomModel; sortPriority: number; docId: string }[] {
+    const results: { data: RoomModel; sortPriority: number; docId: string }[] = [];
 
     for (const doc of docs) {
-      const roomData = doc.data() as RoomData;
+      const roomData = doc.data() as RoomModel;
 
       // Apply tag filtering if searchTags are provided
       if (params.searchTags != null && params.searchTags.size > 0) {
@@ -525,7 +507,7 @@ class Room {
 
   // Helper function to check tag matches and return priority
   private static getTagMatchPriority(
-    roomData: RoomData,
+    roomData: RoomModel,
     searchTags: Set<string>
   ): { hasMatch: boolean; priority: number } {
     const queryableRoomData = fbDataToQueryableRoomData(roomData);
@@ -562,7 +544,7 @@ class Room {
 
   // Helper function to convert RoomData to RoomDTO with field filtering and pseudo fields
   private static convertToRoomDTOs(
-    rooms: { data: RoomData; sortPriority: number; docId: string }[],
+    rooms: { data: RoomModel; sortPriority: number; docId: string }[],
     fields: (SchemaFields | PseudoFields)[]
   ): { dto: Partial<RoomDTO>; sortPriority: number }[] {
     return rooms.map((room) => {
@@ -646,7 +628,7 @@ class Room {
     rooms: { dto: Partial<RoomDTO>; sortPriority: number }[],
     extUrls: ApiResponseUrlType
   ): { dto: Partial<RoomDTO>; sortPriority: number }[] {
-    if (extUrls === "API_URI") {
+    if (extUrls === ApiResponseUrlType.API_URI) {
       return rooms.map((room) => ({
         ...room,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
