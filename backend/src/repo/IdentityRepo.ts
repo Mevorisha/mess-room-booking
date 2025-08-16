@@ -11,6 +11,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { MultiSizePhotoModel } from "@/models/types";
 import { CustomApiError } from "@/types/CustomApiError";
 import pickObjProps from "@/utils/pickObjProps";
+import { DateTransformer } from "@/dataTransformers/DateTransformer";
 
 export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
@@ -73,14 +74,16 @@ export class IdentityRepo {
       data = imgConvertGsPathToApiUri(data, uid);
     }
 
+    const dateTransformed = DateTransformer.transform(data);
+
     if (options?.auth == null || options.auth === false) {
-      const jsonResult = IdentityGetResBodyNoAuthDTO.fromJson(data);
+      const jsonResult = IdentityGetResBodyNoAuthDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
         throw CustomApiError.create(500, "Validation failure", jsonResult.error);
       }
       return jsonResult.value;
     } else {
-      const jsonResult = IdentityGetResBodyWithAuthDTO.fromJson(data);
+      const jsonResult = IdentityGetResBodyWithAuthDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
         throw CustomApiError.create(500, "Validation failure", jsonResult.error);
       }

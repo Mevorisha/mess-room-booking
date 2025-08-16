@@ -14,6 +14,7 @@ import {
   IsInt,
   Max,
   Min,
+  IsOptional,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
@@ -33,7 +34,7 @@ interface ConstructorParams {
   city: string;
   state: string;
   majorTags: string[];
-  minorTags: string[];
+  minorTags?: string[];
   capacity: number;
   pricePerOccupant: number;
   images: MultiSizePhotoDTO[];
@@ -85,11 +86,12 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @IsNotEmpty({ each: true })
   majorTags: string[];
 
+  @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
-  minorTags: string[];
+  minorTags?: string[];
 
   @IsInt()
   @IsPositive()
@@ -128,7 +130,9 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
     this.city = data.city;
     this.state = data.state;
     this.majorTags = data.majorTags;
-    this.minorTags = data.minorTags;
+    if (data.minorTags != null) {
+      this.minorTags = data.minorTags;
+    }
     this.capacity = data.capacity;
     this.pricePerOccupant = data.pricePerOccupant;
     this.images = data.images;

@@ -3,7 +3,6 @@ import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
-import Room from "@/models/Room";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
@@ -12,6 +11,7 @@ import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RoomPhotoUploadDTO, RoomPostReqBodyDTO } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType, IdentityType } from "sharedtypes/dist/types/typeEnums";
+import { RoomRepo } from "@/repo/RoomRepo";
 
 export const config = {
   api: {
@@ -133,7 +133,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   const  files = postResult.value.getFiles();
 
   // Create the room in the database first
-  const roomId = await Room.create(postResult.value.omitFiles());
+  const roomId = await RoomRepo.create(postResult.value.omitFiles());
 
   // Process and upload images if any
   if (files.length > 0) {
@@ -141,7 +141,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
       // Upload all images and get their paths
       const imagePaths = await uploadRoomImages(files, roomId);
       // Update the room with image paths
-      await Room.update(roomId, { images: imagePaths });
+      await RoomRepo.update(roomId, { images: imagePaths });
     } catch (e) {
       // If image upload fails, still return success but log the error
       console.error("Error uploading room images:", e);

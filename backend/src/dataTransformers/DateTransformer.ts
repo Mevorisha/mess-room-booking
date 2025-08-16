@@ -1,10 +1,12 @@
+import { AutoSetFields } from "sharedtypes";
+
 interface TypeWithTimestampDates {
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
 
-type TypeWithStringDates<T extends TypeWithTimestampDates> = Omit<T, "createdOn" | "lastModifiedOn" | "ttl"> & {
+type TypeWithStringDates<T extends TypeWithTimestampDates> = Omit<T, AutoSetFields> & {
   createdOn: string;
   lastModifiedOn: string;
   ttl?: string;

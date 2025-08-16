@@ -20,7 +20,7 @@ interface ConstructorParams {
   city: string;
   state: string;
   majorTags: string[];
-  minorTags: string[];
+  minorTags?: string[];
   capacity: number;
   pricePerOccupant: number;
   images: MultiSizePhotoDTO[];
