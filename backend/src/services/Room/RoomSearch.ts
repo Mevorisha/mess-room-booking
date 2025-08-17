@@ -1,6 +1,5 @@
 import { DateTransformer } from "@/dataTransformers/DateTransformer";
 import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
-import { SchemaFields } from "@/models/Booking";
 import { RoomModel } from "@/models/Room";
 import { CustomApiError } from "@/types/CustomApiError";
 import {
@@ -12,6 +11,7 @@ import {
 } from "sharedtypes";
 import { RoomTransformer } from "./RoomTransformer";
 import { Timestamp } from "firebase-admin/firestore";
+import { QueryWrapper } from "@/types/QueryWrapper";
 
 export type RoomSearchParams = Partial<{
   ownerId: string;
@@ -121,7 +121,7 @@ export class RoomSearchService {
   // Helper function to build Firestore query
   private static buildFirestoreQuery(params: RoomSearchParams, sortOn?: RoomSortFields, sortOrder?: RoomSortOrder) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
-    let query: FirebaseFirestore.Query = ref;
+    let query = QueryWrapper.create<RoomModel>(ref);
 
     // Apply filters for exact matches
     if (params.ownerId != null) {
@@ -131,7 +131,7 @@ export class RoomSearchService {
       query = query.where("acceptGender", "==", params.acceptGender);
     }
     if (params.acceptOccupation != null) {
-      query = query.where("acceptGender", "==", params.acceptGender);
+      query = query.where("acceptOccupation", "==", params.acceptOccupation);
     }
     if (params.landmark != null) {
       query = query.where("landmark", "==", params.landmark);
@@ -152,10 +152,10 @@ export class RoomSearchService {
       query = query.where("pricePerOccupant", "<=", params.highPrice);
     }
     if (params.createdOn != null) {
-      query = query.where(SchemaFields.CREATED_ON, ">=", params.createdOn);
+      query = query.where("createdOn", ">=", params.createdOn);
     }
     if (params.lastModifiedOn != null) {
-      query = query.where(SchemaFields.LAST_MODIFIED_ON, ">=", params.lastModifiedOn);
+      query = query.where("lastModifiedOn", ">=", params.lastModifiedOn);
     }
 
     // Only available rooms
@@ -165,15 +165,14 @@ export class RoomSearchService {
     if (sortOn != null) {
       const fieldToSort = RoomSearchService.getFieldToSort(sortOn);
       if (fieldToSort != null) {
-        const direction = sortOrder === RoomSortOrder.DESCENDING ? "desc" : "asc";
-        query = query.orderBy(fieldToSort, direction);
+        query = query.orderBy(fieldToSort, sortOrder ?? RoomSortOrder.ASCENDING);
       }
     } else {
       // Default sorting by lastModifiedOn
-      query = query.orderBy(SchemaFields.LAST_MODIFIED_ON, "desc");
+      query = query.orderBy("lastModifiedOn", RoomSortOrder.DESCENDING);
     }
 
-    return query;
+    return query.getQuery();
   }
 
   // Helper function to get the field to sort by
@@ -254,26 +253,19 @@ export class RoomSearchService {
     for (let tag of searchTags) {
       tag = tag.toLowerCase();
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (queryableRoomData.landmark?.includes(tag)) {
+      if (queryableRoomData.landmark.includes(tag)) {
         return { hasMatch: true, priority: 1 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.city?.includes(tag)) {
+      } else if (queryableRoomData.city.includes(tag)) {
         return { hasMatch: true, priority: 2 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.state?.includes(tag)) {
+      } else if (queryableRoomData.state.includes(tag)) {
         return { hasMatch: true, priority: 3 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.address?.includes(tag)) {
+      } else if (queryableRoomData.address.includes(tag)) {
         return { hasMatch: true, priority: 4 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.searchTags?.some((t) => t.includes(tag))) {
+      } else if (queryableRoomData.searchTags.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 5 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.majorTags?.some((t) => t.includes(tag))) {
+      } else if (queryableRoomData.majorTags.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 6 };
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      } else if (queryableRoomData.minorTags?.some((t) => t.includes(tag))) {
+      } else if (queryableRoomData.minorTags.some((t) => t.includes(tag))) {
         return { hasMatch: true, priority: 7 };
       }
     }
