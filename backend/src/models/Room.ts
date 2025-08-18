@@ -2,7 +2,7 @@ import { AcceptGender, AcceptOccupation } from "sharedtypes";
 import { MultiSizePhotoModel } from "./types";
 
 export interface RoomModel {
-  id: string;
+  // Set via API
   ownerId: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
@@ -15,13 +15,16 @@ export interface RoomModel {
   minorTags?: string[];
   capacity: number;
   pricePerOccupant: number;
-  // Set later on
-  images?: MultiSizePhotoModel[];
-  isUnavailable?: boolean;
-  // 0 to 5
+  // Initialized on create
+  id: string;
   rating: number;
+  isUnavailable: boolean;
+  // Set thru update
+  images?: MultiSizePhotoModel[];
   // AutoSetFields
   createdOn: FirebaseFirestore.Timestamp;
   lastModifiedOn: FirebaseFirestore.Timestamp;
   ttl?: FirebaseFirestore.Timestamp;
 }
+
+export type RoomReadOnlyFields = "id" | "ownerId" | "acceptGender";

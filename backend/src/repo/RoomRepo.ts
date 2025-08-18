@@ -12,7 +12,8 @@ import Booking from "@/models/Booking";
 import pickObjProps from "@/utils/pickObjProps";
 import { DateTransformer } from "@/dataTransformers/DateTransformer";
 import { RoomTransformer } from "@/services/Room/RoomTransformer";
-import { RoomModel } from "@/models/Room";
+import { RoomModel, RoomReadOnlyFields } from "@/models/Room";
+import { QueryWrapper } from "@/types/QueryWrapper";
 
 export class RoomRepo {
   /**
@@ -21,17 +22,21 @@ export class RoomRepo {
   static async create(roomData: RoomPostReqBodyOmitFilesDTO): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
-    const querySnapshot = await FirebaseFirestore.collection(FirestorePaths.ROOMS)
+    const querySnapshot = await QueryWrapper.create<RoomModel>(ref)
       .where("ownerId", "==", roomData.ownerId)
+      .where("acceptGender", "==", roomData.acceptGender)
+      .where("acceptOccupation", "==", roomData.acceptOccupation)
+      .where("landmark", "==", roomData.landmark)
       .where("address", "==", roomData.address)
       .where("city", "==", roomData.city)
       .where("state", "==", roomData.state)
       .where("capacity", "==", roomData.capacity)
       .where("pricePerOccupant", "==", roomData.pricePerOccupant)
+      .getQuery()
       .get();
 
     if (!querySnapshot.empty) {
-      throw CustomApiError.create(409, "Room w/ same address, price and capacity already exists");
+      throw CustomApiError.create(409, "Similar room already exists");
     }
 
     // for safety, ensure only the acceptable fields are present
@@ -55,19 +60,20 @@ export class RoomRepo {
     roomData.majorTags = Array.from(new Set(roomData.majorTags));
     roomData.minorTags = Array.from(new Set(roomData.minorTags));
 
-    const createData = {
+    const docRef = ref.doc();
+    const createData: RoomModel = {
+      // room data from controller
       ...roomData,
-      // Intialise
+      // intialise
+      id: docRef.id,
       rating: 0,
       isUnavailable: false,
-      // Add auto fields
-      createdOn: FieldValue.serverTimestamp(),
-      lastModifiedOn: FieldValue.serverTimestamp(),
+      // Add auto fields (cast as Timestamp for typesafety)
+      createdOn: FieldValue.serverTimestamp() as unknown as Timestamp,
+      lastModifiedOn: FieldValue.serverTimestamp() as unknown as Timestamp,
     };
 
-    const docRef = await ref.add(createData);
-    // add the id to room model
-    await docRef.update({ id: docRef.id });
+    await docRef.set(createData);
     return docRef.id;
   }
 
@@ -76,7 +82,7 @@ export class RoomRepo {
    */
   static async update(
     roomId: string,
-    updateData: Partial<Omit<RoomModel, AutoSetFields | "isUnavailable" | "ownerId" | "acceptGender">>
+    updateData: Partial<Omit<RoomModel, AutoSetFields | RoomReadOnlyFields | "isUnavailable">>
   ): Promise<void> {
     // for safety, ensure only the acceptable fields are present
     updateData = pickObjProps(updateData, [
