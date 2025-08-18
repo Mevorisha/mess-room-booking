@@ -21,7 +21,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   const { type } = RequestValidationParser.parse({
     req,
     method: "POST",
-    params: z.object({ type: RequestValidationParser.CommonSchema.LOG_TYPE }),
+    params: z.object({ type: RequestValidationParser.CommonSchema.ENUM_LOGTYPE }),
   });
 
   const bodyResult = LogPostReqBodyDTO.fromJson(req.body);

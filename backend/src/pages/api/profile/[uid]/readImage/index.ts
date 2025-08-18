@@ -22,7 +22,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
     method: "GET",
     params: z.object({
       uid: RequestValidationParser.CommonSchema.UID,
-      size: RequestValidationParser.CommonSchema.IMAGE_SIZE,
+      size: RequestValidationParser.CommonSchema.ENUM_IMGSIZE,
       b64: RequestValidationParser.CommonSchema.OPTIONAL_BOOL,
     }),
   });
