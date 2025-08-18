@@ -58,7 +58,9 @@ export class RoomRepo {
     // remove duplicate tags
     roomData.searchTags = Array.from(new Set(roomData.searchTags));
     roomData.majorTags = Array.from(new Set(roomData.majorTags));
-    roomData.minorTags = Array.from(new Set(roomData.minorTags));
+    if (roomData.minorTags != null) {
+      roomData.minorTags = Array.from(new Set(roomData.minorTags));
+    }
 
     const docRef = ref.doc();
     const createData: RoomModel = {
@@ -99,6 +101,17 @@ export class RoomRepo {
       "capacity",
       "pricePerOccupant",
     ]);
+
+    // remove duplicate tags
+    if (updateData.searchTags != null) {
+      updateData.searchTags = Array.from(new Set(updateData.searchTags));
+    }
+    if (updateData.majorTags != null) {
+      updateData.majorTags = Array.from(new Set(updateData.majorTags));
+    }
+    if (updateData.minorTags != null) {
+      updateData.minorTags = Array.from(new Set(updateData.minorTags));
+    }
 
     const ref = FirestorePaths.Rooms(roomId);
 
