@@ -8,7 +8,7 @@ import { resizeImageOneSz } from "@/utils/dataConversion";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { MultiSizePhotoModel } from "@/models/types";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { RoomPhotoUploadDTO, RoomPostReqBodyDTO } from "sharedtypes";
+import { MultiSizeImageSz, RoomPhotoUploadDTO, RoomPostReqBodyDTO } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType, IdentityType } from "sharedtypes/dist/types/typeEnums";
 import { RoomRepo } from "@/repo/RoomRepo";
@@ -61,9 +61,9 @@ async function uploadRoomImages(files: RoomPhotoUploadDTO[], roomId: string): Pr
       const imageId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
       // Create file paths
       const filePaths = {
-        small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "small"),
-        medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "medium"),
-        large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, "large"),
+        small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
+        medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),
+        large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.LARGE),
       };
       // Upload all sizes for this image
       await Promise.all([
@@ -130,7 +130,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   if (postResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", postResult.error);
   }
-  const  files = postResult.value.getFiles();
+  const files = postResult.value.getFiles();
 
   // Create the room in the database first
   const roomId = await RoomRepo.create(postResult.value.omitFiles());

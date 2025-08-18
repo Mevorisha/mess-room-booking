@@ -5,7 +5,7 @@ import { Database, getDatabase } from "firebase-admin/database";
 import { CollectionReference, DocumentReference, Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "../config/env";
-import { MultiSizeImageSz } from "sharedtypes";
+import { DocType, MultiSizeImageSz } from "sharedtypes";
 
 let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;
@@ -99,10 +99,10 @@ class StoragePaths {
   };
 
   static IdentityDocuments = {
-    gsBucket: (uid: string, type: "WORK_ID" | "GOV_ID", w: number, h: number): string =>
+    gsBucket: (uid: string, type: DocType, w: number, h: number): string =>
       `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${w}/${h}`,
 
-    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz, b64 = true): string =>
+    apiUri: (uid: string, type: DocType, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
   };
 

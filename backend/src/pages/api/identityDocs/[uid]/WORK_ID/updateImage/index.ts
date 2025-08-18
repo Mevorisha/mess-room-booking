@@ -10,6 +10,7 @@ import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
 import { MultiSizePhotoModel } from "@/models/types";
 import { IdentityRepo } from "@/repo/IdentityRepo";
+import { DocType } from "sharedtypes";
 
 export const config = {
   api: {
@@ -47,7 +48,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Create upload promise and get image paths
   const imagePaths: MultiSizePhotoModel = { small: "", medium: "", large: "" };
   const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-    const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "WORK_ID", imgWithSz.sz, imgWithSz.sz);
+    const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, imgWithSz.sz, imgWithSz.sz);
     imagePaths[size as keyof typeof imagePaths] = filePath;
     const fileRef = bucket.file(filePath);
     // always save jpeg for consistency and security

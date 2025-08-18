@@ -10,7 +10,11 @@ interface ConstructorParams {
   large: string;
 }
 
-export type MultiSizeImageSz = keyof ConstructorParams;
+export enum MultiSizeImageSz {
+  SMALL = "small",
+  MEDIUM = "medium",
+  LARGE = "large",
+}
 
 export class MultiSizePhotoDTO extends ADataTransferObj {
   @IsString()

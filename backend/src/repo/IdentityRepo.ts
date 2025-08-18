@@ -3,9 +3,11 @@ import { IdentityModel, IdentityPhotosModel } from "@/models/Identity";
 import {
   ApiResponseUrlType,
   AutoSetFields,
+  DocType,
   IdentityGetResBodyNoAuthDTO,
   IdentityGetResBodyWithAuthDTO,
   IdentityPostReqBodyDTO,
+  MultiSizeImageSz,
 } from "sharedtypes";
 import { FieldValue } from "firebase-admin/firestore";
 import { MultiSizePhotoModel } from "@/models/types";
@@ -98,21 +100,21 @@ function imgConvertGsPathToApiUri<
   // convert image paths in profile photos to URLs
   if (dataToUpdate.profilePhotos != null) {
     dataToUpdate.profilePhotos = {
-      small: StoragePaths.ProfilePhotos.apiUri(uid, "small"),
-      medium: StoragePaths.ProfilePhotos.apiUri(uid, "medium"),
-      large: StoragePaths.ProfilePhotos.apiUri(uid, "large"),
+      small: StoragePaths.ProfilePhotos.apiUri(uid, MultiSizeImageSz.SMALL),
+      medium: StoragePaths.ProfilePhotos.apiUri(uid, MultiSizeImageSz.MEDIUM),
+      large: StoragePaths.ProfilePhotos.apiUri(uid, MultiSizeImageSz.LARGE),
     };
   }
   if (dataToUpdate.identityPhotos != null) {
     const workId = {
-      small: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "small"),
-      medium: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "medium"),
-      large: StoragePaths.IdentityDocuments.apiUri(uid, "WORK_ID", "large"),
+      small: StoragePaths.IdentityDocuments.apiUri(uid, DocType.WORK_ID, MultiSizeImageSz.SMALL),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, DocType.WORK_ID, MultiSizeImageSz.MEDIUM),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, DocType.WORK_ID, MultiSizeImageSz.LARGE),
     };
     const govId = {
-      small: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "small"),
-      medium: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "medium"),
-      large: StoragePaths.IdentityDocuments.apiUri(uid, "GOV_ID", "large"),
+      small: StoragePaths.IdentityDocuments.apiUri(uid, DocType.GOV_ID, MultiSizeImageSz.SMALL),
+      medium: StoragePaths.IdentityDocuments.apiUri(uid, DocType.GOV_ID, MultiSizeImageSz.MEDIUM),
+      large: StoragePaths.IdentityDocuments.apiUri(uid, DocType.GOV_ID, MultiSizeImageSz.LARGE),
     };
     const ids: { workId?: MultiSizePhotoModel; govId?: MultiSizePhotoModel } = {};
     if (dataToUpdate.identityPhotos.workId != null) ids.workId = workId;

@@ -19,6 +19,11 @@ export enum DocVisibility {
   PUBLIC = "PUBLIC",
 }
 
+export enum DocType {
+  WORK_ID = "WORK_ID",
+  GOV_ID = "GOV_ID",
+}
+
 export enum AcceptGender {
   MALE = "MALE",
   FEMALE = "FEMALE",
