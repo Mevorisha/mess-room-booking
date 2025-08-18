@@ -1,15 +1,11 @@
 import { FirestorePaths } from "@/firebase/init";
-
-export interface RoomRatingsData {
-  roomId: string;
-  ratingOn5: number;
-}
+import { RoomRatingsModel } from "@/models/Room";
 
 function mkCompositeKey(uid: string, roomId: string) {
   return `${uid}:${roomId}`;
 }
 
-class RoomRatings {
+export class RoomRatingsService {
   /**
    * Add a new log
    */
@@ -25,9 +21,8 @@ class RoomRatings {
     const ref = FirestorePaths.RoomRatings().doc(mkCompositeKey(uid, roomId));
     const doc = await ref.get();
     if (!doc.exists) return null;
-    const data = doc.data() as RoomRatingsData;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions
-    if (!data) return null;
+    const data = doc.data() as RoomRatingsModel | null;
+    if (data == null) return null;
     return data.ratingOn5;
   }
 
@@ -43,9 +38,8 @@ class RoomRatings {
     const snapshot = await collRef.where("roomId", "==", roomId).get();
     if (snapshot.empty) return result;
     snapshot.forEach((doc) => {
-      const data = doc.data() as RoomRatingsData;
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions, @typescript-eslint/no-unnecessary-condition
-      if (data && typeof data.ratingOn5 === "number") {
+      const data = doc.data() as RoomRatingsModel | null;
+      if (data != null && typeof data.ratingOn5 === "number") {
         // Extract uid from the composite key
         const compositeKey = doc.id;
         const uid = compositeKey.split(":")[0];
@@ -57,10 +51,8 @@ class RoomRatings {
 
   static async getAvgForRoom(roomId: string): Promise<number> {
     // Only include valid ratings (1-5)
-    const ratings = Array.from((await RoomRatings.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
+    const ratings = Array.from((await RoomRatingsService.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
     if (ratings.length === 0) return 0;
     return ratings.reduce((acc, r) => acc + r, 0) / ratings.length;
   }
 }
-
-export default RoomRatings;

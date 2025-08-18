@@ -1,4 +1,4 @@
-import { RoomSortOrder } from "@/services/Room/RoomSearch";
+import { RoomSortOrder } from "@/services/Room/RoomSearchService";
 import { CollectionReference, Query, WhereFilterOp } from "firebase-admin/firestore";
 
 type FirestoreField<T> = Extract<keyof T, string>;

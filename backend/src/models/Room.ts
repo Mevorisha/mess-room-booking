@@ -28,3 +28,8 @@ export interface RoomModel {
 }
 
 export type RoomReadOnlyFields = "id" | "ownerId" | "acceptGender";
+
+export interface RoomRatingsModel {
+  roomId: string;
+  ratingOn5: number;
+}
