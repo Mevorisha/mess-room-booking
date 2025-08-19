@@ -4,6 +4,7 @@ import formidable from "formidable";
 import IncomingForm from "formidable/Formidable";
 import PersistentFile from "formidable/PersistentFile";
 import { CustomApiError } from "@/types/CustomApiError";
+import FormParseResult from "@/types/FormParseResult";
 
 interface ImageUploadData {
   filename?: string;
@@ -16,16 +17,11 @@ export class RequestImageBodyParser {
     // Parse form data
     const form: IncomingForm = formidable({ multiples: true });
 
-    interface FormParseResult {
-      err?: Error;
-      _files: formidable.Files<"file">;
-    }
-
     const formParseResult = await new Promise<FormParseResult>((resolve, _) =>
-      form.parse(req, (err: Error, _, _files: formidable.Files<"file">) => void resolve({ err, _files }))
+      form.parse(req, (err, fields, files) => void resolve({ err, fields, files }))
     );
 
-    const { err, _files } = formParseResult;
+    const { err, files: _files } = formParseResult;
     const files = _files as unknown as Record<string, PersistentFile[]> | null;
 
     if (err != null) {

@@ -1,8 +1,7 @@
 import formidable from "formidable";
 
 export default interface FormParseResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  err: any;
+  err: unknown;
   fields: formidable.Fields<string>;
   files: formidable.Files<"file">;
 }
