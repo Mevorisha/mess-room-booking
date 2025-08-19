@@ -55,19 +55,19 @@ export class RoomSearchService {
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner?: false; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
+    options?: { isOwner?: false; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
   ): Promise<RoomGetResBodyNotOwnerDTO[]>;
 
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner: true; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
+    options?: { isOwner: true; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
   ): Promise<RoomGetResBodyOwnerDTO[]>;
 
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner?: boolean; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
+    options?: { isOwner?: boolean; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
   ): Promise<RoomGetResBodyNotOwnerDTO[] | RoomGetResBodyOwnerDTO[]> {
     // 1. QUERY - Build and execute Firestore query
     const query = RoomSearchService.buildFirestoreQuery(params, options?.sortOn, options?.sortOrder);
@@ -82,7 +82,7 @@ export class RoomSearchService {
     const stringDateModels = modelsWithImg.map((model) => DateTransformer.transform(model));
     // 5. CONVERT INTO DTO AND RETURN
     if (options?.isOwner ?? false) {
-      const roomResults = stringDateModels.map((model) => RoomGetResBodyNotOwnerDTO.fromJson(model));
+      const roomResults = stringDateModels.map((model) => RoomGetResBodyOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
       if (roomDTOs.length === 0) {
@@ -94,7 +94,7 @@ export class RoomSearchService {
       }
       return roomDTOs;
     } else {
-      const roomResults = stringDateModels.map((model) => RoomGetResBodyOwnerDTO.fromJson(model));
+      const roomResults = stringDateModels.map((model) => RoomGetResBodyNotOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
       if (roomDTOs.length === 0) {
