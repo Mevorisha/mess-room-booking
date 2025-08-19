@@ -86,9 +86,15 @@ const QuerySchema = z.object({
  *     minorTags: string[]
  *     capacity: number
  *     pricePerOccupant: number
- *     isUnavailable?: boolean (only included when self=true)
- *     isDeleted?: boolean (only included when self=true)
- *     ttl?: string (only included when self=true)
+ *     rating: number
+ *
+ * < The following need authentication >
+ *
+ *     isUnavailable: boolean
+ *     createdOn: string (ISO date)
+ *     lastModifiedOn: string (ISO date)
+ *     ttl?: string (ISO date)
+ *     isDeleted: boolean
  *   }>
  * }
  * ```
@@ -197,7 +203,7 @@ function paginateResults(rooms: OneRoomEntry[], page: number) {
   const startIndex = (validPage - 1) * PAGE_SIZE;
   const endIndex = Math.min(startIndex + PAGE_SIZE, totalRooms);
 
-  const paginatedRooms = rooms.slice(startIndex, endIndex).map((room) => ({ ...room }));
+  const paginatedRooms = rooms.slice(startIndex, endIndex).map((dto) => dto.toJSON());
 
   return {
     currentPage: validPage,

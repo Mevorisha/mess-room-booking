@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { ApiResponseUrlType, IdentityGetResBodyNoAuthDTO, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
+import { ApiResponseUrlType } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
@@ -29,8 +29,8 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
  *
  * < The following need authentication >
  *
- *   email?: string
- *   type?: IdentityType
+ *   email: string
+ *   type: IdentityType
  *   language?: Language
  *   identityPhotos?: {
  *     workId?: {
@@ -46,8 +46,10 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
  *     workIdIsPrivate?: boolean
  *     govIdIsPrivate?: boolean
  *   }
- *   createdOn?: string (ISO date)
- *   lastModifiedOn?: string (ISO date)
+ *   createdOn: string (ISO date)
+ *   lastModifiedOn: string (ISO date)
+ *   ttl?: string (ISO date)
+ *   isDeleted: boolean
  * }
  * ```
  */
@@ -69,8 +71,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
       if (result == null) {
         throw CustomApiError.create(404, "User not found");
       }
-      const json = IdentityGetResBodyWithAuthDTO.toJson(result);
-      return respond(res, { status: 200, json });
+      return respond(res, { status: 200, dto: result });
     }
   }
 
@@ -78,6 +79,5 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (result == null) {
     throw CustomApiError.create(404, "User not found");
   }
-  const json = IdentityGetResBodyNoAuthDTO.toJson(result);
-  return respond(res, { status: 200, json });
+  return respond(res, { status: 200, dto: result });
 });
