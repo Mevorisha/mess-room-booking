@@ -19,19 +19,19 @@ export class RoomRepo {
   /**
    * Create a new room document
    */
-  static async create(roomData: RoomPostReqBodyOmitFilesDTO): Promise<string> {
+  static async create(dto: RoomPostReqBodyOmitFilesDTO): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
 
     const querySnapshot = await QueryWrapper.create<RoomModel>(ref)
-      .where("ownerId", "==", roomData.ownerId)
-      .where("acceptGender", "==", roomData.acceptGender)
-      .where("acceptOccupation", "==", roomData.acceptOccupation)
-      .where("landmark", "==", roomData.landmark)
-      .where("address", "==", roomData.address)
-      .where("city", "==", roomData.city)
-      .where("state", "==", roomData.state)
-      .where("capacity", "==", roomData.capacity)
-      .where("pricePerOccupant", "==", roomData.pricePerOccupant)
+      .where("ownerId", "==", dto.ownerId)
+      .where("acceptGender", "==", dto.acceptGender)
+      .where("acceptOccupation", "==", dto.acceptOccupation)
+      .where("landmark", "==", dto.landmark)
+      .where("address", "==", dto.address)
+      .where("city", "==", dto.city)
+      .where("state", "==", dto.state)
+      .where("capacity", "==", dto.capacity)
+      .where("pricePerOccupant", "==", dto.pricePerOccupant)
       .getQuery()
       .get();
 
@@ -40,7 +40,7 @@ export class RoomRepo {
     }
 
     // for safety, ensure only the acceptable fields are present
-    roomData = pickObjProps(roomData, [
+    const roomData = pickObjProps(dto, [
       "ownerId",
       "acceptGender",
       "acceptOccupation",
