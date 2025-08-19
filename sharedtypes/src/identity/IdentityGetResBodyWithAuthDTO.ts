@@ -52,9 +52,8 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @IsDateString()
   ttl?: string;
 
-  @IsOptional()
   @IsBoolean()
-  isDeleted: boolean;
+  isDeleted = false;
 
   private constructor(data: ConstructorParams) {
     const { email, type, identityPhotos, language, createdOn, lastModifiedOn, ttl, ...noAuthData } = data;
@@ -84,9 +83,5 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
       return Result.err(buildFieldResult.error);
     }
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
-  }
-
-  static override toJson(obj: IdentityGetResBodyWithAuthDTO): NetworkType {
-    return ADataTransferObj._toJson(obj);
   }
 }

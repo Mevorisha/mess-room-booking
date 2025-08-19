@@ -41,7 +41,7 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
   ttl?: string;
 
   @IsBoolean()
-  isDeleted: boolean;
+  isDeleted = false;
 
   private constructor(data: ConstructorParams) {
     const { isUnavailable, ttl, ...notOwnerData } = data;
@@ -61,9 +61,5 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
     }
 
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
-  }
-
-  static override toJson(dto: RoomGetResBodyOwnerDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
   }
 }

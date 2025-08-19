@@ -28,8 +28,4 @@ export class LogPostReqBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<LogPostReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: LogPostReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

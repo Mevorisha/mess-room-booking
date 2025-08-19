@@ -31,8 +31,4 @@ export class RoomPhotoUploadDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<RoomPhotoUploadDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: RoomPhotoUploadDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

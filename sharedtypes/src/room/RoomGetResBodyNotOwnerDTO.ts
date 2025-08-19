@@ -149,8 +149,4 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
 
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: RoomGetResBodyNotOwnerDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

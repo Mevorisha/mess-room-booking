@@ -45,10 +45,6 @@ export class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<ProfilePatchLanguageReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.LANGUAGE>));
   }
-
-  static override toJson(dto: ProfilePatchLanguageReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
 
 /**
@@ -65,10 +61,6 @@ export class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
 
   static override fromJson(json: NetworkType): Result<ProfilePatchMobileReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.MOBILE>));
-  }
-
-  static override toJson(dto: ProfilePatchMobileReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
   }
 }
 
@@ -93,10 +85,6 @@ export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<ProfilePatchNameReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.NAME>));
   }
-
-  static override toJson(dto: ProfilePatchNameReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
 
 /**
@@ -113,10 +101,6 @@ export class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
 
   static override fromJson(json: NetworkType): Result<ProfilePatchTypeReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<ProfilePatchParams.TYPE>));
-  }
-
-  static override toJson(dto: ProfilePatchTypeReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
   }
 }
 

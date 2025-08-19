@@ -23,8 +23,4 @@ export class IdentityPostReqBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<IdentityPostReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: IdentityPostReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

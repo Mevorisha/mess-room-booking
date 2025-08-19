@@ -4,13 +4,13 @@ import { Result } from "@/types/Result";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { validateSync } from "class-validator";
 
-export abstract class ADataTransferObj {
-  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
-    throw new Error("Unimplemented");
-  }
+interface ISerializable {
+  toJSON(): NetworkType;
+}
 
-  static toJson(_: ADataTransferObj): unknown {
-    throw new Error("Unimplemented");
+export abstract class ADataTransferObj implements ISerializable {
+  toJSON(): NetworkType {
+    return instanceToPlain(this);
   }
 
   protected static _fromJson<T extends ADataTransferObj>(dto: T): Result<T, DtoValidationError> {
@@ -30,9 +30,10 @@ export abstract class ADataTransferObj {
     }
   }
 
-  protected static _toJson<T extends ADataTransferObj>(dto: T): NetworkType {
-    return instanceToPlain(dto);
+  static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
+    throw new Error("Unimplemented");
   }
+
   /**
    * Processes and validates nested DTO fields in a JSON object.
    * Automatically detects and handles both single objects and arrays of objects.

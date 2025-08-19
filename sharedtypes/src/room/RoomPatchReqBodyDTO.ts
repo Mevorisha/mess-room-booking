@@ -186,10 +186,6 @@ export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
     }
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<RoomPatchParams.BASE_PARAMS>));
   }
-
-  static override toJson(dto: RoomPatchParamsReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
 
 /**
@@ -209,10 +205,6 @@ export class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<RoomPatchRatingReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<RoomPatchParams.RATING>));
   }
-
-  static override toJson(dto: RoomPatchRatingReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
 
 /**
@@ -229,10 +221,6 @@ export class RoomPatchIsUnavailableReqBodyDTO extends ADataTransferObj {
 
   static override fromJson(json: NetworkType): Result<RoomPatchIsUnavailableReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<RoomPatchParams.IS_UNAVAILABLE>));
-  }
-
-  static override toJson(dto: RoomPatchIsUnavailableReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
   }
 }
 

@@ -117,10 +117,6 @@ export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyOmitFilesDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams<"nofiles">));
   }
-
-  static override toJson(dto: RoomPostReqBodyOmitFilesDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
 
 export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
@@ -140,10 +136,6 @@ export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
       throw buildResult.error;
     }
     return ADataTransferObj._fromJson(new this(json as ConstructorParams<"files">));
-  }
-
-  static override toJson(dto: RoomPostReqBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
   }
 
   getFiles(): RoomPhotoUploadDTO[] {

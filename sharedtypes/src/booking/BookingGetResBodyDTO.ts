@@ -139,8 +139,4 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<BookingGetResBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: BookingGetResBodyDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

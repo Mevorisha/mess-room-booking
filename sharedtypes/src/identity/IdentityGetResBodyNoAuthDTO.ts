@@ -65,8 +65,4 @@ export class IdentityGetResBodyNoAuthDTO extends ADataTransferObj {
 
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: IdentityGetResBodyNoAuthDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

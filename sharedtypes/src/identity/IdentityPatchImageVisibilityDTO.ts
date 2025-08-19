@@ -21,8 +21,4 @@ export class IdentityPatchImageVisibilityDTO extends ADataTransferObj {
   static override fromJson(json: NetworkType): Result<IdentityPatchImageVisibilityDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: IdentityPatchImageVisibilityDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }

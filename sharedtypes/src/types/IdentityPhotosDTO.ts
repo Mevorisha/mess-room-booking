@@ -61,8 +61,4 @@ export class IdentityPhotosDTO extends ADataTransferObj {
 
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
-
-  static override toJson(dto: IdentityPhotosDTO): NetworkType {
-    return ADataTransferObj._toJson(dto);
-  }
 }
