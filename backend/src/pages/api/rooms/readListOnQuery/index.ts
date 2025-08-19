@@ -189,7 +189,6 @@ function generateCacheKey(req: NextApiRequest): string {
 /**
  * Paginates the results based on the requested page
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function paginateResults(rooms: OneRoomEntry[], page: number) {
   const totalRooms = rooms.length;
   const totalPages = Math.ceil(totalRooms / PAGE_SIZE);
