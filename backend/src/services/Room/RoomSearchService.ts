@@ -3,6 +3,8 @@ import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
 import { RoomModel } from "@/models/Room";
 import { CustomApiError } from "@/types/CustomApiError";
 import {
+  QuerySortOrder,
+  RoomSortFields,
   AcceptGender,
   AcceptOccupation,
   ApiResponseUrlType,
@@ -13,32 +15,22 @@ import { RoomTransformer } from "./RoomTransformer";
 import { Timestamp } from "firebase-admin/firestore";
 import { QueryWrapper } from "@/types/QueryWrapper";
 
+// prettier-ignore
 export type RoomSearchParams = Partial<{
-  ownerId: string;
-  acceptGender: AcceptGender;
-  acceptOccupation: AcceptOccupation;
-  landmark: string;
-  city: string;
-  state: string;
-  capacity: number;
-  lowPrice: number;
-  highPrice: number;
-  searchTags: Set<string>;
-  // probably not used
-  createdOn: FirebaseFirestore.Timestamp;
-  lastModifiedOn: FirebaseFirestore.Timestamp;
+  ownerId: string                    | undefined;
+  acceptGender: AcceptGender         | undefined;
+  acceptOccupation: AcceptOccupation | undefined;
+  landmark: string                   | undefined;
+  city: string                       | undefined;
+  state: string                      | undefined;
+  capacity: number                   | undefined;
+  lowPrice: number                   | undefined;
+  highPrice: number                  | undefined;
+  searchTags: Set<string>            | undefined;
+  // probably not use | undefinedd
+  createdOn: FirebaseFirestore.Timestamp      | undefined;
+  lastModifiedOn: FirebaseFirestore.Timestamp | undefined;
 }>;
-
-export enum RoomSortFields {
-  CAPACITY = "capacity",
-  RATING = "rating",
-  PRICE_PER_OCCUPANT = "pricePerOccupant",
-}
-
-export enum RoomSortOrder {
-  ASCENDING = "ascending",
-  DESCENDING = "descending",
-}
 
 interface RoomModelWithSortPrio {
   model: RoomModel;
@@ -63,19 +55,19 @@ export class RoomSearchService {
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner?: false; sortOn?: RoomSortFields; sortOrder?: RoomSortOrder }
+    options?: { isOwner?: false; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
   ): Promise<RoomGetResBodyNotOwnerDTO[]>;
 
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner: true; sortOn?: RoomSortFields; sortOrder?: RoomSortOrder }
+    options?: { isOwner: true; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
   ): Promise<RoomGetResBodyOwnerDTO[]>;
 
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner?: boolean; sortOn?: RoomSortFields; sortOrder?: RoomSortOrder }
+    options?: { isOwner?: boolean; sortOn?: RoomSortFields; sortOrder?: QuerySortOrder }
   ): Promise<RoomGetResBodyNotOwnerDTO[] | RoomGetResBodyOwnerDTO[]> {
     // 1. QUERY - Build and execute Firestore query
     const query = RoomSearchService.buildFirestoreQuery(params, options?.sortOn, options?.sortOrder);
@@ -119,7 +111,7 @@ export class RoomSearchService {
   // ----------------------------------------------- PRIVATE HELPER FUNCTIONS ----------------------------------------------------
 
   // Helper function to build Firestore query
-  private static buildFirestoreQuery(params: RoomSearchParams, sortOn?: RoomSortFields, sortOrder?: RoomSortOrder) {
+  private static buildFirestoreQuery(params: RoomSearchParams, sortOn?: RoomSortFields, sortOrder?: QuerySortOrder) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     let query = QueryWrapper.create<RoomModel>(ref);
 
@@ -165,11 +157,11 @@ export class RoomSearchService {
     if (sortOn != null) {
       const fieldToSort = RoomSearchService.getFieldToSort(sortOn);
       if (fieldToSort != null) {
-        query = query.orderBy(fieldToSort, sortOrder ?? RoomSortOrder.ASCENDING);
+        query = query.orderBy(fieldToSort, sortOrder ?? QuerySortOrder.ASCENDING);
       }
     } else {
       // Default sorting by lastModifiedOn
-      query = query.orderBy("lastModifiedOn", RoomSortOrder.DESCENDING);
+      query = query.orderBy("lastModifiedOn", QuerySortOrder.DESCENDING);
     }
 
     return query.getQuery();

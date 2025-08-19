@@ -8,6 +8,7 @@ import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { DocVisibility, IdentityPatchImageVisibilityDTO } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -20,7 +21,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { uid } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    params: z.object({ uid: RequestValidationParser.CommonSchema.UID }),
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 
   // Require authentication middleware

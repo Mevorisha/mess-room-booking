@@ -8,6 +8,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType, IdentityGetResBodyNoAuthDTO, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -54,9 +55,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   const { uid } = RequestValidationParser.parse({
     req,
     method: "GET",
-    params: z.object({
-      uid: RequestValidationParser.CommonSchema.UID,
-    }),
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 
   if (!(await RateLimits.PROFILE_READ(req, res))) return;

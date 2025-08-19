@@ -8,6 +8,7 @@ import HeaderTypes from "@/types/HeaderTypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType } from "sharedtypes";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -17,13 +18,13 @@ import { ApiResponseUrlType } from "sharedtypes";
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   // Extract query params from request
-  const { uid, size, b64 } = RequestValidationParser.parse({
+  const { uid, size, b64 = false } = RequestValidationParser.parse({
     req,
     method: "GET",
     params: z.object({
-      uid: RequestValidationParser.CommonSchema.UID,
-      size: RequestValidationParser.CommonSchema.ENUM_IMGSIZE,
-      b64: RequestValidationParser.CommonSchema.OPTIONAL_BOOL,
+      uid: CommonZodSchemas.Basic.UID,
+      size: CommonZodSchemas.Enum.IMGSIZE,
+      b64: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,
     }),
   });
 

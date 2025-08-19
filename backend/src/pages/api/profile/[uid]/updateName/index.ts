@@ -8,6 +8,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { ProfilePatchReqBodyDTO } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -22,7 +23,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { uid } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    params: z.object({ uid: RequestValidationParser.CommonSchema.UID }),
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 
   // Require authentication middleware

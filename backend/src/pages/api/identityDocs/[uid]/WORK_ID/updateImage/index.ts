@@ -11,6 +11,7 @@ import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
 import { MultiSizePhotoModel } from "@/models/types";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { DocType } from "sharedtypes";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 export const config = {
   api: {
@@ -30,9 +31,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   const { uid } = RequestValidationParser.parse({
     req,
     method: "PATCH",
-    params: z.object({
-      uid: RequestValidationParser.CommonSchema.UID,
-    }),
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 
   // Require authentication middleware

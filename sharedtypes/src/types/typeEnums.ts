@@ -41,3 +41,14 @@ export enum BookingStatus {
   REJECTED = "REJECTED",
   UNSET = "UNSET",
 }
+
+export enum RoomSortFields {
+  CAPACITY = "capacity",
+  RATING = "rating",
+  PRICE_PER_OCCUPANT = "pricePerOccupant",
+}
+
+export enum QuerySortOrder {
+  ASCENDING = "asc",
+  DESCENDING = "desc",
+}

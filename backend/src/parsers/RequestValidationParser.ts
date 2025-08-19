@@ -1,24 +1,10 @@
 import { NextApiRequest } from "next";
 import { CustomApiError } from "@/types/CustomApiError";
 import { z, ZodError } from "zod";
-import { LogType } from "@/models/Logs";
-import { MultiSizeImageSz } from "sharedtypes";
 
 export type MethodTypes = "POST" | "GET" | "PATCH" | "DELETE";
 
 export class RequestValidationParser {
-  static readonly CommonSchema = {
-    // primitive
-    UID: z.string().nonempty(),
-
-    // enum
-    ENUM_IMGSIZE: z.enum([MultiSizeImageSz.SMALL, MultiSizeImageSz.MEDIUM, MultiSizeImageSz.LARGE]),
-    ENUM_LOGTYPE: z.enum([LogType.INFO, LogType.WARN, LogType.ERROR]),
-
-    // optional
-    OPTIONAL_BOOL: z.boolean().optional().default(false),
-  };
-
   /**
    * Parses and validates query parameters from a Next.js API request
    * @param req - The Next.js API request object
