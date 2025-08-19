@@ -1,4 +1,4 @@
-import { RoomSortOrder } from "@/services/Room/RoomSearchService";
+import { QuerySortOrder } from "sharedtypes";
 import { CollectionReference, Query, WhereFilterOp } from "firebase-admin/firestore";
 
 type FirestoreField<T> = Extract<keyof T, string>;
@@ -19,8 +19,9 @@ export class QueryWrapper<T> {
     return this;
   }
 
-  orderBy<K extends FirestoreField<T>>(field: K, direction: RoomSortOrder = RoomSortOrder.ASCENDING): QueryWrapper<T> {
-    this.query = this.query.orderBy(field, direction === RoomSortOrder.ASCENDING ? "asc" : "desc");
+  // prettier-ignore
+  orderBy<K extends FirestoreField<T>>(field: K, direction: QuerySortOrder = QuerySortOrder.ASCENDING): QueryWrapper<T> {
+    this.query = this.query.orderBy(field, direction === QuerySortOrder.ASCENDING ? "asc" : "desc");
     return this;
   }
 
