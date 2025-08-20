@@ -33,7 +33,7 @@ type ConditionalParams<T extends ProfilePatchParams> = T extends ProfilePatchPar
 /**
  * LANGUAGE DTO
  */
-export class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
+class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
   @IsEnum(Language)
   language: Language;
 
@@ -50,7 +50,7 @@ export class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
 /**
  * MOBILE DTO
  */
-export class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
+class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
   @IsMobilePhone()
   mobile: string;
 
@@ -67,7 +67,7 @@ export class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
 /**
  * NAME DTO
  */
-export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
+class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -90,7 +90,7 @@ export class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
 /**
  * TYPE DTO
  */
-export class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
+class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
   @IsEnum(IdentityType)
   type: IdentityType;
 
