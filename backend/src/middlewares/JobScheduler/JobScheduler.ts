@@ -1,4 +1,4 @@
-import SchedulerTimes from "@/models/SchedulerTimes";
+import { JobSchedulerTimeDataRepo } from "@/repo/JobSchedulerTimeDataRepo";
 
 type TimeUnits = "ms" | "sec" | "min" | "hr" | "day" | "mon";
 
@@ -69,7 +69,7 @@ export default class JobScheduler {
 
     try {
       // Get all job run times in a single batch
-      const lastRunTimes = await SchedulerTimes.getAll();
+      const lastRunTimes = await JobSchedulerTimeDataRepo.getAll();
       // Create an array to hold all job execution promises
       const jobPromises: Promise<void>[] = [];
       // Process each job
@@ -85,7 +85,7 @@ export default class JobScheduler {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-call
               await job.jobFunction();
               // Update last run time in DB
-              await SchedulerTimes.set(jobId, currentTime);
+              await JobSchedulerTimeDataRepo.set(jobId, currentTime);
               console.log(`[I] [JobScheduler] ran Job[${jobId}]`);
             } catch (error) {
               console.error(`[E] [JobScheduler] failed Job[${jobId}]:`, error);

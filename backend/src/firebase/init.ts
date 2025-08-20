@@ -63,7 +63,7 @@ class FirestorePaths {
   static FEEDBACK = !config.IS_DEV ? "/fstr_Feedback" : "/preview_fstr_Feedback";
   static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
   static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
-  static SCHEDULER_TIMES = !config.IS_DEV ? "/fstr_SchedulerTimes" : "/preview_fstr_SchedulerTimes";
+  static SCHEDULER_TIMES = !config.IS_DEV ? "/fstr_JobScheduler" : "/preview_fstr_JobScheduler";
   static ROOM_RATINGS = !config.IS_DEV ? "/fstr_RoomRatings" : "/preview_fstr_RoomRatings";
 
   static Identity = (uid: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
@@ -77,7 +77,7 @@ class FirestorePaths {
   static Bookings = (bookingId: string): DocumentReference =>
     FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
 
-  static SchedulerTimes = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
+  static JobScheduler = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
 
   static RoomRatings = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.ROOM_RATINGS);
 }
