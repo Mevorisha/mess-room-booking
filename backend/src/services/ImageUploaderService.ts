@@ -1,7 +1,8 @@
 import { FirebaseStorage } from "@/firebase/init";
 import { MultiSizePhotoModel } from "@/models/types";
+import { ImageUploadData } from "@/parsers/RequestImageBodyParser";
 import { CustomApiError } from "@/types/CustomApiError";
-import { resizeImageOneSz } from "@/utils/dataConversion";
+import { resizeImage, resizeImageOneSz } from "@/utils/dataConversion";
 import { Base64PhotoUploadDTO } from "sharedtypes";
 
 export interface UploadTargets {
@@ -11,7 +12,35 @@ export interface UploadTargets {
 }
 
 export class ImageUploaderService {
-  static async upload(files: Base64PhotoUploadDTO[], targets: UploadTargets): Promise<MultiSizePhotoModel[]> {
+  static async upload(file: ImageUploadData, targets: UploadTargets): Promise<MultiSizePhotoModel>;
+  static async upload(files: Base64PhotoUploadDTO[], targets: UploadTargets): Promise<MultiSizePhotoModel[]>;
+
+  static async upload(
+    files: ImageUploadData | Base64PhotoUploadDTO[],
+    targets: UploadTargets
+  ): Promise<MultiSizePhotoModel | MultiSizePhotoModel[]> {
+    if (Array.isArray(files)) {
+      return ImageUploaderService.uploadB64(files, targets);
+    } else {
+      return ImageUploaderService.uploadStd(files, targets);
+    }
+  }
+
+  protected static async uploadStd(file: ImageUploadData, targets: UploadTargets): Promise<MultiSizePhotoModel> {
+    const bucket = FirebaseStorage.bucket();
+    const resizedImages = await resizeImage(file.buffer);
+    await Promise.all([
+      bucket.file(targets.small).save(resizedImages.small.img, { contentType: "image/jpeg" }),
+      bucket.file(targets.medium).save(resizedImages.medium.img, { contentType: "image/jpeg" }),
+      bucket.file(targets.large).save(resizedImages.large.img, { contentType: "image/jpeg" }),
+    ]);
+    return targets;
+  }
+
+  protected static async uploadB64(
+    files: Base64PhotoUploadDTO[],
+    targets: UploadTargets
+  ): Promise<MultiSizePhotoModel[]> {
     const bucket = FirebaseStorage.bucket();
     const imagePaths: MultiSizePhotoModel[] = [];
 
@@ -23,16 +52,17 @@ export class ImageUploaderService {
       const batchPromises = batch.map(async (file) => {
         // Validate each file before processing
         ImageUploaderService.validateImageFile(file);
-        const { type, base64 } = file;
+        const { base64 } = file;
         // Convert from b64 and resize images for different sizes
         const largeImgBuff = Buffer.from(base64, "base64");
         const mediumImgBuff = (await resizeImageOneSz<200>(largeImgBuff, 200)).img;
         const smallImgBuff = (await resizeImageOneSz<70>(largeImgBuff, 70)).img;
         // Upload all sizes for this image
         await Promise.all([
-          bucket.file(targets.small).save(smallImgBuff, { contentType: type }),
-          bucket.file(targets.medium).save(mediumImgBuff, { contentType: type }),
-          bucket.file(targets.large).save(largeImgBuff, { contentType: type }),
+          // always save jpeg for consistency and security
+          bucket.file(targets.small).save(smallImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(targets.medium).save(mediumImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(targets.large).save(largeImgBuff, { contentType: "image/jpeg" }),
         ]);
         return targets;
       });
@@ -46,7 +76,7 @@ export class ImageUploaderService {
   /**
    * Validates image file types and performs additional security checks
    */
-  static validateImageFile(file: Base64PhotoUploadDTO): void {
+  protected static validateImageFile(file: Base64PhotoUploadDTO): void {
     if (!/^image\/(jpeg|png|jpg)$/.test(file.type)) {
       throw CustomApiError.create(400, `Invalid file type '${file.type}'. Only jpeg, png and jpg are allowed.`);
     }

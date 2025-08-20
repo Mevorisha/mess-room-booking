@@ -92,15 +92,15 @@ class StoragePaths {
   static FEEDBACK_PHOTOS = !config.IS_DEV ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
 
   static ProfilePhotos = {
-    gsBucket: (uid: string, w: number, h: number): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`,
+    gsBucket: (uid: string, size: MultiSizeImageSz): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${size}`,
 
     apiUri: (uid: string, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.PROFILE}/${uid}/readImage?size=${size}&b64=${b64}`,
   };
 
   static IdentityDocuments = {
-    gsBucket: (uid: string, type: DocType, w: number, h: number): string =>
-      `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${w}/${h}`,
+    gsBucket: (uid: string, type: DocType, size: MultiSizeImageSz): string =>
+      `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${size}`,
 
     apiUri: (uid: string, type: DocType, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,

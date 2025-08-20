@@ -6,7 +6,7 @@ import PersistentFile from "formidable/PersistentFile";
 import { CustomApiError } from "@/types/CustomApiError";
 import FormParseResult from "@/types/FormParseResult";
 
-interface ImageUploadData {
+export interface ImageUploadData {
   filename?: string;
   mimetype?: string;
   buffer: Buffer<ArrayBufferLike>;

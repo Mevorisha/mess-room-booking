@@ -1,17 +1,16 @@
 import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { authenticate } from "@/middlewares/Auth";
-import { FirebaseStorage, StoragePaths } from "@/firebase/init";
-import { resizeImage } from "@/utils/dataConversion";
+import { StoragePaths } from "@/firebase/init";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
-import { MultiSizePhotoModel } from "@/models/types";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { DocType } from "sharedtypes";
+import { DocType, MultiSizeImageSz } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { ImageUploaderService } from "@/services/ImageUploaderService";
 
 export const config = {
   api: {
@@ -39,35 +38,15 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
-  const { buffer: fileBuffer } = await RequestImageBodyParser.parse(req);
-
-  const resizedImages = await resizeImage(fileBuffer);
-  const bucket = FirebaseStorage.bucket();
-
-  // Create upload promise and get image paths
-  const imagePaths: MultiSizePhotoModel = { small: "", medium: "", large: "" };
-  const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-    const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, imgWithSz.sz, imgWithSz.sz);
-    imagePaths[size as keyof typeof imagePaths] = filePath;
-    const fileRef = bucket.file(filePath);
-    // always save jpeg for consistency and security
-    return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
+  const imageUploadData = await RequestImageBodyParser.parse(req);
+  const imagePaths = await ImageUploaderService.upload(imageUploadData, {
+    small: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, MultiSizeImageSz.SMALL),
+    medium: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, MultiSizeImageSz.MEDIUM),
+    large: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, MultiSizeImageSz.LARGE),
   });
-
-  // Start upload
-  await Promise.all(uploadPromises);
 
   // Update Firestore with image paths
-  await IdentityRepo.update(uid, {
-    identityPhotos: {
-      workId: {
-        small: imagePaths.small,
-        medium: imagePaths.medium,
-        large: imagePaths.large,
-      },
-      workIdIsPrivate: true,
-    },
-  });
+  await IdentityRepo.update(uid, { identityPhotos: { workId: imagePaths, workIdIsPrivate: true } });
 
   return respond(res, { status: 200, message: "Upload successful" });
 });
