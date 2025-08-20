@@ -1,8 +1,16 @@
+import { MultipleErrors } from "sharedtypes";
+
 export class CustomApiError extends Error {
   status: number;
 
   private constructor(status: number, message: string, cause?: unknown) {
-    super(message, { cause });
+    if (Array.isArray(cause)) {
+      super(message, { cause: new MultipleErrors(cause) });
+    } else if (!(cause instanceof Error)) {
+      super(message, { cause: new Error(JSON.stringify(cause)) });
+    } else {
+      super(message, { cause });
+    }
     this.name = `CustomApiError [${status}]`;
     this.status = status;
   }

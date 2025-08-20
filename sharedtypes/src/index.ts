@@ -25,6 +25,7 @@ export * from "./types/abstract/ADataTransferObj.js";
 
 // Error types
 export * from "./types/errors/DtoValidationError.js";
+export * from "./types/errors/MultipleErrors.js";
 
 // Types
 export * from "./types/Base64PhotoUploadDTO.js";
