@@ -3,6 +3,8 @@
 
 import React, { useState } from "react";
 
+BookingStatusTransition;
+
 export default function BookingStatusTransition(): React.ReactNode {
   const [selectedState, setSelectedState] = useState(null);
   const [hoveredTransition, setHoveredTransition] = useState(null);
@@ -79,17 +81,228 @@ export default function BookingStatusTransition(): React.ReactNode {
     };
   };
 
+  const containerStyle = {
+    width: "100%",
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "24px",
+    backgroundColor: "#ffffff",
+    fontFamily: "sans-serif",
+  };
+
+  const headerStyle = {
+    marginBottom: "24px",
+  };
+
+  const titleStyle = {
+    fontSize: "24px",
+    fontWeight: "bold",
+    color: "#1F2937",
+    marginBottom: "8px",
+  };
+
+  const subtitleStyle = {
+    color: "#6B7280",
+  };
+
+  const mainContentStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  };
+
+  const svgContainerStyle = {
+    flex: 1,
+  };
+
+  const svgStyle = {
+    border: "1px solid #E5E7EB",
+    borderRadius: "8px",
+    backgroundColor: "#F9FAFB",
+    width: "100%",
+    height: "auto",
+  };
+
+  const sidebarStyle = {
+    width: "320px",
+  };
+
+  const infoPanelStyle = {
+    backgroundColor: "#F9FAFB",
+    borderRadius: "8px",
+    padding: "16px",
+    border: "1px solid #E5E7EB",
+  };
+
+  const infoPanelTitleStyle = {
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: "12px",
+  };
+
+  const stateHeaderStyle = {
+    fontWeight: "500",
+    color: "#374151",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "8px",
+  };
+
+  const stateIndicatorStyle = (state) => ({
+    width: "16px",
+    height: "16px",
+    borderRadius: "50%",
+    border: `2px solid ${state.color}`,
+    backgroundColor: state.color,
+  });
+
+  const terminalBadgeStyle = {
+    fontSize: "12px",
+    backgroundColor: "#FEE2E2",
+    color: "#991B1B",
+    padding: "2px 8px",
+    borderRadius: "4px",
+  };
+
+  const descriptionStyle = {
+    fontSize: "14px",
+    color: "#6B7280",
+    marginTop: "8px",
+    marginBottom: "16px",
+  };
+
+  const actionsHeaderStyle = {
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: "8px",
+  };
+
+  const actionItemStyle = {
+    fontSize: "14px",
+    color: "#6B7280",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "4px",
+  };
+
+  const actionDotStyle = {
+    width: "8px",
+    height: "8px",
+    backgroundColor: "#10B981",
+    borderRadius: "50%",
+  };
+
+  const noActionsStyle = {
+    fontSize: "14px",
+    color: "#DC2626",
+    fontStyle: "italic",
+  };
+
+  const placeholderStyle = {
+    color: "#9CA3AF",
+    fontStyle: "italic",
+  };
+
+  const legendStyle = {
+    marginTop: "16px",
+    backgroundColor: "#ffffff",
+    borderRadius: "8px",
+    padding: "16px",
+    border: "1px solid #E5E7EB",
+  };
+
+  const legendTitleStyle = {
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: "12px",
+  };
+
+  const legendItemStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "8px",
+    fontSize: "14px",
+  };
+
+  const regularStateStyle = {
+    width: "24px",
+    height: "24px",
+    border: "2px solid #3B82F6",
+    borderRadius: "50%",
+    backgroundColor: "transparent",
+  };
+
+  const terminalStateContainerStyle = {
+    position: "relative",
+    width: "24px",
+    height: "24px",
+  };
+
+  const terminalStateOuterStyle = {
+    width: "24px",
+    height: "24px",
+    border: "2px solid #EF4444",
+    borderRadius: "50%",
+    backgroundColor: "transparent",
+  };
+
+  const terminalStateInnerStyle = {
+    position: "absolute",
+    top: "4px",
+    left: "4px",
+    width: "16px",
+    height: "16px",
+    border: "1px solid #EF4444",
+    borderRadius: "50%",
+  };
+
+  const arrowStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  };
+
+  const arrowLineStyle = {
+    width: "24px",
+    height: "2px",
+    backgroundColor: "#6B7280",
+  };
+
+  const arrowHeadStyle = {
+    width: "0",
+    height: "0",
+    borderLeft: "8px solid #6B7280",
+    borderTop: "4px solid transparent",
+    borderBottom: "4px solid transparent",
+  };
+
+  // Media query styles for responsiveness
+  const mediaQueryStyle = `
+    @media (min-width: 1024px) {
+      .main-content {
+        flex-direction: row !important;
+      }
+    }
+  `;
+
   return (
-    <div className="w-full max-w-6xl mx-auto p-6 bg-white">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Booking Status State Transition Diagram</h2>
-        <p className="text-gray-600">Click on states to see details, hover over transitions to highlight paths</p>
+    <div style={containerStyle}>
+      <style>{mediaQueryStyle}</style>
+
+      <div style={headerStyle}>
+        <h2 style={titleStyle}>Booking Status State Transition Diagram</h2>
+        <p style={subtitleStyle}>Click on states to see details, hover over transitions to highlight paths</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="main-content" style={mainContentStyle}>
         {/* SVG Diagram */}
-        <div className="flex-1">
-          <svg width="800" height="400" className="border border-gray-200 rounded-lg bg-gray-50" viewBox="0 0 800 400">
+        <div style={svgContainerStyle}>
+          <svg width="800" height="400" style={svgStyle} viewBox="0 0 800 400">
             {/* Transitions */}
             {transitions.map((transition, index) => (
               <g key={index}>
@@ -100,7 +313,7 @@ export default function BookingStatusTransition(): React.ReactNode {
                   strokeWidth={hoveredTransition === index ? "3" : "2"}
                   fill="none"
                   markerEnd="url(#arrowhead)"
-                  className="cursor-pointer transition-all duration-200"
+                  style={{ cursor: "pointer", transition: "all 0.2s" }}
                   onMouseEnter={() => setHoveredTransition(index)}
                   onMouseLeave={() => setHoveredTransition(null)}
                 />
@@ -110,9 +323,10 @@ export default function BookingStatusTransition(): React.ReactNode {
                   x={transition.labelPos.x}
                   y={transition.labelPos.y}
                   textAnchor="middle"
-                  className={`text-sm font-medium cursor-pointer transition-all duration-200 ${
-                    hoveredTransition === index ? "fill-gray-900" : "fill-gray-600"
-                  }`}
+                  fontSize="14"
+                  fontWeight="500"
+                  fill={hoveredTransition === index ? "#1F2937" : "#6B7280"}
+                  style={{ cursor: "pointer", transition: "all 0.2s" }}
                   onMouseEnter={() => setHoveredTransition(index)}
                   onMouseLeave={() => setHoveredTransition(null)}
                 >
@@ -139,7 +353,11 @@ export default function BookingStatusTransition(): React.ReactNode {
                   fill={selectedState === name ? state.color : "#FFFFFF"}
                   stroke={state.color}
                   strokeWidth={selectedState === name ? "4" : "3"}
-                  className="cursor-pointer transition-all duration-200 hover:stroke-4"
+                  style={{
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    filter: selectedState === name ? "none" : "hover:brightness(1.1)",
+                  }}
                   onClick={() => setSelectedState(selectedState === name ? null : name)}
                 />
 
@@ -152,7 +370,7 @@ export default function BookingStatusTransition(): React.ReactNode {
                     fill="none"
                     stroke={state.color}
                     strokeWidth="2"
-                    className="pointer-events-none"
+                    style={{ pointerEvents: "none" }}
                   />
                 )}
 
@@ -162,9 +380,10 @@ export default function BookingStatusTransition(): React.ReactNode {
                   y={state.y}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className={`text-xs font-bold pointer-events-none ${
-                    selectedState === name ? "fill-white" : "fill-gray-700"
-                  }`}
+                  fontSize="12"
+                  fontWeight="bold"
+                  fill={selectedState === name ? "white" : "#374151"}
+                  style={{ pointerEvents: "none" }}
                 >
                   {name}
                 </text>
@@ -174,68 +393,62 @@ export default function BookingStatusTransition(): React.ReactNode {
         </div>
 
         {/* State Information Panel */}
-        <div className="lg:w-80">
-          <div className="bg-gray-50 rounded-lg p-4 border">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">State Information</h3>
+        <div style={sidebarStyle}>
+          <div style={infoPanelStyle}>
+            <h3 style={infoPanelTitleStyle}>State Information</h3>
 
             {selectedState ? (
-              <div className="space-y-4">
+              <div>
                 <div>
-                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                    <span
-                      className="w-4 h-4 rounded-full border-2"
-                      style={{
-                        backgroundColor: states[selectedState].color,
-                        borderColor: states[selectedState].color,
-                      }}
-                    ></span>
+                  <h4 style={stateHeaderStyle}>
+                    <span style={stateIndicatorStyle(states[selectedState])}></span>
                     {selectedState}
-                    {states[selectedState].isTerminal && (
-                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Terminal</span>
-                    )}
+                    {states[selectedState].isTerminal && <span style={terminalBadgeStyle}>Terminal</span>}
                   </h4>
-                  <p className="text-sm text-gray-600 mt-2">{getStateInfo(selectedState).description}</p>
+                  <p style={descriptionStyle}>{getStateInfo(selectedState).description}</p>
                 </div>
 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Allowed Actions:</h4>
+                  <h4 style={actionsHeaderStyle}>Allowed Actions:</h4>
                   {getStateInfo(selectedState).actions.length > 0 ? (
-                    <ul className="space-y-1">
+                    <div>
                       {getStateInfo(selectedState).actions.map((action, index) => (
-                        <li key={index} className="text-sm text-gray-600 flex items-center gap-2">
-                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <div key={index} style={actionItemStyle}>
+                          <span style={actionDotStyle}></span>
                           {action}
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
-                    <p className="text-sm text-red-600 italic">No actions allowed (terminal state)</p>
+                    <p style={noActionsStyle}>No actions allowed (terminal state)</p>
                   )}
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500 italic">Click on a state to see its details</p>
+              <p style={placeholderStyle}>Click on a state to see its details</p>
             )}
           </div>
 
           {/* Legend */}
-          <div className="mt-4 bg-white rounded-lg p-4 border">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Legend</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 border-2 border-blue-500 rounded-full"></div>
+          <div style={legendStyle}>
+            <h3 style={legendTitleStyle}>Legend</h3>
+            <div>
+              <div style={legendItemStyle}>
+                <div style={regularStateStyle}></div>
                 <span>Regular State</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <div className="w-6 h-6 border-2 border-red-500 rounded-full"></div>
-                  <div className="absolute inset-1 border border-red-500 rounded-full"></div>
+              <div style={legendItemStyle}>
+                <div style={terminalStateContainerStyle}>
+                  <div style={terminalStateOuterStyle}></div>
+                  <div style={terminalStateInnerStyle}></div>
                 </div>
                 <span>Terminal State</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-0.5 bg-gray-600"></div>
-                <div className="w-0 h-0 border-l-4 border-l-gray-600 border-t-2 border-t-transparent border-b-2 border-b-transparent"></div>
+              <div style={legendItemStyle}>
+                <div style={arrowStyle}>
+                  <div style={arrowLineStyle}></div>
+                  <div style={arrowHeadStyle}></div>
+                </div>
                 <span>Allowed Transition</span>
               </div>
             </div>
