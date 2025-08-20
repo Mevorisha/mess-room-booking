@@ -9,6 +9,7 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { ApiResponseUrlType, RoomPatchReqBodyDTO } from "sharedtypes";
 import { RoomRepo } from "@/repo/RoomRepo";
+import { RoomService } from "@/services/Room/RoomService";
 
 /**
  * ```
@@ -44,6 +45,6 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(403, "Only owner can set room unavailability");
   }
 
-  await RoomRepo.setUnavailability(roomId, isUnavailable);
+  await RoomService.setUnavailability(roomId, isUnavailable);
   return respond(res, { status: 200, message: `Room ${roomId} marked ${isUnavailable ? "unavailable" : "available"}` });
 });

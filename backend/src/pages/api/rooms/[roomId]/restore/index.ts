@@ -9,6 +9,7 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { ApiResponseUrlType } from "sharedtypes";
+import { RoomService } from "@/services/Room/RoomService";
 
 /**
  * ```
@@ -38,6 +39,6 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
     throw CustomApiError.create(403, "Only owner can restore room");
   }
 
-  await RoomRepo.unmarkForDelete(roomId);
+  await RoomService.unmarkForDelete(roomId);
   return respond(res, { status: 200, message: `Room ${roomId} is restored` });
 });

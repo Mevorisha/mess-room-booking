@@ -13,6 +13,7 @@ import { RoomRepo } from "@/repo/RoomRepo";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { ImageUploaderService } from "@/services/ImageUploaderService";
+import { RoomService } from "@/services/Room/RoomService";
 
 export const config = {
   api: {
@@ -111,7 +112,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Transaction: Update DB first
   await RoomRepo.update(roomId, finalUpdateData);
   if (isUnavailable) {
-    await RoomRepo.setUnavailability(roomId, isUnavailable);
+    await RoomService.setUnavailability(roomId, isUnavailable);
   }
 
   // Only delete images after successful DB update

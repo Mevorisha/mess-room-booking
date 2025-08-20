@@ -9,6 +9,7 @@ import { RoomRepo } from "@/repo/RoomRepo";
 import { ApiResponseUrlType } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RoomService } from "@/services/Room/RoomService";
 
 /**
  * ```
@@ -42,10 +43,10 @@ export default WithMiddleware(async function DELETE(req: NextApiRequest, res: Ne
   }
 
   if (forceDelete) {
-    await RoomRepo.forceDelete(roomId);
+    await RoomService.forceDelete(roomId);
     return respond(res, { status: 200, message: `Room ${roomId} frocefully deleted` });
   } else {
-    const delInDays = await RoomRepo.markForDelete(roomId);
+    const delInDays = await RoomService.markForDelete(roomId);
     return respond(res, { status: 200, message: `Room ${roomId} will be deleted in ${delInDays} days` });
   }
 });
