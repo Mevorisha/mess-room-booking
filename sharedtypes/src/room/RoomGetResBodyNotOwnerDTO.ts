@@ -13,7 +13,6 @@ import {
   IsInt,
   Max,
   Min,
-  IsOptional,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
@@ -85,12 +84,10 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @IsNotEmpty({ each: true })
   majorTags: string[];
 
-  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
-  minorTags?: string[];
+  minorTags: string[] = [];
 
   @IsInt()
   @IsPositive()

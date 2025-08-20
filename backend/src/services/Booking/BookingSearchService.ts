@@ -92,15 +92,16 @@ export class BookingSearchService {
     const bookingResults = filteredBookingModels.map((booking) => BookingGetResBodyDTO.fromJson(booking));
     const errors = bookingResults.filter((result) => result.isErr).map((result) => result.error);
     const bookingDTOs = bookingResults.filter((result) => result.isOk).map((result) => result.value);
-
-    if (bookingDTOs.length === 0) {
-      // If no booking can be returned coz all are errors
-      throw CustomApiError.create(500, "Internal Server Error", errors);
-    } else if (errors.length !== 0) {
-      // Some bookings can be returned coz some are errors
-      console.error(errors);
+    if (errors.length !== 0) {
+      if (bookingDTOs.length === 0) {
+        // If no room can be returned coz all are errors
+        throw CustomApiError.create(500, "Internal Server Error", errors);
+      } else {
+        console.log(errors);
+        // Return whatever was found
+        return bookingDTOs;
+      }
     }
-
     return bookingDTOs;
   }
 }

@@ -40,6 +40,8 @@ export const CommonZodSchemas = {
       .optional(),
 
     SORT_ORDER: z.enum(QuerySortOrder).optional().default(QuerySortOrder.ASCENDING),
+
+    // TODO: EMPTY STRING SENT BY FRONTEND - TO BE FIXED
     ROOM_SORT_FIELDS: z.enum(RoomSortFields).optional(),
 
     NUM: z

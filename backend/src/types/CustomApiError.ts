@@ -4,10 +4,10 @@ export class CustomApiError extends Error {
   status: number;
 
   private constructor(status: number, message: string, cause?: unknown) {
-    if (cause instanceof MultipleErrors) {
-      super(message, { cause });
-    } else if (Array.isArray(cause)) {
+    if (Array.isArray(cause)) {
       super(message, { cause: new MultipleErrors(cause) });
+    } else if (cause instanceof Error) {
+      super(message, { cause });
     } else {
       super(message, { cause: JSON.stringify(cause, null, 2) });
     }

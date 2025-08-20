@@ -32,6 +32,12 @@ export type RoomSearchParams = Partial<{
   lastModifiedOn: FirebaseFirestore.Timestamp | undefined;
 }>;
 
+export interface RoomQueryOptions {
+  isOwner?: boolean;
+  sortOn?: RoomSortFields | undefined;
+  sortOrder?: QuerySortOrder | undefined;
+}
+
 interface RoomModelWithSortPrio {
   model: RoomModel;
   sortPriority: number;
@@ -67,10 +73,10 @@ export class RoomSearchService {
   static async queryAll(
     params: RoomSearchParams,
     extUrls: ApiResponseUrlType,
-    options?: { isOwner?: boolean; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
+    options?: RoomQueryOptions
   ): Promise<RoomGetResBodyNotOwnerDTO[] | RoomGetResBodyOwnerDTO[]> {
     // 1. QUERY - Build and execute Firestore query
-    const query = RoomSearchService.buildFirestoreQuery(params, options?.sortOn, options?.sortOrder);
+    const query = RoomSearchService.buildFirestoreQuery(params, options);
     const snapshot = await query.get();
     // 2. SORT ORDER - Apply tag-based filtering and initial sorting
     const filteredModels = RoomSearchService.firebaseFilterAndSort(snapshot.docs, params);
@@ -85,24 +91,30 @@ export class RoomSearchService {
       const roomResults = stringDateModels.map((model) => RoomGetResBodyOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
-      if (roomDTOs.length === 0) {
-        // If no room can be returned coz all are errors
-        throw CustomApiError.create(500, "Internal Server Error", errors);
-      } else if (errors.length !== 0) {
-        // Some rooms can be returned coz some are errors
-        console.error(errors);
+      if (errors.length !== 0) {
+        if (roomDTOs.length === 0) {
+          // If no room can be returned coz all are errors
+          throw CustomApiError.create(500, "Internal Server Error", errors);
+        } else {
+          console.log(errors);
+          // Return whatever was found
+          return roomDTOs;
+        }
       }
       return roomDTOs;
     } else {
       const roomResults = stringDateModels.map((model) => RoomGetResBodyNotOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
-      if (roomDTOs.length === 0) {
-        // If no room can be returned coz all are errors
-        throw CustomApiError.create(500, "Internal Server Error", errors);
-      } else if (errors.length !== 0) {
-        // Some rooms can be returned coz some are errors
-        console.error(errors);
+      if (errors.length !== 0) {
+        if (roomDTOs.length === 0) {
+          // If no room can be returned coz all are errors
+          throw CustomApiError.create(500, "Internal Server Error", errors);
+        } else {
+          console.log(errors);
+          // Return whatever was found
+          return roomDTOs;
+        }
       }
       return roomDTOs;
     }
@@ -111,7 +123,7 @@ export class RoomSearchService {
   // ----------------------------------------------- PRIVATE HELPER FUNCTIONS ----------------------------------------------------
 
   // Helper function to build Firestore query
-  private static buildFirestoreQuery(params: RoomSearchParams, sortOn?: RoomSortFields, sortOrder?: QuerySortOrder) {
+  private static buildFirestoreQuery(params: RoomSearchParams, options?: RoomQueryOptions) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     let query = QueryWrapper.create<RoomModel>(ref);
 
@@ -150,14 +162,17 @@ export class RoomSearchService {
       query = query.where("lastModifiedOn", ">=", params.lastModifiedOn);
     }
 
-    // Only available rooms
-    query = query.where("isUnavailable", "==", false);
+    const isOwner = options?.isOwner ?? false;
+    if (!isOwner) {
+      // Show non-owner only available rooms
+      query = query.where("isUnavailable", "==", false);
+    }
 
     // Apply server-side sorting
-    if (sortOn != null) {
-      const fieldToSort = RoomSearchService.getFieldToSort(sortOn);
+    if (options?.sortOn != null) {
+      const fieldToSort = RoomSearchService.getFieldToSort(options.sortOn);
       if (fieldToSort != null) {
-        query = query.orderBy(fieldToSort, sortOrder ?? QuerySortOrder.ASCENDING);
+        query = query.orderBy(fieldToSort, options.sortOrder ?? QuerySortOrder.ASCENDING);
       }
     } else {
       // Default sorting by lastModifiedOn

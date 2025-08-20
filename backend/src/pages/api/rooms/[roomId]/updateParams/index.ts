@@ -82,7 +82,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   if (bodyResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", bodyResult.error);
   }
-  const { isUnavailable = false, keepFiles = [], addFiles = [], ...updateData } = bodyResult.value;
+  const { isUnavailable, keepFiles = [], addFiles = [], ...updateData } = bodyResult.value;
 
   // Process existing images
   const { imagesToKeep, imagesToDelete } = getImagesToKeepOrDelete(existingRoom.images, new Set(keepFiles), roomId);
@@ -111,7 +111,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   // Transaction: Update DB first
   await RoomRepo.update(roomId, finalUpdateData);
-  if (isUnavailable) {
+  if (isUnavailable != null) {
     await RoomService.setUnavailability(roomId, isUnavailable);
   }
 
