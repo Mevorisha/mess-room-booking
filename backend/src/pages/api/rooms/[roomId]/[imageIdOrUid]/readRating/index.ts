@@ -1,11 +1,15 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
-import RoomRatings from "@/models/RoomRatings";
 import { getLoggedInUser } from "@/middlewares/Auth";
-import Room, { SchemaFields } from "@/models/Room";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { ApiResponseUrlType } from "sharedtypes";
+import { RoomRatingsService } from "@/services/Room/RoomRatingsService";
 
 /**
  * ```
@@ -14,15 +18,15 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  * ```
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow GET method
-  if (req.method !== "GET") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
+  // Extract query params from request
+  const { roomId, imageIdOrUid: uidFromQuery } = RequestValidationParser.parse({
+    req,
+    method: "GET",
+    params: z.object({
+      roomId: CommonZodSchemas.Basic.UID,
+      imageIdOrUid: CommonZodSchemas.Basic.UID,
+    }),
+  });
 
   // Require authentication middleware
   const authResult = await getLoggedInUser(req);
@@ -30,23 +34,18 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
 
   if (!(await RateLimits.ROOM_CLIENT_RATING_READ(uid, req, res))) return;
 
-  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (!roomData) {
+  const roomData = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
+  if (roomData == null) {
     throw CustomApiError.create(404, "Room not found");
   }
   if (roomData.ownerId === uid) {
     throw CustomApiError.create(403, "Owner never rates their own room");
   }
 
-  const uidFromQuery = req.query["imageIdOrUid"] as string;
-  if (!uidFromQuery) {
-    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
-  }
-
   if (uid !== uidFromQuery) {
     throw CustomApiError.create(401, "Unauthorized");
   }
 
-  const rating = (await RoomRatings.get(uid, roomId)) ?? 0;
+  const rating = (await RoomRatingsService.get(uid, roomId)) ?? 0;
   return respond(res, { status: 200, json: { rating } });
 });

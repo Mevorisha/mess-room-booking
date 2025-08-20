@@ -62,4 +62,8 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
 
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }
+
+  toNotOwnerDTO(): RoomGetResBodyNotOwnerDTO {
+    return new RoomGetResBodyNotOwnerDTO(this);
+  }
 }

@@ -51,6 +51,8 @@ export class RoomRatingsService {
 
   static async getAvgForRoom(roomId: string): Promise<number> {
     // Only include valid ratings (1-5)
+    // Coz:  0 ratings   -> unrated ratings if counted will reduce rating result
+    //       More than 5 -> invalid
     const ratings = Array.from((await RoomRatingsService.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
     if (ratings.length === 0) return 0;
     return ratings.reduce((acc, r) => acc + r, 0) / ratings.length;

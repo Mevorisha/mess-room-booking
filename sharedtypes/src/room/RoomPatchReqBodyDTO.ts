@@ -18,7 +18,7 @@ import {
   Max,
   Min,
 } from "class-validator";
-import { RoomPhotoUploadDTO } from "./RoomPhotoUploadDTO";
+import { Base64PhotoUploadDTO } from "../types/Base64PhotoUploadDTO";
 import { Type } from "class-transformer";
 
 export enum RoomPatchParams {
@@ -40,7 +40,7 @@ type BaseUpdateParams = Partial<{
   pricePerOccupant: number;
   isUnavailable?: boolean;
   keepFiles: string[];
-  addFiles: RoomPhotoUploadDTO[];
+  addFiles: Base64PhotoUploadDTO[];
 }>;
 
 interface RatingUpdateParams {
@@ -62,7 +62,7 @@ type ConditionalParams<T extends RoomPatchParams> = T extends RoomPatchParams.BA
 /**
  * BASE PARAMS DTO
  */
-export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
+class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
   @IsOptional()
   @IsEnum(AcceptOccupation)
   acceptOccupation?: AcceptOccupation;
@@ -132,8 +132,8 @@ export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => RoomPhotoUploadDTO)
-  addFiles?: RoomPhotoUploadDTO[];
+  @Type(() => Base64PhotoUploadDTO)
+  addFiles?: Base64PhotoUploadDTO[];
 
   private constructor(data: ConditionalParams<RoomPatchParams.BASE_PARAMS>) {
     super();
@@ -180,7 +180,7 @@ export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
   }
 
   static override fromJson(json: NetworkType): Result<RoomPatchParamsReqBodyDTO, DtoValidationError> {
-    const buildFieldResult = ADataTransferObj._buildDtoFields(json, { addFiles: RoomPhotoUploadDTO });
+    const buildFieldResult = ADataTransferObj._buildDtoFields(json, { addFiles: Base64PhotoUploadDTO });
     if (buildFieldResult.isErr) {
       return Result.err(buildFieldResult.error);
     }
@@ -191,7 +191,7 @@ export class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
 /**
  * RATING DTO
  */
-export class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
+class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
   @IsNumber({ allowNaN: false, allowInfinity: false })
   @Max(5)
   @Min(0)
@@ -210,7 +210,7 @@ export class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
 /**
  * IS_UNAVAILABLE DTO
  */
-export class RoomPatchIsUnavailableReqBodyDTO extends ADataTransferObj {
+class RoomPatchIsUnavailableReqBodyDTO extends ADataTransferObj {
   @IsBoolean()
   isUnavailable: boolean;
 

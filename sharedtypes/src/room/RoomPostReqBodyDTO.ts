@@ -15,7 +15,7 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
-import { RoomPhotoUploadDTO } from "./RoomPhotoUploadDTO";
+import { Base64PhotoUploadDTO } from "../types/Base64PhotoUploadDTO";
 import { Type } from "class-transformer";
 
 interface ConstructorParamsNoFiles {
@@ -34,7 +34,7 @@ interface ConstructorParamsNoFiles {
 }
 
 interface ConstructorParamsWithFiles extends ConstructorParamsNoFiles {
-  files: RoomPhotoUploadDTO[];
+  files: Base64PhotoUploadDTO[];
 }
 
 type ConstructorParams<T extends "files" | "nofiles"> = T extends "nofiles"
@@ -122,8 +122,8 @@ export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
 export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => RoomPhotoUploadDTO)
-  files: RoomPhotoUploadDTO[];
+  @Type(() => Base64PhotoUploadDTO)
+  files: Base64PhotoUploadDTO[];
 
   private constructor(data: ConstructorParams<"files">) {
     super(data);
@@ -131,14 +131,14 @@ export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
   }
 
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyDTO, DtoValidationError> {
-    const buildResult = ADataTransferObj._buildDtoFields(json, { files: RoomPhotoUploadDTO });
+    const buildResult = ADataTransferObj._buildDtoFields(json, { files: Base64PhotoUploadDTO });
     if (buildResult.isErr) {
       throw buildResult.error;
     }
     return ADataTransferObj._fromJson(new this(json as ConstructorParams<"files">));
   }
 
-  getFiles(): RoomPhotoUploadDTO[] {
+  getFiles(): Base64PhotoUploadDTO[] {
     return this.files;
   }
 

@@ -1,30 +1,34 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
-import RoomRatings from "@/models/RoomRatings";
 import { getLoggedInUser } from "@/middlewares/Auth";
-import Room, { SchemaFields } from "@/models/Room";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { ApiResponseUrlType, RoomPatchReqBodyDTO } from "sharedtypes";
+import { RoomRatingsService } from "@/services/Room/RoomRatingsService";
 
 /**
  * ```
  * request = "PATCH /api/rooms/[roomId]/[imageIdOrUid]/updateRating" {
- *   rating: 1|2|3|4|5
+ *   rating: 1..=5
  * }
  * response = { message: string }
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
+  // Extract query params from request
+  const { roomId, imageIdOrUid: uidFromQuery } = RequestValidationParser.parse({
+    req,
+    method: "PATCH",
+    params: z.object({
+      roomId: CommonZodSchemas.Basic.UID,
+      imageIdOrUid: CommonZodSchemas.Basic.UID,
+    }),
+  });
 
   // Require authentication middleware
   const authResult = await getLoggedInUser(req);
@@ -32,32 +36,24 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ROOM_CLIENT_RATING_UPDATE(uid, req, res))) return;
 
-  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (!roomData) {
+  const roomData = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
+  if (roomData == null) {
     throw CustomApiError.create(404, "Room not found");
   }
   if (roomData.ownerId === uid) {
     throw CustomApiError.create(403, "Owner cannot rate their own room");
   }
 
-  const uidFromQuery = req.query["imageIdOrUid"] as string;
-  if (!uidFromQuery) {
-    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
-  }
-
   if (uid !== uidFromQuery) {
     throw CustomApiError.create(401, "Unauthorized");
   }
 
-  let rating = req.body["rating"];
-  if (!rating) {
-    throw CustomApiError.create(400, "Missing field 'rating: 1 | 2 | 3 | 4 | 5'");
+  const bodyResult = RoomPatchReqBodyDTO.Rating.fromJson(req.body);
+  if (bodyResult.isErr) {
+    throw CustomApiError.create(400, "Bad Request", bodyResult.error);
   }
-  if (rating < 1 || rating > 5) {
-    throw CustomApiError.create(400, "Invalid field 'rating: 1 | 2 | 3 | 4 | 5'");
-  }
-  rating = Math.floor(Number(rating));
+  const { rating } = bodyResult.value;
 
-  await RoomRatings.set(uid, roomId, rating);
+  await RoomRatingsService.set(uid, roomId, rating);
   return respond(res, { status: 200, message: `Rating for room ${roomId} updated` });
 });

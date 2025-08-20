@@ -17,7 +17,6 @@ export * from "./profile/ProfilePatchReqBodyDTO.js";
 export * from "./room/RoomGetResBodyNotOwnerDTO.js";
 export * from "./room/RoomGetResBodyOwnerDTO.js";
 export * from "./room/RoomPatchReqBodyDTO.js";
-export * from "./room/RoomPhotoUploadDTO.js";
 export * from "./room/RoomPostReqBodyDTO.js";
 
 // Abstract classes
@@ -27,6 +26,7 @@ export * from "./types/abstract/ADataTransferObj.js";
 export * from "./types/errors/DtoValidationError.js";
 
 // Types
+export * from "./types/Base64PhotoUploadDTO.js";
 export * from "./types/IdentityPhotosDTO.js";
 export * from "./types/MultiSizePhotoDTO.js";
 export * from "./types/NetworkType.js";

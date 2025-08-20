@@ -1,10 +1,13 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
-import { MultiSizeImageSz, StoragePaths } from "@/firebase/init";
+import { StoragePaths } from "@/firebase/init";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import HeaderTypes from "@/types/HeaderTypes";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 
 /**
  * ```
@@ -14,32 +17,18 @@ import HeaderTypes from "@/types/HeaderTypes";
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ROOM_IMAGE_READ(req, res))) return;
-
-  // Only allow GET method
-  if (req.method !== "GET") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  // Extract room ID and image ID from request
-  const roomId = req.query["roomId"] as string;
-  const imageId = req.query["imageIdOrUid"] as string;
-  const size = req.query["size"] as MultiSizeImageSz;
-  const b64 = req.query["b64"] === "true" ? true : false;
-
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
-
-  if (!imageId) {
-    throw CustomApiError.create(400, "Missing field 'imageIdOrUid: string'");
-  }
-
-  if (!size) {
-    throw CustomApiError.create(400, "Missing field 'size: small | medium | large'");
-  }
-  if (!["small", "medium", "large"].includes(size)) {
-    throw CustomApiError.create(400, "Invalid field 'size: small | medium | large'");
-  }
+  
+  // Extract query params from request
+  const { roomId, imageIdOrUid: imageId, size, b64 = false } = RequestValidationParser.parse({
+    req,
+    method: "GET",
+    params: z.object({
+      roomId: CommonZodSchemas.Basic.UID,
+      imageIdOrUid: CommonZodSchemas.Basic.UID,
+      size: CommonZodSchemas.Enum.IMGSIZE,
+      b64: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,
+    }),
+  });
 
   // Build the GS path for the requested room image
   const gsPath = StoragePaths.RoomPhotos.gsBucket(roomId, imageId, size);
@@ -52,8 +41,10 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (!response.ok) {
     throw CustomApiError.create(404, "Image not found");
   }
+
   const contentType = response.headers.get(HeaderTypes.CONTENT_TYPE);
   const imageBuffer = await response.arrayBuffer();
+
   if (b64) {
     res.setHeader(HeaderTypes.CONTENT_TYPE, "text/plain");
     res.setHeader(HeaderTypes.X_CONTENT_ENCODING, "BASE64");

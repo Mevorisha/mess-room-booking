@@ -1,10 +1,14 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import Room, { SchemaFields } from "@/models/Room";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { ApiResponseUrlType } from "sharedtypes";
 
 /**
  * ```
@@ -13,15 +17,11 @@ import Room, { SchemaFields } from "@/models/Room";
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
+  const { roomId } = RequestValidationParser.parse({
+    req,
+    method: "PATCH",
+    params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
+  });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
@@ -30,14 +30,14 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ROOM_RESTORE(uid, req, res))) return;
 
-  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (!roomData) {
+  const roomDto = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
+  if (roomDto == null) {
     throw CustomApiError.create(404, "Room not found");
   }
-  if (uid !== roomData?.ownerId) {
+  if (uid !== roomDto.ownerId) {
     throw CustomApiError.create(403, "Only owner can restore room");
   }
 
-  await Room.unmarkForDelete(roomId);
+  await RoomRepo.unmarkForDelete(roomId);
   return respond(res, { status: 200, message: `Room ${roomId} is restored` });
 });

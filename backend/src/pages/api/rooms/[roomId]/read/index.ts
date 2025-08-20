@@ -1,10 +1,14 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
-import Room, { PseudoFields, SchemaFields } from "@/models/Room";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { ApiResponseUrlType } from "sharedtypes";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -40,75 +44,36 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ROOM_READ(req, res))) return;
 
-  // Allow only GET requests
-  if (req.method !== "GET") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
+  const { roomId } = RequestValidationParser.parse({
+    req,
+    method: "GET",
+    params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
+  });
 
-  // Extract roomId from the query
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
+  let uid: string | null = null;
 
-  // Define fields to fetch
-  const fields = [
-    PseudoFields.ID,
-    SchemaFields.OWNER_ID,
-    SchemaFields.ACCEPT_GENDER,
-    SchemaFields.ACCEPT_OCCUPATION,
-    SchemaFields.SEARCH_TAGS,
-    SchemaFields.LANDMARK,
-    SchemaFields.ADDRESS,
-    SchemaFields.CITY,
-    SchemaFields.STATE,
-    SchemaFields.MAJOR_TAGS,
-    SchemaFields.MINOR_TAGS,
-    SchemaFields.CAPACITY,
-    SchemaFields.PRICE_PER_OCCUPANT,
-    SchemaFields.RATING,
-    SchemaFields.IMAGES,
-    SchemaFields.CREATED_ON,
-    SchemaFields.LAST_MODIFIED_ON,
-    SchemaFields.IS_UNAVAILABLE,
-    SchemaFields.TTL,
-    PseudoFields.IS_DELETED
-  ];
-
-  // Get room data
-  const roomData = await Room.get(roomId, "API_URI", fields);
-  if (!roomData) {
-    throw CustomApiError.create(404, "Room not found");
-  }
-
-  // if the room is marked as unavailable, return 404
-  if (roomData.isUnavailable) {
-    throw CustomApiError.create(404, "Room not found");
-  }
-
-  // If user is authenticated, check if they are the room owner, and if not, delete sensitive room data
   const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
-    if (authResult.getUid() !== roomData.ownerId) {
-      if (roomData.isDeleted) {
-        throw CustomApiError.create(404, "Room not found");
-      }
-      delete roomData.isUnavailable;
-      delete roomData.ttl;
-      delete roomData.isDeleted;
-    }
+    uid = authResult.getUid();
   }
 
-  // Format response
-  const response = {
-    ...roomData,
-    // unnecessary, already included in roomData
-    id: roomId,
-    // Convert Sets back to arrays if they aren't already
-    searchTags: Array.from(roomData.searchTags || []),
-    majorTags: Array.from(roomData.majorTags || []),
-    minorTags: Array.from(roomData.minorTags || []),
-  };
+  // Get room data
+  const roomDto = await RoomRepo.findById(roomId, ApiResponseUrlType.API_URI, { isOwner: true });
+  if (roomDto == null) {
+    throw CustomApiError.create(404, "Room not found");
+  }
 
-  return respond(res, { status: 200, json: response });
+  // Check if room should be hidden from non-owners
+  const isOwner = uid === roomDto.ownerId;
+  const isAccessible = !roomDto.isUnavailable && !roomDto.isDeleted
+  // If not owner then 404 if room unavailable
+  // i.e. -> if accessible, room is visible to everyone
+  //      -> if unavailable or deleted, room is visible to owner only
+  if (!isOwner && !isAccessible) {
+    throw CustomApiError.create(404, "Room not found");
+  }
+
+  // Return appropriate DTO based on ownership
+  const responseDto = isOwner ? roomDto : roomDto.toNotOwnerDTO();
+  return respond(res, { status: 200, dto: responseDto });
 });

@@ -1,10 +1,14 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import Room, { SchemaFields } from "@/models/Room";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { ApiResponseUrlType } from "sharedtypes";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -13,17 +17,14 @@ import Room, { SchemaFields } from "@/models/Room";
  * ```
  */
 export default WithMiddleware(async function DELETE(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow DELETE method
-  if (req.method !== "DELETE") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
-  }
-
-  const forceDelete = req.query["force"] === "true" ? true : false;
+  const { roomId, force: forceDelete = false } = RequestValidationParser.parse({
+    req,
+    method: "DELETE",
+    params: z.object({
+      roomId: CommonZodSchemas.Basic.UID,
+      force: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,
+    }),
+  });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
@@ -32,19 +33,19 @@ export default WithMiddleware(async function DELETE(req: NextApiRequest, res: Ne
 
   if (!(await RateLimits.ROOM_DELETE(uid, req, res))) return;
 
-  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (!roomData) {
+  const roomData = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
+  if (roomData == null) {
     throw CustomApiError.create(404, "Room not found");
   }
-  if (uid !== roomData?.ownerId) {
+  if (uid !== roomData.ownerId) {
     throw CustomApiError.create(403, "Only owner can delete room");
   }
 
   if (forceDelete) {
-    await Room.forceDelete(roomId);
+    await RoomRepo.forceDelete(roomId);
     return respond(res, { status: 200, message: `Room ${roomId} frocefully deleted` });
   } else {
-    const delInDays = await Room.markForDelete(roomId);
+    const delInDays = await RoomRepo.markForDelete(roomId);
     return respond(res, { status: 200, message: `Room ${roomId} will be deleted in ${delInDays} days` });
   }
 });
