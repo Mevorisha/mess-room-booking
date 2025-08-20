@@ -1,6 +1,7 @@
 // pages/index.tsx
 import Head from "next/head";
 import { NextPage } from "next";
+import "reflect-metadata";
 
 const Home: NextPage = () => {
   return (

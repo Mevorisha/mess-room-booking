@@ -25,7 +25,7 @@ export class DateTransformer {
 
     const { createdOn, lastModifiedOn, ttl, ...rest } = data;
 
-    // convert timestamps to ISO Locale strings
+    // convert timestamps to human readable strings
     const newData: TypeWithStringDates<T> = {
       createdOn: createdOn.toDate().toLocaleDateString("en-US", dateOptions),
       lastModifiedOn: lastModifiedOn.toDate().toLocaleDateString("en-US", dateOptions),

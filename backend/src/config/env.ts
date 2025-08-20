@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "reflect-metadata";
 
 if (process.env["ENVIRONMENT_TYPE"] == null) throw new Error(".env ENVIRONMENT_TYPE undefined");
 if (process.env["API_SERVER_ORIGIN"] == null) throw new Error(".env API_SERVER_ORIGIN undefined");

@@ -16,6 +16,7 @@
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "reflect-metadata": "^0.2.2",
     "sharedtypes": "file:../sharedtypes",
     "zod": "^4.0.17"
   },
