@@ -8,12 +8,12 @@ import {
   RoomPostReqBodyOmitFilesDTO,
 } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
-import Booking from "@/models/Booking";
 import pickObjProps from "@/utils/pickObjProps";
 import { DateTransformer } from "@/dataTransformers/DateTransformer";
 import { RoomTransformer } from "@/services/Room/RoomTransformer";
 import { RoomModel, RoomReadOnlyFields } from "@/models/Room";
 import { QueryWrapper } from "@/types/QueryWrapper";
+import { BookingSearchService } from "@/services/Booking/BookingSearchService";
 
 export class RoomRepo {
   /**
@@ -182,10 +182,10 @@ export class RoomRepo {
    */
   static async hasBooking(roomId: string): Promise<boolean> {
     // Query for bookings with this roomId that are not cancelled and not cleared
-    const bookings = await Booking.queryAll({ queryIdType: "ROOM", id: roomId });
+    const bookings = await BookingSearchService.queryAll({ type: "ROOM", roomId });
 
     // If we found any bookings, the room has active bookings
-    return bookings.filter((b) => !(b.isCancelled ?? false) && !(b.isCleared ?? false)).length > 0;
+    return bookings.filter((b) => !b.isCancelled && !b.isCleared).length > 0;
   }
 
   static async findById(

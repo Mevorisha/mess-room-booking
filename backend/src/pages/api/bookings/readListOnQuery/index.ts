@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import Booking, { BookingQueryIdType, BookingQueryParams } from "@/models/Booking";
+import BookingRepo, { BookingQueryIdType, BookingQueryParams } from "@/models/Booking";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
@@ -110,7 +110,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
       throw CustomApiError.create(400, "Invalid queryIdType. Must be TENANT, ROOM, or OWNER");
     }
     // Execute the query
-    const bookingsData = await Booking.queryAll(queryParams);
+    const bookingsData = await BookingRepo.queryAll(queryParams);
     // Format the response
     formattedBookings = formatBookings(bookingsData, uidIsRoomOwner);
     // Store in cache

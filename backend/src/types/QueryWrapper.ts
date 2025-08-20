@@ -14,7 +14,7 @@ export class QueryWrapper<T> {
     return new QueryWrapper<U>(ref);
   }
 
-  where<K extends FirestoreField<T>>(field: K, op: WhereFilterOp, value: T[K]): QueryWrapper<T> {
+  where<K extends FirestoreField<T>>(field: K, op: WhereFilterOp, value: T[K] | T[K][]): QueryWrapper<T> {
     this.query = this.query.where(field, op, value);
     return this;
   }
