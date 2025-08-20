@@ -3,7 +3,7 @@ import { respond } from "@/utils/respond";
 import { CustomApiError } from "@/types/CustomApiError";
 import { logToDb } from "../LogToDb";
 import { handleFirebaseIndexError } from "./mkIndex";
-import { consoleLog } from "../ConsoleLog/index.js";
+import { consoleLog } from "../ConsoleLog";
 
 export type FirebaseIndexErrorType = Error & { code: number; details: string };
 
