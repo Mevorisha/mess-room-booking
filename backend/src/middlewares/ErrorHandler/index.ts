@@ -24,7 +24,7 @@ async function handleErr(e: FirebaseIndexErrorType | null, res: NextApiResponse)
       } else {
         // Index related error, ask user to wait
         respond(res, { status: 500, error: "Server busy. Please try again later." });
-        console.error("[I] [CatchAll] Waiting for index to be created");
+        console.log("[I] [CatchAll] Waiting for index to be created");
       }
     } catch (e) {
       // could call handleErr recursively here but that's a bad idea
@@ -47,7 +47,7 @@ export function catchAll(
   res: NextApiResponse,
   handlerFn: (req: NextApiRequest, res: NextApiResponse) => Promise<NextApiResponse | undefined | void>
 ): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve, _) => {
     try {
       const prom = handlerFn(req, res);
       if (prom instanceof Promise)
@@ -58,14 +58,12 @@ export function catchAll(
             logToDb(e)
               .then(() => handleErr(e, res))
               .then(() => consoleLog(req, res))
-              .then(() => reject(e))
           );
     } catch (e) {
       const error = e as FirebaseIndexErrorType;
       void logToDb(error)
         .then(() => handleErr(error, res))
-        .then(() => consoleLog(req, res))
-        .then(() => reject(error));
+        .then(() => consoleLog(req, res));
     }
   });
 }

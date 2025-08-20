@@ -18,20 +18,20 @@ export class DtoValidationError extends Error {
       const property = error.property;
 
       if (error.constraints == null) {
-        messages.push(`Invalid '${property}'`);
+        messages.push(`    Invalid '${property}'`);
         continue;
       }
 
       for (const k of Object.keys(error.constraints)) {
         const kMsg = error.constraints[k];
         if (kMsg == null || kMsg.length === 0) {
-          messages.push(`Invalid '${property}'. Failed constraint: ${k}`);
+          messages.push(`    Invalid '${property}'. Failed constraint: ${k}`);
         } else {
-          messages.push(`Invalid '${property}'. Failed constraint: ${k} (${error.constraints[k]})`);
+          messages.push(`    Invalid '${property}'. Failed constraint: ${k} (${error.constraints[k]})`);
         }
       }
     }
 
-    return messages.join("\n");
+    return "\n" + messages.join("\n") + "\n";
   }
 }
