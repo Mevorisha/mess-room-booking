@@ -6,9 +6,8 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { StoragePaths } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { MultiSizeImageSz, RoomPostReqBodyDTO } from "sharedtypes";
+import { MultiSizeImageSz, RoomPostReqBodyDTO, ApiResponseUrlType, IdentityType } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { ApiResponseUrlType, IdentityType } from "sharedtypes/dist/types/typeEnums";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { ImageUploaderService } from "@/services/ImageUploaderService";
 
