@@ -2,7 +2,7 @@ import { IdentityPhotosDTO } from "@/types/IdentityPhotosDTO";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
 import { IdentityType, Language } from "@/types/typeEnums";
 import { Type } from "class-transformer";
-import { IsEmail, IsEnum, ValidateNested, IsOptional, IsDateString, IsBoolean } from "class-validator";
+import { IsEmail, IsEnum, ValidateNested, IsOptional, IsBoolean, IsNotEmpty, IsString } from "class-validator";
 import { IdentityGetResBodyNoAuthDTO } from "./IdentityGetResBodyNoAuthDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
@@ -42,14 +42,17 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @IsEnum(Language)
   language: Language = Language.ENGLISH;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   createdOn: string;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   ttl?: string;
 
   @IsBoolean()

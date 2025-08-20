@@ -1,6 +1,6 @@
 import { AcceptGender, AcceptOccupation } from "@/types/typeEnums";
 import { MultiSizePhotoDTO } from "@/types/MultiSizePhotoDTO";
-import { IsBoolean, IsDateString, IsOptional } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { RoomGetResBodyNotOwnerDTO } from "./RoomGetResBodyNotOwnerDTO";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { NetworkType } from "@/types/NetworkType";
@@ -37,7 +37,8 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
   isUnavailable: boolean;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   ttl?: string;
 
   @IsBoolean()

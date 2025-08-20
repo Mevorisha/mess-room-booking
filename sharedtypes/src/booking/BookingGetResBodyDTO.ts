@@ -1,6 +1,6 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { BookingStatus } from "@/types/typeEnums";
-import { IsString, IsEnum, IsPositive, IsOptional, IsBoolean, IsDateString, IsNotEmpty, IsInt } from "class-validator";
+import { IsString, IsEnum, IsPositive, IsOptional, IsBoolean, IsNotEmpty, IsInt } from "class-validator";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
 import { Result } from "@/types/Result";
 import { NetworkType } from "@/types/NetworkType";
@@ -56,19 +56,23 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
   acceptanceStatus: BookingStatus = BookingStatus.UNSET;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   acceptedOn?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   submittedOn?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   cancelledOn?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   clearedOn?: string;
 
   @IsBoolean()
@@ -80,14 +84,17 @@ export class BookingGetResBodyDTO extends ADataTransferObj {
   @IsBoolean()
   isCleared = false;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   createdOn: string;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   lastModifiedOn: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   ttl?: string;
 
   @IsBoolean()

@@ -9,7 +9,6 @@ import {
   IsNumber,
   IsPositive,
   ValidateNested,
-  IsDateString,
   IsNotEmpty,
   IsInt,
   Max,
@@ -111,10 +110,12 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   @Min(0)
   rating: number;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   createdOn: string;
 
-  @IsDateString()
+  @IsString()
+  @IsNotEmpty()
   lastModifiedOn: string;
 
   protected constructor(data: ConstructorParams) {
