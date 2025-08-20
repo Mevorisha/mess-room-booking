@@ -169,19 +169,19 @@ export class BookingService {
           if (data.acceptanceStatus !== BookingStatus.UNSET) {
             throw CustomApiError.create(409, `Booking already ${data.acceptanceStatus.toLowerCase()}`);
           }
-          if (status.value === "ACCEPTED") {
+          if (status.value === BookingStatus.ACCEPTED) {
             // accept the booking - tenant can now occupy the room
             await FirestorePaths.Bookings(bookingId).update({
               acceptanceStatus: "ACCEPTED",
               acceptedOn: FieldValue.serverTimestamp(),
               lastModifiedOn: FieldValue.serverTimestamp(),
             });
-          } else if (status.value === "REJECTED") {
+          } else if (status.value === BookingStatus.REJECTED) {
             // reject the booking - this terminates the booking entirely
             // Note: We don't auto-cancel here to maintain clear separation of concerns
             // The client should explicitly cancel if needed, or we can handle this at the business logic layer
             await FirestorePaths.Bookings(bookingId).update({
-              acceptanceStatus: "REJECTED",
+              acceptanceStatus: BookingStatus.REJECTED,
               rejectedOn: FieldValue.serverTimestamp(),
               lastModifiedOn: FieldValue.serverTimestamp(),
             });
@@ -189,14 +189,14 @@ export class BookingService {
           break;
         }
         default:
-          throw CustomApiError.create(400, "Invalid status type");
+          throw CustomApiError.create(500, "Internal Server Error", "Invalid status type");
       }
     } catch (error) {
       // Only re-throw CustomApiError (business logic errors) and specific Firestore errors
       if (error instanceof CustomApiError) {
         throw error;
       }
-      throw CustomApiError.create(500, "Failed to update booking status", error);
+      throw CustomApiError.create(500, "Internal Server Error", error);
     }
   }
 

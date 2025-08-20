@@ -53,7 +53,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   const directUrl = await gsPathToUrl(profile.identityPhotos.govId[size]);
   const response = await fetch(directUrl);
   if (!response.ok) {
-    throw CustomApiError.create(500, "Failed to fetch image");
+    throw CustomApiError.create(500, "Internal Server Error", "Failed to fetch image");
   }
 
   const contentType = response.headers.get(HeaderTypes.CONTENT_TYPE);

@@ -38,6 +38,6 @@ export async function authenticate(req: NextApiRequest, expectedUid?: string): P
     }
   } else {
     if (loggedInUid.length > 0) return loggedInUid;
-    else throw CustomApiError.create(500, "Authentication failure");
+    else throw CustomApiError.create(500, "Internal Server Error", "Authentication failure: Empty UID string");
   }
 }

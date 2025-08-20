@@ -88,7 +88,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
       await RoomRepo.update(roomId, { images: imagePaths });
     } catch (e) {
       // If image upload fails, still return success but log the error
-      console.error("Error uploading room images:", e);
+      console.error("[E] [API /api/rooms/create] Error uploading room images:", e);
       return respond(res, {
         status: 201,
         json: {

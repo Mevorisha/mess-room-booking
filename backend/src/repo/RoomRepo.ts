@@ -164,13 +164,13 @@ export class RoomRepo {
     if (options?.isOwner == null || options.isOwner === false) {
       const jsonResult = RoomGetResBodyNotOwnerDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
-        throw CustomApiError.create(500, "Validation failure", jsonResult.error);
+        throw CustomApiError.create(500, "Internal Server Error", jsonResult.error);
       }
       return jsonResult.value;
     } else {
       const jsonResult = RoomGetResBodyOwnerDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
-        throw CustomApiError.create(500, "Validation failure", jsonResult.error);
+        throw CustomApiError.create(500, "Internal Server Error", jsonResult.error);
       }
       return jsonResult.value;
     }

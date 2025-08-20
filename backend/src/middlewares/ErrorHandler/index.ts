@@ -9,7 +9,7 @@ export type FirebaseIndexErrorType = Error & { code: number; details: string };
 
 async function handleErr(e: FirebaseIndexErrorType | null, res: NextApiResponse) {
   if (e == null) {
-    return respond(res, { status: 500, error: "Unknown Server Error" });
+    return respond(res, { status: 500, error: "Internal Server Error" });
   }
   if (e instanceof CustomApiError) {
     respond(res, { status: e.status, error: e.message });

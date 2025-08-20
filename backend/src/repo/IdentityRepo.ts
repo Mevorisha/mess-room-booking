@@ -81,13 +81,13 @@ export class IdentityRepo {
     if (options?.auth == null || options.auth === false) {
       const jsonResult = IdentityGetResBodyNoAuthDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
-        throw CustomApiError.create(500, "Validation failure", jsonResult.error);
+        throw CustomApiError.create(500, "Internal Server Error", jsonResult.error);
       }
       return jsonResult.value;
     } else {
       const jsonResult = IdentityGetResBodyWithAuthDTO.fromJson(dateTransformed);
       if (jsonResult.isErr) {
-        throw CustomApiError.create(500, "Validation failure", jsonResult.error);
+        throw CustomApiError.create(500, "Internal Server Error", jsonResult.error);
       }
       return jsonResult.value;
     }

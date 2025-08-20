@@ -77,7 +77,7 @@ export class BookingRepo {
 
     const jsonResult = BookingGetResBodyDTO.fromJson(dateTransformed);
     if (jsonResult.isErr) {
-      throw CustomApiError.create(500, "Validation failure", jsonResult.error);
+      throw CustomApiError.create(500, "Internal Server Error", jsonResult.error);
     }
     return jsonResult.value;
   }
