@@ -42,7 +42,7 @@ export const config = {
  *   keepFiles?: Array<string>
  *   addFiles?: Array<{ type: string, name: string, base64: string }>
  * }
- * response = { message: string, imagesUpdated: boolean }
+ * response = { roomId: string, message: string, imagesUpdated: boolean }
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
@@ -121,6 +121,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   return respond(res, {
     status: 200,
     json: {
+      roomId,
       message: "Room updated successfully",
       imagesUpdated: imagesToDelete.length > 0 || addFiles.length > 0,
     },
