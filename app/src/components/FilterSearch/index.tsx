@@ -9,44 +9,44 @@ import "./styles.css";
 import { QuerySortOrder, RoomSortFields } from "sharedtypes/dist/types/typeEnums";
 
 interface FilterSearchProps {
-  currentFilters: RoomGetReqQueryParamsWrapper;
-  handleFilterChange: (filters: RoomGetReqQueryParamsWrapper) => void;
-  handleFilterClear: () => void;
+  currentRoomQuery: RoomGetReqQueryParamsWrapper;
+  handleQueryChange: (filters: RoomGetReqQueryParamsWrapper) => void;
+  handleQueryClear: () => void;
   isDialog?: boolean;
 }
 
 export default function FilterSearch({
-  currentFilters,
-  handleFilterChange,
-  handleFilterClear,
+  currentRoomQuery,
+  handleQueryChange,
+  handleQueryClear,
   isDialog = false,
 }: FilterSearchProps): React.ReactNode {
   const dialog = useDialog();
 
   // Local state for filter values
-  const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentFilters.get("acceptGender"));
-  const [occupationFilter, setOccupationFilter] = useState<OccupationOptions>(currentFilters.get("acceptOccupation"));
-  const [capacityFilter, setCapacityFilter] = useState<number | null>(currentFilters.get("capacity"));
+  const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentRoomQuery.get("acceptGender"));
+  const [occupationFilter, setOccupationFilter] = useState<OccupationOptions>(currentRoomQuery.get("acceptOccupation"));
+  const [capacityFilter, setCapacityFilter] = useState<number | null>(currentRoomQuery.get("capacity"));
   const [priceRange, setPriceRange] = useState<{ low: number | null; high: number | null }>({
-    low: currentFilters.get("lowPrice"),
-    high: currentFilters.get("highPrice"),
+    low: currentRoomQuery.get("lowPrice"),
+    high: currentRoomQuery.get("highPrice"),
   });
   const [sortOption, setSortOption] = useState<{
     sortOn?: RoomSortFields | null;
     sortOrder?: QuerySortOrder | null;
   }>({
-    sortOn: currentFilters.get("sortOn"),
-    sortOrder: currentFilters.get("sortOrder"),
+    sortOn: currentRoomQuery.get("sortOn"),
+    sortOrder: currentRoomQuery.get("sortOrder"),
   });
 
   // Update local state when currentFilters change
   useEffect(() => {
-    setGenderFilter(currentFilters.get("acceptGender") ?? null);
-    setOccupationFilter(currentFilters.get("acceptOccupation") ?? null);
-    setCapacityFilter(currentFilters.get("capacity") ?? null);
-    setPriceRange({ low: currentFilters.get("lowPrice"), high: currentFilters.get("highPrice") });
-    setSortOption({ sortOn: currentFilters.get("sortOn"), sortOrder: currentFilters.get("sortOrder") });
-  }, [currentFilters]);
+    setGenderFilter(currentRoomQuery.get("acceptGender") ?? null);
+    setOccupationFilter(currentRoomQuery.get("acceptOccupation") ?? null);
+    setCapacityFilter(currentRoomQuery.get("capacity") ?? null);
+    setPriceRange({ low: currentRoomQuery.get("lowPrice"), high: currentRoomQuery.get("highPrice") });
+    setSortOption({ sortOn: currentRoomQuery.get("sortOn"), sortOrder: currentRoomQuery.get("sortOrder") });
+  }, [currentRoomQuery]);
 
   // Apply filters
   function handleApplyAction() {
@@ -75,19 +75,19 @@ export default function FilterSearch({
       filterParams.set("sortOrder", sortOption.sortOrder);
     }
     // Pass only the non-null fields to the function
-    handleFilterChange(filterParams);
+    handleQueryChange(filterParams);
     if (isDialog) dialog.hide();
   }
 
   // Clear all filters
   function handleClearAction() {
     // Reset to currentFilters
-    setGenderFilter(currentFilters.get("acceptGender"));
-    setOccupationFilter(currentFilters.get("acceptOccupation"));
-    setCapacityFilter(currentFilters.get("capacity"));
-    setPriceRange({ low: currentFilters.get("lowPrice"), high: currentFilters.get("highPrice") });
-    setSortOption({ sortOn: currentFilters.get("sortOn"), sortOrder: currentFilters.get("sortOrder") });
-    handleFilterClear();
+    setGenderFilter(currentRoomQuery.get("acceptGender"));
+    setOccupationFilter(currentRoomQuery.get("acceptOccupation"));
+    setCapacityFilter(currentRoomQuery.get("capacity"));
+    setPriceRange({ low: currentRoomQuery.get("lowPrice"), high: currentRoomQuery.get("highPrice") });
+    setSortOption({ sortOn: currentRoomQuery.get("sortOn"), sortOrder: currentRoomQuery.get("sortOrder") });
+    handleQueryClear();
     if (isDialog) dialog.hide();
   }
 
@@ -97,7 +97,7 @@ export default function FilterSearch({
         <h3>{lang("Filters", "ফিল্টার", "फिल्टर")}</h3>
         {isDialog && <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />}
         {!isDialog && (
-          <button className="clear-filters-button" onClick={handleFilterClear}>
+          <button className="clear-filters-button" onClick={handleQueryClear}>
             {lang("Clear All", "সব পরিষ্কার করুন", "सभी साफ़ करें")}
           </button>
         )}

@@ -28,7 +28,7 @@ export default function SectionSearch(): React.ReactNode {
   // Query while is loaded from the URL, this is for initializing the state ONLY
   // After this, all updates are done via setQuery and setSearchParams is called only once
   // to update the URL in a useEffect as a side effect of the query change
-  const [urlQueryParams, setUrlQueryParams] = useSearchParams();
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 
   // State for rooms data
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
@@ -38,11 +38,18 @@ export default function SectionSearch(): React.ReactNode {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
-  const [searchQuery, setSearchQuery] = useState(RoomGetReqQueryParamsWrapper.create(urlQueryParams));
-  const apiUri = ApiPaths.Rooms.readListOnQuery(searchQuery);
+  const [roomQueryWrapper, setRoomQueryWrapper] = useState(() => {
+    const newUrlSearchParams = new URLSearchParams(urlSearchParams);
+    newUrlSearchParams.delete("roomId");
+    const newRoomQueryWrapper = RoomGetReqQueryParamsWrapper.create(newUrlSearchParams);
+    newRoomQueryWrapper.delete("roomId");
+    return newRoomQueryWrapper;
+  });
+
+  const apiUri = ApiPaths.Rooms.readListOnQuery(roomQueryWrapper);
 
   // State for search input
-  const [searchInput, setSearchInput] = useState<string>(searchQuery.searchTags?.join(" ") ?? "");
+  const [searchStringInput, setSearchStringInput] = useState<string>(roomQueryWrapper.searchTags?.join(" ") ?? "");
 
   // Is room view dialog visible or not
   const [isRoomViewVisible, setIsRoomViewVisible] = useState<boolean>(false);
@@ -74,49 +81,49 @@ export default function SectionSearch(): React.ReactNode {
 
   // Function to handle search
   const handleSearch = useCallback(() => {
-    const searchStr = searchInput.trim();
-    const searchStrLength = searchStr.length;
-    if (searchStrLength > 0) {
+    const trimmedSearchStr = searchStringInput.trim();
+    const trimmedSearchStrLength = trimmedSearchStr.length;
+    if (trimmedSearchStrLength > 0) {
       // Set searchTags in query and reset page to 1
       // also remove invalidateCache param if present
-      setSearchQuery((oldQuery) => {
-        const newQuery = oldQuery.clone();
-        newQuery.set("searchTags", searchStr.split(" "));
-        newQuery.set("page", 1);
-        return newQuery;
+      setRoomQueryWrapper((oldWrapper) => {
+        const newWrapper = oldWrapper.clone();
+        newWrapper.set("searchTags", trimmedSearchStr.split(" "));
+        newWrapper.set("page", 1);
+        return newWrapper;
       });
     } else {
       // Remove searchTags from query and remove page
-      setSearchQuery((oldQuery) => {
-        const newQuery = oldQuery.clone();
-        newQuery.delete("searchTags");
-        newQuery.delete("page");
+      setRoomQueryWrapper((oldWrapper) => {
+        const newWrapper = oldWrapper.clone();
+        newWrapper.delete("searchTags");
+        newWrapper.delete("page");
         // unconditionally remove invalidateCache param
-        newQuery.delete("invalidateCache");
-        return newQuery;
+        newWrapper.delete("invalidateCache");
+        return newWrapper;
       });
     }
     // Update has filters
-  }, [searchInput, setSearchQuery]);
+  }, [searchStringInput, setRoomQueryWrapper]);
 
   // Function to handle filter changes
-  const handleFilterChange = useCallback(
+  const handleQueryChange = useCallback(
     (newFilters: RoomGetReqQueryParamsWrapper) => {
       // Set respective filters in query and reset page to 1
-      setSearchQuery(() => {
+      setRoomQueryWrapper(() => {
         const newQuery = newFilters.clone();
         newQuery.set("page", 1);
         return newQuery;
       });
       updateHasFilters();
     },
-    [updateHasFilters, setSearchQuery]
+    [updateHasFilters, setRoomQueryWrapper]
   );
 
   // Function to handle clearing filters
-  const handleFilterClear = useCallback(() => {
+  const handleQueryClear = useCallback(() => {
     // Clear all filters in query but keep searchTags
-    setSearchQuery((oldQuery) => {
+    setRoomQueryWrapper((oldQuery) => {
       const newQuery = RoomGetReqQueryParamsWrapper.create();
       const oldSearchTags = oldQuery.get("searchTags");
       if (oldSearchTags == null) return newQuery;
@@ -124,33 +131,33 @@ export default function SectionSearch(): React.ReactNode {
       return newQuery;
     });
     updateHasFilters();
-  }, [updateHasFilters, setSearchQuery]);
+  }, [updateHasFilters, setRoomQueryWrapper]);
 
   // Handle page change
   const handlePageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
-      setSearchQuery((oldQuery) => {
-        const newQuery = oldQuery.clone();
-        newQuery.set("page", page);
-        return newQuery;
+      setRoomQueryWrapper((oldWrapper) => {
+        const newWrapper = oldWrapper.clone();
+        newWrapper.set("page", page);
+        return newWrapper;
       });
     },
-    [setCurrentPage, setSearchQuery]
+    [setCurrentPage, setRoomQueryWrapper]
   );
 
   // Function to open filters dialog on mobile
   const handleOpenFiltersDialog = useCallback(() => {
     dialog.show(
       <FilterSearch
-        currentFilters={searchQuery}
-        handleFilterChange={handleFilterChange}
-        handleFilterClear={handleFilterClear}
+        currentRoomQuery={roomQueryWrapper}
+        handleQueryChange={handleQueryChange}
+        handleQueryClear={handleQueryClear}
         isDialog={true}
       />,
       "small"
     );
-  }, [dialog, searchQuery, handleFilterChange, handleFilterClear]);
+  }, [dialog, roomQueryWrapper, handleQueryChange, handleQueryClear]);
 
   // Function to load rooms data
   const loadRooms = useCallback(async () => {
@@ -179,10 +186,10 @@ export default function SectionSearch(): React.ReactNode {
 
       const userId = compUsr.userCtx.user.uid;
       // add roomId param if not already added to the url query params
-      if (!searchQuery.has("roomId") || searchQuery.get("roomId") == null) {
-        const newParams = searchQuery.toQueryParams();
-        newParams.set("roomId", roomId);
-        setUrlQueryParams(newParams);
+      if (!urlSearchParams.has("roomId") || urlSearchParams.get("roomId") == null) {
+        const newUrlSearchParams = new URLSearchParams(urlSearchParams);
+        newUrlSearchParams.set("roomId", roomId);
+        setUrlSearchParams(newUrlSearchParams);
       }
 
       const roomViewDialogId = dialog.show(<LoadingAnimation />, "large");
@@ -203,7 +210,7 @@ export default function SectionSearch(): React.ReactNode {
         })
         .catch((error: Error) => notify(error, "error"));
     },
-    [isRoomViewVisible, compUsr.userCtx.user.uid, searchQuery, dialog, setUrlQueryParams, notify]
+    [isRoomViewVisible, compUsr.userCtx.user.uid, urlSearchParams, dialog, setUrlSearchParams, notify]
   );
 
   // Effect to handle window resize for responsive design
@@ -214,43 +221,43 @@ export default function SectionSearch(): React.ReactNode {
   }, []);
 
   // Load rooms when query changes
-  useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, searchQuery]);
+  useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, roomQueryWrapper]);
 
   // Show a room if roomId is present
   useEffect(
     () =>
       void (
-        searchQuery.has("roomId") &&
-        searchQuery.get("roomId") != null &&
-        handleViewRoom(searchQuery.get("roomId") ?? "")
+        urlSearchParams.has("roomId") &&
+        urlSearchParams.get("roomId") != null &&
+        handleViewRoom(urlSearchParams.get("roomId") ?? "")
       ),
-    [handleViewRoom, searchQuery]
+    [handleViewRoom, urlSearchParams]
   );
 
   // Effect to update the query params in the URL bar
   useEffect(() => {
     // copy current search params
-    const newParams = searchQuery.clone();
+    const newRoomQueryWrapper = roomQueryWrapper.clone();
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;
     // idk why filters were updated so early
     updateHasFilters();
     // remove params not in new API URI
-    for (const [key] of newParams.entries()) {
+    for (const [key] of newRoomQueryWrapper.entries()) {
       // seperately check for presence of roomId param
       if (key === "roomId") continue;
       // remove otherwise
-      if (!apiParams.has(key)) newParams.delete(key);
+      if (!apiParams.has(key)) newRoomQueryWrapper.delete(key);
     }
     // add params from API URI
     for (const [key, value] of apiParams.entries()) {
       // @ts-expect-error Key probably is valid
-      if (value !== "") newParams.set(key, value);
+      if (value !== "") newRoomQueryWrapper.set(key, value);
     }
     // set as new search params of page
     // this will reflect in the url
-    setUrlQueryParams(newParams.toQueryParams());
-  }, [searchQuery, apiUri, setUrlQueryParams, updateHasFilters]);
+    setUrlSearchParams(newRoomQueryWrapper.toQueryParams());
+  }, [roomQueryWrapper, apiUri, setUrlSearchParams, updateHasFilters]);
 
   return (
     <div className="section-Search">
@@ -264,8 +271,8 @@ export default function SectionSearch(): React.ReactNode {
               "ল্যান্ডমার্ক, এলাকা ইত্যাদি দ্বারা অনুসন্ধান করুন",
               "लैंडमार्क, क्षेत्र आदि से खोजें"
             )}
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            value={searchStringInput}
+            onChange={(e) => setSearchStringInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <button className="search-button" onClick={handleSearch}>
@@ -282,9 +289,9 @@ export default function SectionSearch(): React.ReactNode {
         {!isMobileView && (
           <div className="filters-sidebar">
             <FilterSearch
-              currentFilters={searchQuery}
-              handleFilterChange={handleFilterChange}
-              handleFilterClear={handleFilterClear}
+              currentRoomQuery={roomQueryWrapper}
+              handleQueryChange={handleQueryChange}
+              handleQueryClear={handleQueryClear}
             />
           </div>
         )}
