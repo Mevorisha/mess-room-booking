@@ -49,6 +49,14 @@ export class IdentityPhotosDTO extends ADataTransferObj {
     }
   }
 
+  static override create(data: ConstructorParams): IdentityPhotosDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<IdentityPhotosDTO, DtoValidationError> {
     const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
       workId: MultiSizePhotoDTO,

@@ -55,6 +55,14 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
     this.isDeleted = ttl != null;
   }
 
+  static override create(data: ConstructorParams): RoomGetResBodyOwnerDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<RoomGetResBodyOwnerDTO, DtoValidationError> {
     const buildFieldResult = ADataTransferObj._buildDtoFields(json, { images: MultiSizePhotoDTO });
     if (buildFieldResult.isErr) {

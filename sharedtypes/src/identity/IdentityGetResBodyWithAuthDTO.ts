@@ -76,6 +76,14 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
     this.isDeleted = ttl != null;
   }
 
+  static override create(data: ConstructorParams): IdentityGetResBodyWithAuthDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<IdentityGetResBodyWithAuthDTO, DtoValidationError> {
     const buildFieldResult = ADataTransferObj._buildDtoFields(json, {
       profilePhotos: MultiSizePhotoDTO,

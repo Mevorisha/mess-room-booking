@@ -20,6 +20,14 @@ export class IdentityPostReqBodyDTO extends ADataTransferObj {
     this.email = data.email;
   }
 
+  static override create(data: ConstructorParams): IdentityPostReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<IdentityPostReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }

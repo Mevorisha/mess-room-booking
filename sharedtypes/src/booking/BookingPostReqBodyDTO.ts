@@ -50,6 +50,14 @@ export class BookingPostReqBodyDTO extends ADataTransferObj {
     }
   }
 
+  static override create(data: ConstructorParams): BookingPostReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<BookingPostReqBodyDTO, DtoValidationError> {
     return ADataTransferObj._fromJson(new this(json as ConstructorParams));
   }

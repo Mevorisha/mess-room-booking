@@ -18,8 +18,8 @@ import {
 import { Base64PhotoUploadDTO } from "../types/Base64PhotoUploadDTO";
 import { Type } from "class-transformer";
 
-interface ConstructorParamsNoFiles {
-  ownerId: string;
+interface BaseParams {
+  ownerId?: string;
   acceptGender: AcceptGender;
   acceptOccupation: AcceptOccupation;
   searchTags: string[];
@@ -31,20 +31,16 @@ interface ConstructorParamsNoFiles {
   minorTags?: string[];
   capacity: number;
   pricePerOccupant: number;
-}
-
-interface ConstructorParamsWithFiles extends ConstructorParamsNoFiles {
   files: Base64PhotoUploadDTO[];
 }
 
-type ConstructorParams<T extends "files" | "nofiles"> = T extends "nofiles"
-  ? ConstructorParamsNoFiles
-  : ConstructorParamsWithFiles;
+type ConditionalParams<T extends "files" | "nofiles"> = T extends "nofiles" ? Omit<BaseParams, "files"> : BaseParams;
 
-export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
+class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
   @IsOptional()
   @IsString()
-  ownerId: string;
+  @IsNotEmpty()
+  ownerId?: string;
 
   @IsEnum(AcceptGender)
   acceptGender: AcceptGender;
@@ -95,10 +91,12 @@ export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
   @IsPositive()
   pricePerOccupant: number;
 
-  protected constructor(data: ConstructorParams<"nofiles">) {
+  protected constructor(data: ConditionalParams<"nofiles">) {
     super();
 
-    this.ownerId = data.ownerId;
+    if (data.ownerId != null) {
+      this.ownerId = data.ownerId;
+    }
     this.acceptGender = data.acceptGender;
     this.acceptOccupation = data.acceptOccupation;
     this.searchTags = data.searchTags;
@@ -114,28 +112,44 @@ export class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
     this.pricePerOccupant = data.pricePerOccupant;
   }
 
+  static override create(data: ConditionalParams<"nofiles">): RoomPostReqBodyOmitFilesDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyOmitFilesDTO, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(json as ConstructorParams<"nofiles">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"nofiles">));
   }
 }
 
-export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
+class RoomPostReqBodyWithFilesDTO extends RoomPostReqBodyOmitFilesDTO {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Base64PhotoUploadDTO)
   files: Base64PhotoUploadDTO[];
 
-  private constructor(data: ConstructorParams<"files">) {
+  protected constructor(data: ConditionalParams<"files">) {
     super(data);
     this.files = data.files;
   }
 
-  static override fromJson(json: NetworkType): Result<RoomPostReqBodyDTO, DtoValidationError> {
+  static override create(data: ConditionalParams<"files">): RoomPostReqBodyWithFilesDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
+  }
+
+  static override fromJson(json: NetworkType): Result<RoomPostReqBodyWithFilesDTO, DtoValidationError> {
     const buildResult = ADataTransferObj._buildDtoFields(json, { files: Base64PhotoUploadDTO });
     if (buildResult.isErr) {
       throw buildResult.error;
     }
-    return ADataTransferObj._fromJson(new this(json as ConstructorParams<"files">));
+    return ADataTransferObj._fromJson(new this(json as ConditionalParams<"files">));
   }
 
   getFiles(): Base64PhotoUploadDTO[] {
@@ -145,4 +159,10 @@ export class RoomPostReqBodyDTO extends RoomPostReqBodyOmitFilesDTO {
   omitFiles(): RoomPostReqBodyOmitFilesDTO {
     return new RoomPostReqBodyOmitFilesDTO(this);
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace RoomPostReqBodyDTO {
+  export class OmitFiles extends RoomPostReqBodyOmitFilesDTO {}
+  export class WithFiles extends RoomPostReqBodyWithFilesDTO {}
 }

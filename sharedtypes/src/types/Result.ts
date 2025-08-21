@@ -115,6 +115,22 @@ export class Result<T, E extends Error> {
   }
 
   /**
+   * Returns the value if `Ok`, otherwise throws the contained error
+   * @throws {E} The contained error
+   *
+   * @example
+   * ```ts
+   * const value = Result.err(new Error("fail")).unwrapOrDie();
+   * ```
+   */
+  unwrapOrDie(): T {
+    if (this.isErr) {
+      throw this.error;
+    }
+    return this.value;
+  }
+
+  /**
    * Returns the value if `Ok`, otherwise returns the provided default.
    *
    * @example

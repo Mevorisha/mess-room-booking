@@ -52,3 +52,9 @@ export enum QuerySortOrder {
   ASCENDING = "asc",
   DESCENDING = "desc",
 }
+
+export enum LogType {
+  INFO = "info",
+  WARN = "warn",
+  ERROR = "error",
+}

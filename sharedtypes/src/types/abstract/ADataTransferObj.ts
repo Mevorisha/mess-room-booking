@@ -30,6 +30,10 @@ export abstract class ADataTransferObj implements ISerializable {
     }
   }
 
+  static create(_: unknown): unknown{
+    throw new Error("Unimplemented");
+  }
+
   static fromJson(_: NetworkType): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }

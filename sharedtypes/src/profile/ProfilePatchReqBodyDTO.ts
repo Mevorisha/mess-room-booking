@@ -37,9 +37,17 @@ class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
   @IsEnum(Language)
   language: Language;
 
-  private constructor(data: ConditionalParams<ProfilePatchParams.LANGUAGE>) {
+  protected constructor(data: ConditionalParams<ProfilePatchParams.LANGUAGE>) {
     super();
     this.language = data.language;
+  }
+
+  static override create(data: ConditionalParams<ProfilePatchParams.LANGUAGE>): ProfilePatchLanguageReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchLanguageReqBodyDTO, DtoValidationError> {
@@ -54,9 +62,17 @@ class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
   @IsMobilePhone()
   mobile: string;
 
-  private constructor(data: ConditionalParams<ProfilePatchParams.MOBILE>) {
+  protected constructor(data: ConditionalParams<ProfilePatchParams.MOBILE>) {
     super();
     this.mobile = data.mobile;
+  }
+
+  static override create(data: ConditionalParams<ProfilePatchParams.MOBILE>): ProfilePatchMobileReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchMobileReqBodyDTO, DtoValidationError> {
@@ -76,10 +92,18 @@ class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
   @IsNotEmpty()
   lastName: string;
 
-  private constructor(data: ConditionalParams<ProfilePatchParams.NAME>) {
+  protected constructor(data: ConditionalParams<ProfilePatchParams.NAME>) {
     super();
     this.firstName = data.firstName;
     this.lastName = data.lastName;
+  }
+
+  static override create(data: ConditionalParams<ProfilePatchParams.NAME>): ProfilePatchNameReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchNameReqBodyDTO, DtoValidationError> {
@@ -94,9 +118,17 @@ class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
   @IsEnum(IdentityType)
   type: IdentityType;
 
-  private constructor(data: ConditionalParams<ProfilePatchParams.TYPE>) {
+  protected constructor(data: ConditionalParams<ProfilePatchParams.TYPE>) {
     super();
     this.type = data.type;
+  }
+
+  static override create(data: ConditionalParams<ProfilePatchParams.TYPE>): ProfilePatchTypeReqBodyDTO {
+    const dtoResult = this.fromJson(new this(data));
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return dtoResult.value;
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchTypeReqBodyDTO, DtoValidationError> {
@@ -104,12 +136,10 @@ class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
   }
 }
 
-/**
- * TYPE MAPPING — alias to get correct DTO based on T
- */
-export const ProfilePatchReqBodyDTO = {
-  Language: ProfilePatchLanguageReqBodyDTO,
-  Mobile: ProfilePatchMobileReqBodyDTO,
-  Name: ProfilePatchNameReqBodyDTO,
-  Type: ProfilePatchTypeReqBodyDTO,
-} as const;
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace ProfilePatchReqBodyDTO {
+  export class Language extends ProfilePatchLanguageReqBodyDTO {}
+  export class Mobile extends ProfilePatchMobileReqBodyDTO {}
+  export class Name extends ProfilePatchNameReqBodyDTO {}
+  export class Type extends ProfilePatchTypeReqBodyDTO {}
+}
