@@ -1,6 +1,5 @@
 import { ADataTransferObj } from "@/types/abstract/ADataTransferObj";
 import { DtoValidationError } from "@/types/errors/DtoValidationError";
-import { NetworkType } from "@/types/NetworkType";
 import { Result } from "@/types/Result";
 import { AcceptGender, AcceptOccupation, QuerySortOrder, RoomSortFields } from "@/types/typeEnums";
 import { Exclude } from "class-transformer";
@@ -254,8 +253,11 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
     return dtoResult.value;
   }
 
-  static override fromJson(data: NetworkType): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
-    return ADataTransferObj._fromJson(new this(data as ConstructorParams));
+  static fromURL(url?: URL): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
+    if (url == null) {
+      throw new DtoValidationError("Missing URL");
+    }
+    return ADataTransferObj._fromJson(new this(url.searchParams));
   }
 
   override toString(): string {
