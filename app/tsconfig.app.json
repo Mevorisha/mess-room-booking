@@ -40,6 +40,7 @@
     "sourceMap": true,                        // Generates corresponding .map file
     "declaration": true,                      // Generate .d.ts files
     "declarationMap": true,                   // Generate sourcemaps for d.ts files
+    "experimentalDecorators": true,
 
     "baseUrl": "src/",
     "paths": {
