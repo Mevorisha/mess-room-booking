@@ -253,11 +253,11 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
     return dtoResult.value;
   }
 
-  static fromURL(url?: URL): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
+  static fromURL(url?: string): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
     if (url == null) {
       throw new DtoValidationError("Missing URL");
     }
-    return ADataTransferObj._fromJson(new this(url.searchParams));
+    return ADataTransferObj._fromJson(new this(new URL(url).searchParams));
   }
 
   override toString(): string {

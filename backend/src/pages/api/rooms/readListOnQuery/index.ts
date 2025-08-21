@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   ApiResponseUrlType,
-  QuerySortOrder,
   RoomGetReqQueryParamsWrapper,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
@@ -86,13 +85,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (queryResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", queryResult.error);
   }
-  const {
-    self = false,
-    sortOn,
-    sortOrder = QuerySortOrder.DESCENDING,
-    page = 1,
-    invalidateCache = false,
-  } = queryResult.value;
+  const { self, sortOn, sortOrder, page, invalidateCache } = queryResult.value;
 
   // Handle authentication for self queries
   let uid: string | null = null;
