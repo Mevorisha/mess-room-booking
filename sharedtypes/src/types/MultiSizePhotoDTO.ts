@@ -38,7 +38,7 @@ export class MultiSizePhotoDTO extends ADataTransferObj {
   }
 
   static override create(data: ConstructorParams): MultiSizePhotoDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

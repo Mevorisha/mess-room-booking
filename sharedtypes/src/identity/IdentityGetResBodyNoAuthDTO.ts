@@ -58,7 +58,7 @@ export class IdentityGetResBodyNoAuthDTO extends ADataTransferObj {
   }
 
   static override create(data: ConstructorParams): IdentityGetResBodyNoAuthDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

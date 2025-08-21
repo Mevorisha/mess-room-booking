@@ -77,7 +77,7 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   }
 
   static override create(data: ConstructorParams): IdentityGetResBodyWithAuthDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

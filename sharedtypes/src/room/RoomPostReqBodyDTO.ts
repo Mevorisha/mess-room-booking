@@ -113,7 +113,7 @@ class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<"nofiles">): RoomPostReqBodyOmitFilesDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -137,7 +137,7 @@ class RoomPostReqBodyWithFilesDTO extends RoomPostReqBodyOmitFilesDTO {
   }
 
   static override create(data: ConditionalParams<"files">): RoomPostReqBodyWithFilesDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

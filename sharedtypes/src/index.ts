@@ -15,6 +15,7 @@ export * from "./logs/LogPostReqBodyDTO.js";
 export * from "./profile/ProfilePatchReqBodyDTO.js";
 
 // Room DTOs
+export * from "./room/RoomGetReqQueryParamsWrapper.js";
 export * from "./room/RoomGetResBodyNotOwnerDTO.js";
 export * from "./room/RoomGetResBodyOwnerDTO.js";
 export * from "./room/RoomPatchReqBodyDTO.js";

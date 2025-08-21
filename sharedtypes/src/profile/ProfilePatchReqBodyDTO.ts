@@ -43,7 +43,7 @@ class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<ProfilePatchParams.LANGUAGE>): ProfilePatchLanguageReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -68,7 +68,7 @@ class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<ProfilePatchParams.MOBILE>): ProfilePatchMobileReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -99,7 +99,7 @@ class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<ProfilePatchParams.NAME>): ProfilePatchNameReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -124,7 +124,7 @@ class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<ProfilePatchParams.TYPE>): ProfilePatchTypeReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

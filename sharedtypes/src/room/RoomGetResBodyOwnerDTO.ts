@@ -56,7 +56,7 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
   }
 
   static override create(data: ConstructorParams): RoomGetResBodyOwnerDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

@@ -180,7 +180,7 @@ class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<RoomPatchParams.BASE_PARAMS>): RoomPatchParamsReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -211,7 +211,7 @@ class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<RoomPatchParams.RATING>): RoomPatchRatingReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
@@ -236,7 +236,7 @@ class RoomPatchIsUnavailableReqBodyDTO extends ADataTransferObj {
   }
 
   static override create(data: ConditionalParams<RoomPatchParams.IS_UNAVAILABLE>): RoomPatchIsUnavailableReqBodyDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }

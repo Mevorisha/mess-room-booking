@@ -140,7 +140,7 @@ export class RoomGetResBodyNotOwnerDTO extends ADataTransferObj {
   }
 
   static override create(data: ConstructorParams): RoomGetResBodyNotOwnerDTO {
-    const dtoResult = this.fromJson(new this(data));
+    const dtoResult = this.fromJson(data);
     if (dtoResult.isErr) {
       throw dtoResult.error;
     }
