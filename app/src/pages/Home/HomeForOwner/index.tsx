@@ -18,6 +18,7 @@ import type { Base64FileData } from "@/modules/util/dataConversion";
 import RoomDTO from "@/modules/networkTypes/Room";
 
 import "./styles.css";
+import { RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export interface DraftData {
   url: string;
@@ -94,10 +95,14 @@ function TabRooms(): React.ReactNode {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       try {
-        const { json } = await apiGetOrDelete(
-          "GET",
-          ApiPaths.Rooms.readListOnQuery({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false })
-        ).then(({ json }) => ({ json } as { json: { rooms: RoomDTO[]; totalPages: number } }));
+        const searchQuery = RoomGetReqQueryParamsWrapper.create({
+          self: true,
+          page: page,
+          invalidateCache: params?.invalidateCache ?? false,
+        });
+        const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery(searchQuery)).then(
+          ({ json }) => ({ json } as { json: { rooms: RoomDTO[]; totalPages: number } })
+        );
         setRooms(json.rooms);
         setRoomPages(json.totalPages);
         setIsLoadingRooms(false);

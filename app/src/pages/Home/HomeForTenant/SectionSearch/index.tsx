@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import RoomDTO, { RoomQueryParser } from "@/modules/networkTypes/Room";
+import RoomDTO from "@/modules/networkTypes/Room";
 import { lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
@@ -11,10 +11,10 @@ import LoadingAnimation from "@/components/LoadingAnimation";
 import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
-import { RoomQuery } from "@/modules/networkTypes/Room";
 import SectionRoomView from "@/pages/Home/sections/RoomView";
 
 import "./styles.css";
+import { RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export default function SectionSearch(): React.ReactNode {
   const notify = useNotification();
@@ -38,13 +38,7 @@ export default function SectionSearch(): React.ReactNode {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
-  const [searchQuery, setSearchQuery] = useState<RoomQuery>({
-    invalidateCache: true, // always invalidate cache on initial load unless overridden
-    page: 1, // start from page 1 on initial load unless overridden
-
-    // parse the query params from the URL and override the defaults
-    ...RoomQueryParser.from(urlQueryParams),
-  });
+  const [searchQuery, setSearchQuery] = useState(RoomGetReqQueryParamsWrapper.create(urlQueryParams));
   const apiUri = ApiPaths.Rooms.readListOnQuery(searchQuery);
 
   // State for search input
@@ -85,19 +79,21 @@ export default function SectionSearch(): React.ReactNode {
     if (searchStrLength > 0) {
       // Set searchTags in query and reset page to 1
       // also remove invalidateCache param if present
-      setSearchQuery(({ invalidateCache: _, ...oldQuery }) => ({
-        ...oldQuery,
-        searchTags: searchStr.split(" "),
-        page: 1,
-      }));
+      setSearchQuery((oldQuery) => {
+        const newQuery = oldQuery.clone();
+        newQuery.set("searchTags", searchStr.split(" "));
+        newQuery.set("page", 1);
+        return newQuery;
+      });
     } else {
       // Remove searchTags from query and remove page
       setSearchQuery((oldQuery) => {
-        delete oldQuery.searchTags;
-        delete oldQuery.page;
+        const newQuery = oldQuery.clone();
+        newQuery.delete("searchTags");
+        newQuery.delete("page");
         // unconditionally remove invalidateCache param
-        delete oldQuery.invalidateCache;
-        return { ...oldQuery };
+        newQuery.delete("invalidateCache");
+        return newQuery;
       });
     }
     // Update has filters
@@ -105,9 +101,13 @@ export default function SectionSearch(): React.ReactNode {
 
   // Function to handle filter changes
   const handleFilterChange = useCallback(
-    (newFilters: Partial<RoomQuery>) => {
+    (newFilters: RoomGetReqQueryParamsWrapper) => {
       // Set respective filters in query and reset page to 1
-      setSearchQuery(() => ({ ...newFilters, page: 1 }));
+      setSearchQuery(() => {
+        const newQuery = newFilters.clone();
+        newQuery.set("page", 1);
+        return newQuery;
+      });
       updateHasFilters();
     },
     [updateHasFilters, setSearchQuery]
@@ -117,8 +117,11 @@ export default function SectionSearch(): React.ReactNode {
   const handleFilterClear = useCallback(() => {
     // Clear all filters in query but keep searchTags
     setSearchQuery((oldQuery) => {
-      if (oldQuery.searchTags == null) return {};
-      return { searchTags: oldQuery.searchTags };
+      const newQuery = RoomGetReqQueryParamsWrapper.create();
+      const oldSearchTags = oldQuery.get("searchTags");
+      if (oldSearchTags == null) return newQuery;
+      newQuery.set("searchTags", oldSearchTags);
+      return newQuery;
     });
     updateHasFilters();
   }, [updateHasFilters, setSearchQuery]);
@@ -127,7 +130,11 @@ export default function SectionSearch(): React.ReactNode {
   const handlePageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
-      setSearchQuery((oldQuery) => ({ ...oldQuery, page }));
+      setSearchQuery((oldQuery) => {
+        const newQuery = oldQuery.clone();
+        newQuery.set("page", page);
+        return newQuery;
+      });
     },
     [setCurrentPage, setSearchQuery]
   );
@@ -172,8 +179,8 @@ export default function SectionSearch(): React.ReactNode {
 
       const userId = compUsr.userCtx.user.uid;
       // add roomId param if not already added to the url query params
-      if (!urlQueryParams.has("roomId") || urlQueryParams.get("roomId") == null) {
-        const newParams = new URLSearchParams(urlQueryParams);
+      if (!searchQuery.has("roomId") || searchQuery.get("roomId") == null) {
+        const newParams = searchQuery.toQueryParams();
         newParams.set("roomId", roomId);
         setUrlQueryParams(newParams);
       }
@@ -196,7 +203,7 @@ export default function SectionSearch(): React.ReactNode {
         })
         .catch((error: Error) => notify(error, "error"));
     },
-    [dialog, notify, compUsr, urlQueryParams, setUrlQueryParams, isRoomViewVisible, setIsRoomViewVisible]
+    [isRoomViewVisible, compUsr.userCtx.user.uid, searchQuery, dialog, setUrlQueryParams, notify]
   );
 
   // Effect to handle window resize for responsive design
@@ -213,17 +220,17 @@ export default function SectionSearch(): React.ReactNode {
   useEffect(
     () =>
       void (
-        urlQueryParams.has("roomId") &&
-        urlQueryParams.get("roomId") != null &&
-        handleViewRoom(urlQueryParams.get("roomId") ?? "")
+        searchQuery.has("roomId") &&
+        searchQuery.get("roomId") != null &&
+        handleViewRoom(searchQuery.get("roomId") ?? "")
       ),
-    [handleViewRoom, urlQueryParams]
+    [handleViewRoom, searchQuery]
   );
 
   // Effect to update the query params in the URL bar
   useEffect(() => {
     // copy current search params
-    const newParams = new URLSearchParams(urlQueryParams);
+    const newParams = searchQuery.toQueryParams();
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;
     // idk why filters were updated so early
@@ -242,7 +249,7 @@ export default function SectionSearch(): React.ReactNode {
     // set as new search params of page
     // this will reflect in the url
     setUrlQueryParams(newParams);
-  }, [urlQueryParams, apiUri, setUrlQueryParams, updateHasFilters]);
+  }, [searchQuery, apiUri, setUrlQueryParams, updateHasFilters]);
 
   return (
     <div className="section-Search">

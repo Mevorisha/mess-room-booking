@@ -2,9 +2,8 @@ import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
 import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
-import { RoomQuery } from "@/modules/networkTypes/Room.js";
 import JsonDataType from "@/modules/networkTypes/JsonData.js";
-import { ADataTransferObj, HeaderTypes, LogType } from "sharedtypes";
+import { ADataTransferObj, HeaderTypes, LogType, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -53,23 +52,8 @@ export class ApiPaths {
     create: (): string => `${ApiPaths.ROOMS}/create`,
     delete: (roomId: string, force?: boolean): string => `${ApiPaths.ROOMS}/${roomId}/delete?force=${force ?? false}`,
     restore: (roomId: string): string => `${ApiPaths.ROOMS}/${roomId}/restore`,
-    readListOnQuery: (query: RoomQuery = {}): string => {
-      const params = new URLSearchParams();
-      if (null != query.self) params.append("self", "" + query.self);
-      if (null != query.acceptGender) params.append("acceptGender", query.acceptGender);
-      if (null != query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
-      if (null != query.landmark) params.append("landmark", query.landmark);
-      if (null != query.city) params.append("city", query.city);
-      if (null != query.state) params.append("state", query.state);
-      if (null != query.capacity) params.append("capacity", "" + query.capacity);
-      if (null != query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
-      if (null != query.highPrice) params.append("highPrice", "" + query.highPrice);
-      if (null != query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
-      if (null != query.sortOn) params.append("sortOn", query.sortOn);
-      if (null != query.sortOrder) params.append("sortOrder", query.sortOrder);
-      if (null != query.page) params.append("page", "" + query.page);
-      if (null != query.invalidateCache) params.append("invalidateCache", "" + query.invalidateCache);
-      const queryString = params.toString();
+    readListOnQuery: (query: RoomGetReqQueryParamsWrapper): string => {
+      const queryString = query.toQueryParams().toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${(queryString.length > 0) ? "?" + queryString : ""}`;
     },
     read: (roomId: string): string => `${ApiPaths.ROOMS}/${roomId}/read`,

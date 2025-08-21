@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
-import { RoomQuery } from "@/modules/networkTypes/Room";
 import useDialog from "@/hooks/dialogbox";
-import { AcceptGender, AcceptOccupation } from "sharedtypes";
+import { GenderOptions, OccupationOptions } from "@/pages/Home/sections/RoomCreateForm";
+import { AcceptGender, AcceptOccupation, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 import "./styles.css";
+import { QuerySortOrder, RoomSortFields } from "sharedtypes/dist/types/typeEnums";
 
 interface FilterSearchProps {
-  currentFilters: RoomQuery;
-  handleFilterChange: (filters: Partial<RoomQuery>) => void;
+  currentFilters: RoomGetReqQueryParamsWrapper;
+  handleFilterChange: (filters: RoomGetReqQueryParamsWrapper) => void;
   handleFilterClear: () => void;
   isDialog?: boolean;
 }
@@ -23,63 +24,55 @@ export default function FilterSearch({
   const dialog = useDialog();
 
   // Local state for filter values
-  const [genderFilter, setGenderFilter] = useState<RoomQuery["acceptGender"]>(currentFilters.acceptGender);
-  const [occupationFilter, setOccupationFilter] = useState<RoomQuery["acceptOccupation"]>(
-    currentFilters.acceptOccupation
-  );
-  const [capacityFilter, setCapacityFilter] = useState<number | undefined>(currentFilters.capacity);
-  const [priceRange, setPriceRange] = useState<{ low: number | undefined; high: number | undefined }>({
-    low: currentFilters.lowPrice,
-    high: currentFilters.highPrice,
+  const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentFilters.get("acceptGender"));
+  const [occupationFilter, setOccupationFilter] = useState<OccupationOptions>(currentFilters.get("acceptOccupation"));
+  const [capacityFilter, setCapacityFilter] = useState<number | null>(currentFilters.get("capacity"));
+  const [priceRange, setPriceRange] = useState<{ low: number | null; high: number | null }>({
+    low: currentFilters.get("lowPrice"),
+    high: currentFilters.get("highPrice"),
   });
   const [sortOption, setSortOption] = useState<{
-    sortOn?: RoomQuery["sortOn"];
-    sortOrder?: RoomQuery["sortOrder"];
+    sortOn?: RoomSortFields | null;
+    sortOrder?: QuerySortOrder | null;
   }>({
-    sortOn: currentFilters.sortOn,
-    sortOrder: currentFilters.sortOrder,
+    sortOn: currentFilters.get("sortOn"),
+    sortOrder: currentFilters.get("sortOrder"),
   });
 
   // Update local state when currentFilters change
   useEffect(() => {
-    setGenderFilter(currentFilters.acceptGender);
-    setOccupationFilter(currentFilters.acceptOccupation);
-    setCapacityFilter(currentFilters.capacity);
-    setPriceRange({
-      low: currentFilters.lowPrice,
-      high: currentFilters.highPrice,
-    });
-    setSortOption({
-      sortOn: currentFilters.sortOn,
-      sortOrder: currentFilters.sortOrder,
-    });
+    setGenderFilter(currentFilters.get("acceptGender") ?? null);
+    setOccupationFilter(currentFilters.get("acceptOccupation") ?? null);
+    setCapacityFilter(currentFilters.get("capacity") ?? null);
+    setPriceRange({ low: currentFilters.get("lowPrice"), high: currentFilters.get("highPrice") });
+    setSortOption({ sortOn: currentFilters.get("sortOn"), sortOrder: currentFilters.get("sortOrder") });
   }, [currentFilters]);
 
   // Apply filters
   function handleApplyAction() {
     // First, create an object with only the non-null fields
-    const filterParams: Partial<RoomQuery> = {};
+    const filterParams = RoomGetReqQueryParamsWrapper.create();
     // Add each property only if it's not null or undefined
     if (genderFilter != null) {
-      filterParams.acceptGender = genderFilter;
+      filterParams.set("acceptGender", genderFilter);
     }
     if (occupationFilter != null) {
-      filterParams.acceptOccupation = occupationFilter;
+      filterParams.set("acceptOccupation", occupationFilter);
     }
     if (capacityFilter != null) {
-      filterParams.capacity = capacityFilter;
+      filterParams.set("capacity", capacityFilter);
     }
     if (priceRange.low != null) {
-      filterParams.lowPrice = priceRange.low;
+      filterParams.set("lowPrice", priceRange.low);
     }
     if (priceRange.high != null) {
-      filterParams.highPrice = priceRange.high;
+      filterParams.set("highPrice", priceRange.high);
     }
     if (sortOption.sortOn != null) {
-      filterParams.sortOn = sortOption.sortOn;
+      filterParams.set("sortOn", sortOption.sortOn);
     }
     if (sortOption.sortOrder != null) {
-      filterParams.sortOrder = sortOption.sortOrder;
+      filterParams.set("sortOrder", sortOption.sortOrder);
     }
     // Pass only the non-null fields to the function
     handleFilterChange(filterParams);
@@ -89,11 +82,11 @@ export default function FilterSearch({
   // Clear all filters
   function handleClearAction() {
     // Reset to currentFilters
-    setGenderFilter(currentFilters.acceptGender);
-    setOccupationFilter(currentFilters.acceptOccupation);
-    setCapacityFilter(currentFilters.capacity);
-    setPriceRange({ low: currentFilters.lowPrice, high: currentFilters.highPrice });
-    setSortOption({ sortOn: currentFilters.sortOn, sortOrder: currentFilters.sortOrder });
+    setGenderFilter(currentFilters.get("acceptGender"));
+    setOccupationFilter(currentFilters.get("acceptOccupation"));
+    setCapacityFilter(currentFilters.get("capacity"));
+    setPriceRange({ low: currentFilters.get("lowPrice"), high: currentFilters.get("highPrice") });
+    setSortOption({ sortOn: currentFilters.get("sortOn"), sortOrder: currentFilters.get("sortOrder") });
     handleFilterClear();
     if (isDialog) dialog.hide();
   }
@@ -114,19 +107,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${genderFilter === AcceptGender.MALE ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === AcceptGender.MALE ? void 0 : AcceptGender.MALE)}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.MALE ? null : AcceptGender.MALE)}
           >
             {lang("Male", "পুরুষ", "पुरुष")}
           </div>
           <div
             className={`filter-option ${genderFilter === AcceptGender.FEMALE ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === AcceptGender.FEMALE ? void 0 : AcceptGender.FEMALE)}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.FEMALE ? null : AcceptGender.FEMALE)}
           >
             {lang("Female", "মহিলা", "महिला")}
           </div>
           <div
             className={`filter-option ${genderFilter === AcceptGender.OTHER ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === AcceptGender.OTHER ? void 0 : AcceptGender.OTHER)}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.OTHER ? null : AcceptGender.OTHER)}
           >
             {lang("Other", "অন্যান্য", "अन्य")}
           </div>
@@ -138,19 +131,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${occupationFilter === AcceptOccupation.STUDENT ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.STUDENT ? void 0 : AcceptOccupation.STUDENT)} // prettier-ignore
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.STUDENT ? null : AcceptOccupation.STUDENT)} // prettier-ignore
           >
             {lang("Student", "ছাত্র", "छात्र")}
           </div>
           <div
             className={`filter-option ${occupationFilter === AcceptOccupation.PROFESSIONAL ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.PROFESSIONAL ? void 0 : AcceptOccupation.PROFESSIONAL)} // prettier-ignore
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.PROFESSIONAL ? null : AcceptOccupation.PROFESSIONAL)} // prettier-ignore
           >
             {lang("Professional", "পেশাদার", "पेशेवर")}
           </div>
           <div
             className={`filter-option ${occupationFilter === AcceptOccupation.ANY ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.ANY ? void 0 : AcceptOccupation.ANY)} // prettier-ignore
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.ANY ? null : AcceptOccupation.ANY)} // prettier-ignore
           >
             {lang("Any", "যেকোনো", "कोई भी")}
           </div>
@@ -162,19 +155,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${capacityFilter === 1 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 1 ? void 0 : 1)}
+            onClick={() => setCapacityFilter(capacityFilter === 1 ? null : 1)}
           >
             1 {lang("Person", "জন", "व्यक्ति")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 2 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 2 ? void 0 : 2)}
+            onClick={() => setCapacityFilter(capacityFilter === 2 ? null : 2)}
           >
             2 {lang("People", "জন", "लोग")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 3 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 3 ? void 0 : 3)}
+            onClick={() => setCapacityFilter(capacityFilter === 3 ? null : 3)}
           >
             3+ {lang("People", "জন", "लोग")}
           </div>
@@ -208,8 +201,8 @@ export default function FilterSearch({
           <select
             value={`${sortOption.sortOn ?? ""}-${sortOption.sortOrder ?? ""}`}
             onChange={(e) => {
-              const [sortOn, sortOrder] = e.target.value.split("-") as [RoomQuery["sortOn"], RoomQuery["sortOrder"]];
-              setSortOption({ sortOn: sortOn, sortOrder: sortOrder });
+              const [sortOn, sortOrder] = e.target.value.split("-") as [RoomSortFields | null, QuerySortOrder | null];
+              setSortOption({ sortOn, sortOrder });
             }}
           >
             <option value="">{lang("Default", "ডিফল্ট", "डिफ़ॉल्ट")}</option>
