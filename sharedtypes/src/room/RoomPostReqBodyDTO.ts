@@ -78,7 +78,6 @@ class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
 
   @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   minorTags?: string[];

@@ -103,7 +103,6 @@ class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
 
   @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   minorTags?: string[];
