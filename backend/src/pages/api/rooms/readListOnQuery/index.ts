@@ -81,7 +81,7 @@ const RoomsCache = new LRUCache<string, OneRoomEntry[]>({
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   RequestValidationParser.parse({ req, method: "GET" });
 
-  const queryResult = RoomGetReqQueryParamsWrapper.fromURL(req.url);
+  const queryResult = RoomGetReqQueryParamsWrapper.fromURL(req.url, `https://${req.headers.host}`);
   if (queryResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", queryResult.error);
   }
