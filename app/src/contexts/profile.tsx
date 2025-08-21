@@ -7,11 +7,12 @@ import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { updateProfile, User as FirebaseUser } from "firebase/auth";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
+import { ProfilePatchReqBodyDTO, IdentityType } from "sharedtypes";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
 export interface ProfileContextType {
-  updateProfileType: (type: "TENANT" | "OWNER") => Promise<void>;
+  updateProfileType: (type: IdentityType) => Promise<void>;
   updateProfilePhoto: (image: File) => Promise<string>;
   updateProfileName: (firstName: string, lastName: string) => Promise<void>;
 }
@@ -33,8 +34,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
-    async (type: "TENANT" | "OWNER"): Promise<void> =>
-      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), { type })
+    async (type: IdentityType): Promise<void> =>
+      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), ProfilePatchReqBodyDTO.Type.create({ type }))
         .then(() => dispatchUser({ type }))
         .then(() =>
           notify(
@@ -78,7 +79,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
   const updateProfileName = useCallback(
     async (firstName: string, lastName: string): Promise<void> =>
-      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateName(user.uid), { firstName, lastName })
+      apiPostOrPatchJson(
+        "PATCH",
+        ApiPaths.Profile.updateName(user.uid),
+        ProfilePatchReqBodyDTO.Name.create({ firstName, lastName })
+      )
         .then(() =>
           updateProfile(FirebaseAuth.currentUser as FirebaseUser, { displayName: `${firstName} ${lastName}` })
         )

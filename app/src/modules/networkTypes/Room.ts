@@ -1,7 +1,5 @@
+import { AcceptGender, AcceptOccupation } from "sharedtypes";
 import MultiSizePhoto from "./MultiSizePhoto";
-
-export type AcceptGender = "MALE" | "FEMALE" | "OTHER";
-export type AcceptOccupation = "STUDENT" | "PROFESSIONAL" | "ANY";
 
 /**
  * Room Data Transfer Object (DTO)
@@ -73,13 +71,13 @@ export class RoomQueryParser {
     if (data["acceptGender"] != null) {
       const gender = String(data["acceptGender"]).toUpperCase();
       if (["MALE", "FEMALE", "OTHER"].includes(gender)) {
-        result.acceptGender = gender as "MALE" | "FEMALE" | "OTHER";
+        result.acceptGender = gender as AcceptGender;
       }
     }
     if (data["acceptOccupation"] != null) {
       const occupation = String(data["acceptOccupation"]).toUpperCase();
       if (["STUDENT", "PROFESSIONAL", "ANY"].includes(occupation)) {
-        result.acceptOccupation = occupation as "STUDENT" | "PROFESSIONAL" | "ANY";
+        result.acceptOccupation = occupation as AcceptOccupation;
       }
     }
     // Simple string fields

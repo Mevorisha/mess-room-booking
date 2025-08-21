@@ -1,3 +1,4 @@
+import { Base64PhotoUploadDTO, Base64PhotoUploadMimeTypes } from "sharedtypes";
 import { lang } from "./language.js";
 
 /**
@@ -105,13 +106,13 @@ export interface Base64FileData {
   base64: string;
 }
 
-export function fileToBase64FileData(file: File): Promise<Base64FileData> {
+export function fileToBase64FileData(file: File): Promise<Base64PhotoUploadDTO> {
   function onloaded(
     _e: ProgressEvent<FileReader>,
     reader: FileReader,
-    fileType: string,
+    fileType: Base64PhotoUploadMimeTypes,
     fileName: string,
-    resolve: (value: Base64FileData | PromiseLike<Base64FileData>) => void,
+    resolve: (value: Base64PhotoUploadDTO) => void,
     reject: (reason?: unknown) => void
   ) {
     const readerData = reader.result;
@@ -122,27 +123,31 @@ export function fileToBase64FileData(file: File): Promise<Base64FileData> {
 
     if (typeof readerData === "string") {
       const base64string = readerData.split(",")[1] as string;
-      resolve({
-        type: fileType,
-        name: fileName,
-        base64: base64string,
-      });
+      resolve(
+        Base64PhotoUploadDTO.create({
+          type: fileType,
+          name: fileName,
+          base64: base64string,
+        })
+      );
       return;
     }
 
     const base64string = new Uint8Array(readerData).reduce((data, byte) => data + String.fromCharCode(byte), "");
 
-    resolve({
-      type: fileType,
-      name: fileName,
-      base64: btoa(base64string),
-    });
+    resolve(
+      Base64PhotoUploadDTO.create({
+        type: fileType,
+        name: fileName,
+        base64: btoa(base64string),
+      })
+    );
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise<Base64PhotoUploadDTO>((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = (e) => onloaded(e, reader, file.type, file.name, resolve, reject);
+    reader.onload = (e) => onloaded(e, reader, file.type as Base64PhotoUploadMimeTypes, file.name, resolve, reject);
     reader.onerror = (error: unknown) => reject(new Error(String(error)));
   });
 }

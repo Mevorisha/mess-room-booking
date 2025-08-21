@@ -1,5 +1,6 @@
 import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import { LogPostReqBodyDTO, LogType } from "sharedtypes";
 
 async function logInfo(operation: string, descrip: string, code = "code_unknown"): Promise<void> {
   const uid = localStorage.getItem("uid") ?? "user_logged_out";
@@ -7,7 +8,7 @@ async function logInfo(operation: string, descrip: string, code = "code_unknown"
   console.log(message);
   try {
     const timestamp = new Date().toUTCString();
-    await apiPostOrPatchJson("POST", ApiPaths.Logs.put("info"), { timestamp, message });
+    await apiPostOrPatchJson("POST", ApiPaths.Logs.put(LogType.INFO), LogPostReqBodyDTO.create({ timestamp, message }));
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, error);
   }
@@ -19,7 +20,11 @@ async function logError(operation: string, descrip: string, code = "code_unknown
   console.error(message);
   try {
     const timestamp = new Date().toUTCString();
-    await apiPostOrPatchJson("POST", ApiPaths.Logs.put("error"), { timestamp, message });
+    await apiPostOrPatchJson(
+      "POST",
+      ApiPaths.Logs.put(LogType.ERROR),
+      LogPostReqBodyDTO.create({ timestamp, message })
+    );
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, error);
   }

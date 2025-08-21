@@ -3,6 +3,7 @@ import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import { RoomQuery } from "@/modules/networkTypes/Room";
 import useDialog from "@/hooks/dialogbox";
+import { AcceptGender, AcceptOccupation } from "sharedtypes";
 
 import "./styles.css";
 
@@ -112,20 +113,20 @@ export default function FilterSearch({
         <h4>{lang("Gender", "লিঙ্গ", "लिंग")}</h4>
         <div className="filter-options">
           <div
-            className={`filter-option ${genderFilter === "MALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "MALE" ? void 0 : "MALE")}
+            className={`filter-option ${genderFilter === AcceptGender.MALE ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.MALE ? void 0 : AcceptGender.MALE)}
           >
             {lang("Male", "পুরুষ", "पुरुष")}
           </div>
           <div
-            className={`filter-option ${genderFilter === "FEMALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "FEMALE" ? void 0 : "FEMALE")}
+            className={`filter-option ${genderFilter === AcceptGender.FEMALE ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.FEMALE ? void 0 : AcceptGender.FEMALE)}
           >
             {lang("Female", "মহিলা", "महिला")}
           </div>
           <div
-            className={`filter-option ${genderFilter === "OTHER" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "OTHER" ? void 0 : "OTHER")}
+            className={`filter-option ${genderFilter === AcceptGender.OTHER ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.OTHER ? void 0 : AcceptGender.OTHER)}
           >
             {lang("Other", "অন্যান্য", "अन्य")}
           </div>
@@ -136,20 +137,20 @@ export default function FilterSearch({
         <h4>{lang("Occupation", "পেশা", "व्यवसाय")}</h4>
         <div className="filter-options">
           <div
-            className={`filter-option ${occupationFilter === "STUDENT" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "STUDENT" ? void 0 : "STUDENT")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.STUDENT ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.STUDENT ? void 0 : AcceptOccupation.STUDENT)} // prettier-ignore
           >
             {lang("Student", "ছাত্র", "छात्र")}
           </div>
           <div
-            className={`filter-option ${occupationFilter === "PROFESSIONAL" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "PROFESSIONAL" ? void 0 : "PROFESSIONAL")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.PROFESSIONAL ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.PROFESSIONAL ? void 0 : AcceptOccupation.PROFESSIONAL)} // prettier-ignore
           >
             {lang("Professional", "পেশাদার", "पेशेवर")}
           </div>
           <div
-            className={`filter-option ${occupationFilter === "ANY" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "ANY" ? void 0 : "ANY")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.ANY ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.ANY ? void 0 : AcceptOccupation.ANY)} // prettier-ignore
           >
             {lang("Any", "যেকোনো", "कोई भी")}
           </div>
@@ -194,7 +195,7 @@ export default function FilterSearch({
           <input
             type="number"
             placeholder={lang("Max", "সর্বাধিক", "अधिकतम")}
-            value={priceRange.high ?? "(unset)"}
+            value={priceRange.high ?? ""}
             onChange={(e) => setPriceRange({ ...priceRange, high: Number(e.target.value) })}
             min={priceRange.low ?? 0}
           />
@@ -205,7 +206,7 @@ export default function FilterSearch({
         <h4>{lang("Sort By", "সাজান", "सॉर्ट करें")}</h4>
         <div className="sort-options">
           <select
-            value={`${sortOption.sortOn ?? "(unset)"}-${sortOption.sortOrder ?? "(unset)"}`}
+            value={`${sortOption.sortOn ?? ""}-${sortOption.sortOrder ?? ""}`}
             onChange={(e) => {
               const [sortOn, sortOrder] = e.target.value.split("-") as [RoomQuery["sortOn"], RoomQuery["sortOrder"]];
               setSortOption({ sortOn: sortOn, sortOrder: sortOrder });

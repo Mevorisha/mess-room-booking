@@ -1,3 +1,4 @@
+import { IdentityType, Language } from "sharedtypes";
 import MultiSizePhoto from "./MultiSizePhoto";
 
 export interface IdentityPhotos {
@@ -6,9 +7,6 @@ export interface IdentityPhotos {
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
-
-export type Language = "ENGLISH" | "BANGLA" | "HINDI";
-export type IdentityType = "OWNER" | "TENANT";
 
 /**
  * Identity Data Transfer Object (DTO)

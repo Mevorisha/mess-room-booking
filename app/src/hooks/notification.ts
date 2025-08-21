@@ -1,5 +1,6 @@
 import { useCallback, useContext } from "react";
 import NotificationContext from "@/contexts/notification.jsx";
+import { DtoValidationError } from "sharedtypes";
 
 export default function useNotification(): (
   message: string | Error,
@@ -17,7 +18,19 @@ export default function useNotification(): (
        */
       if (typeof msgOrErr === "string" && msgOrErr.length <= 0) return;
       /* set message and kind */
-      setMessage(msgOrErr instanceof Error ? msgOrErr.message.toString() : msgOrErr);
+      if (msgOrErr instanceof DtoValidationError) {
+        const allErrMsg = msgOrErr.message.split("\n").map((str) => str.trim());
+        const lineOne = allErrMsg[1];
+        const cleanMsg =
+          lineOne != null
+            ? `DtoValidationError: ${lineOne} (and ${allErrMsg.length} more)`
+            : `DtoValidationError (total ${allErrMsg.length})`;
+        setMessage(cleanMsg);
+      } else if (msgOrErr instanceof Error) {
+        setMessage(msgOrErr.message.toString());
+      } else {
+        setMessage(msgOrErr);
+      }
       setKind(kind);
       if (kind === "error") console.error(msgOrErr);
       /* begin sliding in animation */

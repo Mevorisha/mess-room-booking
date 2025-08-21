@@ -5,6 +5,7 @@ import { EmailPasswdAuth, LinkMobileNumber } from "@/modules/firebase/auth.js";
 import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
+import { ProfilePatchReqBodyDTO } from "sharedtypes";
 
 /* ---------------------------------- AUTH CONTEXT OBJECT ----------------------------------- */
 
@@ -103,9 +104,13 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
           );
           return LinkMobileNumber.verifyOtp(otp);
         })
-        .then(async (phno) => {
-          await apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateMobile(user.uid), { mobile: phno });
-          dispatchUser({ mobile: phno });
+        .then(async (mobile) => {
+          await apiPostOrPatchJson(
+            "PATCH",
+            ApiPaths.Profile.updateMobile(user.uid),
+            ProfilePatchReqBodyDTO.Mobile.create({ mobile })
+          );
+          dispatchUser({ mobile });
         })
         .then(() =>
           notify(

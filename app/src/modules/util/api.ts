@@ -4,6 +4,7 @@ import * as config from "@/modules/config.js";
 import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
 import { RoomQuery } from "@/modules/networkTypes/Room.js";
 import JsonDataType from "@/modules/networkTypes/JsonData.js";
+import { ADataTransferObj, LogType } from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -87,7 +88,7 @@ export class ApiPaths {
   };
 
   static Logs = {
-    put: (type: "info" | "error"): string => `${ApiPaths.LOGS}/put?type=${type}`,
+    put: (type: LogType): string => `${ApiPaths.LOGS}/put?type=${type}`,
   };
 }
 
@@ -151,10 +152,14 @@ export async function apiGetOrDelete(
 /**
  * @param {"POST" | "PATCH"} method
  * @param {string} path The API call path. Get this from ApiPaths class
- * @param {Object} json
- * @returns {Promise<Object>}
+ * @param {ADataTransferObj} dto
+ * @returns {Promise<unknown>}
  */
-export async function apiPostOrPatchJson(method: "POST" | "PATCH", path: string, json: object): Promise<object> {
+export async function apiPostOrPatchJson(
+  method: "POST" | "PATCH",
+  path: string,
+  dto?: ADataTransferObj
+): Promise<unknown> {
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
@@ -162,10 +167,10 @@ export async function apiPostOrPatchJson(method: "POST" | "PATCH", path: string,
         "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(json),
+      body: dto != null ? JSON.stringify(dto.toJSON()) : null,
     })
   );
-  return (await resonse.json()) as object;
+  return resonse.json();
 }
 
 /**

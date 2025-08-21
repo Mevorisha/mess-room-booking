@@ -2,14 +2,15 @@ import React, { useState, createContext, useCallback, useContext } from "react";
 import UserContext from "./user.jsx";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
+import { Language, ProfilePatchReqBodyDTO } from "sharedtypes";
 
 export interface LanguageContextType {
-  lang: "ENGLISH" | "BANGLA" | "HINDI";
-  setLang: (val: "ENGLISH" | "BANGLA" | "HINDI", updateRemote?: boolean) => void;
+  lang: Language;
+  setLang: (val: Language, updateRemote?: boolean) => void;
 }
 
 const LangContext = createContext<LanguageContextType>({
-  lang: (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI",
+  lang: (window.localStorage.getItem("lang") ?? "ENGLISH") as Language,
   setLang: () => void 0,
 });
 
@@ -23,17 +24,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
   } = useContext(UserContext);
   const notify = useNotification();
 
-  const [lang, _setLang] = useState((): "ENGLISH" | "BANGLA" | "HINDI" => {
-    const newLangSt = (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI";
+  const [lang, _setLang] = useState((): Language => {
+    const newLangSt = (window.localStorage.getItem("lang") ?? "ENGLISH") as Language;
     return newLangSt;
   });
 
   const setLang = useCallback(
-    (newVal: "ENGLISH" | "BANGLA" | "HINDI", updateRemote = true) =>
+    (newVal: Language, updateRemote = true) =>
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         if (updateRemote) {
-          apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateLanguage(uid), { language: newVal })
+          apiPostOrPatchJson(
+            "PATCH",
+            ApiPaths.Profile.updateLanguage(uid),
+            ProfilePatchReqBodyDTO.Language.create({ language: newVal })
+          )
             .then(() => {
               // ensure all modules are reloaded with the new language value
               if (oldVal !== newVal) window.location.href = "/";

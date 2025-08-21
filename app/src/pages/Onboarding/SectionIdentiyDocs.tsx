@@ -9,6 +9,7 @@ import ButtonText from "@/components/ButtonText";
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
 import { lang } from "@/modules/util/language.js";
+import { DocType, DocVisibility } from "sharedtypes";
 
 /**
  * Section where the user can upload their identity documents.
@@ -48,14 +49,10 @@ export default function SectionIdentiyDocs(): React.ReactNode {
     }
   }
 
-  function handleVisibilityChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: "WORK_ID" | "GOV_ID",
-    value: "PUBLIC" | "PRIVATE"
-  ) {
+  function handleVisibilityChange(e: React.ChangeEvent<HTMLInputElement>, type: DocType, value: DocVisibility) {
     e.preventDefault();
     switch (type) {
-      case "WORK_ID":
+      case DocType.WORK_ID:
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ workId: value })
           .then(() =>
@@ -71,7 +68,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
           .then(() => setForceWorkImgReload((old) => old + 1))
           .catch((e: Error) => notify(e, "error"));
         break;
-      case "GOV_ID":
+      case DocType.GOV_ID:
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ govId: value })
           .then(() =>
@@ -141,7 +138,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       name="visibility"
                       value="public"
                       checked={!compUsr.userCtx.user.identityPhotos.workId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PUBLIC")}
+                      onChange={(e) => handleVisibilityChange(e, DocType.WORK_ID, DocVisibility.PUBLIC)}
                     />
                     {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
@@ -151,7 +148,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       name="visibility"
                       value="private"
                       checked={compUsr.userCtx.user.identityPhotos.workId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PRIVATE")}
+                      onChange={(e) => handleVisibilityChange(e, DocType.WORK_ID, DocVisibility.PRIVATE)}
                     />
                     {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>
@@ -192,7 +189,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       name="visibility"
                       value="public"
                       checked={!compUsr.userCtx.user.identityPhotos.govId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PUBLIC")}
+                      onChange={(e) => handleVisibilityChange(e, DocType.GOV_ID, DocVisibility.PUBLIC)}
                     />
                     {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
@@ -202,7 +199,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       name="visibility"
                       value="private"
                       checked={compUsr.userCtx.user.identityPhotos.govId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PRIVATE")}
+                      onChange={(e) => handleVisibilityChange(e, DocType.GOV_ID, DocVisibility.PRIVATE)}
                     />
                     {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>

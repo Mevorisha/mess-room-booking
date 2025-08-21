@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
+import { AcceptOccupation, RoomPatchReqBodyDTO } from "sharedtypes";
+
 import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
@@ -8,7 +10,7 @@ import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
 import RoomDTO from "@/modules/networkTypes/Room";
 import { Base64FileData } from "@/modules/util/dataConversion.js";
-import { AcceptOccupation } from "@/modules/networkTypes/Room";
+import { OccupationOptions } from "../RoomCreateForm";
 
 import PillsInput from "@/components/PillsInput";
 import ButtonText from "@/components/ButtonText";
@@ -16,8 +18,6 @@ import ImageFilesInput from "@/components/ImageFilesInput";
 import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
-
-type OccupationOptions = AcceptOccupation | "";
 
 /**
  * Not a DTO but the schema of form data.
@@ -89,9 +89,9 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
     const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
 
-    const formData: RoomUpdateFormData = {
+    const formData = RoomPatchReqBodyDTO.BaseParams.create({
       isUnavailable,
-      acceptOccupation,
+      acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
       landmark,
       address,
@@ -104,7 +104,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
       keepFiles: keepFilesArr,
       addFiles: base64Images,
-    };
+    });
 
     // submit to backend
     setSubmitButtonKind("loading");
@@ -236,7 +236,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
           <select
             required
-            value={acceptOccupation}
+            value={acceptOccupation ?? ""}
             onChange={(e) => setAcceptOccupation(e.target.value as OccupationOptions)}
           >
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>

@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
+import { AcceptGender, AcceptOccupation, RoomPostReqBodyDTO } from "sharedtypes";
+
 import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import { AcceptGender, AcceptOccupation } from "@/modules/networkTypes/Room";
 
 import PillsInput from "@/components/PillsInput";
 import ButtonText from "@/components/ButtonText";
@@ -91,7 +92,9 @@ export default function SectionRoomCreateForm({
       .open(SECTION_ROOM_FORM_CACHE_PATH)
       .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
-      .then((data?: CachableDraftFormData) => {
+      .then ((json) => json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json))
+      .then((cachedResult) => cachedResult?.unwrapOrDie())
+      .then((data?: RoomPostReqBodyDTO.WithFiles) => {
         if (data == null) return;
         setAcceptGender(data.acceptGender);
         setAcceptOccupation(data.acceptOccupation);
@@ -127,9 +130,9 @@ export default function SectionRoomCreateForm({
 
     const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
 
-    const formData: CachableDraftFormData = {
-      acceptGender,
-      acceptOccupation,
+    const formData = RoomPostReqBodyDTO.WithFiles.create({
+      acceptGender: acceptGender as AcceptGender,
+      acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
       landmark: landmarkInput.current.value,
       address: addressInput.current.value,
@@ -141,11 +144,11 @@ export default function SectionRoomCreateForm({
       pricePerOccupant: Number(pricePerOccupant),
 
       files: base64Files,
-    };
+    });
 
     // save form data draft in cache
     if (submitAction === "save-draft") {
-      const jsonString = JSON.stringify(formData);
+      const jsonString = JSON.stringify(formData.toJSON());
       const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
       const cacheUrl = internalCacheUrl ?? (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
       await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));

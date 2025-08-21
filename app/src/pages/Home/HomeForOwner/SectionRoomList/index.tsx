@@ -158,7 +158,7 @@ export default function SectionRooms({
   }
 
   function handleRestoreRoom(roomId: string): void {
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId), {})
+    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
       .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रुम रीस्टोर किया गया है"), "success"))
       .then(() => reloadApi({ invalidateCache: true }))
       .catch((e: Error) => notify(e, "error"));

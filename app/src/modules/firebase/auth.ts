@@ -21,6 +21,7 @@ import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { AsyncLock } from "@/modules/util/asyncLock.js";
+import { IdentityPostReqBodyDTO } from "sharedtypes";
 
 let RecaptchaVerifierObject: RecaptchaVerifier | null = null;
 let RecaptchaVerifierConfirmationResult: ConfirmationResult | null = null;
@@ -206,10 +207,11 @@ class GoogleAuth {
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -233,10 +235,11 @@ class AppleAuth {
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -260,10 +263,11 @@ class MicrosoftAuth {
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -275,13 +279,14 @@ class MicrosoftAuth {
 
 // Legacy (email) / Password Auth Wrapper
 class EmailPasswdAuth {
-  static async register(email: string, password: string): Promise<string> {
+  static async register(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { uid, email } } = await createUserWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -290,13 +295,14 @@ class EmailPasswdAuth {
     }
   }
 
-  static async login(email: string, password: string): Promise<string> {
+  static async login(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { uid, email } } = await signInWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);

@@ -5,6 +5,7 @@ import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
+import { DocVisibility, IdentityPatchImageVisibilityDTO } from "sharedtypes";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -20,8 +21,8 @@ export interface IdentityContextType {
     workId,
     govId,
   }: {
-    workId?: "PUBLIC" | "PRIVATE";
-    govId?: "PUBLIC" | "PRIVATE";
+    workId?: DocVisibility;
+    govId?: DocVisibility;
   }) => Promise<void>;
 }
 
@@ -107,7 +108,7 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
   );
 
   const updateIdentityPhotosVisibility = useCallback(
-    async ({ workId, govId }: { workId?: "PUBLIC" | "PRIVATE"; govId?: "PUBLIC" | "PRIVATE" }) => {
+    async ({ workId, govId }: { workId?: DocVisibility; govId?: DocVisibility }) => {
       if (workId != null || govId != null) {
         notify(
           lang(
@@ -121,14 +122,14 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
 
       if (workId != null) {
         const oldLocalImageObj = user.identityPhotos?.workId?.clone();
-        const newLocalImageObj = workId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
-        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("WORK_ID", user.uid), { visibility: workId }); // prettier-ignore
+        const newLocalImageObj = workId === DocVisibility.PRIVATE ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
+        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("WORK_ID", user.uid), IdentityPatchImageVisibilityDTO.create({ visibility: workId })); // prettier-ignore
         if (newLocalImageObj != null) dispatchUser({ identityPhotos: { workId: newLocalImageObj } });
       }
       if (govId != null) {
         const oldLocalImageObj = user.identityPhotos?.govId?.clone();
-        const newLocalImageObj = govId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
-        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("GOV_ID", user.uid), { visibility: govId }); // prettier-ignore
+        const newLocalImageObj = govId === DocVisibility.PRIVATE ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
+        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("GOV_ID", user.uid), IdentityPatchImageVisibilityDTO.create({ visibility: govId })); // prettier-ignore
         if (newLocalImageObj != null) dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
       }
     },
