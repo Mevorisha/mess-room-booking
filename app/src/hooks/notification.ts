@@ -23,7 +23,7 @@ export default function useNotification(): (
         const lineOne = allErrMsg[1];
         const cleanMsg =
           lineOne != null
-            ? `DtoValidationError: ${lineOne} (and ${allErrMsg.length} more)`
+            ? `DtoValidationError: ${lineOne} (and ${allErrMsg.length -3} more)`
             : `DtoValidationError (total ${allErrMsg.length})`;
         setMessage(cleanMsg);
       } else if (msgOrErr instanceof Error) {
