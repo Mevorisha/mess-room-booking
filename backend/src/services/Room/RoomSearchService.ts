@@ -5,32 +5,14 @@ import { CustomApiError } from "@/types/CustomApiError";
 import {
   QuerySortOrder,
   RoomSortFields,
-  AcceptGender,
-  AcceptOccupation,
   ApiResponseUrlType,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
+  RoomGetReqQueryParamsWrapper,
 } from "sharedtypes";
 import { RoomTransformer } from "./RoomTransformer";
 import { Timestamp } from "firebase-admin/firestore";
 import { QueryWrapper } from "@/types/QueryWrapper";
-
-// prettier-ignore
-export type RoomSearchParams = Partial<{
-  ownerId: string                    | undefined;
-  acceptGender: AcceptGender         | undefined;
-  acceptOccupation: AcceptOccupation | undefined;
-  landmark: string                   | undefined;
-  city: string                       | undefined;
-  state: string                      | undefined;
-  capacity: number                   | undefined;
-  lowPrice: number                   | undefined;
-  highPrice: number                  | undefined;
-  searchTags: Set<string>            | undefined;
-  // probably not use | undefinedd
-  createdOn: FirebaseFirestore.Timestamp      | undefined;
-  lastModifiedOn: FirebaseFirestore.Timestamp | undefined;
-}>;
 
 export interface RoomQueryOptions {
   isOwner?: boolean;
@@ -59,19 +41,19 @@ interface FirebaseQueryableData {
 
 export class RoomSearchService {
   static async queryAll(
-    params: RoomSearchParams,
+    params: RoomGetReqQueryParamsWrapper,
     extUrls: ApiResponseUrlType,
     options?: { isOwner?: false; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
   ): Promise<RoomGetResBodyNotOwnerDTO[]>;
 
   static async queryAll(
-    params: RoomSearchParams,
+    params: RoomGetReqQueryParamsWrapper,
     extUrls: ApiResponseUrlType,
     options?: { isOwner: true; sortOn?: RoomSortFields | undefined; sortOrder?: QuerySortOrder | undefined }
   ): Promise<RoomGetResBodyOwnerDTO[]>;
 
   static async queryAll(
-    params: RoomSearchParams,
+    params: RoomGetReqQueryParamsWrapper,
     extUrls: ApiResponseUrlType,
     options?: RoomQueryOptions
   ): Promise<RoomGetResBodyNotOwnerDTO[] | RoomGetResBodyOwnerDTO[]> {
@@ -123,7 +105,7 @@ export class RoomSearchService {
   // ----------------------------------------------- PRIVATE HELPER FUNCTIONS ----------------------------------------------------
 
   // Helper function to build Firestore query
-  private static buildFirestoreQuery(params: RoomSearchParams, options?: RoomQueryOptions) {
+  private static buildFirestoreQuery(params: RoomGetReqQueryParamsWrapper, options?: RoomQueryOptions) {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
     let query = QueryWrapper.create<RoomModel>(ref);
 
@@ -154,12 +136,6 @@ export class RoomSearchService {
     }
     if (params.highPrice != null) {
       query = query.where("pricePerOccupant", "<=", params.highPrice);
-    }
-    if (params.createdOn != null) {
-      query = query.where("createdOn", ">=", params.createdOn);
-    }
-    if (params.lastModifiedOn != null) {
-      query = query.where("lastModifiedOn", ">=", params.lastModifiedOn);
     }
 
     const isOwner = options?.isOwner ?? false;
@@ -199,7 +175,7 @@ export class RoomSearchService {
   // Helper function to filter by tags and apply tag-based sorting
   private static firebaseFilterAndSort(
     docs: FirebaseFirestore.QueryDocumentSnapshot[],
-    params: RoomSearchParams
+    params: RoomGetReqQueryParamsWrapper
   ): RoomModelWithSortPrio[] {
     const results: RoomModelWithSortPrio[] = [];
 
@@ -207,8 +183,8 @@ export class RoomSearchService {
       const roomModel = doc.data() as RoomModel;
 
       // Apply tag filtering if searchTags are provided
-      if (params.searchTags != null && params.searchTags.size > 0) {
-        const tagResult = RoomSearchService.getTagMatchPriority(roomModel, params.searchTags);
+      if (params.searchTags != null && params.searchTags.length > 0) {
+        const tagResult = RoomSearchService.getTagMatchPriority(roomModel, new Set(params.searchTags));
         if (!tagResult.hasMatch) continue;
 
         results.push({
@@ -291,7 +267,7 @@ export class RoomSearchService {
   // Helper function to apply final sorting
   private static customSort(
     rooms: RoomModelWithSortPrio[],
-    params: RoomSearchParams,
+    params: RoomGetReqQueryParamsWrapper,
     sortOn?: RoomSortFields
   ): RoomModel[] {
     const sortedResults = rooms.sort((a, b) => {
@@ -304,7 +280,7 @@ export class RoomSearchService {
       // Regular search sorting
       if (sortOn != null) {
         // If search tags were used, use sortPriority as secondary sort
-        if (params.searchTags != null && params.searchTags.size > 0) {
+        if (params.searchTags != null && params.searchTags.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           return (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
         }
@@ -312,7 +288,7 @@ export class RoomSearchService {
         return 0;
       } else {
         // Sort primarily by search tag priority if used
-        if (params.searchTags != null && params.searchTags.size > 0) {
+        if (params.searchTags != null && params.searchTags.length > 0) {
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const priorityDiff = (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
           if (priorityDiff !== 0) return priorityDiff;

@@ -32,7 +32,9 @@ type ConstructorParams = Partial<{
   sortOrder: QuerySortOrder;
   page: number;
   invalidateCache: boolean;
-  roomId: string;
+  // used internally
+  roomId: string; // used at frontend
+  ownerId: string; // used at backend
 }>;
 
 export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
@@ -44,6 +46,12 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   @IsString()
   @IsNotEmpty()
   roomId?: string;
+
+  @Exclude()
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  ownerId?: string;
 
   // always request rooms in non-owner mode/view
   @IsBoolean()

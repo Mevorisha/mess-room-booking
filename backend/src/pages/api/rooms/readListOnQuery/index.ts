@@ -1,6 +1,11 @@
-import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ApiResponseUrlType, QuerySortOrder, RoomGetResBodyNotOwnerDTO, RoomGetResBodyOwnerDTO } from "sharedtypes";
+import {
+  ApiResponseUrlType,
+  QuerySortOrder,
+  RoomGetReqQueryParamsWrapper,
+  RoomGetResBodyNotOwnerDTO,
+  RoomGetResBodyOwnerDTO,
+} from "sharedtypes";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
@@ -9,7 +14,6 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { LRUCache } from "lru-cache";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RoomSearchService } from "@/services/Room/RoomSearchService";
-import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 type OneRoomEntry = RoomGetResBodyNotOwnerDTO | RoomGetResBodyOwnerDTO;
 
@@ -22,30 +26,6 @@ const RoomsCache = new LRUCache<string, OneRoomEntry[]>({
   sizeCalculation: (value) => JSON.stringify(value).length, // Calculate size based on JSON string length
   ttl: 1000 * 60 * 2, // Time to live for cache items (2 minutes)
   allowStale: false,
-});
-
-const QuerySchema = z.object({
-  self: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,
-
-  // RoomSearchParams
-  ownerId: CommonZodSchemas.Basic.STRING_NONEMPTY_OPTIONAL,
-  acceptGender: CommonZodSchemas.Enum.ACCEPT_GENDER.optional(),
-  acceptOccupation: CommonZodSchemas.Enum.ACCEPT_OCCUPATION.optional(),
-  landmark: CommonZodSchemas.Basic.STRING_NONEMPTY_OPTIONAL,
-  city: CommonZodSchemas.Basic.STRING_NONEMPTY_OPTIONAL,
-  state: CommonZodSchemas.Basic.STRING_NONEMPTY_OPTIONAL,
-  capacity: CommonZodSchemas.QueryParam.INT,
-  lowPrice: CommonZodSchemas.QueryParam.NUM,
-  highPrice: CommonZodSchemas.QueryParam.NUM,
-  searchTags: CommonZodSchemas.QueryParam.COMMASEP,
-
-  // Other params
-  sortOn: CommonZodSchemas.QueryParam.ROOM_SORT_FIELDS,
-  sortOrder: CommonZodSchemas.QueryParam.SORT_ORDER,
-
-  // Pagination & cache control
-  page: CommonZodSchemas.QueryParam.INT,
-  invalidateCache: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,
 });
 
 /**
@@ -100,18 +80,19 @@ const QuerySchema = z.object({
  * ```
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
+  RequestValidationParser.parse({ req, method: "GET" });
+
+  const queryResult = RoomGetReqQueryParamsWrapper.fromJson(req.query);
+  if (queryResult.isErr) {
+    throw CustomApiError.create(400, "Bad Request", queryResult.error);
+  }
   const {
     self = false,
     sortOn,
     sortOrder = QuerySortOrder.DESCENDING,
     page = 1,
     invalidateCache = false,
-    ...queryParams
-  } = RequestValidationParser.parse({
-    req,
-    method: "GET",
-    params: QuerySchema,
-  });
+  } = queryResult.value;
 
   // Handle authentication for self queries
   let uid: string | null = null;
@@ -126,12 +107,12 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   } else {
     uid = authResult.getUid();
     // For self queries, ensure the authenticated user matches the ownerId filter
-    if (self && queryParams.ownerId != null && queryParams.ownerId !== uid) {
+    if (self && queryResult.value.get("ownerId") != null && queryResult.value.get("ownerId") !== uid) {
       throw CustomApiError.create(403, "Cannot query other user's rooms");
     }
     // If self=true but no ownerId provided, set it to the authenticated user's ID
-    if (self && queryParams.ownerId == null) {
-      queryParams.ownerId = uid;
+    if (self && queryResult.value.get("ownerId") == null) {
+      queryResult.value.set("ownerId", uid);
     }
   }
 
@@ -149,14 +130,14 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   if (roomsData == null || invalidateCache) {
     if (self) {
       // Execute the query - always fetch all fields, we'll filter in formatting
-      roomsData = await RoomSearchService.queryAll(queryParams, ApiResponseUrlType.API_URI, {
+      roomsData = await RoomSearchService.queryAll(queryResult.value, ApiResponseUrlType.API_URI, {
         isOwner: true,
         sortOn,
         sortOrder,
       });
     } else {
       // Execute the query - always fetch all fields, we'll filter in formatting
-      roomsData = await RoomSearchService.queryAll(queryParams, ApiResponseUrlType.API_URI, {
+      roomsData = await RoomSearchService.queryAll(queryResult.value, ApiResponseUrlType.API_URI, {
         isOwner: false,
         sortOn,
         sortOrder,

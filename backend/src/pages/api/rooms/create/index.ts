@@ -41,10 +41,7 @@ export const config = {
  * ```
  */
 export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
-  RequestValidationParser.parse({
-    req,
-    method: "POST",
-  });
+  RequestValidationParser.parse({ req, method: "POST" });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
