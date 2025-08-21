@@ -1,6 +1,7 @@
 import { FirestorePaths } from "@/firebase/init";
-import { LogType, DateTimeRange, LogsModel } from "@/models/Logs";
+import { DateTimeRange, LogsModel } from "@/models/Logs";
 import { ValueOf } from "next/dist/shared/lib/constants";
+import { LogType } from "sharedtypes";
 
 export class LogsRepo {
   /**

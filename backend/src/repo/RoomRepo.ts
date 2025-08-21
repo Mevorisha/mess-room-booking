@@ -5,7 +5,7 @@ import {
   AutoSetFields,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
-  RoomPostReqBodyOmitFilesDTO,
+  RoomPostReqBodyDTO,
 } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
 import pickObjProps from "@/utils/pickObjProps";
@@ -18,8 +18,12 @@ export class RoomRepo {
   /**
    * Create a new room document
    */
-  static async create(dto: RoomPostReqBodyOmitFilesDTO): Promise<string> {
+  static async create(dto: RoomPostReqBodyDTO.OmitFiles): Promise<string> {
     const ref = FirebaseFirestore.collection(FirestorePaths.ROOMS);
+
+    if (dto.ownerId == null) {
+      throw CustomApiError.create(500, "Internal Server Error", "Missing Owner UID");
+    }
 
     const querySnapshot = await QueryWrapper.create<RoomModel>(ref)
       .where("ownerId", "==", dto.ownerId)
@@ -61,9 +65,14 @@ export class RoomRepo {
       roomData.minorTags = Array.from(new Set(roomData.minorTags));
     }
 
+    if (roomData.ownerId == null) {
+      throw CustomApiError.create(500, "Internal Server Error", "Missing Owner UID");
+    }
+
     const docRef = ref.doc();
     const createData: RoomModel = {
       // room data from controller
+      ownerId: roomData.ownerId,
       ...roomData,
       // intialise
       id: docRef.id,

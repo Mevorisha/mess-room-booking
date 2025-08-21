@@ -65,7 +65,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   }
 
   // Set owner ID and validate input data
-  const postResult = RoomPostReqBodyDTO.fromJson({ ownerId: uid, ...req.body });
+  const postResult = RoomPostReqBodyDTO.WithFiles.fromJson({ ownerId: uid, ...req.body });
   if (postResult.isErr) {
     throw CustomApiError.create(400, "Bad Request", postResult.error);
   }

@@ -1,6 +1,5 @@
-import { LogType } from "@/models/Logs";
 import { RoomSortFields, QuerySortOrder } from "sharedtypes";
-import { AcceptGender, AcceptOccupation, MultiSizeImageSz } from "sharedtypes";
+import { LogType, AcceptGender, AcceptOccupation, MultiSizeImageSz } from "sharedtypes";
 import z from "zod";
 
 export const CommonZodSchemas = {
