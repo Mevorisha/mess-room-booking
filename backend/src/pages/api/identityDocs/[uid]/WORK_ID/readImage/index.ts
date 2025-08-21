@@ -5,7 +5,7 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import HeaderTypes from "@/types/HeaderTypes";
+import { HeaderTypes } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType } from "sharedtypes";

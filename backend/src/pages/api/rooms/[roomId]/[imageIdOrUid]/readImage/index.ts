@@ -5,7 +5,7 @@ import { StoragePaths } from "@/firebase/init";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import HeaderTypes from "@/types/HeaderTypes";
+import { HeaderTypes } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 

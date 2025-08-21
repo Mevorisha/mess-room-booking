@@ -4,7 +4,7 @@ import * as config from "@/modules/config.js";
 import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
 import { RoomQuery } from "@/modules/networkTypes/Room.js";
 import JsonDataType from "@/modules/networkTypes/JsonData.js";
-import { ADataTransferObj, LogType } from "sharedtypes";
+import { ADataTransferObj, HeaderTypes, LogType } from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -132,8 +132,8 @@ export async function apiGetOrDelete(
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        "Content-Type": "application/json",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
     })
   );
@@ -164,8 +164,8 @@ export async function apiPostOrPatchJson(
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        "Content-Type": "application/json",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
       body: dto != null ? JSON.stringify(dto.toJSON()) : null,
     })
@@ -186,8 +186,8 @@ export async function apiPostOrPatchFile(method: "POST" | "PATCH", path: string,
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        // "Content-Type": "", <-- To be set by browser for formdata, DO NOT set manually
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        // [HeaderTypes.CONTENT_TYPE]: void 0, <-- To be set by browser for formdata, DO NOT set manually
       },
       body: formData,
     })

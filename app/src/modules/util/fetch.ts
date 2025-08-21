@@ -3,6 +3,7 @@ import { FirebaseAuth } from "@/modules/firebase/init";
 import { errorHandlerWrapperOnCallApi } from "./api";
 import { CachePaths } from "./caching";
 import { fileToDataUrl } from "./dataConversion";
+import { HeaderTypes } from "sharedtypes";
 
 const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
 const CACHE_EXPIRATION_OFFSET_7D = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -64,7 +65,7 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
 
   const headers: Record<string, string> = {};
   if (requireAuth) {
-    headers["X-Firebase-Token"] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
+    headers[HeaderTypes.X_FIREBASE_TOKEN] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
   }
 
   // Fetch the image from the URL
