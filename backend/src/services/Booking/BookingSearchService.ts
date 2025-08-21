@@ -1,6 +1,6 @@
 import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
 import { CustomApiError } from "@/types/CustomApiError";
-import { ApiResponseUrlType, BookingGetResBodyDTO, QuerySortOrder } from "sharedtypes";
+import { ApiResponseUrlType, BookingGetResBodyDTO, QuerySortOrder, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 import { RoomSearchService } from "@/services/Room/RoomSearchService";
 import { QueryWrapper } from "@/types/QueryWrapper";
 import { BookingModel } from "@/models/Booking";
@@ -55,7 +55,10 @@ export class BookingSearchService {
       }
       // Apply filters using room ids of the owner if present
       case "OWNER": {
-        const roomsByOwner = await RoomSearchService.queryAll({ ownerId: params.ownerId }, ApiResponseUrlType.API_URI);
+        const roomsByOwner = await RoomSearchService.queryAll(
+          RoomGetReqQueryParamsWrapper.create({ ownerId: params.ownerId }),
+          ApiResponseUrlType.API_URI
+        );
         const roomIds = roomsByOwner.map((room) => room.id);
 
         if (roomIds.length === 0) {
