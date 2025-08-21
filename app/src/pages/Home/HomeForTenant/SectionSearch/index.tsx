@@ -238,6 +238,10 @@ export default function SectionSearch(): React.ReactNode {
   useEffect(() => {
     // copy current search params
     const newRoomQueryWrapper = roomQueryWrapper.clone();
+    // has to add extra line coz roomQueryWrapper ignores roomId in urlSearchParams
+    if (urlSearchParams.has("roomId")) {
+      newRoomQueryWrapper.set("roomId", urlSearchParams.get("roomId") ?? "unkown");
+    }
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;
     // idk why filters were updated so early
@@ -257,7 +261,7 @@ export default function SectionSearch(): React.ReactNode {
     // set as new search params of page
     // this will reflect in the url
     setUrlSearchParams(newRoomQueryWrapper.toQueryParams());
-  }, [roomQueryWrapper, apiUri, setUrlSearchParams, updateHasFilters]);
+  }, [roomQueryWrapper, apiUri, setUrlSearchParams, updateHasFilters, urlSearchParams]);
 
   return (
     <div className="section-Search">
