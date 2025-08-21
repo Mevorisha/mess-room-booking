@@ -230,13 +230,13 @@ export default function SectionSearch(): React.ReactNode {
   // Effect to update the query params in the URL bar
   useEffect(() => {
     // copy current search params
-    const newParams = searchQuery.toQueryParams();
+    const newParams = searchQuery.clone();
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;
     // idk why filters were updated so early
     updateHasFilters();
     // remove params not in new API URI
-    for (const key of newParams.keys()) {
+    for (const [key] of newParams.entries()) {
       // seperately check for presence of roomId param
       if (key === "roomId") continue;
       // remove otherwise
@@ -244,11 +244,12 @@ export default function SectionSearch(): React.ReactNode {
     }
     // add params from API URI
     for (const [key, value] of apiParams.entries()) {
-      if (value != "") newParams.set(key, value);
+      // @ts-expect-error Key probably is valid
+      if (value !== "") newParams.set(key, value);
     }
     // set as new search params of page
     // this will reflect in the url
-    setUrlQueryParams(newParams);
+    setUrlQueryParams(newParams.toQueryParams());
   }, [searchQuery, apiUri, setUrlQueryParams, updateHasFilters]);
 
   return (
