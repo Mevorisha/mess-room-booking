@@ -37,8 +37,8 @@ export default function FilterSearch({
     high: currentRoomQuery.get("highPrice"),
   });
   const [sortOption, setSortOption] = useState<{
-    sortOn?: RoomSortFields | null;
-    sortOrder?: QuerySortOrder | null;
+    sortOn?: RoomSortFields | null | "";
+    sortOrder?: QuerySortOrder | null | "";
   }>({
     sortOn: currentRoomQuery.get("sortOn"),
     sortOrder: currentRoomQuery.get("sortOrder"),
@@ -67,16 +67,16 @@ export default function FilterSearch({
     if (capacityFilter != null) {
       filterParams.set("capacity", capacityFilter);
     }
-    if (priceRange.low != null) {
+    if (priceRange.low != null && !Number.isNaN(priceRange.low)) {
       filterParams.set("lowPrice", priceRange.low);
     }
-    if (priceRange.high != null) {
+    if (priceRange.high != null && !Number.isNaN(priceRange.low)) {
       filterParams.set("highPrice", priceRange.high);
     }
-    if (sortOption.sortOn != null) {
+    if (sortOption.sortOn != null && sortOption.sortOn !== "") {
       filterParams.set("sortOn", sortOption.sortOn);
     }
-    if (sortOption.sortOrder != null) {
+    if (sortOption.sortOrder != null && sortOption.sortOrder !== "") {
       filterParams.set("sortOrder", sortOption.sortOrder);
     }
     // Pass only the non-null fields to the function
@@ -204,9 +204,12 @@ export default function FilterSearch({
         <h4>{lang("Sort By", "সাজান", "सॉर्ट करें")}</h4>
         <div className="sort-options">
           <select
-            value={`${sortOption.sortOn ?? ""}-${sortOption.sortOrder ?? ""}`}
+            value={`${sortOption.sortOn}-${sortOption.sortOrder}`}
             onChange={(e) => {
-              const [sortOn, sortOrder] = e.target.value.split("-") as [RoomSortFields | null, QuerySortOrder | null];
+              const [sortOn, sortOrder] = e.target.value.split("-") as [
+                RoomSortFields | null | "",
+                QuerySortOrder | null | ""
+              ];
               setSortOption({ sortOn, sortOrder });
             }}
           >
