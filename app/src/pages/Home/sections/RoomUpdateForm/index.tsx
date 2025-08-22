@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { AcceptOccupation, HttpMethodTypes, RoomPatchReqBodyDTO } from "sharedtypes";
+import { AcceptOccupation, HttpMethodTypes, RoomGetResBodyOwnerDTO, RoomPatchReqBodyDTO } from "sharedtypes";
 
 import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import RoomDTO from "@/modules/networkTypes/Room";
 import { Base64FileData } from "@/modules/util/dataConversion.js";
 import { OccupationOptions } from "../RoomCreateForm";
 
@@ -21,7 +20,7 @@ import "./styles.css";
 
 /**
  * Not a DTO but the schema of form data.
- * That's why we don't inherit from RoomDTO but define our own type.
+ * That's why we don't inherit from RoomGetResBodyOwnerDTO but define our own type.
  * See backend/src/pages/api/rooms/[roomId]/updateParams/index.ts for the API schema.
  */
 export interface RoomUpdateFormData {
@@ -45,7 +44,7 @@ export interface RoomUpdateFormData {
 }
 
 export interface SectionRoomUpdateFormProps {
-  roomData: RoomDTO;
+  roomData: RoomGetResBodyOwnerDTO;
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
 
@@ -67,7 +66,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>(roomData.minorTags));
   const [capacity, setCapacity] = useState<string>("" + roomData.capacity);
   const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
-  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable ?? false);
+  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
 
   // Initialize filesSet with images from roomData
   const [filesSet, setFilesSet] = useState(

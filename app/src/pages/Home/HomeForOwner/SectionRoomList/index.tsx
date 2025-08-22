@@ -8,8 +8,7 @@ import SectionRoomUpdateForm from "@/pages/Home/sections/RoomUpdateForm";
 import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
-import RoomDTO from "@/modules/networkTypes/Room";
-import { HttpMethodTypes } from "sharedtypes";
+import { HttpMethodTypes, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
 
@@ -30,7 +29,7 @@ function RatingDisplay({ rating, washout }: RatingDisplayProps): React.ReactNode
 
 export interface RestoreOrDeleteProps {
   dialog: DialogBoxHookType;
-  roomItem: RoomDTO;
+  roomItem: RoomGetResBodyOwnerDTO;
   handleRestoreRoom: (roomId: string) => void;
   handleDeleteRoom: (roomId: string, force?: boolean) => void;
 }
@@ -41,7 +40,7 @@ function RestoreOrDelete({
   handleRestoreRoom,
   handleDeleteRoom,
 }: RestoreOrDeleteProps): React.ReactNode {
-  if (!(roomItem.isDeleted ?? false)) {
+  if (!roomItem.isDeleted) {
     return (
       <button
         className="delete-item-button"
@@ -123,7 +122,7 @@ export interface SectionRoomsProps {
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
   isLoadingDrafts: boolean;
   isLoadingRooms: boolean;
-  rooms: RoomDTO[];
+  rooms: RoomGetResBodyOwnerDTO[];
   roomPages: number;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -147,7 +146,7 @@ export default function SectionRooms({
     reloadApi({ page: n }).catch((e: Error) => notify(e, "error"));
   }
 
-  function handleOpenRoom(roomData: RoomDTO): void {
+  function handleOpenRoom(roomData: RoomGetResBodyOwnerDTO): void {
     dialog.show(<SectionRoomUpdateForm roomData={roomData} reloadApi={reloadApi} />, "uibox");
   }
 
@@ -191,7 +190,7 @@ export default function SectionRooms({
         <>
           <ul className="content-list">
             {rooms.map((roomItem, index) => {
-              const washout = (roomItem.isDeleted ?? false) || (roomItem.isUnavailable ?? false) ? "washout" : "";
+              const washout = roomItem.isDeleted || roomItem.isUnavailable ? "washout" : "";
               return (
                 <li key={index} className="content-item">
                   <div className="item-preview">
@@ -210,24 +209,24 @@ export default function SectionRooms({
                         </div>
                         <div className="item-tags">
                           {/* Show only 2 search tags and 1 major tag */}
-                          {!(roomItem.isUnavailable ?? false) &&
-                            !(roomItem.isDeleted ?? false) &&
+                          {!roomItem.isUnavailable &&
+                            !roomItem.isDeleted &&
                             roomItem.searchTags.slice(0, 2).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag search-tag">
                                 {tag}
                               </span>
                             ))}
-                          {!(roomItem.isUnavailable ?? false) &&
-                            !(roomItem.isDeleted ?? false) &&
+                          {!roomItem.isUnavailable &&
+                            !roomItem.isDeleted &&
                             roomItem.majorTags.slice(0, 1).map((tag, idx) => (
                               <span key={idx} title={tag} className="tag major-tag">
                                 {tag}
                               </span>
                             ))}
-                          {!(roomItem.isDeleted ?? false) && (roomItem.isUnavailable ?? false) && (
+                          {!roomItem.isDeleted && roomItem.isUnavailable && (
                             <span className="tag hidden-tag">{lang("Unavalilable", "অনুপলব্ধ", "उपलब्ध नहीं है")}</span>
                           )}
-                          {(roomItem.isDeleted ?? false) && (
+                          {roomItem.isDeleted && (
                             <span className="tag deleted-tag">
                               {roomItem.ttl != null
                                 ? lang(
@@ -259,7 +258,7 @@ export default function SectionRooms({
                       <div className="item-rating-actions">
                         <RatingDisplay rating={roomItem.rating} washout={washout} />
                         <div className="item-actions">
-                          {!(roomItem.isDeleted ?? false) && (
+                          {!roomItem.isDeleted && (
                             <button
                               className="edit-item-button"
                               onClick={() => handleOpenRoom(roomItem)}

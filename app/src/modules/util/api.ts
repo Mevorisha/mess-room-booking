@@ -1,8 +1,6 @@
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
-import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
-import JsonDataType from "@/modules/networkTypes/JsonData.js";
 import {
   ADataTransferObj,
   DtoValidationError,
@@ -12,6 +10,7 @@ import {
   NetworkType,
   Result,
   RoomGetReqQueryParamsWrapper,
+  MultiSizeImageSz,
 } from "sharedtypes";
 
 export class ApiPaths {
@@ -86,6 +85,11 @@ export class ApiPaths {
 }
 
 // ---------------------------------------- errorHandlerWrapperOnCallApi --------------------------------------------------
+
+interface JsonDataType {
+  message?: string;
+  error?: string;
+}
 
 export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
   try {

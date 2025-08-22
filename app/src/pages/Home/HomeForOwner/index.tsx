@@ -15,7 +15,6 @@ import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
 import type { Base64FileData } from "@/modules/util/dataConversion";
-import RoomDTO from "@/modules/networkTypes/Room";
 import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
@@ -40,7 +39,7 @@ function TabRooms(): React.ReactNode {
   const notify = useNotification();
 
   const [drafts, setDrafts] = useState<DraftData[]>([]);
-  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomGetResBodyOwnerDTO[]>([]);
   const [roomPages, setRoomPages] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 

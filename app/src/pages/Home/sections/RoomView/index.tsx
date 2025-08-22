@@ -4,7 +4,6 @@ import useDialog from "@/hooks/dialogbox.js";
 
 import { lang } from "@/modules/util/language.js";
 import StringySet from "@/modules/classes/StringySet";
-import RoomDTO from "@/modules/networkTypes/Room";
 import { PagePaths, PageType } from "@/modules/util/pageUrls";
 
 import ButtonText from "@/components/ButtonText";
@@ -12,6 +11,7 @@ import ImageFilesInput from "@/components/ImageFilesInput";
 import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
+import { RoomGetResBodyNotOwnerDTO } from "sharedtypes";
 
 interface TagsDisplayProps {
   tags: string[];
@@ -39,7 +39,7 @@ function TagsDisplay({ tags, title, colorClass }: TagsDisplayProps): React.React
 }
 
 export interface SectionRoomViewProps {
-  roomData: RoomDTO;
+  roomData: RoomGetResBodyNotOwnerDTO;
   showBookingButton?: boolean;
   setIsRoomViewVisible?: (value: React.SetStateAction<boolean>) => void;
   reloadApi?: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;

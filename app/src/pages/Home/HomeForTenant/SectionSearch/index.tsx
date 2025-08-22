@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import RoomDTO from "@/modules/networkTypes/Room";
 import { lang } from "@/modules/util/language";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
@@ -31,7 +30,7 @@ export default function SectionSearch(): React.ReactNode {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
 
   // State for rooms data
-  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomGetResBodyNotOwnerDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalResuts, setTotalResuts] = useState<number>(1);
@@ -198,14 +197,13 @@ export default function SectionSearch(): React.ReactNode {
       const roomViewDialogId = dialog.show(<LoadingAnimation />, "large");
 
       // call api
-      apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.read(roomId))
-        .then(({ json }) => json as RoomDTO)
-        .then((roomData) => {
+      apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.read(roomId), RoomGetResBodyNotOwnerDTO)
+        .then(({ dto }) => {
           dialog.setContent(
             roomViewDialogId,
             <SectionRoomView
-              roomData={roomData}
-              showBookingButton={userId !== roomData.ownerId}
+              roomData={dto}
+              showBookingButton={userId !== dto.ownerId}
               setIsRoomViewVisible={setIsRoomViewVisible}
             />,
             "uibox"
