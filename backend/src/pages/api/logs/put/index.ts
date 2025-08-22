@@ -5,7 +5,7 @@ import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { LogPostReqBodyDTO } from "sharedtypes";
+import { HttpMethodTypes, LogPostReqBodyDTO } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { LogsRepo } from "@/repo/LogsRepo";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
@@ -21,7 +21,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
 
   const { type } = RequestValidationParser.parse({
     req,
-    method: "POST",
+    method: HttpMethodTypes.POST,
     params: z.object({ type: CommonZodSchemas.Enum.LOGTYPE }),
   });
 

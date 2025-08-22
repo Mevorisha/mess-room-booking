@@ -1,8 +1,7 @@
 import { NextApiRequest } from "next";
 import { CustomApiError } from "@/types/CustomApiError";
 import { z, ZodError } from "zod";
-
-export type MethodTypes = "POST" | "GET" | "PATCH" | "DELETE";
+import { HttpMethodTypes } from "sharedtypes";
 
 export class RequestValidationParser {
   /**
@@ -18,7 +17,7 @@ export class RequestValidationParser {
     params,
   }: {
     req: NextApiRequest;
-    method: MethodTypes;
+    method: HttpMethodTypes;
     params?: T;
   }): z.infer<T> {
     if (req.method !== method) {

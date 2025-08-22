@@ -55,7 +55,7 @@
 //  */
 // export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
 //   // Allow only GET requests
-//   if (req.method !== "GET") {
+//   if (req.method !== HttpMethodTypes.GET) {
 //     throw CustomApiError.create(405, "Method Not Allowed");
 //   }
 //   // Parse pagination parameters

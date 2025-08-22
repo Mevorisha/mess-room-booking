@@ -6,7 +6,7 @@ import { FirebaseAuth } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { ApiResponseUrlType, IdentityPostReqBodyDTO } from "sharedtypes";
+import { ApiResponseUrlType, IdentityPostReqBodyDTO, HttpMethodTypes } from "sharedtypes";
 import { CustomApiError } from "@/types/CustomApiError";
 
 /**
@@ -16,7 +16,7 @@ import { CustomApiError } from "@/types/CustomApiError";
  * ```
  */
 export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
-  RequestValidationParser.parse({ req, method: "POST" });
+  RequestValidationParser.parse({ req, method: HttpMethodTypes.POST });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);

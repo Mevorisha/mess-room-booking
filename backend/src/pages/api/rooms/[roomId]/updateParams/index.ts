@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { MultiSizePhotoModel } from "@/models/types";
-import { ApiResponseUrlType, IdentityType, MultiSizeImageSz, RoomPatchReqBodyDTO } from "sharedtypes";
+import { ApiResponseUrlType, HttpMethodTypes, IdentityType, MultiSizeImageSz, RoomPatchReqBodyDTO } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
@@ -48,7 +48,7 @@ export const config = {
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   const { roomId } = RequestValidationParser.parse({
     req,
-    method: "PATCH",
+    method: HttpMethodTypes.PATCH,
     params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
   });
 

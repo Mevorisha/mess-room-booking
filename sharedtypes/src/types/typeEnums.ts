@@ -70,3 +70,10 @@ export enum HeaderTypes {
   ACCESS_CONTROL_EXPOSE_HEADERS = "access-control-expose-headers",
   ACCESS_CONTROL_ALLOW_CREDENTIALS = "access-control-allow-credentials",
 }
+
+export enum HttpMethodTypes {
+  POST = "POST",
+  GET = "GET",
+  PATCH = "PATCH",
+  DELETE = "DELETE",
+}

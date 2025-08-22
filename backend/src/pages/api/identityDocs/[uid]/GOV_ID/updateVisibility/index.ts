@@ -7,7 +7,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { CustomApiError } from "@/types/CustomApiError";
-import { DocVisibility, IdentityPatchImageVisibilityDTO } from "sharedtypes";
+import { DocVisibility, HttpMethodTypes, IdentityPatchImageVisibilityDTO } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
@@ -20,7 +20,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Extract query params from request
   const { uid } = RequestValidationParser.parse({
     req,
-    method: "PATCH",
+    method: HttpMethodTypes.PATCH,
     params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 

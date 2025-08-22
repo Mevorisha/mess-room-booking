@@ -6,7 +6,7 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RoomRepo } from "@/repo/RoomRepo";
-import { ApiResponseUrlType } from "sharedtypes";
+import { ApiResponseUrlType, HttpMethodTypes } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RoomService } from "@/services/Room/RoomService";
@@ -20,7 +20,7 @@ import { RoomService } from "@/services/Room/RoomService";
 export default WithMiddleware(async function DELETE(req: NextApiRequest, res: NextApiResponse) {
   const { roomId, force: forceDelete = false } = RequestValidationParser.parse({
     req,
-    method: "DELETE",
+    method: HttpMethodTypes.DELETE,
     params: z.object({
       roomId: CommonZodSchemas.Basic.UID,
       force: CommonZodSchemas.QueryParam.OPTIONAL_BOOL,

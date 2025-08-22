@@ -5,7 +5,7 @@ import { StoragePaths } from "@/firebase/init";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { MultiSizeImageSz } from "sharedtypes";
+import { HttpMethodTypes, MultiSizeImageSz } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
@@ -29,7 +29,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Extract query params from request
   const { uid } = RequestValidationParser.parse({
     req,
-    method: "PATCH",
+    method: HttpMethodTypes.PATCH,
     params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 

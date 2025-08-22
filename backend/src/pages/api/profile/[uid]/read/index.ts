@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
-import { ApiResponseUrlType } from "sharedtypes";
+import { ApiResponseUrlType, HttpMethodTypes } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
@@ -56,7 +56,7 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   const { uid } = RequestValidationParser.parse({
     req,
-    method: "GET",
+    method: HttpMethodTypes.GET,
     params: z.object({ uid: CommonZodSchemas.Basic.UID }),
   });
 

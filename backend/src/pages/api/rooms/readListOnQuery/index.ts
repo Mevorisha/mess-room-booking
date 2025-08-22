@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   ApiResponseUrlType,
+  HttpMethodTypes,
   RoomGetReqQueryParamsWrapper,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
@@ -79,7 +80,7 @@ const RoomsCache = new LRUCache<string, OneRoomEntry[]>({
  * ```
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
-  RequestValidationParser.parse({ req, method: "GET" });
+  RequestValidationParser.parse({ req, method: HttpMethodTypes.GET });
 
   const queryResult = RoomGetReqQueryParamsWrapper.fromURL(req.url, `https://${req.headers.host}`);
   if (queryResult.isErr) {

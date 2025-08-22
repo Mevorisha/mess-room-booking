@@ -5,7 +5,7 @@ import { StoragePaths } from "@/firebase/init";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { HeaderTypes } from "sharedtypes";
+import { HeaderTypes, HttpMethodTypes } from "sharedtypes";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 
@@ -21,7 +21,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Extract query params from request
   const { roomId, imageIdOrUid: imageId, size, b64 = false } = RequestValidationParser.parse({
     req,
-    method: "GET",
+    method: HttpMethodTypes.GET,
     params: z.object({
       roomId: CommonZodSchemas.Basic.UID,
       imageIdOrUid: CommonZodSchemas.Basic.UID,

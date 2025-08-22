@@ -6,7 +6,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { StoragePaths } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { MultiSizeImageSz, RoomPostReqBodyDTO, ApiResponseUrlType, IdentityType } from "sharedtypes";
+import { MultiSizeImageSz, RoomPostReqBodyDTO, ApiResponseUrlType, IdentityType, HttpMethodTypes } from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { ImageUploaderService } from "@/services/ImageUploaderService";
@@ -41,7 +41,7 @@ export const config = {
  * ```
  */
 export default WithMiddleware(async function POST(req: NextApiRequest, res: NextApiResponse) {
-  RequestValidationParser.parse({ req, method: "POST" });
+  RequestValidationParser.parse({ req, method: HttpMethodTypes.POST });
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);

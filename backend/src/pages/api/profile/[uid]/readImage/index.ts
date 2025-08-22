@@ -4,7 +4,7 @@ import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { gsPathToUrl } from "@/models/utils/gsUrlManager";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import { HeaderTypes } from "sharedtypes";
+import { HeaderTypes, HttpMethodTypes } from "sharedtypes";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { ApiResponseUrlType } from "sharedtypes";
@@ -20,7 +20,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Extract query params from request
   const { uid, size, b64 = false } = RequestValidationParser.parse({
     req,
-    method: "GET",
+    method: HttpMethodTypes.GET,
     params: z.object({
       uid: CommonZodSchemas.Basic.UID,
       size: CommonZodSchemas.Enum.IMGSIZE,

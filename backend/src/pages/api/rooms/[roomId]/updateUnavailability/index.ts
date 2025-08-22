@@ -7,7 +7,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { ApiResponseUrlType, RoomPatchReqBodyDTO } from "sharedtypes";
+import { ApiResponseUrlType, HttpMethodTypes, RoomPatchReqBodyDTO } from "sharedtypes";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { RoomService } from "@/services/Room/RoomService";
 
@@ -20,7 +20,7 @@ import { RoomService } from "@/services/Room/RoomService";
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
   const { roomId } = RequestValidationParser.parse({
     req,
-    method: "PATCH",
+    method: HttpMethodTypes.PATCH,
     params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
   });
 

@@ -7,7 +7,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RoomRepo } from "@/repo/RoomRepo";
-import { ApiResponseUrlType } from "sharedtypes";
+import { ApiResponseUrlType, HttpMethodTypes } from "sharedtypes";
 
 /**
  * ```
@@ -20,7 +20,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
 
   const { roomId } = RequestValidationParser.parse({
     req,
-    method: "GET",
+    method: HttpMethodTypes.GET,
     params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
   });
 
