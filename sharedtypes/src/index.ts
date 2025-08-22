@@ -34,6 +34,7 @@ export * from "./types/IdentityPhotosDTO.js";
 export * from "./types/MultiSizePhotoDTO.js";
 export * from "./types/NetworkType.js";
 export * from "./types/NextJsTypes.js";
+export * from "./types/PaginationDTO.js";
 export * from "./types/Result.js";
 export * from "./types/typeEnums.js";
 export * from "./types/typeUnions.js";

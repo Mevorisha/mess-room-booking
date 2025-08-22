@@ -16,7 +16,7 @@ import User from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
 import type { Base64FileData } from "@/modules/util/dataConversion";
 import RoomDTO from "@/modules/networkTypes/Room";
-import { HttpMethodTypes, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
 
@@ -95,16 +95,15 @@ function TabRooms(): React.ReactNode {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       try {
-        const searchQuery = RoomGetReqQueryParamsWrapper.create({
-          self: true,
-          page: page,
-          invalidateCache: params?.invalidateCache ?? false,
-        });
-        const { json } = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)).then(
-          ({ json }) => ({ json } as { json: { rooms: RoomDTO[]; totalPages: number } })
-        );
-        setRooms(json.rooms);
-        setRoomPages(json.totalPages);
+        const searchQuery = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }); // prettier-ignore
+        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)); // prettier-ignore
+        const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyOwnerDTO>(response.json, RoomGetResBodyOwnerDTO); // prettier-ignore
+        if (paginationResult.isErr) {
+          throw paginationResult.error;
+        }
+        const currentPage = paginationResult.value;
+        setRooms(currentPage.items);
+        setRoomPages(currentPage.totalPages);
         setIsLoadingRooms(false);
       } catch (e) {
         setIsLoadingRooms(false);

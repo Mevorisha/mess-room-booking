@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import {
   ApiResponseUrlType,
   HttpMethodTypes,
+  PaginationDTO,
   RoomGetReqQueryParamsWrapper,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
@@ -14,6 +15,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
 import { LRUCache } from "lru-cache";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
 import { RoomSearchService } from "@/services/Room/RoomSearchService";
+import { ADataTransferObj } from "sharedtypes/dist/types/abstract/ADataTransferObj";
 
 type OneRoomEntry = RoomGetResBodyNotOwnerDTO | RoomGetResBodyOwnerDTO;
 
@@ -51,7 +53,7 @@ const RoomsCache = new LRUCache<string, OneRoomEntry[]>({
  *   totalItems: number,
  *   totalPages: number,
  *   currentPage: number,
- *   rooms: Array<{
+ *   items: Array<{
  *     id: string
  *     ownerId: string
  *     images: Array<string>
@@ -143,9 +145,14 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   }
 
   // Apply pagination
-  const paginatedResponse = paginateResults(roomsData, page);
+  let paginatedResponse: PaginationDTO<OneRoomEntry> | null = null;
+  if (self) {
+    paginatedResponse = paginateResults(roomsData, page, RoomGetResBodyOwnerDTO);
+  } else {
+    paginatedResponse = paginateResults(roomsData, page, RoomGetResBodyNotOwnerDTO);
+  }
 
-  return respond(res, { status: 200, json: paginatedResponse });
+  return respond(res, { status: 200, json: paginatedResponse.toJSON() });
 });
 
 /**
@@ -170,20 +177,18 @@ function generateCacheKey(req: NextApiRequest): string {
 /**
  * Paginates the results based on the requested page
  */
-function paginateResults(rooms: OneRoomEntry[], page: number) {
-  const totalRooms = rooms.length;
-  const totalPages = Math.ceil(totalRooms / PAGE_SIZE);
-  const validPage = Math.max(1, Math.min(page, totalPages));
+function paginateResults(
+  rooms: OneRoomEntry[],
+  page: number,
+  roomsClass: typeof ADataTransferObj
+): PaginationDTO<OneRoomEntry> {
+  const totalItems = rooms.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const currentPage = Math.max(1, Math.min(page, totalPages));
 
-  const startIndex = (validPage - 1) * PAGE_SIZE;
-  const endIndex = Math.min(startIndex + PAGE_SIZE, totalRooms);
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
+  const items = rooms.slice(startIndex, endIndex);
 
-  const paginatedRooms = rooms.slice(startIndex, endIndex).map((dto) => dto.toJSON());
-
-  return {
-    currentPage: validPage,
-    totalPages,
-    totalItems: totalRooms,
-    rooms: paginatedRooms,
-  };
+  return PaginationDTO.createGeneric<OneRoomEntry>({ currentPage, totalPages, totalItems, items }, roomsClass);
 }

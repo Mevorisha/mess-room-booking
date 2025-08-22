@@ -12,7 +12,7 @@ import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import SectionRoomView from "@/pages/Home/sections/RoomView";
-import { HttpMethodTypes, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyNotOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
 
@@ -164,12 +164,15 @@ export default function SectionSearch(): React.ReactNode {
     setIsLoading(true);
     try {
       const response = await apiGetOrDelete(HttpMethodTypes.GET, apiUri);
-      if (response.json != null) {
-        const data = response.json as { rooms: RoomDTO[]; totalPages: number; totalItems: number };
-        setRooms(data.rooms);
-        setTotalPages(data.totalPages);
-        setTotalResuts(data.totalItems);
+      if (response.json == null) return;
+      const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyNotOwnerDTO>(response.json, RoomGetResBodyNotOwnerDTO); // prettier-ignore
+      if (paginationResult.isErr) {
+        throw paginationResult.error;
       }
+      const page = paginationResult.value;
+      setRooms(page.items);
+      setTotalPages(page.totalPages);
+      setTotalResuts(page.totalItems);
     } catch (error) {
       notify(error as Error, "error");
     } finally {

@@ -9,6 +9,9 @@ interface ISerializable {
 }
 
 export abstract class ADataTransferObj implements ISerializable {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  protected constructor(..._: unknown[]) {}
+
   toJSON(): NetworkType {
     return instanceToPlain(this);
   }

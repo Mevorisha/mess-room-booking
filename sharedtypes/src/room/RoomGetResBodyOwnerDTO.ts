@@ -44,7 +44,7 @@ export class RoomGetResBodyOwnerDTO extends RoomGetResBodyNotOwnerDTO {
   @IsBoolean()
   isDeleted = false;
 
-  private constructor(data: ConstructorParams) {
+  protected constructor(data: ConstructorParams) {
     const { isUnavailable, ttl, ...notOwnerData } = data;
     super(notOwnerData);
 
