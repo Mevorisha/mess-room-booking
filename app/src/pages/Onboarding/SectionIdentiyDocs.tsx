@@ -58,9 +58,9 @@ export default function SectionIdentiyDocs(): React.ReactNode {
           .then(() =>
             notify(
               lang(
-                `Made work ID '${value.toLocaleUpperCase()}'`,
-                `কাজ আইডি '${value.toLocaleUpperCase()}' করা হয়েছে`,
-                `कार्य आईडी '${value.toLocaleUpperCase()}' बनाई गई है`
+                `Made work ID '${value.toLocaleLowerCase()}'`,
+                `কাজ আইডি '${value.toLocaleLowerCase()}' করা হয়েছে`,
+                `कार्य आईडी '${value.toLocaleLowerCase()}' बनाई गई है`
               ),
               "success"
             )
@@ -74,9 +74,9 @@ export default function SectionIdentiyDocs(): React.ReactNode {
           .then(() =>
             notify(
               lang(
-                `Made gov ID '${value.toLowerCase()}'`,
-                `গভর্নমেন্ট আইডি '${value.toLowerCase()}' করা হয়েছে`,
-                `सरकारी आईडी '${value.toLowerCase()}' बनाई गई है`
+                `Made gov ID '${value.toLocaleLowerCase()}'`,
+                `গভর্নমেন্ট আইডি '${value.toLocaleLowerCase()}' করা হয়েছে`,
+                `सरकारी आईडी '${value.toLocaleLowerCase()}' बनाई गई है`
               ),
               "success"
             )
