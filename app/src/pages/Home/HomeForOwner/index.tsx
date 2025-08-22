@@ -9,12 +9,11 @@ import SectionRoomList from "./SectionRoomList";
 import SectionBookingList from "./SectionBookingList";
 import SectionRoomCreateForm from "@/pages/Home/sections/RoomCreateForm";
 import { CachePaths } from "@/modules/util/caching";
-import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
+import { base64FileDataToDataUrl, Base64FileUploadData } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
-import type { Base64FileData } from "@/modules/util/dataConversion";
 import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
@@ -73,7 +72,7 @@ function TabRooms(): React.ReactNode {
         majorTags: data.majorTags,
         city: data.city,
         state: data.state,
-        firstImage: data.files.length > 0 ? base64FileDataToDataUrl(data.files[0] as Base64FileData) : "",
+        firstImage: data.files.length > 0 ? base64FileDataToDataUrl(data.files[0] as Base64FileUploadData) : "",
       }));
 
       setDrafts(loadedDrafts);

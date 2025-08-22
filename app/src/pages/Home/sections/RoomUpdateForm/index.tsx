@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { AcceptOccupation, HttpMethodTypes, RoomGetResBodyOwnerDTO, RoomPatchReqBodyDTO } from "sharedtypes";
+import {
+  AcceptOccupation,
+  Base64PhotoUploadDTO,
+  HttpMethodTypes,
+  MultipleErrors,
+  RoomGetResBodyOwnerDTO,
+  RoomPatchReqBodyDTO,
+} from "sharedtypes";
 
-import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
+import { Base64FileUploadData, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import { Base64FileData } from "@/modules/util/dataConversion.js";
 import { OccupationOptions } from "../RoomCreateForm";
 
 import PillsInput from "@/components/PillsInput";
@@ -40,7 +46,7 @@ export interface RoomUpdateFormData {
   isUnavailable: boolean;
   // files to keep or add
   keepFiles: string[];
-  addFiles: Base64FileData[];
+  addFiles: Base64FileUploadData[];
 }
 
 export interface SectionRoomUpdateFormProps {
@@ -86,7 +92,16 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       .filter((fr) => fr.isUri())
       .map((fr) => fr.getUri());
 
-    const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
+    // conert file data into photo dto
+    const base64Files = await Promise.all(addFilesArr.map(fileToBase64FileData));
+    const b64DtoResults = base64Files.map((data) => Base64PhotoUploadDTO.fromJson(data));
+    const dtoErrors = b64DtoResults.filter((result) => result.isErr).map((result) => result.error);
+    const addFiles = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
+    if (dtoErrors.length !== 0) {
+      if (addFiles.length === 0) {
+        throw new MultipleErrors(dtoErrors);
+      }
+    }
 
     const formData = RoomPatchReqBodyDTO.BaseParams.create({
       isUnavailable,
@@ -102,7 +117,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       pricePerOccupant: Number(pricePerOccupant),
 
       keepFiles: keepFilesArr,
-      addFiles: base64Images,
+      addFiles,
     });
 
     // submit to backend

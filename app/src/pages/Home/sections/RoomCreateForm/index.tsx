@@ -1,9 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { AcceptGender, AcceptOccupation, HttpMethodTypes, RoomPostReqBodyDTO } from "sharedtypes";
+import {
+  AcceptGender,
+  AcceptOccupation,
+  Base64PhotoUploadDTO,
+  HttpMethodTypes,
+  MultipleErrors,
+  RoomPostReqBodyDTO,
+} from "sharedtypes";
 
-import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
+import {
+  base64FileDataToFile,
+  Base64FileUploadData,
+  fileToBase64FileData,
+  sizehuman,
+} from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
@@ -19,7 +31,6 @@ import "./styles.css";
 
 const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
-export type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
 export type GenderOptions = AcceptGender | null;
 export type OccupationOptions = AcceptOccupation | null;
 
@@ -35,7 +46,7 @@ export interface CachableDraftFormData {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
-  files: Base64FileData[];
+  files: Base64FileUploadData[];
 }
 
 /**
@@ -92,7 +103,7 @@ export default function SectionRoomCreateForm({
       .open(SECTION_ROOM_FORM_CACHE_PATH)
       .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
-      .then ((json) => json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json))
+      .then((json) => (json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json)))
       .then((cachedResult) => cachedResult?.unwrapOrDie())
       .then((data?: RoomPostReqBodyDTO.WithFiles) => {
         if (data == null) return;
@@ -128,7 +139,16 @@ export default function SectionRoomCreateForm({
       .filter((fr) => fr.isFile())
       .map((fr) => fr.getFile());
 
+    // conert file data into photo dto
     const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
+    const b64DtoResults = base64Files.map((data) => Base64PhotoUploadDTO.fromJson(data));
+    const dtoErrors = b64DtoResults.filter((result) => result.isErr).map((result) => result.error);
+    const files = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
+    if (dtoErrors.length !== 0) {
+      if (files.length === 0) {
+        throw new MultipleErrors(dtoErrors);
+      }
+    }
 
     const formData = RoomPostReqBodyDTO.WithFiles.create({
       acceptGender: acceptGender as AcceptGender,
@@ -142,8 +162,7 @@ export default function SectionRoomCreateForm({
       minorTags: Array.from(minorTagsSet),
       capacity: Number(capacity),
       pricePerOccupant: Number(pricePerOccupant),
-
-      files: base64Files,
+      files,
     });
 
     // save form data draft in cache
