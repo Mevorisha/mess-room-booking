@@ -3,7 +3,16 @@ import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
 import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
 import JsonDataType from "@/modules/networkTypes/JsonData.js";
-import { ADataTransferObj, HeaderTypes, HttpMethodTypes, LogType, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import {
+  ADataTransferObj,
+  DtoValidationError,
+  HeaderTypes,
+  HttpMethodTypes,
+  LogType,
+  NetworkType,
+  Result,
+  RoomGetReqQueryParamsWrapper,
+} from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -76,6 +85,8 @@ export class ApiPaths {
   };
 }
 
+// ---------------------------------------- errorHandlerWrapperOnCallApi --------------------------------------------------
+
 export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
   try {
     const response = await callback();
@@ -108,10 +119,27 @@ export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Respo
   }
 }
 
+// ---------------------------------------- apiGetOrDelete --------------------------------------------------
+
+export async function apiGetOrDelete(method: HttpMethodTypes.DELETE, path: string): Promise<{ json: NetworkType }>;
+
+export async function apiGetOrDelete<T extends ADataTransferObj>(
+  method: HttpMethodTypes.GET,
+  path: string,
+  dtoClass: { fromJson(data: NetworkType): Result<T, DtoValidationError> }
+): Promise<{ dto: T }>;
+
 export async function apiGetOrDelete(
-  method: HttpMethodTypes.GET | HttpMethodTypes.DELETE,
+  method: HttpMethodTypes.GET,
   path: string
-): Promise<{ json?: object; blob?: Blob; text?: string }> {
+): Promise<{ json?: NetworkType; blob?: Blob }>;
+
+// Implementation
+export async function apiGetOrDelete<T extends ADataTransferObj>(
+  method: HttpMethodTypes.GET | HttpMethodTypes.DELETE,
+  path: string,
+  dtoClass?: { fromJson(data: NetworkType): Result<T, DtoValidationError> }
+): Promise<{ json?: NetworkType; dto?: T; blob?: Blob }> {
   const response = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
@@ -121,23 +149,42 @@ export async function apiGetOrDelete(
       },
     })
   );
+
   const contentType = response.headers.get("content-type");
   const isJson = contentType?.includes("application/json") ?? false;
   const isText = contentType?.includes("text/plain") ?? false;
+
+  if (method === HttpMethodTypes.DELETE) {
+    return { json: await response.json() };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (method === HttpMethodTypes.GET && dtoClass != null && isJson) {
+    const data = (await response.json()) as NetworkType;
+    const dtoResult = dtoClass.fromJson(data);
+    if (dtoResult.isErr) {
+      throw dtoResult.error;
+    }
+    return { dto: dtoResult.value };
+  }
+
   if (isJson) {
-    return { json: (await response.json()) as object };
+    return { json: await response.json() };
   } else if (isText) {
-    return { text: await response.text() };
+    // can return as plain text JSON
+    return { json: await response.text() };
   } else {
     return { blob: await response.blob() };
   }
 }
 
+// ---------------------------------------- apiPostOrPatchJson --------------------------------------------------
+
 export async function apiPostOrPatchJson(
   method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
   path: string,
   dto?: ADataTransferObj
-): Promise<unknown> {
+): Promise<NetworkType> {
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
@@ -151,11 +198,13 @@ export async function apiPostOrPatchJson(
   return resonse.json();
 }
 
+// ---------------------------------------- apiPostOrPatchFile --------------------------------------------------
+
 export async function apiPostOrPatchFile(
   method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
   path: string,
   file: File
-): Promise<unknown> {
+): Promise<NetworkType> {
   const formData = new FormData();
   formData.append(file.name, file);
   const resonse = await errorHandlerWrapperOnCallApi(async () =>

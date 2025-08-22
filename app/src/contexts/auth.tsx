@@ -5,10 +5,10 @@ import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
-import IdentityDTO from "@/modules/networkTypes/Identity.js";
 import User from "@/modules/classes/User.js";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
-import { HttpMethodTypes } from "sharedtypes";
+import { HttpMethodTypes, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
+import { isEmpty } from "@/modules/util/validations.js";
 
 const MODULE_NAME = "contexts/auth.jsx";
 
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     if (user.uid.length === 0) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    function updateLocalUser(onlineProfileData?: IdentityDTO) {
+    function updateLocalUser(onlineProfileData?: IdentityGetResBodyWithAuthDTO) {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
       if (onlineProfileData == null) {
@@ -96,13 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         return;
       }
 
-      if (onlineProfileData.type != null) {
+      dispatchUser({ email: onlineProfileData.email });
+      if (!isEmpty(onlineProfileData.type)) {
         dispatchUser({ type: onlineProfileData.type });
       }
-
-      if (onlineProfileData.email != null) {
-        dispatchUser({ email: onlineProfileData.email });
-      }
+      setLang(onlineProfileData.language, false);
 
       if (onlineProfileData.mobile != null) {
         dispatchUser({ mobile: onlineProfileData.mobile });
@@ -127,23 +125,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
           workId = UploadedImage.from(
             user.uid,
             onlineProfileData.identityPhotos.workId,
-            onlineProfileData.identityPhotos.workIdIsPrivate ?? false
+            onlineProfileData.identityPhotos.workIdIsPrivate
           );
         }
         if (onlineProfileData.identityPhotos.govId != null) {
           govId = UploadedImage.from(
             user.uid,
             onlineProfileData.identityPhotos.govId,
-            onlineProfileData.identityPhotos.govIdIsPrivate ?? false
+            onlineProfileData.identityPhotos.govIdIsPrivate
           );
         }
         if (workId != null && govId != null) dispatchUser({ identityPhotos: { workId, govId } });
         else if (workId != null && govId == null) dispatchUser({ identityPhotos: { workId } });
         else if (workId == null && govId != null) dispatchUser({ identityPhotos: { govId } });
-      }
-
-      if (onlineProfileData.language != null) {
-        setLang(onlineProfileData.language, false);
       }
     }
 
@@ -154,8 +148,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
      * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form API.
      */
 
-    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(user.uid))
-      .then(({ json }) => updateLocalUser(json as IdentityDTO))
+    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(user.uid), IdentityGetResBodyWithAuthDTO)
+      .then(({ dto }) => updateLocalUser(dto))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));
   }, [authState, user.uid, dispatchUser, notify, setLang]);

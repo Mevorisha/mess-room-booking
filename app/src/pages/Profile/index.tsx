@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { HttpMethodTypes } from "sharedtypes";
+import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, MultiSizePhotoDTO } from "sharedtypes";
 import UploadedImage from "@/modules/classes/UploadedImage";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import useDialog from "@/hooks/dialogbox";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
 import User from "@/modules/classes/User";
-import IdentityDTO from "@/modules/networkTypes/Identity";
 
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
@@ -40,21 +39,20 @@ export default function Profile(): React.ReactNode {
 
     const uid = searchParams.get("id") ?? "";
 
-    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid))
-      .then(({ json }) => {
-        const data = json as IdentityDTO;
-        let { firstName = "", lastName = "", profilePhotos } = data;
-        const { mobile = "" } = data;
+    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid), IdentityGetResBodyNoAuthDTO)
+      .then(({ dto }) => {
+        let { firstName = "", lastName = "", profilePhotos } = dto;
+        const { mobile = "" } = dto;
         // If no mobile no., the user is considered to not exist
         if (firstName.length === 0 && lastName.length === 0) {
           firstName = "(No Name)";
           lastName = "";
         }
-        profilePhotos = profilePhotos ?? {
+        profilePhotos = profilePhotos ?? MultiSizePhotoDTO.create({
           small: dpGeneric,
           medium: dpGeneric,
           large: dpGeneric,
-        };
+        });
         setProfileUser((oldProfile) => {
           if (oldProfile == null) return null;
           const newProfile = oldProfile.clone();
