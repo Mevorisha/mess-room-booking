@@ -1,4 +1,4 @@
-import { IsInt, IsPositive, ValidateNested } from "class-validator";
+import { IsInt, Min, ValidateNested } from "class-validator";
 import { ADataTransferObj } from "./abstract/ADataTransferObj";
 import { DtoValidationError } from "./errors/DtoValidationError";
 import { Exclude, Type } from "class-transformer";
@@ -14,16 +14,16 @@ interface ConstructorParams<T> {
 
 export class PaginationDTO<T extends ADataTransferObj> extends ADataTransferObj {
   @IsInt()
-  @IsPositive()
-  currentPage: number;
+  @Min(0)
+  currentPage = 0;
 
   @IsInt()
-  @IsPositive()
-  totalPages: number;
+  @Min(0)
+  totalPages = 0;
 
   @IsInt()
-  @IsPositive()
-  totalItems: number;
+  @Min(0)
+  totalItems = 0;
 
   @ValidateNested({ each: true })
   @Type((options) => (options?.newObject as PaginationDTO<T>).itemsClass)
