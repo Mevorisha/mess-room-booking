@@ -9,6 +9,7 @@ import { apiGetOrDelete, ApiPaths, apiPostOrPatchJson } from "@/modules/util/api
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PagingContainer from "@/components/PagingContainer";
 import RoomDTO from "@/modules/networkTypes/Room";
+import { HttpMethodTypes } from "sharedtypes";
 
 import "./styles.css";
 
@@ -151,14 +152,14 @@ export default function SectionRooms({
   }
 
   function handleDeleteRoom(roomId: string, force?: boolean): void {
-    apiGetOrDelete("DELETE", ApiPaths.Rooms.delete(roomId, force))
+    apiGetOrDelete(HttpMethodTypes.DELETE, ApiPaths.Rooms.delete(roomId, force))
       .then(() => notify(lang("Room deleted", "রুম মুছে ফেলা হয়েছে", "कमरा हटा दिया गया है"), "success"))
       .then(() => reloadApi({ invalidateCache: true }))
       .catch((e: Error) => notify(e, "error"));
   }
 
   function handleRestoreRoom(roomId: string): void {
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.restore(roomId))
+    apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Rooms.restore(roomId))
       .then(() => notify(lang("Room restored", "রুম পুনরুদ্ধার করা হয়েছে", "रुम रीस्टोर किया गया है"), "success"))
       .then(() => reloadApi({ invalidateCache: true }))
       .catch((e: Error) => notify(e, "error"));

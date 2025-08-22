@@ -7,7 +7,7 @@ import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { updateProfile, User as FirebaseUser } from "firebase/auth";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
-import { ProfilePatchReqBodyDTO, IdentityType } from "sharedtypes";
+import { ProfilePatchReqBodyDTO, IdentityType, HttpMethodTypes } from "sharedtypes";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -35,7 +35,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
   const updateProfileType = useCallback(
     async (type: IdentityType): Promise<void> =>
-      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), ProfilePatchReqBodyDTO.Type.create({ type }))
+      apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), ProfilePatchReqBodyDTO.Type.create({ type })) // prettier-ignore
         .then(() => dispatchUser({ type }))
         .then(() =>
           notify(
@@ -54,7 +54,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
   const updateProfilePhoto = useCallback(
     async (image: File): Promise<string> => {
       // update auth profile
-      await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
+      await apiPostOrPatchFile(HttpMethodTypes.PATCH, ApiPaths.Profile.updatePhoto(user.uid), image);
       const { small, medium, large } = {
         small: ApiPaths.Profile.readImage(user.uid, "small"),
         medium: ApiPaths.Profile.readImage(user.uid, "medium"),
@@ -80,7 +80,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
   const updateProfileName = useCallback(
     async (firstName: string, lastName: string): Promise<void> =>
       apiPostOrPatchJson(
-        "PATCH",
+        HttpMethodTypes.PATCH,
         ApiPaths.Profile.updateName(user.uid),
         ProfilePatchReqBodyDTO.Name.create({ firstName, lastName })
       )

@@ -16,9 +16,9 @@ import User from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
 import type { Base64FileData } from "@/modules/util/dataConversion";
 import RoomDTO from "@/modules/networkTypes/Room";
+import { HttpMethodTypes, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 import "./styles.css";
-import { RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export interface DraftData {
   url: string;
@@ -100,7 +100,7 @@ function TabRooms(): React.ReactNode {
           page: page,
           invalidateCache: params?.invalidateCache ?? false,
         });
-        const { json } = await apiGetOrDelete("GET", ApiPaths.Rooms.readListOnQuery(searchQuery)).then(
+        const { json } = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)).then(
           ({ json }) => ({ json } as { json: { rooms: RoomDTO[]; totalPages: number } })
         );
         setRooms(json.rooms);

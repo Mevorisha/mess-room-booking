@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { HttpMethodTypes } from "sharedtypes";
 import UploadedImage from "@/modules/classes/UploadedImage";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
@@ -39,7 +40,7 @@ export default function Profile(): React.ReactNode {
 
     const uid = searchParams.get("id") ?? "";
 
-    apiGetOrDelete("GET", ApiPaths.Profile.read(uid))
+    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid))
       .then(({ json }) => {
         const data = json as IdentityDTO;
         let { firstName = "", lastName = "", profilePhotos } = data;

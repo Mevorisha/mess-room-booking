@@ -8,6 +8,7 @@ import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
 import IdentityDTO from "@/modules/networkTypes/Identity.js";
 import User from "@/modules/classes/User.js";
 import UploadedImage from "@/modules/classes/UploadedImage.js";
+import { HttpMethodTypes } from "sharedtypes";
 
 const MODULE_NAME = "contexts/auth.jsx";
 
@@ -153,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
      * - 2. When state is LOGGED_IN: at this stage, updates to local state are fetched form API.
      */
 
-    apiGetOrDelete("GET", ApiPaths.Profile.read(user.uid))
+    apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(user.uid))
       .then(({ json }) => updateLocalUser(json as IdentityDTO))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));

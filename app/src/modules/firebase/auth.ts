@@ -21,7 +21,7 @@ import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { AsyncLock } from "@/modules/util/asyncLock.js";
-import { IdentityPostReqBodyDTO } from "sharedtypes";
+import { HttpMethodTypes, IdentityPostReqBodyDTO } from "sharedtypes";
 
 let RecaptchaVerifierObject: RecaptchaVerifier | null = null;
 let RecaptchaVerifierConfirmationResult: ConfirmationResult | null = null;
@@ -209,7 +209,7 @@ class GoogleAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -237,7 +237,7 @@ class AppleAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -265,7 +265,7 @@ class MicrosoftAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -284,7 +284,7 @@ class EmailPasswdAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await createUserWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -300,7 +300,7 @@ class EmailPasswdAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await signInWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }));
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {

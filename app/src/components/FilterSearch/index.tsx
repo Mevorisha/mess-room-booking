@@ -3,10 +3,15 @@ import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import { GenderOptions, OccupationOptions } from "@/pages/Home/sections/RoomCreateForm";
-import { AcceptGender, AcceptOccupation, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import {
+  AcceptGender,
+  AcceptOccupation,
+  RoomGetReqQueryParamsWrapper,
+  QuerySortOrder,
+  RoomSortFields,
+} from "sharedtypes";
 
 import "./styles.css";
-import { QuerySortOrder, RoomSortFields } from "sharedtypes/dist/types/typeEnums";
 
 interface FilterSearchProps {
   currentRoomQuery: RoomGetReqQueryParamsWrapper;

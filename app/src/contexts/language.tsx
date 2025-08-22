@@ -2,7 +2,7 @@ import React, { useState, createContext, useCallback, useContext } from "react";
 import UserContext from "./user.jsx";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
-import { Language, ProfilePatchReqBodyDTO } from "sharedtypes";
+import { HttpMethodTypes, Language, ProfilePatchReqBodyDTO } from "sharedtypes";
 
 export interface LanguageContextType {
   lang: Language;
@@ -34,11 +34,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         if (updateRemote) {
-          apiPostOrPatchJson(
-            "PATCH",
-            ApiPaths.Profile.updateLanguage(uid),
-            ProfilePatchReqBodyDTO.Language.create({ language: newVal })
-          )
+          apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateLanguage(uid), ProfilePatchReqBodyDTO.Language.create({ language: newVal })) // prettier-ignore
             .then(() => {
               // ensure all modules are reloaded with the new language value
               if (oldVal !== newVal) window.location.href = "/";

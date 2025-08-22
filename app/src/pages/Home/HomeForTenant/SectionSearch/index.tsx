@@ -12,9 +12,9 @@ import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import SectionRoomView from "@/pages/Home/sections/RoomView";
+import { HttpMethodTypes, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 import "./styles.css";
-import { RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export default function SectionSearch(): React.ReactNode {
   const notify = useNotification();
@@ -163,7 +163,7 @@ export default function SectionSearch(): React.ReactNode {
   const loadRooms = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await apiGetOrDelete("GET", apiUri);
+      const response = await apiGetOrDelete(HttpMethodTypes.GET, apiUri);
       if (response.json != null) {
         const data = response.json as { rooms: RoomDTO[]; totalPages: number; totalItems: number };
         setRooms(data.rooms);
@@ -195,7 +195,7 @@ export default function SectionSearch(): React.ReactNode {
       const roomViewDialogId = dialog.show(<LoadingAnimation />, "large");
 
       // call api
-      apiGetOrDelete("GET", ApiPaths.Rooms.read(roomId))
+      apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.read(roomId))
         .then(({ json }) => json as RoomDTO)
         .then((roomData) => {
           dialog.setContent(

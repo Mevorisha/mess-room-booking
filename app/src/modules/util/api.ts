@@ -3,7 +3,7 @@ import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
 import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
 import JsonDataType from "@/modules/networkTypes/JsonData.js";
-import { ADataTransferObj, HeaderTypes, LogType, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import { ADataTransferObj, HeaderTypes, HttpMethodTypes, LogType, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -109,7 +109,7 @@ export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Respo
 }
 
 export async function apiGetOrDelete(
-  method: "GET" | "DELETE",
+  method: HttpMethodTypes.GET | HttpMethodTypes.DELETE,
   path: string
 ): Promise<{ json?: object; blob?: Blob; text?: string }> {
   const response = await errorHandlerWrapperOnCallApi(async () =>
@@ -133,14 +133,8 @@ export async function apiGetOrDelete(
   }
 }
 
-/**
- * @param {"POST" | "PATCH"} method
- * @param {string} path The API call path. Get this from ApiPaths class
- * @param {ADataTransferObj} dto
- * @returns {Promise<unknown>}
- */
 export async function apiPostOrPatchJson(
-  method: "POST" | "PATCH",
+  method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
   path: string,
   dto?: ADataTransferObj
 ): Promise<unknown> {
@@ -157,13 +151,11 @@ export async function apiPostOrPatchJson(
   return resonse.json();
 }
 
-/**
- * @param {"POST" | "PATCH"} method
- * @param {string} path The API call path. Get this from ApiPaths class
- * @param {File} file
- * @returns {Promise<Object>}
- */
-export async function apiPostOrPatchFile(method: "POST" | "PATCH", path: string, file: File): Promise<object> {
+export async function apiPostOrPatchFile(
+  method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
+  path: string,
+  file: File
+): Promise<unknown> {
   const formData = new FormData();
   formData.append(file.name, file);
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
@@ -176,5 +168,5 @@ export async function apiPostOrPatchFile(method: "POST" | "PATCH", path: string,
       body: formData,
     })
   );
-  return (await resonse.json()) as object;
+  return resonse.json();
 }

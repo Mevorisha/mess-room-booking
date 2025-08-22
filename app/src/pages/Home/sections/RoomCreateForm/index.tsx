@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { AcceptGender, AcceptOccupation, RoomPostReqBodyDTO } from "sharedtypes";
+import { AcceptGender, AcceptOccupation, HttpMethodTypes, RoomPostReqBodyDTO } from "sharedtypes";
 
 import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
@@ -188,7 +188,7 @@ export default function SectionRoomCreateForm({
         ),
         "info"
       );
-      apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
+      apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Rooms.create(), formData)
         .then((data) => data as { roomId: string })
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))

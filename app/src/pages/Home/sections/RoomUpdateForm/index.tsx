@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { AcceptOccupation, RoomPatchReqBodyDTO } from "sharedtypes";
+import { AcceptOccupation, HttpMethodTypes, RoomPatchReqBodyDTO } from "sharedtypes";
 
 import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
@@ -119,7 +119,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       "info"
     );
 
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
+    apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Rooms.updateParams(roomData.id), formData)
       .then((data) => data as { roomId: string })
       .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
       .then(() => setSubmitButtonKind("primary"))
