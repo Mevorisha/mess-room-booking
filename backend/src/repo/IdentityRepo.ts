@@ -6,8 +6,10 @@ import {
   DocType,
   IdentityGetResBodyNoAuthDTO,
   IdentityGetResBodyWithAuthDTO,
+  IdentityPhotosDTO,
   IdentityPostReqBodyDTO,
   MultiSizeImageSz,
+  MultiSizePhotoDTO,
 } from "sharedtypes";
 import { FieldValue } from "firebase-admin/firestore";
 import { MultiSizePhotoModel } from "@/models/types";
@@ -43,7 +45,17 @@ export class IdentityRepo {
       "profilePhotos",
       "identityPhotos",
     ]);
-    await ref.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
+    // convert any DTOs into json
+    // convert any DTOs into json
+    if (updateData.profilePhotos != null) {
+      updateData.profilePhotos = MultiSizePhotoDTO.create(updateData.profilePhotos).toJSON() as MultiSizePhotoDTO;
+    }
+    // convert any DTOs into json
+    if (updateData.identityPhotos != null) {
+      updateData.identityPhotos = IdentityPhotosDTO.create(updateData.identityPhotos).toJSON() as IdentityPhotosModel;
+    }
+
+    await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
   }
 
   static async findById(

@@ -49,11 +49,7 @@ export class BookingRepo {
       throw CustomApiError.create(404, "Booking not found");
     }
 
-    try {
-      await docRef.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
-    } catch (e) {
-      throw CustomApiError.create(404, "Booking not found", e);
-    }
+    await docRef.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
   }
 
   /**

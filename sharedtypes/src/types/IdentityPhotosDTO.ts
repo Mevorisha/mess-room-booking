@@ -6,9 +6,15 @@ import { NetworkType } from "./NetworkType";
 import { Result } from "./Result";
 import { DtoValidationError } from "./errors/DtoValidationError";
 
+interface MultiSizePhotoModel {
+  small: string;
+  medium: string;
+  large: string;
+}
+
 interface ConstructorParams {
-  workId?: MultiSizePhotoDTO;
-  govId?: MultiSizePhotoDTO;
+  workId?: MultiSizePhotoModel;
+  govId?: MultiSizePhotoModel;
   workIdIsPrivate?: boolean;
   govIdIsPrivate?: boolean;
 }
@@ -35,10 +41,10 @@ export class IdentityPhotosDTO extends ADataTransferObj {
 
     if (data != null) {
       if (data.workId != null) {
-        this.workId = data.workId;
+        this.workId = MultiSizePhotoDTO.create(data.workId);
       }
       if (data.govId != null) {
-        this.govId = data.govId;
+        this.govId = MultiSizePhotoDTO.create(data.govId);
       }
       if (data.workIdIsPrivate != null) {
         this.workIdIsPrivate = data.workIdIsPrivate;

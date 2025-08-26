@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import {
   ApiResponseUrlType,
   AutoSetFields,
+  MultiSizePhotoDTO,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
   RoomPostReqBodyDTO,
@@ -13,6 +14,7 @@ import { DateTransformer } from "@/dataTransformers/DateTransformer";
 import { RoomTransformer } from "@/services/Room/RoomTransformer";
 import { RoomModel, RoomReadOnlyFields } from "@/models/Room";
 import { QueryWrapper } from "@/types/QueryWrapper";
+import { MultiSizePhotoModel } from "@/models/types";
 
 export class RoomRepo {
   /**
@@ -83,7 +85,7 @@ export class RoomRepo {
       lastModifiedOn: FieldValue.serverTimestamp() as unknown as Timestamp,
     };
 
-    await docRef.set(createData);
+    await docRef.set(createData, { merge: true });
     return docRef.id;
   }
 
@@ -94,6 +96,12 @@ export class RoomRepo {
     roomId: string,
     updateData: Partial<Omit<RoomModel, AutoSetFields | RoomReadOnlyFields | "isUnavailable">>
   ): Promise<void> {
+    const ref = FirestorePaths.Rooms(roomId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      CustomApiError.create(404, "Room not found");
+    }
+
     // for safety, ensure only the acceptable fields are present
     updateData = pickObjProps(updateData, [
       "images",
@@ -120,15 +128,12 @@ export class RoomRepo {
     if (updateData.minorTags != null) {
       updateData.minorTags = Array.from(new Set(updateData.minorTags));
     }
-
-    const ref = FirestorePaths.Rooms(roomId);
-
-    try {
-      // Throws error if room doesn't exist
-      await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
-    } catch (e) {
-      throw CustomApiError.create(404, "Room not found", e);
+    // convert any DTOs into json
+    if (updateData.images != null) {
+      updateData.images = updateData.images.map((img) => MultiSizePhotoDTO.create(img).toJSON() as MultiSizePhotoModel);
     }
+
+    await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
   }
 
   static async findById(
