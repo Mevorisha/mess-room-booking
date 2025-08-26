@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   /* --------------------------------------- USE EFFECTS GET DATA USING API ----------------------------------- */
 
   useEffect(() => {
-    if (user.isInvalid()) return;
+    if (user.uid === "") return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
     function updateLocalUser(onlineProfileData?: IdentityGetResBodyWithAuthDTO) {
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       .then(({ dto }) => updateLocalUser(dto))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));
-  }, [authState, setUser, notify, setLang, user]);
+  }, [authState, setUser, notify, setLang, user.uid]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
@@ -123,8 +123,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         .then(() => setUser(null)),
     [notify, setUser]
   );
-
-  console.log(authState);
 
   return (
     <AuthContext.Provider
