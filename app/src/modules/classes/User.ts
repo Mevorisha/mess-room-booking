@@ -51,34 +51,34 @@ export default class IdentityWrapper {
   }
 
   get<K extends keyof SetterParams>(name: K): Nullable<SetterParams[K]> {
-    if (this.identity == null) {
-      throw new Error("User yet to be populated from Firebase");
-    }
     switch (name) {
       case "uid":
         return this.uid as never;
       case "email":
         return this.email as never;
-      case "type":
-        return this.identity.type as never;
-      case "firstName":
-        return this.identity.firstName as never;
-      case "lastName":
-        return this.identity.lastName as never;
-      case "mobile":
-        return this.identity.mobile as never;
-      case "profilePhotos":
-        return this.identity.profilePhotos as never;
-      case "identityPhotos":
-        return this.identity.identityPhotos as never;
       case "identity":
         return this.identity as never;
+      case "type":
+        return this.identity?.type as never;
+      case "firstName":
+        return this.identity?.firstName as never;
+      case "lastName":
+        return this.identity?.lastName as never;
+      case "mobile":
+        return this.identity?.mobile as never;
+      case "profilePhotos":
+        return this.identity?.profilePhotos as never;
+      case "identityPhotos":
+        return this.identity?.identityPhotos as never;
     }
   }
 
   set<K extends keyof SetterParams>(name: K, value: NonNullable<SetterParams[K]>): this {
     if (this.identity == null) {
-      throw new Error("User yet to be populated from Firebase");
+      // when identity is null and someone wants to set something that's a prop of identity, fail
+      if (!["uid", "email", "identity"].includes(name)) {
+        throw new Error("User yet to be populated from Firebase");
+      }
     }
     switch (name) {
       case "uid":
@@ -87,26 +87,32 @@ export default class IdentityWrapper {
       case "email":
         this.email = value as never;
         break;
-      case "type":
-        this.identity.type = value as never;
-        break;
-      case "firstName":
-        this.identity.firstName = value as never;
-        break;
-      case "lastName":
-        this.identity.lastName = value as never;
-        break;
-      case "mobile":
-        this.identity.mobile = value as never;
-        break;
-      case "profilePhotos":
-        this.identity.profilePhotos = value as never;
-        break;
-      case "identityPhotos":
-        this.identity.identityPhotos = value as never;
-        break;
       case "identity":
         this.identity = value as never;
+        break;
+      case "type":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.type = value as never;
+        break;
+      case "firstName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.firstName = value as never;
+        break;
+      case "lastName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.lastName = value as never;
+        break;
+      case "mobile":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.mobile = value as never;
+        break;
+      case "profilePhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.profilePhotos = value as never;
+        break;
+      case "identityPhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.identityPhotos = value as never;
         break;
     }
     return this;
@@ -114,29 +120,38 @@ export default class IdentityWrapper {
 
   unset<K extends keyof Omit<SetterParams, "uid" | "email">>(name: K): this {
     if (this.identity == null) {
-      throw new Error("User yet to be populated from Firebase");
+      // when identity is null and someone wants to unset something that's a prop of identity or identity itself, fail
+      if (!["uid", "email"].includes(name)) {
+        throw new Error("User yet to be populated from Firebase");
+      }
     }
     switch (name) {
-      case "type":
-        delete this.identity.type;
-        break;
-      case "firstName":
-        delete this.identity.firstName;
-        break;
-      case "lastName":
-        delete this.identity.lastName;
-        break;
-      case "mobile":
-        delete this.identity.mobile;
-        break;
-      case "profilePhotos":
-        delete this.identity.profilePhotos;
-        break;
-      case "identityPhotos":
-        delete this.identity.identityPhotos;
-        break;
       case "identity":
         delete this.identity;
+        break;
+      case "type":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.type;
+        break;
+      case "firstName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.firstName;
+        break;
+      case "lastName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.lastName;
+        break;
+      case "mobile":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.mobile;
+        break;
+      case "profilePhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.profilePhotos;
+        break;
+      case "identityPhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.identityPhotos;
         break;
     }
     return this;

@@ -33,8 +33,6 @@ export function UserProvider({ children }: { children: React.ReactNode }): React
     return () => clearTimeout(clear);
   }, [initUser]);
 
-  console.log(JSON.stringify(initUser?.toJSON()));
-
   const user = initUser ?? IdentityWrapper.invalid();
   return <UserContext.Provider value={{ user, setUser }}>{children}</UserContext.Provider>;
 }

@@ -25,18 +25,18 @@ export default function Profile(): React.ReactNode {
 
   // null userProfile means profile not found
   const [userUid, setUserUid] = useState<Nullable<string>>(compUsr.userCtx.user.uid);
-  const [profileDTO, setProfileDTO] = useState<Nullable<IdentityGetResBodyNoAuthDTO>>(compUsr.userCtx.user);
+  const [profileDTO, setProfileDTO] = useState<Nullable<IdentityGetResBodyNoAuthDTO>>(compUsr.userCtx.user.get("identity")); // prettier-ignore
 
   useEffect(() => {
-    // no ID is ok
+    // no ID is ok -> load self user (logged in user)
     if (!searchParams.has("id")) return;
-    // empty ID is not ok
+    // empty ID is not ok -> null renders loading page conditionally (see below)
     if (searchParams.get("id") == null) {
       setProfileDTO(null);
       return;
     }
 
-    const uid = searchParams.get("id") ?? "unknown";
+    const uid = searchParams.get("id") ?? userUid ?? "unknown";
 
     apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid), IdentityGetResBodyNoAuthDTO)
       .then(({ dto }) => {
@@ -65,7 +65,7 @@ export default function Profile(): React.ReactNode {
         setProfileDTO(null);
         notify(e, "error");
       });
-  }, [notify, searchParams]);
+  }, [notify, searchParams, userUid]);
 
   // user profile set to null by useEffect means profile not found
   if (profileDTO == null) {
