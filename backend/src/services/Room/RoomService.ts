@@ -1,9 +1,7 @@
-import { FirebaseStorage, FirestorePaths } from "@/firebase/init";
+import { FirebaseStorage, FirestorePaths, StoragePaths } from "@/firebase/init";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { CustomApiError } from "@/types/CustomApiError";
 import { BookingSearchService } from "@/services/Booking/BookingSearchService";
-import { RoomRepo } from "@/repo/RoomRepo";
-import { ApiResponseUrlType } from "sharedtypes";
 
 export class RoomService {
   static async markForDelete(roomId: string): Promise<number> {
@@ -37,26 +35,10 @@ export class RoomService {
       throw CustomApiError.create(409, "Room is in use");
     }
     const ref = FirestorePaths.Rooms(roomId);
-    const roomModel = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
-    if (roomModel == null) {
-      throw CustomApiError.create(404, "Room not found");
-    }
-    const { images } = roomModel;
-    const allImages = images.map((img) => [img.small, img.medium, img.large]).flat();
-    try {
-      await ref.delete();
-    } catch (e) {
-      throw CustomApiError.create(500, "Internal Server Error", e);
-    }
-    // delete all the images
-    const deletionResults = await Promise.allSettled(
-      allImages.map((gsPath) => FirebaseStorage.bucket().file(gsPath).delete())
-    );
-    const failedDeletions = deletionResults.filter((r) => r.status === "rejected");
-    if (failedDeletions.length > 0) {
-      const failedPaths = failedDeletions.map((r) => r.reason as unknown);
-      throw CustomApiError.create(500, "Internal Server Error", failedPaths);
-    }
+    // delete the db entry
+    await ref.delete();
+    // delete all the images under the roomId
+    await FirebaseStorage.bucket().deleteFiles({ prefix: StoragePaths.RoomPhotos.gsBucket(roomId) });
   }
 
   static async setUnavailability(roomId: string, isUnavailable: boolean): Promise<void> {
