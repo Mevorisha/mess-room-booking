@@ -1,9 +1,10 @@
 import { lang } from "@/modules/util/language";
+import { Nullable } from "sharedtypes";
 
 /**
  * @class
  */
-export default class UploadedImage {
+class UploadedImage {
   #filename: string;
   #small: string;
   #medium: string;
@@ -33,7 +34,7 @@ export default class UploadedImage {
 
   static from(
     filename: string,
-    data: { small: string; medium: string; large: string } | null,
+    data: Nullable<{ small: string; medium: string; large: string }>,
     isPrivate: boolean
   ): UploadedImage {
     if (data == null) {

@@ -2,8 +2,8 @@ import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { AuthStateEnum } from "@/contexts/auth.jsx";
-import { isEmpty } from "@/modules/util/validations.js";
 import { ActionType } from "@/modules/util/pageUrls.js";
+import { getLangOrNull } from "@/modules/util/language";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 
@@ -44,9 +44,9 @@ export default function Onboarding(): React.ReactNode {
     }
 
   if (compUsr.authCtx.state === AuthStateEnum.STILL_LOADING) return <></>;
-  if (isEmpty(compUsr.userCtx.user.type)) return <SetProfileType />;
-  if (isEmpty(compUsr.userCtx.user.mobile)) return <SetMobileNumber />;
-  if (isEmpty(window.localStorage.getItem("lang"))) return <SetLanguage />;
+  if (compUsr.userCtx.user.get("type") == null) return <SetProfileType />;
+  if (compUsr.userCtx.user.get("mobile") == null) return <SetMobileNumber />;
+  if (getLangOrNull() == null) return <SetLanguage />;
 
   return <PageNotFound />;
 }

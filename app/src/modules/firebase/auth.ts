@@ -21,17 +21,17 @@ import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { AsyncLock } from "@/modules/util/asyncLock.js";
-import { HttpMethodTypes, IdentityPostReqBodyDTO } from "sharedtypes";
+import { HttpMethodTypes, IdentityPostReqBodyDTO, Nullable } from "sharedtypes";
 
-let RecaptchaVerifierObject: RecaptchaVerifier | null = null;
-let RecaptchaVerifierConfirmationResult: ConfirmationResult | null = null;
+let RecaptchaVerifierObject: Nullable<RecaptchaVerifier> = null;
+let RecaptchaVerifierConfirmationResult: Nullable<ConfirmationResult> = null;
 
 export const AuthLock = {
   CREATING_USER: /** @type {AsyncLock} */ new AsyncLock(),
 };
 
 function onAuthStateChanged(
-  callback: (uid: import("firebase/auth").User | null) => void
+  callback: (uid: Nullable<import("firebase/auth").User>) => void
 ): import("firebase/auth").Unsubscribe {
   const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
     if (user != null) {

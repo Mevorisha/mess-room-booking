@@ -6,6 +6,7 @@ import { getDatabase, ref as rtdbRef, connectDatabaseEmulator } from "firebase/d
 import { getStorage, ref as storageRef, connectStorageEmulator } from "firebase/storage";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { DocType } from "sharedtypes";
 import * as config from "@/modules/config.js";
 
 // Firebase configuration (replace with your config)
@@ -89,7 +90,7 @@ class StoragePaths {
   static IdentityDocuments = (
     uid: string,
     code: string | number,
-    type: "WORK_ID" | "GOV_ID",
+    type: DocType,
     w: number | string,
     h: number | string
   ): string => `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/${code}/${w}/${h}`;

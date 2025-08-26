@@ -5,9 +5,14 @@ import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
-import { updateProfile, User as FirebaseUser } from "firebase/auth";
-import UploadedImage from "@/modules/classes/UploadedImage.js";
-import { ProfilePatchReqBodyDTO, IdentityType, HttpMethodTypes } from "sharedtypes";
+import { updateProfile } from "firebase/auth";
+import {
+  ProfilePatchReqBodyDTO,
+  IdentityType,
+  HttpMethodTypes,
+  MultiSizeImageSz,
+  MultiSizePhotoDTO,
+} from "sharedtypes";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
@@ -29,14 +34,14 @@ export default ProfileContext;
 
 export function ProfileProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
-  const { user, dispatchUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
     async (type: IdentityType): Promise<void> =>
       apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), ProfilePatchReqBodyDTO.Type.create({ type })) // prettier-ignore
-        .then(() => dispatchUser({ type }))
+        .then(() => setUser((user) => user?.clone().set("type", type)))
         .then(() =>
           notify(
             lang(
@@ -48,7 +53,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
           )
         )
         .catch((e: Error) => notify(e, "error")),
-    [user.uid, notify, dispatchUser]
+    [user.uid, notify, setUser]
   );
 
   const updateProfilePhoto = useCallback(
@@ -56,13 +61,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
       // update auth profile
       await apiPostOrPatchFile(HttpMethodTypes.PATCH, ApiPaths.Profile.updatePhoto(user.uid), image);
       const { small, medium, large } = {
-        small: ApiPaths.Profile.readImage(user.uid, "small"),
-        medium: ApiPaths.Profile.readImage(user.uid, "medium"),
-        large: ApiPaths.Profile.readImage(user.uid, "large"),
+        small: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.SMALL),
+        medium: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.MEDIUM),
+        large: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.LARGE),
       };
       const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-      dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, false) });
+      setUser((user) => user?.clone().set("profilePhotos", MultiSizePhotoDTO.create({ small, medium, large })));
       notify(
         lang(
           "Profile photo updated successfully",
@@ -74,7 +79,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
       return medium;
     },
-    [user.uid, notify, dispatchUser]
+    [user.uid, notify, setUser]
   );
 
   const updateProfileName = useCallback(
@@ -84,10 +89,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
         ApiPaths.Profile.updateName(user.uid),
         ProfilePatchReqBodyDTO.Name.create({ firstName, lastName })
       )
-        .then(() =>
-          updateProfile(FirebaseAuth.currentUser as FirebaseUser, { displayName: `${firstName} ${lastName}` })
-        )
-        .then(() => dispatchUser({ firstName, lastName }))
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        .then(() => updateProfile(FirebaseAuth.currentUser!, { displayName: `${firstName} ${lastName}` }))
+        .then(() => setUser((user) => user?.clone().set("firstName", firstName).set("lastName", lastName)))
         .then(() =>
           notify(
             lang(
@@ -99,7 +103,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
           )
         )
         .catch((e: Error) => notify(e, "error")),
-    [user.uid, notify, dispatchUser]
+    [user.uid, notify, setUser]
   );
 
   return (

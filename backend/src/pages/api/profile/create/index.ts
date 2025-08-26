@@ -11,7 +11,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 
 /**
  * ```
- * request = "POST /api/profile/create" { email: string }
+ * request = "POST /api/profile/create" { email: string, language?: "ENGLISH" | "HINDI" | "BANGLA" }
  * response = { uid: string }
  * ```
  */

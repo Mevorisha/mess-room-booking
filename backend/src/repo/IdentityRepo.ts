@@ -18,7 +18,7 @@ import { DateTransformer } from "@/dataTransformers/DateTransformer";
 export class IdentityRepo {
   static async create(uid: string, dto: IdentityPostReqBodyDTO): Promise<void> {
     const ref = FirestorePaths.Identity(uid);
-    const createData = pickObjProps(dto, ["email", "type"]);
+    const createData = pickObjProps(dto, ["email"]);
     await ref.set(
       { ...createData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
       { merge: true }

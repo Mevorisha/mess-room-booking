@@ -12,7 +12,7 @@ import { CachePaths } from "@/modules/util/caching";
 import { base64FileDataToDataUrl, Base64FileUploadData } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import User from "@/modules/classes/User";
+import IdentityWrapper from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
 import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
@@ -154,7 +154,7 @@ function TabBookings(): React.ReactNode {
 }
 
 interface SectionHomeForOwnerProps {
-  user: User;
+  user: IdentityWrapper;
 }
 
 export default function SectionHomeForOwner({ user: _ }: SectionHomeForOwnerProps): React.ReactNode {

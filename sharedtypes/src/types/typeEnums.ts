@@ -9,6 +9,12 @@ export enum Language {
   HINDI = "HINDI",
 }
 
+export enum LanguageCodes {
+  en_US = "en-US",
+  bn_IN = "bn-IN",
+  hi_IN = "hi-IN",
+}
+
 export enum IdentityType {
   OWNER = "OWNER",
   TENANT = "TENANT",

@@ -9,6 +9,7 @@ import {
   RoomGetReqQueryParamsWrapper,
   QuerySortOrder,
   RoomSortFields,
+  Nullable,
 } from "sharedtypes";
 
 import "./styles.css";
@@ -31,14 +32,14 @@ export default function FilterSearch({
   // Local state for filter values
   const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentRoomQuery.get("acceptGender"));
   const [occupationFilter, setOccupationFilter] = useState<OccupationOptions>(currentRoomQuery.get("acceptOccupation"));
-  const [capacityFilter, setCapacityFilter] = useState<number | null>(currentRoomQuery.get("capacity"));
-  const [priceRange, setPriceRange] = useState<{ low: number | null; high: number | null }>({
+  const [capacityFilter, setCapacityFilter] = useState<Nullable<number>>(currentRoomQuery.get("capacity"));
+  const [priceRange, setPriceRange] = useState<{ low: Nullable<number>; high: Nullable<number> }>({
     low: currentRoomQuery.get("lowPrice"),
     high: currentRoomQuery.get("highPrice"),
   });
   const [sortOption, setSortOption] = useState<{
-    sortOn?: RoomSortFields | null | "";
-    sortOrder?: QuerySortOrder | null | "";
+    sortOn: Nullable<RoomSortFields | "">;
+    sortOrder: Nullable<QuerySortOrder | "">;
   }>({
     sortOn: currentRoomQuery.get("sortOn"),
     sortOrder: currentRoomQuery.get("sortOrder"),
@@ -207,8 +208,8 @@ export default function FilterSearch({
             value={`${sortOption.sortOn}-${sortOption.sortOrder}`}
             onChange={(e) => {
               const [sortOn, sortOrder] = e.target.value.split("-") as [
-                RoomSortFields | null | "",
-                QuerySortOrder | null | ""
+                Nullable<RoomSortFields | "">,
+                Nullable<QuerySortOrder | "">
               ];
               setSortOption({ sortOn, sortOrder });
             }}

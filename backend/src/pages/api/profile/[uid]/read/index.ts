@@ -30,7 +30,7 @@ import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
  * < The following need authentication >
  *
  *   email: string
- *   type: IdentityType
+ *   type?: IdentityType
  *   language?: Language
  *   identityPhotos?: {
  *     workId?: {

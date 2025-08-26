@@ -1,6 +1,8 @@
+import { Nullable } from "sharedtypes";
+
 export default class FileRepr {
-  #file: File | null = null;
-  #uri: string | null = null;
+  #file: Nullable<File> = null;
+  #uri: Nullable<string> = null;
 
   constructor(fileRepr: File | string) {
     if (fileRepr instanceof File) {

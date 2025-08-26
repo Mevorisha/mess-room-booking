@@ -7,6 +7,7 @@ import {
   Base64PhotoUploadDTO,
   HttpMethodTypes,
   MultipleErrors,
+  Nullable,
   RoomPostReqBodyDTO,
 } from "sharedtypes";
 
@@ -31,8 +32,8 @@ import "./styles.css";
 
 const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
-export type GenderOptions = AcceptGender | null;
-export type OccupationOptions = AcceptOccupation | null;
+export type GenderOptions = Nullable<AcceptGender>;
+export type OccupationOptions = Nullable<AcceptOccupation>;
 
 export interface CachableDraftFormData {
   acceptGender: GenderOptions;
@@ -66,19 +67,19 @@ export default function SectionRoomCreateForm({
   const notify = useNotification();
   const dialog = useDialog();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState<string | null>(draftCacheUrl ?? null);
+  const [internalCacheUrl, setInternalCacheUrl] = useState<Nullable<string>>(draftCacheUrl ?? null);
 
   const [acceptGender, setAcceptGender] = useState<GenderOptions>(null);
   const [acceptOccupation, setAcceptOccupation] = useState<OccupationOptions>(null);
   const [searchTagsSet, setSearchTagsSet] = useState<Set<string>>(new Set<string>());
-  const landmarkInput = useRef<HTMLInputElement | null>(null);
-  const addressInput = useRef<HTMLInputElement | null>(null);
-  const cityInput = useRef<HTMLInputElement | null>(null);
-  const stateInput = useRef<HTMLInputElement | null>(null);
+  const landmarkInput = useRef<HTMLInputElement>(null);
+  const addressInput = useRef<HTMLInputElement>(null);
+  const cityInput = useRef<HTMLInputElement>(null);
+  const stateInput = useRef<HTMLInputElement>(null);
   const [majorTagsSet, setMajorTagsSet] = useState<Set<string>>(new Set<string>());
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>());
-  const [capacity, setCapacity] = useState<string | null>(null);
-  const [pricePerOccupant, setPricePerOccupant] = useState<string | null>(null);
+  const [capacity, setCapacity] = useState<Nullable<string>>(null);
+  const [pricePerOccupant, setPricePerOccupant] = useState<Nullable<string>>(null);
 
   const [filesSet, setFilesSet] = useState<StringySet<FileRepr>>(new StringySet<FileRepr>());
 

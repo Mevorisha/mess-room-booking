@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useContext } from "react";
 import UserContext from "./user.jsx";
 import useNotification from "@/hooks/notification.js";
 import { EmailPasswdAuth, LinkMobileNumber } from "@/modules/firebase/auth.js";
-import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { HttpMethodTypes, ProfilePatchReqBodyDTO } from "sharedtypes";
@@ -29,7 +28,7 @@ export default AccountContext;
 
 export function AccountProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
-  const { user, dispatchUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const sendPhoneVerificationCode = useCallback(
     async (number: string): Promise<void> =>
@@ -45,7 +44,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
   const unlinkPhoneNumber = useCallback(
     async (): Promise<void> =>
       LinkMobileNumber.unlinkPhoneNumber()
-        .then(() => dispatchUser({ mobile: "" }))
+        .then(() => setUser((user) => user?.clone().unset("mobile")))
         .then(() =>
           notify(
             lang(
@@ -56,25 +55,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
             "success"
           )
         ),
-    [dispatchUser, notify]
+    [setUser, notify]
   );
 
   const verifyPhoneVerificationCode = useCallback(
     async (otp: string): Promise<void> =>
       LinkMobileNumber.verifyOtp(otp)
-        .then((phno) =>
-          isEmpty(phno)
-            ? Promise.reject(
-                new Error(
-                  lang(
-                    "Mobile number verification failed",
-                    "মোবাইল নম্বর ভেরিফিকেশন ফেইল",
-                    "मोबाइल नंबर भेरिफिकेशन फेल"
-                  )
-                )
-              )
-            : Promise.resolve(phno)
-        )
         .catch(async (error: Error) => {
           if (
             !(
@@ -106,7 +92,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
         })
         .then(async (mobile) => {
           await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateMobile(user.uid), ProfilePatchReqBodyDTO.Mobile.create({ mobile })); // prettier-ignore
-          dispatchUser({ mobile });
+          setUser((user) => user?.clone().set("mobile", mobile));
         })
         .then(() =>
           notify(
@@ -120,7 +106,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
         )
         .catch((e: Error) => notify(e, "error")),
 
-    [user.uid, notify, dispatchUser, unlinkPhoneNumber]
+    [notify, unlinkPhoneNumber, user, setUser]
   );
 
   const requestPasswordReset = useCallback(

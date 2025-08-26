@@ -12,8 +12,6 @@ export class IdentityPostReqBodyDTO extends ADataTransferObj {
   @IsEmail()
   email: string;
 
-  type = "EMPTY";
-
   protected constructor(data: ConstructorParams) {
     super();
 

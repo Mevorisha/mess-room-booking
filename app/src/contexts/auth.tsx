@@ -5,10 +5,8 @@ import useNotification from "@/hooks/notification.js";
 import { AuthLock, logOut as fbAuthLogOut, onAuthStateChanged } from "@/modules/firebase/auth.js";
 import { lang } from "@/modules/util/language.js";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api.js";
-import User from "@/modules/classes/User.js";
-import UploadedImage from "@/modules/classes/UploadedImage.js";
+import IdentityWrapper from "@/modules/classes/User.js";
 import { HttpMethodTypes, IdentityGetResBodyWithAuthDTO } from "sharedtypes";
-import { isEmpty } from "@/modules/util/validations.js";
 
 const MODULE_NAME = "contexts/auth.jsx";
 
@@ -38,7 +36,7 @@ export default AuthContext;
 
 export function AuthProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const [authState, setAuthState] = useState<AuthStateEnum>(AuthStateEnum.STILL_LOADING);
-  const { user, dispatchUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const notify = useNotification();
 
@@ -65,80 +63,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     const unsubscribe = onAuthStateChanged((user) => {
       if (user == null) setAuthState(AuthStateEnum.NOT_LOGGED_IN);
       else {
-        dispatchUser({ fromFirebaseAuth: user });
+        setUser(IdentityWrapper.fromFirebaseAuthUser(user));
         /* mark as still loading as type and identity details are yet to be fetched from rtdb */
         AuthLock.CREATING_USER.onClear(() => setAuthState(AuthStateEnum.STILL_LOADING));
       }
 
       console.log(
         `${MODULE_NAME}::onAuthStateChanged: new user =`,
-        user != null ? User.fromFirebaseAuthUser(user) : null
+        user != null ? IdentityWrapper.fromFirebaseAuthUser(user) : null
       );
 
       if (user == null) notify(lang("You are not logged in", "আপনি লগইন করেননি", "आप लॉगिन नहीं किए हैं"), "warning");
     });
 
     return () => unsubscribe();
-  }, [notify, dispatchUser]);
+  }, [notify, setUser]);
 
   /* --------------------------------------- USE EFFECTS GET DATA USING API ----------------------------------- */
 
   useEffect(() => {
-    if (user.uid.length === 0) return;
+    if (user.isInvalid()) return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
     function updateLocalUser(onlineProfileData?: IdentityGetResBodyWithAuthDTO) {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
-      if (onlineProfileData == null) {
-        dispatchUser("LOADCURRENT");
-        setAuthState(AuthStateEnum.LOGGED_IN);
-        return;
-      }
+      // NOTE: This functions is called if authState is either LOGGED_IN or STILL_LOADING and that implies
+      // user has email AND uid
 
-      dispatchUser({ email: onlineProfileData.email });
-      if (!isEmpty(onlineProfileData.type)) {
-        dispatchUser({ type: onlineProfileData.type });
+      const currentUser = IdentityWrapper.loadCurrentUser();
+      if (currentUser == null) {
+        throw new Error("Failed to load user from Firebase");
       }
-      setLang(onlineProfileData.language, false);
-
-      if (onlineProfileData.mobile != null) {
-        dispatchUser({ mobile: onlineProfileData.mobile });
+      if (onlineProfileData != null) {
+        currentUser.set("identity", onlineProfileData);
       }
-
-      if (onlineProfileData.firstName != null) {
-        dispatchUser({ firstName: onlineProfileData.firstName });
-      }
-
-      if (onlineProfileData.lastName != null) {
-        dispatchUser({ lastName: onlineProfileData.lastName });
-      }
-
-      if (onlineProfileData.profilePhotos != null) {
-        dispatchUser({ profilePhotos: UploadedImage.from(user.uid, onlineProfileData.profilePhotos, false) });
-      }
-
-      if (onlineProfileData.identityPhotos != null) {
-        let workId: UploadedImage | null = null,
-          govId: UploadedImage | null = null;
-        if (onlineProfileData.identityPhotos.workId != null) {
-          workId = UploadedImage.from(
-            user.uid,
-            onlineProfileData.identityPhotos.workId,
-            onlineProfileData.identityPhotos.workIdIsPrivate
-          );
-        }
-        if (onlineProfileData.identityPhotos.govId != null) {
-          govId = UploadedImage.from(
-            user.uid,
-            onlineProfileData.identityPhotos.govId,
-            onlineProfileData.identityPhotos.govIdIsPrivate
-          );
-        }
-        if (workId != null && govId != null) dispatchUser({ identityPhotos: { workId, govId } });
-        else if (workId != null && govId == null) dispatchUser({ identityPhotos: { workId } });
-        else if (workId == null && govId != null) dispatchUser({ identityPhotos: { govId } });
-      }
+      setUser(currentUser);
     }
 
     /*
@@ -152,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       .then(({ dto }) => updateLocalUser(dto))
       .then(() => setAuthState(AuthStateEnum.LOGGED_IN))
       .catch((e: Error) => notify(e, "error"));
-  }, [authState, user.uid, dispatchUser, notify, setLang]);
+  }, [authState, setUser, notify, setLang, user]);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
@@ -160,9 +120,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     (): Promise<void> =>
       fbAuthLogOut()
         .then(() => notify(lang("Logged out", "লগ আউট করা হয়েছে", "लॉगआउट किया गया है"), "info"))
-        .then(() => dispatchUser("RESET")),
-    [notify, dispatchUser]
+        .then(() => setUser(null)),
+    [notify, setUser]
   );
+
+  console.log(authState);
 
   return (
     <AuthContext.Provider

@@ -1,3 +1,5 @@
+import { Nullable } from "sharedtypes";
+
 /**
  * A function that takes a string and checks it:
  * - if cuss words are found, returns "Stop cussing kiddo" if cuss words are found
@@ -7,9 +9,9 @@
  *   - make sure the numbers are not part of a larger number, e.g. 169 or 4200
  * - otherwise, return null to indicate no easteregg was found
  * @param {string} str
- * @returns {string | null}
+ * @returns {Nullable<string>}
  */
-export function checkForEasterEgg(str: string): string | null {
+export function checkForEasterEgg(str: string): Nullable<string> {
   // Define the list of mild, humorous cuss words
   const mildCussWords = ["gadha", "ullu ka pattha", "idiot", "moron", "jackass", "asshole"];
 

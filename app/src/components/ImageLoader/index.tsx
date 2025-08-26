@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useNotification from "@/hooks/notification.js";
 import { serialFetchAsDataUrl } from "@/modules/util/fetch.js";
+import { Nullable } from "sharedtypes";
 
 export const LOADING_GIF_DATA =
   "data:image/gif;base64," +
@@ -374,7 +375,7 @@ export interface ImageLoaderProps extends React.ImgHTMLAttributes<HTMLImageEleme
 }
 
 export default function ImageLoader(props: ImageLoaderProps): React.ReactNode {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<Nullable<string>>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const notify = useNotification();

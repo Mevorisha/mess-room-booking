@@ -115,7 +115,7 @@ function NotEmptyFilesInput(props: ImageFilesInputPropsExtended): React.ReactNod
       .catch((e: Error) => notify(e, "error"));
   }, [filesSet, notify]);
 
-  const refInput = useRef<HTMLInputElement | null>(null);
+  const refInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Set the input's custom validity msg attribute based on the number of files

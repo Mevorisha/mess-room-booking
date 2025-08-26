@@ -3,6 +3,7 @@ import UserContext from "./user.jsx";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
 import { HttpMethodTypes, Language, ProfilePatchReqBodyDTO } from "sharedtypes";
+import { getLangNotNull } from "@/modules/util/language.js";
 
 export interface LanguageContextType {
   lang: Language;
@@ -10,7 +11,7 @@ export interface LanguageContextType {
 }
 
 const LangContext = createContext<LanguageContextType>({
-  lang: (window.localStorage.getItem("lang") ?? "ENGLISH") as Language,
+  lang: getLangNotNull(),
   setLang: () => void 0,
 });
 
@@ -24,10 +25,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
   } = useContext(UserContext);
   const notify = useNotification();
 
-  const [lang, _setLang] = useState((): Language => {
-    const newLangSt = (window.localStorage.getItem("lang") ?? "ENGLISH") as Language;
-    return newLangSt;
-  });
+  const [lang, _setLang] = useState(getLangNotNull);
 
   const setLang = useCallback(
     (newVal: Language, updateRemote = true) =>
@@ -46,14 +44,5 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
     [_setLang, notify, uid]
   );
 
-  return (
-    <LangContext.Provider
-      value={{
-        lang,
-        setLang,
-      }}
-    >
-      {children}
-    </LangContext.Provider>
-  );
+  return <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>;
 }

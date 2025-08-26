@@ -11,6 +11,8 @@ import {
   Result,
   RoomGetReqQueryParamsWrapper,
   MultiSizeImageSz,
+  DocType,
+  Nullable,
 } from "sharedtypes";
 
 export class ApiPaths {
@@ -38,9 +40,9 @@ export class ApiPaths {
 
   // prettier-ignore
   static IdentityDocs = {
-    readImage: (type: "GOV_ID" | "WORK_ID", uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
-    updateImage: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateImage`,
-    updateVisibility: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
+    readImage: (type: DocType, uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
+    updateImage: (type: DocType, uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateImage`,
+    updateVisibility: (type: DocType, uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
   };
 
   // prettier-ignore
@@ -98,7 +100,7 @@ export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Respo
     else {
       const contentType = response.headers.get("content-type");
       const isJson = contentType?.includes("application/json") ?? false;
-      const jsonData: JsonDataType | null = isJson ? ((await response.json()) as JsonDataType) : null;
+      const jsonData: Nullable<JsonDataType> = isJson ? ((await response.json()) as JsonDataType) : null;
       if (jsonData?.message != null) {
         return Promise.reject(new Error(jsonData.message));
       } else if (jsonData?.error != null) {

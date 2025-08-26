@@ -17,9 +17,9 @@ interface ConstructorParams {
   profilePhotos?: MultiSizePhotoDTO;
 
   email: string;
-  type: IdentityType;
+  type?: IdentityType;
   identityPhotos?: IdentityPhotosDTO;
-  language: Language;
+  language?: Language;
 
   createdOn: string;
   lastModifiedOn: string;
@@ -31,16 +31,18 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
   @IsEmail()
   email: string;
 
+  @IsOptional()
   @IsEnum(IdentityType)
-  type: IdentityType = IdentityType.TENANT;
+  type?: IdentityType;
 
   @IsOptional()
   @ValidateNested()
   @Type(() => IdentityPhotosDTO)
   identityPhotos?: IdentityPhotosDTO;
 
+  @IsOptional()
   @IsEnum(Language)
-  language: Language = Language.ENGLISH;
+  language?: Language;
 
   @IsString()
   @IsNotEmpty()
@@ -63,11 +65,15 @@ export class IdentityGetResBodyWithAuthDTO extends IdentityGetResBodyNoAuthDTO {
     super(noAuthData);
 
     this.email = email;
-    this.type = type;
+    if (type != null) {
+      this.type = type;
+    }
     if (identityPhotos != null) {
       this.identityPhotos = identityPhotos;
     }
-    this.language = language;
+    if (language != null) {
+      this.language = language;
+    }
     this.createdOn = createdOn;
     this.lastModifiedOn = lastModifiedOn;
     if (ttl != null) {

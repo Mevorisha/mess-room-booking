@@ -1,3 +1,4 @@
+import { Nullable } from "sharedtypes";
 import { sizehuman } from "./dataConversion.js";
 import { lang } from "./language.js";
 
@@ -10,7 +11,7 @@ import { lang } from "./language.js";
  */
 export function loadFileFromFilePicker(accept: string, size: number): Promise<File> {
   const fileInput: HTMLInputElement =
-    (document.getElementById("default-file-input") as HTMLInputElement | null) ??
+    (document.getElementById("default-file-input") as Nullable<HTMLInputElement>) ??
     /* if the input element is not found, create a new one */
     (function () {
       const newFileInput = document.createElement("input");

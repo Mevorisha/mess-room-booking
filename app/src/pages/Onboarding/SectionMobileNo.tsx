@@ -7,6 +7,7 @@ import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
+import { IdentityType, Nullable } from "sharedtypes";
 
 export default function SetMobileNumber(): React.ReactNode {
   const compUsr = useCompositeUser();
@@ -20,9 +21,9 @@ export default function SetMobileNumber(): React.ReactNode {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const target = e.target as unknown as { value: number | string | null }[];
-    const mobile = target[0]?.value as string | null;
-    const otp = target[1]?.value as string | null;
+    const target = e.target as unknown as { value: Nullable<number | string> }[];
+    const mobile = target[0]?.value as Nullable<string>;
+    const otp = target[1]?.value as Nullable<string>;
 
     // request otp
     if (mobile != null && (action === "Request OTP" || action === "Resend OTP")) {
@@ -66,7 +67,7 @@ export default function SetMobileNumber(): React.ReactNode {
         <div className="desc">
           <p>
             Mobile number is required for communication and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to contact you.
+            {compUsr.userCtx.user.get("type") === IdentityType.TENANT ? "owner" : "tenant"} to contact you.
           </p>
           {/* <h4 style={{ marginTop: "20px" }}>
               Development Phase - Testing Notes
@@ -90,7 +91,7 @@ export default function SetMobileNumber(): React.ReactNode {
             name="mobile"
             disabled={action === "Verify & Submit"}
             placeholder="Mobile with country code"
-            defaultValue={compUsr.userCtx.user.mobile}
+            defaultValue={compUsr.userCtx.user.get("mobile") ?? ""}
           />
           <input
             required

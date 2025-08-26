@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, MultiSizePhotoDTO } from "sharedtypes";
-import UploadedImage from "@/modules/classes/UploadedImage";
+import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, IdentityType, MultiSizePhotoDTO, Nullable } from "sharedtypes";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import useDialog from "@/hooks/dialogbox";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import User from "@/modules/classes/User";
 
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
@@ -26,86 +24,93 @@ export default function Profile(): React.ReactNode {
   const [searchParams] = useSearchParams();
 
   // null userProfile means profile not found
-  const [userProfile, setProfileUser] = useState<User | null>(compUsr.userCtx.user);
+  const [userUid, setUserUid] = useState<Nullable<string>>(compUsr.userCtx.user.uid);
+  const [profileDTO, setProfileDTO] = useState<Nullable<IdentityGetResBodyNoAuthDTO>>(compUsr.userCtx.user);
 
   useEffect(() => {
     // no ID is ok
     if (!searchParams.has("id")) return;
     // empty ID is not ok
     if (searchParams.get("id") == null) {
-      setProfileUser(null);
+      setProfileDTO(null);
       return;
     }
 
-    const uid = searchParams.get("id") ?? "";
+    const uid = searchParams.get("id") ?? "unknown";
 
     apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid), IdentityGetResBodyNoAuthDTO)
       .then(({ dto }) => {
-        let { firstName = "", lastName = "", profilePhotos } = dto;
-        const { mobile = "" } = dto;
         // If no mobile no., the user is considered to not exist
-        if (firstName.length === 0 && lastName.length === 0) {
-          firstName = "(No Name)";
-          lastName = "";
+        if ((dto.firstName == null && dto.lastName == null) || (dto.firstName === "" && dto.lastName === "")) {
+          dto.firstName = "(Not";
+          dto.lastName = "Provided)";
+        } else {
+          dto.firstName = dto.firstName ?? "";
+          dto.lastName = dto.lastName ?? "";
         }
-        profilePhotos = profilePhotos ?? MultiSizePhotoDTO.create({
-          small: dpGeneric,
-          medium: dpGeneric,
-          large: dpGeneric,
-        });
-        setProfileUser((oldProfile) => {
-          if (oldProfile == null) return null;
-          const newProfile = oldProfile.clone();
-          newProfile.uid = uid;
-          newProfile.setProfileName(firstName, lastName);
-          newProfile.setMobile(mobile);
-          newProfile.setProfilePhotos(UploadedImage.from(uid, profilePhotos, false));
-          return newProfile;
-        });
+        if (dto.mobile == null || dto.mobile == "") {
+          dto.mobile = "(Unavailable)";
+        }
+        dto.profilePhotos =
+          dto.profilePhotos ??
+          MultiSizePhotoDTO.create({
+            small: dpGeneric,
+            medium: dpGeneric,
+            large: dpGeneric,
+          });
+        setUserUid(uid);
+        setProfileDTO(dto);
       })
       .catch((e: Error) => {
-        setProfileUser(null);
+        setProfileDTO(null);
         notify(e, "error");
       });
   }, [notify, searchParams]);
 
   // user profile set to null by useEffect means profile not found
-  if (userProfile == null) {
+  if (profileDTO == null) {
     return <PageNotFound />;
   }
 
   // id present and current user is not same as user id in query means queried profile still not loaded
-  if (searchParams.has("id") && userProfile.uid !== searchParams.get("id")) {
+  if (searchParams.has("id") && userUid !== searchParams.get("id")) {
     return <LoadingPage />;
   }
 
   function handleShowLargeImage() {
-    if (userProfile == null) return;
-    if (userProfile.profilePhotos?.large == null) return;
-    dialog.show(<DialogImagePreview largeImageUrl={userProfile.profilePhotos.large} />, "large");
+    if (profileDTO?.profilePhotos == null) return;
+    dialog.show(<DialogImagePreview largeImageUrl={profileDTO.profilePhotos.large} />, "large");
   }
 
-  const displayName =
-    userProfile.firstName.length === 0 || userProfile.lastName.length === 0
-      ? "(Not Provided)"
-      : `${userProfile.firstName} ${userProfile.lastName}`;
+  const firstName = profileDTO.firstName;
+  const lastName = profileDTO.lastName;
+  const displayName = firstName == null && lastName == null ? "(Not Provided)" : `${firstName ?? ""} ${lastName ?? ""}`;
+
+  let whoseProfile = "User's Profile";
+  if (compUsr.userCtx.user.uid === userUid) {
+    switch (compUsr.userCtx.user.get("type")) {
+      case IdentityType.OWNER:
+        whoseProfile = "Your Owner Profile";
+        break;
+      case IdentityType.TENANT:
+        whoseProfile = "Your Tenant Profile";
+        break;
+      case void 0:
+      case null:
+        whoseProfile = "User's Profile";
+        break;
+    }
+  }
 
   return (
     <div className="pages-Profile">
       <div className="container">
-        <h1>
-          {compUsr.userCtx.user.uid === userProfile.uid
-            ? userProfile.type === "OWNER"
-              ? "Owner"
-              : "Tenant"
-            : "User's"}{" "}
-          Profile
-        </h1>
+        <h1>{whoseProfile}</h1>
         <h4>Profile details will be visible publicly.</h4>
 
         <div className="photo-container">
           <ImageLoader
-            src={userProfile.profilePhotos?.medium ?? dpGeneric}
+            src={profileDTO.profilePhotos?.medium ?? dpGeneric}
             alt="profile"
             onClick={handleShowLargeImage}
           />
@@ -118,7 +123,7 @@ export default function Profile(): React.ReactNode {
             </tr>
             <tr className="detail">
               <td className="detail-label">Mobile: </td>
-              <td className="detail-value">{userProfile.mobile.length > 0 ? userProfile.mobile : "(Unavailable)"}</td>
+              <td className="detail-value">{profileDTO.mobile ?? "(Unavailable)"}</td>
             </tr>
           </tbody>
         </table>
