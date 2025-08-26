@@ -38,7 +38,20 @@ export class RoomService {
     // delete the db entry
     await ref.delete();
     // delete all the images under the roomId
-    await FirebaseStorage.bucket().deleteFiles({ prefix: StoragePaths.RoomPhotos.gsBucket(roomId) });
+    const prefix = StoragePaths.RoomPhotos.gsBucket(roomId);
+    const bucket = FirebaseStorage.bucket();
+
+    // files present before (set)
+    const filesBefore = new Set((await bucket.getFiles({ prefix }))[0].map((file) => file.name));
+    // actual deleteion
+    await bucket.deleteFiles({ prefix });
+    // files present now (set)
+    const filesAfter = new Set((await bucket.getFiles({ prefix }))[0].map((file) => file.name));
+    // files not deleted
+    const stillPresent = [...filesBefore].filter((f) => filesAfter.has(f));
+    if (stillPresent.length > 0) {
+      console.error("[E] [RoomService] Some files were not deleted:", stillPresent);
+    }
   }
 
   static async setUnavailability(roomId: string, isUnavailable: boolean): Promise<void> {
