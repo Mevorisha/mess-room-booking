@@ -142,6 +142,9 @@ function getImagesToKeepOrDelete(
     // Extract the image ID from the path
     const imageId = StoragePaths.RoomPhotos.getImageIdFromGsPath(imageGsPath.small);
     if (
+      /* Check if api req contains the url w/ this imageId. This is done by generating api urls of 3
+       * sizes from same imageId in the same format as api req and checking if one of then is in the req.
+       * For better clarification see (app/src/pages/Home/sections/RoomUpdateForm/index.tsx) or equivalent. */
       keepImagesFromAPI.has(StoragePaths.RoomPhotos.apiUri(roomId, imageId, MultiSizeImageSz.SMALL)) ||
       keepImagesFromAPI.has(StoragePaths.RoomPhotos.apiUri(roomId, imageId, MultiSizeImageSz.MEDIUM)) ||
       keepImagesFromAPI.has(StoragePaths.RoomPhotos.apiUri(roomId, imageId, MultiSizeImageSz.LARGE))
