@@ -11,7 +11,13 @@ import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
 import FilterSearch from "@/components/FilterSearch";
 import SectionRoomView from "@/pages/Home/sections/RoomView";
-import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyNotOwnerDTO } from "sharedtypes";
+import {
+  HttpMethodTypes,
+  PaginationDTO,
+  RoomGetReqQueryParamsWrapper,
+  RoomGetResBodyNotOwnerDTO,
+  UNKNOWN_STR,
+} from "sharedtypes";
 
 import "./styles.css";
 
@@ -48,7 +54,7 @@ export default function SectionSearch(): React.ReactNode {
   const apiUri = ApiPaths.Rooms.readListOnQuery(roomQueryWrapper);
 
   // State for search input
-  const [searchStringInput, setSearchStringInput] = useState<string>(roomQueryWrapper.searchTags?.join(" ") ?? "");
+  const [searchStringInput, setSearchStringInput] = useState<string>(roomQueryWrapper.searchTags?.join(" ").trim() ?? ""); // prettier-ignore
 
   // Is room view dialog visible or not
   const [isRoomViewVisible, setIsRoomViewVisible] = useState<boolean>(false);
@@ -241,7 +247,7 @@ export default function SectionSearch(): React.ReactNode {
     const newRoomQueryWrapper = roomQueryWrapper.clone();
     // has to add extra line coz roomQueryWrapper ignores roomId in urlSearchParams
     if (urlSearchParams.has("roomId")) {
-      newRoomQueryWrapper.set("roomId", urlSearchParams.get("roomId") ?? "unkown");
+      newRoomQueryWrapper.set("roomId", urlSearchParams.get("roomId") ?? UNKNOWN_STR);
     }
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;

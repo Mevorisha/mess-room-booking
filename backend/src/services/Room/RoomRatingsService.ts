@@ -1,5 +1,6 @@
 import { FirestorePaths } from "@/firebase/init";
 import { RoomRatingsModel } from "@/models/Room";
+import { UNKNOWN_STR } from "sharedtypes";
 
 function mkCompositeKey(uid: string, roomId: string) {
   return `${uid}:${roomId}`;
@@ -42,8 +43,8 @@ export class RoomRatingsService {
       if (data != null && typeof data.ratingOn5 === "number") {
         // Extract uid from the composite key
         const compositeKey = doc.id;
-        const uid = compositeKey.split(":")[0];
-        result.set(uid ?? "", data.ratingOn5);
+        const uid = compositeKey.split(":")[0] ?? UNKNOWN_STR;
+        result.set(uid, data.ratingOn5);
       }
     });
     return result;
@@ -53,7 +54,9 @@ export class RoomRatingsService {
     // Only include valid ratings (1-5)
     // Coz:  0 ratings   -> unrated ratings if counted will reduce rating result
     //       More than 5 -> invalid
-    const ratings = Array.from((await RoomRatingsService.getAllForRoom(roomId)).values()).filter((v) => 1 <= v && v <= 5);
+    const ratings = Array.from((await RoomRatingsService.getAllForRoom(roomId)).values()).filter(
+      (v) => 1 <= v && v <= 5
+    );
     if (ratings.length === 0) return 0;
     return ratings.reduce((acc, r) => acc + r, 0) / ratings.length;
   }

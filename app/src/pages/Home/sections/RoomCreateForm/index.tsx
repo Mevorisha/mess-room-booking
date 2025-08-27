@@ -117,8 +117,8 @@ export default function SectionRoomCreateForm({
         if (stateInput.current != null) stateInput.current.value = data.state;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
-        setCapacity("" + data.capacity);
-        setPricePerOccupant("" + data.pricePerOccupant);
+        setCapacity(String(data.capacity));
+        setPricePerOccupant(String(data.pricePerOccupant));
         setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map((f) => FileRepr.from(f))));
       })
       .catch((e: Error) => notify(e, "error"));

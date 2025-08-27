@@ -21,7 +21,7 @@ import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { AsyncLock } from "@/modules/util/asyncLock.js";
-import { HttpMethodTypes, IdentityPostReqBodyDTO, Nullable } from "sharedtypes";
+import { HttpMethodTypes, IdentityPostReqBodyDTO, Nullable, UNKNOWN_STR } from "sharedtypes";
 
 let RecaptchaVerifierObject: Nullable<RecaptchaVerifier> = null;
 let RecaptchaVerifierConfirmationResult: Nullable<ConfirmationResult> = null;
@@ -157,7 +157,7 @@ class LinkMobileNumber {
       await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
       // Optional: Update phone number in user's profile if linking is not required
       // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
-      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? "";
+      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? UNKNOWN_STR;
       console.log("Phone number linked:", phoneNumber);
       return Promise.resolve(phoneNumber);
     } catch (e) {
@@ -311,7 +311,7 @@ class EmailPasswdAuth {
     }
   }
 
-  static async requestPasswordReset(email = ""): Promise<void> {
+  static async requestPasswordReset(email: string = UNKNOWN_STR): Promise<void> {
     if (email.length === 0 && FirebaseAuth.currentUser?.email == null) {
       return Promise.reject(
         new Error(lang("No email provided.", "কোনও ইমেল প্রদান করা হয়নি।", "कोई ईमेल प्रदान नहीं किया गया।"))

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, IdentityType, MultiSizePhotoDTO, Nullable } from "sharedtypes";
+import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, IdentityType, MultiSizePhotoDTO, Nullable, UNKNOWN_STR } from "sharedtypes";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import useDialog from "@/hooks/dialogbox";
@@ -36,7 +36,7 @@ export default function Profile(): React.ReactNode {
       return;
     }
 
-    const uid = searchParams.get("id") ?? userUid ?? "unknown";
+    const uid = searchParams.get("id") ?? userUid ?? UNKNOWN_STR;
 
     apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Profile.read(uid), IdentityGetResBodyNoAuthDTO)
       .then(({ dto }) => {
@@ -48,7 +48,7 @@ export default function Profile(): React.ReactNode {
           dto.firstName = dto.firstName ?? "";
           dto.lastName = dto.lastName ?? "";
         }
-        if (dto.mobile == null || dto.mobile == "") {
+        if (dto.mobile == null || dto.mobile === "") {
           dto.mobile = "(Unavailable)";
         }
         dto.profilePhotos =

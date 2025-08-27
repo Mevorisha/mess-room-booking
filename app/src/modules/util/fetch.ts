@@ -3,7 +3,7 @@ import { FirebaseAuth } from "@/modules/firebase/init";
 import { errorHandlerWrapperOnCallApi } from "./api";
 import { CachePaths } from "./caching";
 import { fileToDataUrl } from "./dataConversion";
-import { HeaderTypes, Nullable } from "sharedtypes";
+import { HeaderTypes, Nullable, UNKNOWN_STR } from "sharedtypes";
 
 const FILE_LOADER_CACHE_PATH = CachePaths.FILE_LOADER;
 const CACHE_EXPIRATION_OFFSET_7D = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -65,7 +65,7 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
 
   const headers: Record<string, string> = {};
   if (requireAuth) {
-    headers[HeaderTypes.X_FIREBASE_TOKEN] = (await FirebaseAuth.currentUser?.getIdToken()) ?? "";
+    headers[HeaderTypes.X_FIREBASE_TOKEN] = (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR;
   }
 
   // Fetch the image from the URL
@@ -82,7 +82,7 @@ export async function fetchAsDataUrl(url: string, requireAuth = false): Promise<
     return base64DataUrl;
   } else {
     const blob = await response.blob();
-    const file = new File([blob], "unknown.bin", { type: blob.type });
+    const file = new File([blob], `${UNKNOWN_STR}.bin`, { type: blob.type });
     const base64DataUrl = await fileToDataUrl(file);
     const expiration = Date.now() + cacheExpiratnOffset;
     const result = JSON.stringify({ base64DataUrl, expiration });

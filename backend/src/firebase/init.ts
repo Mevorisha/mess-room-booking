@@ -5,7 +5,7 @@ import { Database, getDatabase } from "firebase-admin/database";
 import { CollectionReference, DocumentReference, Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "../config/env";
-import { DocType, MultiSizeImageSz } from "sharedtypes";
+import { DocType, MultiSizeImageSz, UNKNOWN_STR } from "sharedtypes";
 
 let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;
@@ -112,7 +112,7 @@ class StoragePaths {
         ? `${StoragePaths.ROOM_PHOTOS}/${roomId}`
         : `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
 
-    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? "",
+    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? UNKNOWN_STR,
 
     apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}&b64=${b64}`,

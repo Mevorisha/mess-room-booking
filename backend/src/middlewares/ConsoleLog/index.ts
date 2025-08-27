@@ -1,9 +1,10 @@
 import { getPossibleClientIp } from "@/utils/getClientIp";
 import { NextApiRequest, NextApiResponse } from "next";
+import { UNKNOWN_STR } from "sharedtypes";
 
 export function consoleLog(req: NextApiRequest, res: NextApiResponse): void {
-  const method = (req.method ?? "unknown").toUpperCase();
-  const url = req.url ?? "unknown";
+  const method = (req.method ?? UNKNOWN_STR).toUpperCase();
+  const url = req.url ?? UNKNOWN_STR;
   const statusCode = res.statusCode;
   const clientIp = getPossibleClientIp(req);
 

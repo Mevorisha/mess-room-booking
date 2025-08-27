@@ -13,6 +13,7 @@ import {
   MultiSizeImageSz,
   DocType,
   Nullable,
+  UNKNOWN_STR,
 } from "sharedtypes";
 
 export class ApiPaths {
@@ -150,7 +151,7 @@ export async function apiGetOrDelete<T extends ADataTransferObj>(
     fetch(path, {
       method,
       headers: {
-        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
         [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
     })
@@ -195,7 +196,7 @@ export async function apiPostOrPatchJson(
     fetch(path, {
       method,
       headers: {
-        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
         [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
       body: dto != null ? JSON.stringify(dto.toJSON()) : null,
@@ -217,7 +218,7 @@ export async function apiPostOrPatchFile(
     fetch(path, {
       method,
       headers: {
-        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
         // [HeaderTypes.CONTENT_TYPE]: void 0, <-- To be set by browser for formdata, DO NOT set manually
       },
       body: formData,

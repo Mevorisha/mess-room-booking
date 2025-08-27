@@ -13,7 +13,7 @@ const ExposedHeaders = [HeaderTypes.X_CONTENT_ENCODING, HeaderTypes.X_DECODED_CO
  * @throws {CustomApiError} If CORS checks fail
  */
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const origin = req.headers.origin ?? ("" as string);
+  const origin = req.headers.origin ?? "uknown";
   if (
     config.CORS_ALLOW_EVERYTHING ||
     AllowedOrigins.includes(origin) ||

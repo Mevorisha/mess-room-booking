@@ -1,3 +1,4 @@
+import { UNKNOWN_STR } from "sharedtypes";
 import { lang } from "./language.js";
 
 export interface Base64FileUploadData {
@@ -153,7 +154,7 @@ export function base64FileDataToFile(fileData: Base64FileUploadData): File {
   for (let i = 0; i < byteStr.length; i++) {
     u8arr[i] = byteStr.charCodeAt(i);
   }
-  return new File([u8arr], fileData.name ?? "unknown", { type: fileData.type });
+  return new File([u8arr], fileData.name ?? `${UNKNOWN_STR}.bin`, { type: fileData.type });
 }
 
 export function base64FileDataToDataUrl(fileData: Base64FileUploadData): string {

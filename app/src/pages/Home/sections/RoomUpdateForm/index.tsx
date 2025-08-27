@@ -70,8 +70,8 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [state, setState] = useState<string>(roomData.state);
   const [majorTagsSet, setMajorTagsSet] = useState<Set<string>>(new Set<string>(roomData.majorTags));
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>(roomData.minorTags));
-  const [capacity, setCapacity] = useState<string>("" + roomData.capacity);
-  const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
+  const [capacity, setCapacity] = useState<string>(String(roomData.capacity));
+  const [pricePerOccupant, setPricePerOccupant] = useState<string>(String(roomData.pricePerOccupant));
   const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
 
   /* Initialize filesSet with urls of medium size images from roomData and storing em in a StringySet
