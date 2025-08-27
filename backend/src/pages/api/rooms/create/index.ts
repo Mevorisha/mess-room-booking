@@ -75,7 +75,7 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   if (files.length > 0) {
     try {
       // Upload all images and get their paths
-      const imageId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      const imageId = ImageUploaderService.createRandomId();
       const imagePaths = await ImageUploaderService.upload(files, {
         small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
         medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),

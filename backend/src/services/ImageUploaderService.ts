@@ -12,6 +12,10 @@ export interface UploadTargets {
 }
 
 export class ImageUploaderService {
+  static createRandomId(): string {
+    return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  }
+
   static async upload(file: ImageUploadData, targets: UploadTargets): Promise<MultiSizePhotoModel>;
   static async upload(files: Base64PhotoUploadDTO[], targets: UploadTargets): Promise<MultiSizePhotoModel[]>;
 

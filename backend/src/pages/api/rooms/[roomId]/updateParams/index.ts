@@ -90,7 +90,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Upload new images (if any)
   let newImages: MultiSizePhotoModel[] = [];
   if (addFiles.length > 0) {
-    const imageId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const imageId = ImageUploaderService.createRandomId();
     newImages = await ImageUploaderService.upload(addFiles, {
       small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
       medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),
