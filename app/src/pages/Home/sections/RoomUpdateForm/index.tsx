@@ -74,7 +74,11 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
   const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
 
-  // Initialize filesSet with images from roomData
+  /* Initialize filesSet with urls of medium size images from roomData and storing em in a StringySet
+   * of FileRepr (see StringySet and FileRepr for details).
+   * Since FileRepr can store URLs as well as raw image data, we can remove URLs and add new uploadable
+   * image data directly in the StringySet<FileRepr>.
+   */
   const [filesSet, setFilesSet] = useState(
     new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)))
   );
@@ -82,13 +86,16 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [submitButtonKind, setSubmitButtonKind] = useState<"primary" | "loading">("primary");
 
   async function handleSubmitAsync(): Promise<void> {
-    // add new files
+    /* Add new files. Any newly added file MUST be a File type object and NEVER a URL.
+     * The implementation of this form requires it. */
     const addFilesArr = Array.from(filesSet)
       .filter((fr) => fr.isFile())
       .map((fr) => fr.getFile());
 
-    // keep URLs, and delete all others
-    const keepFilesArr = Array.from(filesSet)
+    /* Keep URLs. Any URL that was removed from StringySet<FileRepr> will be absent here and will be deleted
+     * by the server. Any URLs not deleted will be present here. Hence, this acts as a whitelist for image
+     * deletion by server. */
+    const keepFiles = Array.from(filesSet)
       .filter((fr) => fr.isUri())
       .map((fr) => fr.getUri());
 
@@ -115,8 +122,9 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       minorTags: Array.from(minorTagsSet),
       capacity: Number(capacity),
       pricePerOccupant: Number(pricePerOccupant),
-
-      keepFiles: keepFilesArr,
+      // images whitelist
+      keepFiles,
+      // raw file data for new images
       addFiles,
     });
 
