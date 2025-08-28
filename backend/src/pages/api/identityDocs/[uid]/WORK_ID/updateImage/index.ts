@@ -38,7 +38,7 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
-  const imageUploadData = await RequestImageBodyParser.parse(req);
+  const imageUploadData = await RequestImageBodyParser.parseOne(req);
   const imagePaths = await ImageUploaderService.upload(imageUploadData, {
     small: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, MultiSizeImageSz.SMALL),
     medium: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.WORK_ID, MultiSizeImageSz.MEDIUM),
