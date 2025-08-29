@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import NotificationContext from "@/contexts/notification.jsx";
-import { DtoValidationError } from "sharedtypes";
+import { DtoValidationError, MultipleErrors } from "sharedtypes";
 
 export default function useNotification(): (
   message: string | Error,
@@ -10,7 +10,10 @@ export default function useNotification(): (
     useContext(NotificationContext);
 
   const notify = useCallback(
-    (msgOrErr: string | Error, kind: "info" | "success" | "warning" | "error") => {
+    (
+      msgOrErr: string | DtoValidationError | MultipleErrors | Error,
+      kind: "info" | "success" | "warning" | "error"
+    ) => {
       /* if no message, following doesn't happen:
        * - notification doesn't slide in
        * - notification is not scheduled to begin sliding out after 5 seconds
@@ -23,9 +26,11 @@ export default function useNotification(): (
         const lineOne = allErrMsg[1];
         const cleanMsg =
           lineOne != null
-            ? `DtoValidationError: ${lineOne} (and ${allErrMsg.length -3} more)`
+            ? `DtoValidationError: ${lineOne} (and ${allErrMsg.length - 3} more)`
             : `DtoValidationError (total ${allErrMsg.length})`;
         setMessage(cleanMsg);
+      } else if (msgOrErr instanceof MultipleErrors) {
+        setMessage(msgOrErr.getSummary());
       } else if (msgOrErr instanceof Error) {
         setMessage(msgOrErr.message.toString());
       } else {
