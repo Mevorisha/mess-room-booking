@@ -6,10 +6,17 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { StoragePaths } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { MultiSizeImageSz, RoomPostReqBodyDTO, ApiResponseUrlType, IdentityType, HttpMethodTypes } from "sharedtypes";
+import {
+  MultiSizeImageSz,
+  RoomPostReqBodyDTO,
+  ApiResponseUrlType,
+  IdentityType,
+  HttpMethodTypes,
+  Base64PhotoUploadDTO,
+} from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { RoomRepo } from "@/repo/RoomRepo";
-import { ImageUploaderService } from "@/services/ImageUploaderService";
+import { ImageUploaderService, UploadTarget } from "@/services/ImageUploaderService";
 
 export const config = {
   api: {
@@ -71,30 +78,37 @@ export default WithMiddleware(async function POST(req: NextApiRequest, res: Next
   // Create the room in the database first
   const roomId = await RoomRepo.create(postResult.value.omitFiles());
 
+  if (files.length === 0) {
+    return respond(res, { status: 201, json: { roomId } });
+  }
+
   // Process and upload images if any
-  if (files.length > 0) {
-    try {
-      // Upload all images and get their paths
-      const imageId = ImageUploaderService.createRandomId();
-      const imagePaths = await ImageUploaderService.upload(files, {
+  const uploadEntries: { file: Base64PhotoUploadDTO; target: UploadTarget }[] = [];
+  for (const file of files) {
+    const imageId = ImageUploaderService.createRandomId();
+    uploadEntries.push({
+      file,
+      target: {
         small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
         medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),
         large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.LARGE),
-      });
-      // Update the room with image paths
-      await RoomRepo.update(roomId, { images: imagePaths });
-    } catch (e) {
-      // If image upload fails, still return success but log the error
-      console.error("[E] [API /api/rooms/create] Error uploading room images:", e);
-      return respond(res, {
-        status: 201,
-        json: {
-          roomId,
-          error: "Room created but there was an issue with image uploads. Please try updating images later.",
-        },
-      });
-    }
+      },
+    });
   }
+  // Upload all images and get their paths
+  const imagePaths = await ImageUploaderService.upload(uploadEntries);
 
-  return respond(res, { status: 201, json: { roomId } });
+  const allUploadsSucceeded = imagePaths.length === uploadEntries.length;
+
+  // Update the room with image paths
+  await RoomRepo.update(roomId, { images: imagePaths });
+
+  if (!allUploadsSucceeded) {
+    return respond(res, {
+      status: 500,
+      json: { message: "Some image uploads failed", imagesAdded: imagePaths.length },
+    });
+  } else {
+    return respond(res, { status: 201, json: { roomId, imagesAdded: imagePaths.length } });
+  }
 });

@@ -5,7 +5,7 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { resizeImage, resizeImageOneSz } from "@/utils/dataConversion";
 import { Base64PhotoUploadDTO } from "sharedtypes";
 
-export interface UploadTargets {
+export interface UploadTarget extends MultiSizePhotoModel {
   small: string;
   medium: string;
   large: string;
@@ -16,21 +16,28 @@ export class ImageUploaderService {
     return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
-  static async upload(file: ImageUploadData, targets: UploadTargets): Promise<MultiSizePhotoModel>;
-  static async upload(files: Base64PhotoUploadDTO[], targets: UploadTargets): Promise<MultiSizePhotoModel[]>;
+  static async upload(file: ImageUploadData, target: UploadTarget): Promise<MultiSizePhotoModel>;
+
+  /**
+   * @param {{ file: Base64PhotoUploadDTO; target: UploadTarget }[]} files Files and targets (paths) to upload to
+   * @returns {Promise<MultiSizePhotoModel[]>} Paths to only those images that were successfully uploaded
+   */
+  static async upload(files: { file: Base64PhotoUploadDTO; target: UploadTarget }[]): Promise<MultiSizePhotoModel[]>;
 
   static async upload(
-    files: ImageUploadData | Base64PhotoUploadDTO[],
-    targets: UploadTargets
+    files: ImageUploadData | { file: Base64PhotoUploadDTO; target: UploadTarget }[],
+    target?: UploadTarget
   ): Promise<MultiSizePhotoModel | MultiSizePhotoModel[]> {
     if (Array.isArray(files)) {
-      return ImageUploaderService.uploadB64(files, targets);
+      return ImageUploaderService.uploadB64(files);
+    } else if (target != null) {
+      return ImageUploaderService.uploadStd(files, target);
     } else {
-      return ImageUploaderService.uploadStd(files, targets);
+      throw new Error("Incorrect function usage");
     }
   }
 
-  protected static async uploadStd(file: ImageUploadData, targets: UploadTargets): Promise<MultiSizePhotoModel> {
+  protected static async uploadStd(file: ImageUploadData, targets: UploadTarget): Promise<MultiSizePhotoModel> {
     const bucket = FirebaseStorage.bucket();
     const resizedImages = await resizeImage(file.buffer);
     await Promise.all([
@@ -42,8 +49,10 @@ export class ImageUploaderService {
   }
 
   protected static async uploadB64(
-    files: Base64PhotoUploadDTO[],
-    targets: UploadTargets
+    files: {
+      file: Base64PhotoUploadDTO;
+      target: UploadTarget;
+    }[]
   ): Promise<MultiSizePhotoModel[]> {
     const bucket = FirebaseStorage.bucket();
     const imagePaths: MultiSizePhotoModel[] = [];
@@ -53,7 +62,7 @@ export class ImageUploaderService {
 
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const batch = files.slice(i, i + BATCH_SIZE);
-      const batchPromises = batch.map(async (file) => {
+      const batchUploadPromises = batch.map(async ({ file, target }) => {
         // Validate each file before processing
         ImageUploaderService.validateImageFile(file);
         const { base64 } = file;
@@ -61,19 +70,28 @@ export class ImageUploaderService {
         const largeImgBuff = Buffer.from(base64, "base64");
         const mediumImgBuff = (await resizeImageOneSz<200>(largeImgBuff, 200)).img;
         const smallImgBuff = (await resizeImageOneSz<70>(largeImgBuff, 70)).img;
-        // Upload all sizes for this image
+        // Upload all sizes for this image; Fail this image target if one size fails
         await Promise.all([
           // always save jpeg for consistency and security
-          bucket.file(targets.small).save(smallImgBuff, { contentType: "image/jpeg" }),
-          bucket.file(targets.medium).save(mediumImgBuff, { contentType: "image/jpeg" }),
-          bucket.file(targets.large).save(largeImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(target.small).save(smallImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(target.medium).save(mediumImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(target.large).save(largeImgBuff, { contentType: "image/jpeg" }),
         ]);
-        return targets;
+        return target;
       });
       // Process each batch sequentially to avoid memory issues
-      const batchResults = await Promise.all(batchPromises);
-      imagePaths.push(...batchResults);
+      const batchResults = await Promise.allSettled(batchUploadPromises);
+      for (const result of batchResults) {
+        if (result.status === "fulfilled") {
+          imagePaths.push(result.value);
+        }
+      }
     }
+
+    if (imagePaths.length === 0) {
+      throw new Error("All image uploads failed");
+    }
+
     return imagePaths;
   }
 

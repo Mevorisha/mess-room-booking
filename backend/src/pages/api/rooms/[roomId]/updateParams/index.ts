@@ -7,12 +7,19 @@ import { CustomApiError } from "@/types/CustomApiError";
 import { FirebaseStorage, StoragePaths } from "@/firebase/init";
 import { RateLimits } from "@/middlewares/RateLimiter";
 import { MultiSizePhotoModel } from "@/models/types";
-import { ApiResponseUrlType, HttpMethodTypes, IdentityType, MultiSizeImageSz, RoomPatchReqBodyDTO } from "sharedtypes";
+import {
+  ApiResponseUrlType,
+  Base64PhotoUploadDTO,
+  HttpMethodTypes,
+  IdentityType,
+  MultiSizeImageSz,
+  RoomPatchReqBodyDTO,
+} from "sharedtypes";
 import { IdentityRepo } from "@/repo/IdentityRepo";
 import { RoomRepo } from "@/repo/RoomRepo";
 import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 import { RequestValidationParser } from "@/parsers/RequestValidationParser";
-import { ImageUploaderService } from "@/services/ImageUploaderService";
+import { ImageUploaderService, UploadTarget } from "@/services/ImageUploaderService";
 import { RoomService } from "@/services/Room/RoomService";
 
 export const config = {
@@ -42,7 +49,7 @@ export const config = {
  *   keepFiles?: Array<string>
  *   addFiles?: Array<{ type: string, name: string, base64: string }>
  * }
- * response = { roomId: string, message: string, imagesUpdated: boolean }
+ * response = { roomId: string, message: string, imagesAdded: number, imagesDeleted: number }
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
@@ -89,13 +96,32 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   // Upload new images (if any)
   let newImages: MultiSizePhotoModel[] = [];
+  // Assume complete success initially as addFiles.length can be 0
+  let allUploadsSucceeded = true;
+
   if (addFiles.length > 0) {
-    const imageId = ImageUploaderService.createRandomId();
-    newImages = await ImageUploaderService.upload(addFiles, {
-      small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
-      medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),
-      large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.LARGE),
-    });
+    // Process and upload images if any
+    const uploadEntries: { file: Base64PhotoUploadDTO; target: UploadTarget }[] = [];
+
+    for (const file of addFiles) {
+      const imageId = ImageUploaderService.createRandomId();
+      uploadEntries.push({
+        file,
+        target: {
+          small: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.SMALL),
+          medium: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.MEDIUM),
+          large: StoragePaths.RoomPhotos.gsBucket(roomId, imageId, MultiSizeImageSz.LARGE),
+        },
+      });
+    }
+
+    // Upload all images and get their paths
+    newImages = await ImageUploaderService.upload(uploadEntries);
+
+    // if len mismatch, set to false
+    if (newImages.length !== uploadEntries.length) {
+      allUploadsSucceeded = false;
+    }
   }
 
   // Combine kept images with new images
@@ -118,14 +144,27 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
   // Only delete images after successful DB update
   await deleteImages(imagesToDelete);
 
-  return respond(res, {
-    status: 200,
-    json: {
-      roomId,
-      message: "Room updated successfully",
-      imagesUpdated: imagesToDelete.length > 0 || addFiles.length > 0,
-    },
-  });
+  if (allUploadsSucceeded) {
+    return respond(res, {
+      status: 200,
+      json: {
+        roomId,
+        message: "Room updated successfully",
+        imagesAdded: newImages.length,
+        imagesDeleted: imagesToDelete.length,
+      },
+    });
+  } else {
+    return respond(res, {
+      status: 500,
+      json: {
+        roomId,
+        message: "Some image uploads failed",
+        imagesAdded: newImages.length,
+        imagesDeleted: imagesToDelete.length,
+      },
+    });
+  }
 });
 
 /**
