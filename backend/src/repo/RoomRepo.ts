@@ -96,8 +96,8 @@ export class RoomRepo {
     roomId: string,
     updateData: Partial<Omit<RoomModel, AutoSetFields | RoomReadOnlyFields | "isUnavailable">>
   ): Promise<void> {
-    const ref = FirestorePaths.Rooms(roomId);
-    const snapshot = await ref.get();
+    const docRef = FirestorePaths.Rooms(roomId);
+    const snapshot = await docRef.get();
     if (!snapshot.exists) {
       CustomApiError.create(404, "Room not found");
     }
@@ -133,7 +133,8 @@ export class RoomRepo {
       updateData.images = updateData.images.map((img) => MultiSizePhotoDTO.create(img).toJSON() as MultiSizePhotoModel);
     }
 
-    await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
+    /* Uses set with merge true instead of update as updateData has nested objects */
+    await docRef.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
   }
 
   static async findById(

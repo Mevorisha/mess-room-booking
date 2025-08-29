@@ -9,11 +9,11 @@ export class RoomService {
       throw CustomApiError.create(409, "Room is in use");
     }
     const daysToLive = 30;
-    const ref = FirestorePaths.Rooms(roomId);
+    const docRef = FirestorePaths.Rooms(roomId);
     const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
     try {
       // Throws error if room doesn't exist
-      await ref.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
+      await docRef.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found", e);
     }
@@ -21,10 +21,10 @@ export class RoomService {
   }
 
   static async unmarkForDelete(roomId: string): Promise<void> {
-    const ref = FirestorePaths.Rooms(roomId);
+    const docRef = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
-      await ref.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
+      await docRef.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found", e);
     }
@@ -58,10 +58,10 @@ export class RoomService {
     if (await RoomService.hasBooking(roomId)) {
       throw CustomApiError.create(409, "Room is in use");
     }
-    const ref = FirestorePaths.Rooms(roomId);
+    const docRef = FirestorePaths.Rooms(roomId);
     try {
       // Throws error if room doesn't exist
-      await ref.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
+      await docRef.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Room not found", e);
     }

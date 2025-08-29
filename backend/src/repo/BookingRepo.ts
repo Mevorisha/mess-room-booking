@@ -49,7 +49,8 @@ export class BookingRepo {
       throw CustomApiError.create(404, "Booking not found");
     }
 
-    await docRef.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
+    /* Uses set with merge true instead of update as updateData may contain nested objects */
+    await docRef.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
   }
 
   /**

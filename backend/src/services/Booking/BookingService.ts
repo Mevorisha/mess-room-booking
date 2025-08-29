@@ -209,13 +209,10 @@ export class BookingService {
       throw CustomApiError.create(409, "Cannot delete active booking. Needs to be cleared or cancelled first");
     }
     const daysToLive = 30;
-    const ref = FirestorePaths.Bookings(bookingId);
+    const docRef = FirestorePaths.Bookings(bookingId);
     const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
     try {
-      await ref.update({
-        ttl,
-        lastModifiedOn: FieldValue.serverTimestamp(),
-      });
+      await docRef.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found", e);
     }
@@ -227,12 +224,9 @@ export class BookingService {
    * Remove the deletion marker from a booking
    */
   static async unmarkForDelete(bookingId: string): Promise<void> {
-    const ref = FirestorePaths.Bookings(bookingId);
+    const docRef = FirestorePaths.Bookings(bookingId);
     try {
-      await ref.update({
-        ttl: FieldValue.delete(),
-        lastModifiedOn: FieldValue.serverTimestamp(),
-      });
+      await docRef.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
     } catch (e) {
       throw CustomApiError.create(404, "Booking not found", e);
     }

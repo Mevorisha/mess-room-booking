@@ -11,6 +11,9 @@ export class LogsRepo {
     const docRef = FirestorePaths.Logs(uid);
     const { type, timestamp, message } = log;
 
+    /* Requires merge true as under one doc, there maybe multiple timestamps each with
+     * their own message and type. Without merge true, old timestamps will all be removed
+     * from the doc. */
     await docRef.set({ [timestamp]: { message, type } }, { merge: true });
   }
 

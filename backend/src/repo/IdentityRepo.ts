@@ -23,6 +23,9 @@ export class IdentityRepo {
     const createData = pickObjProps(dto, ["email"]);
     await ref.set(
       { ...createData, createdOn: FieldValue.serverTimestamp(), lastModifiedOn: FieldValue.serverTimestamp() },
+      /* Required as .create is blindly called everytime user logs in. Without merge true, account
+       * data will be overwritten. The reason for blind call is to ensure this doc exists and is synced
+       * with info from firebase auth on each login. */
       { merge: true }
     );
   }
@@ -31,8 +34,8 @@ export class IdentityRepo {
    * Update an existing identity document
    */
   static async update(uid: string, dto: Partial<Omit<IdentityModel, AutoSetFields | "email">>): Promise<void> {
-    const ref = FirestorePaths.Identity(uid);
-    const snapshot = await ref.get();
+    const docRef = FirestorePaths.Identity(uid);
+    const snapshot = await docRef.get();
     if (!snapshot.exists) {
       return Promise.reject(CustomApiError.create(404, "User not found"));
     }
@@ -55,7 +58,8 @@ export class IdentityRepo {
       updateData.identityPhotos = IdentityPhotosDTO.create(updateData.identityPhotos).toJSON() as IdentityPhotosModel;
     }
 
-    await ref.update({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() });
+    /* Uses set with merge true instead of update as updateData has nested objects */
+    await docRef.set({ ...updateData, lastModifiedOn: FieldValue.serverTimestamp() }, { merge: true });
   }
 
   static async findById(
