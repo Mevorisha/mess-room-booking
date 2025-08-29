@@ -240,22 +240,18 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
     }
   }
 
-  static override create(): RoomGetReqQueryParamsWrapper;
-  static override create(data: ConstructorParams): RoomGetReqQueryParamsWrapper;
-  static override create(data: URLSearchParams): RoomGetReqQueryParamsWrapper;
+  static override create(): Result<RoomGetReqQueryParamsWrapper, DtoValidationError>;
+  static override create(data: ConstructorParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError>;
+  static override create(data: URLSearchParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError>;
 
-  static override create(data?: ConstructorParams | URLSearchParams): RoomGetReqQueryParamsWrapper {
+  static override create(data?: ConstructorParams | URLSearchParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
     // NOT USING fromJson COZ of overloads
-    const dtoResult = ADataTransferObj._fromJson(new this(data));
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+    return ADataTransferObj._fromJson(new this(data));
   }
 
   static fromURL(url?: string, base?: string): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
     if (url == null) {
-      throw new DtoValidationError("Missing URL");
+      return Result.err(new DtoValidationError("Missing URL"));
     }
     return ADataTransferObj._fromJson(new this(new URL(url, base).searchParams));
   }
@@ -297,7 +293,7 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
     return new URLSearchParams(this.params);
   }
 
-  clone(): RoomGetReqQueryParamsWrapper {
+  clone(): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
     return RoomGetReqQueryParamsWrapper.create(this.toQueryParams());
   }
 }

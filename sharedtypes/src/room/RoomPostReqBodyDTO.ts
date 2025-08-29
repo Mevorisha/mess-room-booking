@@ -111,12 +111,8 @@ class RoomPostReqBodyOmitFilesDTO extends ADataTransferObj {
     this.pricePerOccupant = data.pricePerOccupant;
   }
 
-  static override create(data: ConditionalParams<"nofiles">): RoomPostReqBodyOmitFilesDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConditionalParams<"nofiles">): Result<RoomPostReqBodyOmitFilesDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyOmitFilesDTO, DtoValidationError> {
@@ -135,18 +131,14 @@ class RoomPostReqBodyWithFilesDTO extends RoomPostReqBodyOmitFilesDTO {
     this.files = data.files;
   }
 
-  static override create(data: ConditionalParams<"files">): RoomPostReqBodyWithFilesDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConditionalParams<"files">): Result<RoomPostReqBodyWithFilesDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<RoomPostReqBodyWithFilesDTO, DtoValidationError> {
     const buildResult = ADataTransferObj._buildDtoFields(json, { files: Base64PhotoUploadDTO });
     if (buildResult.isErr) {
-      throw buildResult.error;
+      return Result.err(buildResult.error);
     }
     return ADataTransferObj._fromJson(new this(json as ConditionalParams<"files">));
   }

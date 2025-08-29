@@ -37,12 +37,8 @@ export class Base64PhotoUploadDTO extends ADataTransferObj {
     this.base64 = data.base64;
   }
 
-  static override create(data: ConstructorParams): Base64PhotoUploadDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConstructorParams): Result<Base64PhotoUploadDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<Base64PhotoUploadDTO, DtoValidationError> {

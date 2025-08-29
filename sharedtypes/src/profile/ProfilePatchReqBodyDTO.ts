@@ -42,12 +42,10 @@ class ProfilePatchLanguageReqBodyDTO extends ADataTransferObj {
     this.language = data.language;
   }
 
-  static override create(data: ConditionalParams<ProfilePatchParams.LANGUAGE>): ProfilePatchLanguageReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<ProfilePatchParams.LANGUAGE>
+  ): Result<ProfilePatchLanguageReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchLanguageReqBodyDTO, DtoValidationError> {
@@ -67,12 +65,10 @@ class ProfilePatchMobileReqBodyDTO extends ADataTransferObj {
     this.mobile = data.mobile;
   }
 
-  static override create(data: ConditionalParams<ProfilePatchParams.MOBILE>): ProfilePatchMobileReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<ProfilePatchParams.MOBILE>
+  ): Result<ProfilePatchMobileReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchMobileReqBodyDTO, DtoValidationError> {
@@ -98,12 +94,10 @@ class ProfilePatchNameReqBodyDTO extends ADataTransferObj {
     this.lastName = data.lastName;
   }
 
-  static override create(data: ConditionalParams<ProfilePatchParams.NAME>): ProfilePatchNameReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<ProfilePatchParams.NAME>
+  ): Result<ProfilePatchNameReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchNameReqBodyDTO, DtoValidationError> {
@@ -123,12 +117,10 @@ class ProfilePatchTypeReqBodyDTO extends ADataTransferObj {
     this.type = data.type;
   }
 
-  static override create(data: ConditionalParams<ProfilePatchParams.TYPE>): ProfilePatchTypeReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<ProfilePatchParams.TYPE>
+  ): Result<ProfilePatchTypeReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<ProfilePatchTypeReqBodyDTO, DtoValidationError> {

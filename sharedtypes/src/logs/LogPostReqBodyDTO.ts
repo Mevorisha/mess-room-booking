@@ -25,12 +25,8 @@ export class LogPostReqBodyDTO extends ADataTransferObj {
     this.message = data.message;
   }
 
-  static override create(data: ConstructorParams): LogPostReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConstructorParams): Result<LogPostReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<LogPostReqBodyDTO, DtoValidationError> {

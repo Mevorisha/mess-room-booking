@@ -45,12 +45,8 @@ export class PaginationDTO<T extends ADataTransferObj> extends ADataTransferObj 
   static createGeneric<T extends ADataTransferObj>(
     data: ConstructorParams<T>,
     itemsClass: typeof ADataTransferObj
-  ): PaginationDTO<T> {
-    const dtoResult = this.fromJsonWithGeneric<T>(data, itemsClass);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  ): Result<PaginationDTO<T>, DtoValidationError> {
+    return this.fromJsonWithGeneric<T>(data, itemsClass);
   }
 
   static fromJsonWithGeneric<T extends ADataTransferObj>(

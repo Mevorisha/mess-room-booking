@@ -18,12 +18,8 @@ export class IdentityPatchImageVisibilityDTO extends ADataTransferObj {
     this.visibility = data.visibility;
   }
 
-  static override create(data: ConstructorParams): IdentityPatchImageVisibilityDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConstructorParams): Result<IdentityPatchImageVisibilityDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<IdentityPatchImageVisibilityDTO, DtoValidationError> {

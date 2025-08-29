@@ -33,7 +33,7 @@ export abstract class ADataTransferObj implements ISerializable {
     }
   }
 
-  static create(_: unknown): unknown{
+  static create(_: unknown): Result<unknown, DtoValidationError> {
     throw new Error("Unimplemented");
   }
 

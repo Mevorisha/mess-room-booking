@@ -57,7 +57,7 @@ export class Result<T, E extends Error> {
   /**
    * Returns the success value, or throws if the result is an error.
    *
-   * @throws if the result is `Err`
+   * @throws {Error} if the result is `Err`
    * @example
    * ```ts
    * const result = Result.ok(42);
@@ -74,7 +74,7 @@ export class Result<T, E extends Error> {
   /**
    * Returns the error, or throws if the result is a success.
    *
-   * @throws if the result is `Ok`
+   * @throws {Error} if the result is `Ok`
    * @example
    * ```ts
    * const result = Result.err(new Error("Oops"));

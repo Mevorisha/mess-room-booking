@@ -36,15 +36,22 @@ export class IdentityPhotosDTO extends ADataTransferObj {
   @IsBoolean()
   govIdIsPrivate = true;
 
+  /**
+   * @throws {DtoValidationError}
+   */
   protected constructor(data?: ConstructorParams) {
     super();
 
     if (data != null) {
       if (data.workId != null) {
-        this.workId = MultiSizePhotoDTO.create(data.workId);
+        const result = MultiSizePhotoDTO.create(data.workId);
+        if (result.isErr) throw result.error;
+        this.workId = result.value;
       }
       if (data.govId != null) {
-        this.govId = MultiSizePhotoDTO.create(data.govId);
+        const result = MultiSizePhotoDTO.create(data.govId);
+        if (result.isErr) throw result.error;
+        this.govId = result.value;
       }
       if (data.workIdIsPrivate != null) {
         this.workIdIsPrivate = data.workIdIsPrivate;
@@ -55,12 +62,8 @@ export class IdentityPhotosDTO extends ADataTransferObj {
     }
   }
 
-  static override create(data: ConstructorParams): IdentityPhotosDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(data: ConstructorParams): Result<IdentityPhotosDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<IdentityPhotosDTO, DtoValidationError> {
@@ -73,6 +76,10 @@ export class IdentityPhotosDTO extends ADataTransferObj {
       return Result.err(buildFieldResult.error);
     }
 
-    return ADataTransferObj._fromJson(new this(json as ConstructorParams));
+    try {
+      return ADataTransferObj._fromJson(new this(json as ConstructorParams));
+    } catch (e) {
+      return Result.err(e as DtoValidationError);
+    }
   }
 }

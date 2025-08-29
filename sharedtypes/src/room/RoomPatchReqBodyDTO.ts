@@ -177,12 +177,10 @@ class RoomPatchParamsReqBodyDTO extends ADataTransferObj {
     }
   }
 
-  static override create(data: ConditionalParams<RoomPatchParams.BASE_PARAMS>): RoomPatchParamsReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<RoomPatchParams.BASE_PARAMS>
+  ): Result<RoomPatchParamsReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<RoomPatchParamsReqBodyDTO, DtoValidationError> {
@@ -208,12 +206,10 @@ class RoomPatchRatingReqBodyDTO extends ADataTransferObj {
     this.rating = data.rating;
   }
 
-  static override create(data: ConditionalParams<RoomPatchParams.RATING>): RoomPatchRatingReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<RoomPatchParams.RATING>
+  ): Result<RoomPatchRatingReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<RoomPatchRatingReqBodyDTO, DtoValidationError> {
@@ -233,12 +229,10 @@ class RoomPatchIsUnavailableReqBodyDTO extends ADataTransferObj {
     this.isUnavailable = data.isUnavailable;
   }
 
-  static override create(data: ConditionalParams<RoomPatchParams.IS_UNAVAILABLE>): RoomPatchIsUnavailableReqBodyDTO {
-    const dtoResult = this.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return dtoResult.value;
+  static override create(
+    data: ConditionalParams<RoomPatchParams.IS_UNAVAILABLE>
+  ): Result<RoomPatchIsUnavailableReqBodyDTO, DtoValidationError> {
+    return this.fromJson(data);
   }
 
   static override fromJson(json: NetworkType): Result<RoomPatchIsUnavailableReqBodyDTO, DtoValidationError> {
