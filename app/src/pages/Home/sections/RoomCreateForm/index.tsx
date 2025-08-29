@@ -151,6 +151,25 @@ export default function SectionRoomCreateForm({
       }
     }
 
+    if (searchTagsSet.size === 0) {
+      throw new Error(
+        lang(
+          "Search tags cannot be empty. Make sure you added the tag",
+          "সার্চ ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+          "सर्च टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+        )
+      );
+    }
+    if (majorTagsSet.size === 0) {
+      throw new Error(
+        lang(
+          "Major tags cannot be empty. Make sure you added the tag",
+          "প্রধান ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+          "प्रधान टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+        )
+      );
+    }
+
     const formData = RoomPostReqBodyDTO.WithFiles.create({
       acceptGender: acceptGender as AcceptGender,
       acceptOccupation: acceptOccupation as AcceptOccupation,
