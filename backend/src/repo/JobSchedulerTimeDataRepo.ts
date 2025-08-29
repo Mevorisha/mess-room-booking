@@ -10,7 +10,7 @@ export class JobSchedulerTimeDataRepo {
    */
   static async set(jobId: string, time: number): Promise<void> {
     const docRef = FirestorePaths.JobScheduler().doc(jobId);
-    await docRef.set({ lastRunTime: time }, { merge: true });
+    await docRef.set({ lastRunTime: time });
   }
 
   /**

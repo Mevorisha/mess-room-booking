@@ -12,7 +12,7 @@ export class RoomRatingsService {
    */
   static async set(uid: string, roomId: string, rating: number): Promise<void> {
     const docRef = FirestorePaths.RoomRatings().doc(mkCompositeKey(uid, roomId));
-    await docRef.set({ roomId, ratingOn5: rating }, { merge: true });
+    await docRef.set({ roomId, ratingOn5: rating });
   }
 
   /**
