@@ -3,7 +3,7 @@ import { MultiSizePhotoModel } from "@/models/types";
 import { ImageUploadData } from "@/parsers/RequestImageBodyParser";
 import { CustomApiError } from "@/types/CustomApiError";
 import { resizeImage, resizeImageOneSz } from "@/utils/dataConversion";
-import { Base64PhotoUploadDTO } from "sharedtypes";
+import { Base64PhotoUploadDTO, MultipleErrors } from "sharedtypes";
 
 export interface UploadTarget extends MultiSizePhotoModel {
   small: string;
@@ -56,6 +56,7 @@ export class ImageUploaderService {
   ): Promise<MultiSizePhotoModel[]> {
     const bucket = FirebaseStorage.bucket();
     const imagePaths: MultiSizePhotoModel[] = [];
+    const hallOfFailures: unknown[] = [];
 
     // Process 3 images at a time to avoid memory issues
     const BATCH_SIZE = 3;
@@ -84,12 +85,21 @@ export class ImageUploaderService {
       for (const result of batchResults) {
         if (result.status === "fulfilled") {
           imagePaths.push(result.value);
+        } else {
+          hallOfFailures.push(result.reason);
         }
       }
     }
 
     if (imagePaths.length === 0) {
-      throw new Error("All image uploads failed");
+      // throw if all failed else suceed partially
+      throw CustomApiError.create(500, "All image uploads failed", hallOfFailures);
+    }
+    // why using else: coz printing CustomApiError will print the hallOfFailures anyway so no need to print it again below
+    else if (hallOfFailures.length > 0) {
+      // print failures
+      console.error("[E] [ImageUploaderService] Some uploads failed:");
+      console.error(new MultipleErrors(hallOfFailures));
     }
 
     return imagePaths;
