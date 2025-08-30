@@ -37,7 +37,7 @@ export class IdentityRepo {
     const docRef = FirestorePaths.Identity(uid);
     const snapshot = await docRef.get();
     if (!snapshot.exists) {
-      return Promise.reject(CustomApiError.create(404, "User not found"));
+      throw CustomApiError.create(404, "User not found");
     }
     const updateData = pickObjProps(dto, [
       "type",
