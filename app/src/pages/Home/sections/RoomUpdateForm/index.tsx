@@ -129,7 +129,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       );
     }
 
-    const formData = RoomPatchReqBodyDTO.BaseParams.create({
+    const formDataResult = RoomPatchReqBodyDTO.BaseParams.create({
       isUnavailable,
       acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
@@ -146,6 +146,13 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       // raw file data for new images
       addFiles,
     });
+
+    if (formDataResult.isErr) {
+      notify(formDataResult.error, "error");
+      return;
+    }
+
+    const formData = formDataResult.value;
 
     // submit to backend
     setSubmitButtonKind("loading");

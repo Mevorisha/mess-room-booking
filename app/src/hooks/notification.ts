@@ -3,7 +3,7 @@ import NotificationContext from "@/contexts/notification.jsx";
 import { DtoValidationError, MultipleErrors } from "sharedtypes";
 
 export default function useNotification(): (
-  message: string | Error,
+  msgOrErr: string | DtoValidationError | MultipleErrors | Error,
   kind: "info" | "success" | "warning" | "error"
 ) => void {
   const { setMessage, setKind, showNotification, hideNotification, setNotifDisplayTimeout } =

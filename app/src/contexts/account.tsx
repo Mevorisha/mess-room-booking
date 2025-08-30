@@ -91,7 +91,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
           return LinkMobileNumber.verifyOtp(otp);
         })
         .then(async (mobile) => {
-          await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateMobile(user.uid), ProfilePatchReqBodyDTO.Mobile.create({ mobile })); // prettier-ignore
+          const postBodyResult = ProfilePatchReqBodyDTO.Mobile.create({ mobile });
+          if (postBodyResult.isErr) {
+            notify(postBodyResult.error, "error");
+            return;
+          }
+          await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateMobile(user.uid), postBodyResult.value); // prettier-ignore
           setUser((user) => user?.clone().set("mobile", mobile));
         })
         .then(() =>

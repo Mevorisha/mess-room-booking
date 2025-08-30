@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { HttpMethodTypes, IdentityGetResBodyNoAuthDTO, IdentityType, MultiSizePhotoDTO, Nullable, UNKNOWN_STR } from "sharedtypes";
+import {
+  HttpMethodTypes,
+  IdentityGetResBodyNoAuthDTO,
+  IdentityType,
+  MultiSizePhotoDTO,
+  Nullable,
+  UNKNOWN_STR,
+} from "sharedtypes";
 import useNotification from "@/hooks/notification";
 import useCompositeUser from "@/hooks/compositeUser";
 import useDialog from "@/hooks/dialogbox";
@@ -57,7 +64,7 @@ export default function Profile(): React.ReactNode {
             small: dpGeneric,
             medium: dpGeneric,
             large: dpGeneric,
-          });
+          }).unwrapOrDie();
         setUserUid(uid);
         setProfileDTO(dto);
       })

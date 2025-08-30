@@ -32,7 +32,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
       _setLang((oldVal) => {
         window.localStorage.setItem("lang", newVal);
         if (updateRemote) {
-          apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateLanguage(uid), ProfilePatchReqBodyDTO.Language.create({ language: newVal })) // prettier-ignore
+          const postBodyResult = ProfilePatchReqBodyDTO.Language.create({ language: newVal });
+          if (postBodyResult.isErr) {
+            notify(postBodyResult.error, "error");
+            return oldVal;
+          }
+          apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateLanguage(uid), postBodyResult.value) // prettier-ignore
             .then(() => {
               // ensure all modules are reloaded with the new language value
               if (oldVal !== newVal) window.location.href = "/";

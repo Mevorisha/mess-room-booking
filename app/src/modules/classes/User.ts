@@ -180,10 +180,13 @@ export default class IdentityWrapper {
     return this.uid === "";
   }
 
+  /**
+   * @throws {DtoValidationError}
+   */
   clone(): IdentityWrapper {
     const params: ConstructorParams = { uid: this.uid, email: this.email };
     if (this.identity != null) {
-      params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity);
+      params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity).unwrapOrDie();
     }
     const user = new IdentityWrapper(params);
     return user;

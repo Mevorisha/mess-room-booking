@@ -204,12 +204,15 @@ class GoogleAuth {
     throw new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
 
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrDie()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -231,13 +234,15 @@ class AppleAuth {
     await logError("auth_apple_register", "Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
     throw new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
-
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrDie()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -259,13 +264,15 @@ class MicrosoftAuth {
     await logError("auth_microsoft_register", "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
     throw new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
   }
-
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrDie()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -279,12 +286,15 @@ class MicrosoftAuth {
 
 // Legacy (email) / Password Auth Wrapper
 class EmailPasswdAuth {
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async register(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await createUserWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrDie()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {
@@ -295,12 +305,15 @@ class EmailPasswdAuth {
     }
   }
 
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await signInWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email })); // prettier-ignore
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrDie()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
     } catch (e) {

@@ -170,7 +170,7 @@ export default function SectionRoomCreateForm({
       );
     }
 
-    const formData = RoomPostReqBodyDTO.WithFiles.create({
+    const formDataResult = RoomPostReqBodyDTO.WithFiles.create({
       acceptGender: acceptGender as AcceptGender,
       acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
@@ -184,6 +184,13 @@ export default function SectionRoomCreateForm({
       pricePerOccupant: Number(pricePerOccupant),
       files,
     });
+
+    if (formDataResult.isErr) {
+      notify(formDataResult.error, "error");
+      return;
+    }
+
+    const formData = formDataResult.value;
 
     // save form data draft in cache
     if (submitAction === "save-draft") {

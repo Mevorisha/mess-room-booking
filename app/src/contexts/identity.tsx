@@ -77,7 +77,12 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");
           if (identityPhotos == null) return user;
-          identityPhotos.workId = MultiSizePhotoDTO.create({ small, medium, large });
+          const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+          if (photosResult.isErr) {
+            notify(photosResult.error, "error");
+            return user;
+          }
+          identityPhotos.workId = photosResult.value;
           identityPhotos.workIdIsPrivate = true;
           user?.set("identityPhotos", identityPhotos);
           return user;
@@ -99,7 +104,12 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");
           if (identityPhotos == null) return user;
-          identityPhotos.govId = MultiSizePhotoDTO.create({ small, medium, large });
+          const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+          if (photosResult.isErr) {
+            notify(photosResult.error, "error");
+            return user;
+          }
+          identityPhotos.govId = photosResult.value;
           identityPhotos.govIdIsPrivate = true;
           user?.set("identityPhotos", identityPhotos);
           return user;
@@ -143,7 +153,12 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
       }
 
       if (workId != null) {
-        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.WORK_ID, user.uid), IdentityPatchImageVisibilityDTO.create({ visibility: workId })); // prettier-ignore
+        const postBodyResult = IdentityPatchImageVisibilityDTO.create({ visibility: workId });
+        if (postBodyResult.isErr) {
+          notify(postBodyResult.error, "error");
+          return;
+        }
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.WORK_ID, user.uid), postBodyResult.value); // prettier-ignore
         setUser((user) => {
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");
@@ -154,7 +169,12 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         });
       }
       if (govId != null) {
-        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.GOV_ID, user.uid), IdentityPatchImageVisibilityDTO.create({ visibility: govId })); // prettier-ignore
+        const postBodyResult = IdentityPatchImageVisibilityDTO.create({ visibility: govId });
+        if (postBodyResult.isErr) {
+          notify(postBodyResult.error, "error");
+          return;
+        }
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.GOV_ID, user.uid), postBodyResult.value); // prettier-ignore
         setUser((user) => {
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");

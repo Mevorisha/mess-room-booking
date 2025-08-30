@@ -39,8 +39,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
-    async (type: IdentityType): Promise<void> =>
-      apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), ProfilePatchReqBodyDTO.Type.create({ type })) // prettier-ignore
+    async (type: IdentityType): Promise<void> => {
+      const postBodyResult = ProfilePatchReqBodyDTO.Type.create({ type });
+      if (postBodyResult.isErr) {
+        notify(postBodyResult.error, "error");
+        return;
+      }
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), postBodyResult.value) // prettier-ignore
         .then(() => setUser((user) => user?.clone().set("type", type)))
         .then(() =>
           notify(
@@ -52,7 +57,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
             "success"
           )
         )
-        .catch((e: Error) => notify(e, "error")),
+        .catch((e: Error) => notify(e, "error"));
+    },
     [user.uid, notify, setUser]
   );
 
@@ -67,7 +73,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
       };
       const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-      setUser((user) => user?.clone().set("profilePhotos", MultiSizePhotoDTO.create({ small, medium, large })));
+      const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+      if (photosResult.isErr) {
+        return Promise.reject(photosResult.error);
+      }
+      setUser((user) => user?.clone().set("profilePhotos", photosResult.value));
       notify(
         lang(
           "Profile photo updated successfully",
@@ -83,12 +93,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
   );
 
   const updateProfileName = useCallback(
-    async (firstName: string, lastName: string): Promise<void> =>
-      apiPostOrPatchJson(
-        HttpMethodTypes.PATCH,
-        ApiPaths.Profile.updateName(user.uid),
-        ProfilePatchReqBodyDTO.Name.create({ firstName, lastName })
-      )
+    async (firstName: string, lastName: string): Promise<void> => {
+      const postBodyResult = ProfilePatchReqBodyDTO.Name.create({ firstName, lastName });
+      if (postBodyResult.isErr) {
+        notify(postBodyResult.error, "error");
+        return;
+      }
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateName(user.uid), postBodyResult.value)
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         .then(() => updateProfile(FirebaseAuth.currentUser!, { displayName: `${firstName} ${lastName}` }))
         .then(() => setUser((user) => user?.clone().set("firstName", firstName).set("lastName", lastName)))
@@ -102,7 +113,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
             "success"
           )
         )
-        .catch((e: Error) => notify(e, "error")),
+        .catch((e: Error) => notify(e, "error"));
+    },
     [user.uid, notify, setUser]
   );
 
