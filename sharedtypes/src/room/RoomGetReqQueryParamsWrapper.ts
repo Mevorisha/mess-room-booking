@@ -109,7 +109,7 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   });
 
   @Exclude()
-  private params = RoomGetReqQueryParamsWrapper.DEAFULT_PARAMS;
+  private params = new URLSearchParams(RoomGetReqQueryParamsWrapper.DEAFULT_PARAMS);
 
   // always request rooms in non-owner mode/view
   @IsBoolean()
