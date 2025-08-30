@@ -91,12 +91,9 @@ export function AccountProvider({ children }: { children: React.ReactNode }): Re
           return LinkMobileNumber.verifyOtp(otp);
         })
         .then(async (mobile) => {
-          const postBodyResult = ProfilePatchReqBodyDTO.Mobile.create({ mobile });
-          if (postBodyResult.isErr) {
-            notify(postBodyResult.error, "error");
-            return;
-          }
-          await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateMobile(user.uid), postBodyResult.value); // prettier-ignore
+          // Throw error so that it is handled in the promise chain rather than resolving here as success
+          const postBody = ProfilePatchReqBodyDTO.Mobile.create({ mobile }).unwrapOrThrow();
+          await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateMobile(user.uid), postBody); // prettier-ignore
           setUser((user) => user?.clone().set("mobile", mobile));
         })
         .then(() =>

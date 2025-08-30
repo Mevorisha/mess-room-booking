@@ -73,6 +73,9 @@ export default class IdentityWrapper {
     }
   }
 
+  /**
+   * @throws {Error}
+   */
   set<K extends keyof SetterParams>(name: K, value: NonNullable<SetterParams[K]>): this {
     if (this.identity == null) {
       // when identity is null and someone wants to set something that's a prop of identity, fail
@@ -118,6 +121,9 @@ export default class IdentityWrapper {
     return this;
   }
 
+  /**
+   * @throws {Error}
+   */
   unset<K extends keyof Omit<SetterParams, "uid" | "email">>(name: K): this {
     if (this.identity == null) {
       // when identity is null and someone wants to unset something that's a prop of identity or identity itself, fail
@@ -186,7 +192,7 @@ export default class IdentityWrapper {
   clone(): IdentityWrapper {
     const params: ConstructorParams = { uid: this.uid, email: this.email };
     if (this.identity != null) {
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error coz there's no error handler at this level
       params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity).unwrapOrThrow();
     }
     const user = new IdentityWrapper(params);

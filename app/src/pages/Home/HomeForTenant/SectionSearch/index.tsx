@@ -48,7 +48,7 @@ export default function SectionSearch(): React.ReactNode {
     newUrlSearchParams.delete("roomId");
     const newRoomQueryWrapperResult = RoomGetReqQueryParamsWrapper.create(newUrlSearchParams);
     if (newRoomQueryWrapperResult.isErr) {
-      // cannot throw coz empty RoomGetReqQueryParamsWrapper
+      // Handle error so that it is not thrown inside react
       notify(newRoomQueryWrapperResult.error, "error");
       // Unwrap or throw here: NOTE: It's logically impossible for create to throw here
       return RoomGetReqQueryParamsWrapper.create().unwrapOrThrow();
@@ -98,6 +98,7 @@ export default function SectionSearch(): React.ReactNode {
         const trimmedSearchStrLength = trimmedSearchStr.length;
         const newWrapperResult = oldWrapper.clone();
         if (newWrapperResult.isErr) {
+          // Handle error so that it is not thrown inside react
           notify(newWrapperResult.error, "error");
           return oldWrapper;
         }
@@ -126,6 +127,7 @@ export default function SectionSearch(): React.ReactNode {
       setRoomQueryWrapper((oldFilters) => {
         const newQueryResult = newFilters.clone();
         if (newQueryResult.isErr) {
+          // Handle error so that it is not thrown inside react
           notify(newQueryResult.error, "error");
           return oldFilters;
         }
@@ -143,6 +145,7 @@ export default function SectionSearch(): React.ReactNode {
     setRoomQueryWrapper((oldQuery) => {
       const newQueryResult = RoomGetReqQueryParamsWrapper.create();
       if (newQueryResult.isErr) {
+        // Handle error so that it is not thrown inside react
         notify(newQueryResult.error, "error");
         return oldQuery;
       }
@@ -163,6 +166,7 @@ export default function SectionSearch(): React.ReactNode {
       setRoomQueryWrapper((oldWrapper) => {
         const newWrapperResult = oldWrapper.clone();
         if (newWrapperResult.isErr) {
+          // Handle error so that it is not thrown inside react
           notify(newWrapperResult.error, "error");
           return oldWrapper;
         }
@@ -192,12 +196,9 @@ export default function SectionSearch(): React.ReactNode {
     try {
       const response = await apiGetOrDelete(HttpMethodTypes.GET, apiUri);
       if (response.json == null) return;
-      const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyNotOwnerDTO>(response.json, RoomGetResBodyNotOwnerDTO); // prettier-ignore
-      if (paginationResult.isErr) {
-        notify(paginationResult.error, "error");
-        return;
-      }
-      const page = paginationResult.value;
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const paginationDTO = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyNotOwnerDTO>(response.json, RoomGetResBodyNotOwnerDTO).unwrapOrThrow(); // prettier-ignore
+      const page = paginationDTO;
       setRooms(page.items);
       setTotalPages(page.totalPages);
       setTotalResuts(page.totalItems);
@@ -269,6 +270,7 @@ export default function SectionSearch(): React.ReactNode {
     // copy current search params
     const newRoomQueryWrapperResult = roomQueryWrapper.clone();
     if (newRoomQueryWrapperResult.isErr) {
+      // Handle error so that it is not thrown inside react
       notify(newRoomQueryWrapperResult.error, "error");
       return;
     }

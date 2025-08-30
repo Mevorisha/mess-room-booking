@@ -105,7 +105,7 @@ export default function SectionRoomCreateForm({
       .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
       .then((json) => (json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json)))
-      // Unwrap or throw here coz error will be handled by catch anyway
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       .then((cachedResult) => cachedResult?.unwrapOrThrow())
       .then((data?: RoomPostReqBodyDTO.WithFiles) => {
         if (data == null) return;
@@ -148,25 +148,29 @@ export default function SectionRoomCreateForm({
     const files = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
     if (dtoErrors.length !== 0) {
       if (files.length === 0) {
-        throw new MultipleErrors(dtoErrors);
+        return Promise.reject(new MultipleErrors(dtoErrors));
       }
     }
 
     if (searchTagsSet.size === 0) {
-      throw new Error(
-        lang(
-          "Search tags cannot be empty. Make sure you added the tag",
-          "সার্চ ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
-          "सर्च टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+      return Promise.reject(
+        new Error(
+          lang(
+            "Search tags cannot be empty. Make sure you added the tag",
+            "সার্চ ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "सर्च टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
         )
       );
     }
     if (majorTagsSet.size === 0) {
-      throw new Error(
-        lang(
-          "Major tags cannot be empty. Make sure you added the tag",
-          "প্রধান ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
-          "प्रधान टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+      return Promise.reject(
+        new Error(
+          lang(
+            "Major tags cannot be empty. Make sure you added the tag",
+            "প্রধান ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "प्रधान टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
         )
       );
     }
@@ -187,8 +191,7 @@ export default function SectionRoomCreateForm({
     });
 
     if (formDataResult.isErr) {
-      notify(formDataResult.error, "error");
-      return;
+      return Promise.reject(formDataResult.error);
     }
 
     const formData = formDataResult.value;

@@ -93,27 +93,20 @@ function TabRooms(): React.ReactNode {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       try {
-        const searchQueryResult = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }); // prettier-ignore
-        if (searchQueryResult.isErr) {
-          notify(searchQueryResult.error, "error");
-          return;
-        }
-        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQueryResult.value)); // prettier-ignore
-        const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyOwnerDTO>(response.json, RoomGetResBodyOwnerDTO); // prettier-ignore
-        if (paginationResult.isErr) {
-          notify(paginationResult.error, "error");
-          return;
-        }
-        const currentPage = paginationResult.value;
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const searchQuery = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }).unwrapOrThrow(); // prettier-ignore
+        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)); // prettier-ignore
+        const paginationDTO = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyOwnerDTO>(response.json, RoomGetResBodyOwnerDTO).unwrapOrThrow(); // prettier-ignore
+        const currentPage = paginationDTO;
         setRooms(currentPage.items);
         setRoomPages(currentPage.totalPages);
         setIsLoadingRooms(false);
       } catch (e) {
         setIsLoadingRooms(false);
-        throw e;
+        return Promise.reject(e as Error);
       }
     },
-    [currentPage, notify]
+    [currentPage]
   );
 
   function handleAddNewRoom(): void {

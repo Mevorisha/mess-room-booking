@@ -119,7 +119,9 @@ class LinkMobileNumber {
   static async sendOtp(phoneNumber: string): Promise<void> {
     try {
       initializeRecaptcha();
-      if (RecaptchaVerifierObject == null) throw new Error("RecaptchaVerifierObject not intialized");
+      if (RecaptchaVerifierObject == null) {
+        return Promise.reject(new Error("RecaptchaVerifierObject not intialized"));
+      }
       const recaptchaVerifier: RecaptchaVerifier = RecaptchaVerifierObject;
       const confirmationResult = await signInWithPhoneNumber(FirebaseAuth, phoneNumber, recaptchaVerifier);
       RecaptchaVerifierConfirmationResult = confirmationResult;
@@ -201,7 +203,7 @@ class GoogleAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_google_register", "Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
 
   /**
@@ -212,7 +214,7 @@ class GoogleAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
@@ -233,7 +235,7 @@ class AppleAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_apple_register", "Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
   /**
    * @throws {DtoValidationError | Error}
@@ -243,7 +245,7 @@ class AppleAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
@@ -264,7 +266,7 @@ class MicrosoftAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_microsoft_register", "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
   /**
    * @throws {DtoValidationError | Error}
@@ -274,7 +276,7 @@ class MicrosoftAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
@@ -297,7 +299,7 @@ class EmailPasswdAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await createUserWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);
@@ -317,7 +319,7 @@ class EmailPasswdAuth {
       AuthLock.CREATING_USER = AsyncLock.create();
       const { user: { uid, email } } = await signInWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
       if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
-      // Unwrap or throw here coz error handling via notify is not accessible here
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
       return Promise.resolve(uid);

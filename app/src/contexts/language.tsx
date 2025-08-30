@@ -34,6 +34,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
         if (updateRemote) {
           const postBodyResult = ProfilePatchReqBodyDTO.Language.create({ language: newLang });
           if (postBodyResult.isErr) {
+            // Handle error so that it is not thrown inside react
             notify(postBodyResult.error, "error");
             return oldLang;
           }

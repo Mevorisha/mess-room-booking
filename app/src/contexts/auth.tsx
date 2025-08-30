@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     if (user.uid === "") return;
     if (authState === AuthStateEnum.NOT_LOGGED_IN) return;
 
-    function updateLocalUser(onlineProfileData?: IdentityGetResBodyWithAuthDTO) {
+    async function updateLocalUser(onlineProfileData?: IdentityGetResBodyWithAuthDTO): Promise<void> {
       console.log(`${MODULE_NAME}::updateLocalUser: ${authState}: new data =`, onlineProfileData);
 
       // NOTE: This functions is called if authState is either LOGGED_IN or STILL_LOADING and that implies
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
 
       const currentUser = IdentityWrapper.loadCurrentUser();
       if (currentUser == null) {
-        throw new Error("Failed to load user from Firebase");
+        return Promise.reject(new Error("Failed to load user from Firebase"));
       }
       if (onlineProfileData != null) {
         currentUser.set("identity", onlineProfileData);

@@ -79,6 +79,7 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
           if (identityPhotos == null) return newUser;
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
+            // Handle error so that it is not thrown inside react
             notify(photosResult.error, "error");
             return oldUser;
           }
@@ -106,6 +107,7 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
           if (identityPhotos == null) return newUser;
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
+            // Handle error so that it is not thrown inside react
             notify(photosResult.error, "error");
             return newUser;
           }
@@ -153,12 +155,9 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
       }
 
       if (workId != null) {
-        const postBodyResult = IdentityPatchImageVisibilityDTO.create({ visibility: workId });
-        if (postBodyResult.isErr) {
-          notify(postBodyResult.error, "error");
-          return;
-        }
-        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.WORK_ID, user.uid), postBodyResult.value); // prettier-ignore
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const postBody = IdentityPatchImageVisibilityDTO.create({ visibility: workId }).unwrapOrThrow();
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.WORK_ID, user.uid), postBody); // prettier-ignore
         setUser((user) => {
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");
@@ -169,12 +168,9 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         });
       }
       if (govId != null) {
-        const postBodyResult = IdentityPatchImageVisibilityDTO.create({ visibility: govId });
-        if (postBodyResult.isErr) {
-          notify(postBodyResult.error, "error");
-          return;
-        }
-        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.GOV_ID, user.uid), postBodyResult.value); // prettier-ignore
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const postBody = IdentityPatchImageVisibilityDTO.create({ visibility: govId }).unwrapOrThrow();
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.GOV_ID, user.uid), postBody); // prettier-ignore
         setUser((user) => {
           user = user?.clone();
           const identityPhotos = user?.get("identityPhotos");

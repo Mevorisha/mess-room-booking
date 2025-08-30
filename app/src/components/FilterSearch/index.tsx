@@ -61,6 +61,7 @@ export default function FilterSearch({
     // First, create an object with only the non-null fields
     const filterParamsResult = RoomGetReqQueryParamsWrapper.create();
     if (filterParamsResult.isErr) {
+      // Handle error coz this function returns void (so no promise chains)
       notify(filterParamsResult.error, "error");
       return;
     }

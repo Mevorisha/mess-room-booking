@@ -40,12 +40,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
   const updateProfileType = useCallback(
     async (type: IdentityType): Promise<void> => {
-      const postBodyResult = ProfilePatchReqBodyDTO.Type.create({ type });
-      if (postBodyResult.isErr) {
-        notify(postBodyResult.error, "error");
-        return;
-      }
-      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), postBodyResult.value) // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const postBody = ProfilePatchReqBodyDTO.Type.create({ type }).unwrapOrThrow();
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), postBody) // prettier-ignore
         .then(() => setUser((user) => user?.clone().set("type", type)))
         .then(() =>
           notify(
@@ -73,6 +70,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
       };
       const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
       const photosDTO = MultiSizePhotoDTO.create({ small, medium, large }).unwrapOrThrow();
       // SAME AS ABOVE:
       // const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
@@ -96,12 +94,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
   const updateProfileName = useCallback(
     async (firstName: string, lastName: string): Promise<void> => {
-      const postBodyResult = ProfilePatchReqBodyDTO.Name.create({ firstName, lastName });
-      if (postBodyResult.isErr) {
-        notify(postBodyResult.error, "error");
-        return;
-      }
-      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateName(user.uid), postBodyResult.value)
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const postBody = ProfilePatchReqBodyDTO.Name.create({ firstName, lastName }).unwrapOrThrow();
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateName(user.uid), postBody)
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         .then(() => updateProfile(FirebaseAuth.currentUser!, { displayName: `${firstName} ${lastName}` }))
         .then(() => setUser((user) => user?.clone().set("firstName", firstName).set("lastName", lastName)))
