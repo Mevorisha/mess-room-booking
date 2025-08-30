@@ -50,7 +50,8 @@ export default function SectionSearch(): React.ReactNode {
     if (newRoomQueryWrapperResult.isErr) {
       // cannot throw coz empty RoomGetReqQueryParamsWrapper
       notify(newRoomQueryWrapperResult.error, "error");
-      return RoomGetReqQueryParamsWrapper.create().unwrapOrDie();
+      // Unwrap or throw here: NOTE: It's logically impossible for create to throw here
+      return RoomGetReqQueryParamsWrapper.create().unwrapOrThrow();
     }
     newRoomQueryWrapperResult.value.delete("roomId");
     return newRoomQueryWrapperResult.value;
@@ -122,11 +123,11 @@ export default function SectionSearch(): React.ReactNode {
   const handleQueryChange = useCallback(
     (newFilters: RoomGetReqQueryParamsWrapper) => {
       // Set respective filters in query and reset page to 1
-      setRoomQueryWrapper(() => {
+      setRoomQueryWrapper((oldFilters) => {
         const newQueryResult = newFilters.clone();
         if (newQueryResult.isErr) {
           notify(newQueryResult.error, "error");
-          return newFilters;
+          return oldFilters;
         }
         newQueryResult.value.set("page", 1);
         return newQueryResult.value;
@@ -193,7 +194,8 @@ export default function SectionSearch(): React.ReactNode {
       if (response.json == null) return;
       const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyNotOwnerDTO>(response.json, RoomGetResBodyNotOwnerDTO); // prettier-ignore
       if (paginationResult.isErr) {
-        throw paginationResult.error;
+        notify(paginationResult.error, "error");
+        return;
       }
       const page = paginationResult.value;
       setRooms(page.items);

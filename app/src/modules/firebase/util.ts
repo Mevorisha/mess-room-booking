@@ -11,7 +11,8 @@ async function logInfo(operation: string, descrip: string, code = "code_unknown"
   console.log(message);
   try {
     const timestamp = new Date().toUTCString();
-    await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Logs.put(LogType.INFO), LogPostReqBodyDTO.create({ timestamp, message }).unwrapOrDie()); // prettier-ignore
+    // Unwrap or throw here coz error handling via notify is not accessible here
+    await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Logs.put(LogType.INFO), LogPostReqBodyDTO.create({ timestamp, message }).unwrapOrThrow()); // prettier-ignore
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, error);
   }
@@ -26,7 +27,8 @@ async function logError(operation: string, descrip: string, code = "code_unknown
   console.error(message);
   try {
     const timestamp = new Date().toUTCString();
-    await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Logs.put(LogType.ERROR), LogPostReqBodyDTO.create({ timestamp, message }).unwrapOrDie()); // prettier-ignore
+    // Unwrap or throw here coz error handling via notify is not accessible here
+    await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Logs.put(LogType.ERROR), LogPostReqBodyDTO.create({ timestamp, message }).unwrapOrThrow()); // prettier-ignore
   } catch (error) {
     console.error(ErrorMessages.LOGGING_FAILED, error);
   }

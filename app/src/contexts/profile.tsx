@@ -73,11 +73,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
       };
       const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-      const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
-      if (photosResult.isErr) {
-        return Promise.reject(photosResult.error);
-      }
-      setUser((user) => user?.clone().set("profilePhotos", photosResult.value));
+      const photosDTO = MultiSizePhotoDTO.create({ small, medium, large }).unwrapOrThrow();
+      // SAME AS ABOVE:
+      // const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+      // if (photosResult.isErr) {
+      //   return Promise.reject(photosResult.error);
+      // }
+      setUser((user) => user?.clone().set("profilePhotos", photosDTO));
       notify(
         lang(
           "Profile photo updated successfully",

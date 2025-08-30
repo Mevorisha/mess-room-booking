@@ -28,23 +28,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
   const [lang, _setLang] = useState(getLangNotNull);
 
   const setLang = useCallback(
-    (newVal: Language, updateRemote = true) =>
-      _setLang((oldVal) => {
-        window.localStorage.setItem("lang", newVal);
+    (newLang: Language, updateRemote = true) =>
+      _setLang((oldLang) => {
+        window.localStorage.setItem("lang", newLang);
         if (updateRemote) {
-          const postBodyResult = ProfilePatchReqBodyDTO.Language.create({ language: newVal });
+          const postBodyResult = ProfilePatchReqBodyDTO.Language.create({ language: newLang });
           if (postBodyResult.isErr) {
             notify(postBodyResult.error, "error");
-            return oldVal;
+            return oldLang;
           }
           apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateLanguage(uid), postBodyResult.value) // prettier-ignore
             .then(() => {
               // ensure all modules are reloaded with the new language value
-              if (oldVal !== newVal) window.location.href = "/";
+              if (oldLang !== newLang) window.location.href = "/";
             })
             .catch((e: Error) => notify(e, "error"));
         }
-        return newVal;
+        return newLang;
       }),
     [_setLang, notify, uid]
   );

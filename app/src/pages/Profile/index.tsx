@@ -60,11 +60,8 @@ export default function Profile(): React.ReactNode {
         }
         dto.profilePhotos =
           dto.profilePhotos ??
-          MultiSizePhotoDTO.create({
-            small: dpGeneric,
-            medium: dpGeneric,
-            large: dpGeneric,
-          }).unwrapOrDie();
+          // Unwrap or throw: It's logically impossible for create to fail, given, `dpGeneric` is non-empty string
+          MultiSizePhotoDTO.create({ small: dpGeneric, medium: dpGeneric, large: dpGeneric }).unwrapOrThrow();
         setUserUid(uid);
         setProfileDTO(dto);
       })

@@ -105,7 +105,8 @@ export default function SectionRoomCreateForm({
       .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
       .then((json) => (json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json)))
-      .then((cachedResult) => cachedResult?.unwrapOrDie())
+      // Unwrap or throw here coz error will be handled by catch anyway
+      .then((cachedResult) => cachedResult?.unwrapOrThrow())
       .then((data?: RoomPostReqBodyDTO.WithFiles) => {
         if (data == null) return;
         setAcceptGender(data.acceptGender);

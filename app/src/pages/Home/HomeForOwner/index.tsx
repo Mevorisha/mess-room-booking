@@ -93,11 +93,16 @@ function TabRooms(): React.ReactNode {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       try {
-        const searchQuery = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }); // prettier-ignore
-        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)); // prettier-ignore
+        const searchQueryResult = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }); // prettier-ignore
+        if (searchQueryResult.isErr) {
+          notify(searchQueryResult.error, "error");
+          return;
+        }
+        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQueryResult.value)); // prettier-ignore
         const paginationResult = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyOwnerDTO>(response.json, RoomGetResBodyOwnerDTO); // prettier-ignore
         if (paginationResult.isErr) {
-          throw paginationResult.error;
+          notify(paginationResult.error, "error");
+          return;
         }
         const currentPage = paginationResult.value;
         setRooms(currentPage.items);
@@ -108,7 +113,7 @@ function TabRooms(): React.ReactNode {
         throw e;
       }
     },
-    [currentPage]
+    [currentPage, notify]
   );
 
   function handleAddNewRoom(): void {

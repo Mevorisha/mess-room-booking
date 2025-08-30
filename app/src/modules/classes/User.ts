@@ -186,7 +186,8 @@ export default class IdentityWrapper {
   clone(): IdentityWrapper {
     const params: ConstructorParams = { uid: this.uid, email: this.email };
     if (this.identity != null) {
-      params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity).unwrapOrDie();
+      // Unwrap or throw here coz error handling via notify is not accessible here
+      params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity).unwrapOrThrow();
     }
     const user = new IdentityWrapper(params);
     return user;

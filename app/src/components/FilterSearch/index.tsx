@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
 import useDialog from "@/hooks/dialogbox";
+import useNotification from "@/hooks/notification";
 import { GenderOptions, OccupationOptions } from "@/pages/Home/sections/RoomCreateForm";
 import {
   AcceptGender,
@@ -28,6 +29,7 @@ export default function FilterSearch({
   isDialog = false,
 }: FilterSearchProps): React.ReactNode {
   const dialog = useDialog();
+  const notify = useNotification();
 
   // Local state for filter values
   const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentRoomQuery.get("acceptGender"));
@@ -57,7 +59,12 @@ export default function FilterSearch({
   // Apply filters
   function handleApplyAction() {
     // First, create an object with only the non-null fields
-    const filterParams = RoomGetReqQueryParamsWrapper.create();
+    const filterParamsResult = RoomGetReqQueryParamsWrapper.create();
+    if (filterParamsResult.isErr) {
+      notify(filterParamsResult.error, "error");
+      return;
+    }
+    const filterParams = filterParamsResult.value;
     // Add each property only if it's not null or undefined
     if (genderFilter != null) {
       filterParams.set("acceptGender", genderFilter);

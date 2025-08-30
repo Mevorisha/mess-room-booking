@@ -168,11 +168,13 @@ export async function apiGetOrDelete<T extends ADataTransferObj>(
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (method === HttpMethodTypes.GET && dtoClass != null && isJson) {
     const data = (await response.json()) as NetworkType;
-    const dtoResult = dtoClass.fromJson(data);
-    if (dtoResult.isErr) {
-      throw dtoResult.error;
-    }
-    return { dto: dtoResult.value };
+    const dto = dtoClass.fromJson(data).unwrapOrThrow();
+    // SAME AS ABOVE:
+    // const dtoResult = dtoClass.fromJson(data);
+    // if (dtoResult.isErr) {
+    //   throw dtoResult.error;
+    // }
+    return { dto };
   }
 
   if (isJson) {

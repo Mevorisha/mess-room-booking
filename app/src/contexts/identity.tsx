@@ -73,19 +73,19 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         };
         const cache = await caches.open(CachePaths.FILE_LOADER);
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-        setUser((user) => {
-          user = user?.clone();
-          const identityPhotos = user?.get("identityPhotos");
-          if (identityPhotos == null) return user;
+        setUser((oldUser) => {
+          const newUser = oldUser?.clone();
+          const identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) return newUser;
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
             notify(photosResult.error, "error");
-            return user;
+            return oldUser;
           }
           identityPhotos.workId = photosResult.value;
           identityPhotos.workIdIsPrivate = true;
-          user?.set("identityPhotos", identityPhotos);
-          return user;
+          newUser?.set("identityPhotos", identityPhotos);
+          return newUser;
         });
         uploadedWorkId = { small, medium, large };
       }
@@ -100,19 +100,19 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         };
         const cache = await caches.open(CachePaths.FILE_LOADER);
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-        setUser((user) => {
-          user = user?.clone();
-          const identityPhotos = user?.get("identityPhotos");
-          if (identityPhotos == null) return user;
+        setUser((oldUser) => {
+          const newUser = oldUser?.clone();
+          const identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) return newUser;
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
             notify(photosResult.error, "error");
-            return user;
+            return newUser;
           }
           identityPhotos.govId = photosResult.value;
           identityPhotos.govIdIsPrivate = true;
-          user?.set("identityPhotos", identityPhotos);
-          return user;
+          newUser?.set("identityPhotos", identityPhotos);
+          return newUser;
         });
         uploadedGovId = { small, medium, large };
       }

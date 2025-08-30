@@ -26,10 +26,10 @@ class Ok<T, E extends Error> {
    *
    * @example
    * ```ts
-   * const value = Result.err(new Error("fail")).unwrapOrDie();
+   * const value = Result.err(new Error("fail")).unwrapOrThrow();
    * ```
    */
-  unwrapOrDie(): T {
+  unwrapOrThrow(): T {
     return this.value;
   }
 
@@ -116,10 +116,10 @@ class Err<T, E extends Error> {
    *
    * @example
    * ```ts
-   * const value = Result.err(new Error("fail")).unwrapOrDie();
+   * const value = Result.err(new Error("fail")).unwrapOrThrow();
    * ```
    */
-  unwrapOrDie(): T {
+  unwrapOrThrow(): T {
     throw this.error;
   }
 
