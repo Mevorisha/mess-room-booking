@@ -43,12 +43,17 @@ export default function SectionSearch(): React.ReactNode {
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   // State for search query
-  const [roomQueryWrapper, setRoomQueryWrapper] = useState(() => {
+  const [roomQueryWrapper, setRoomQueryWrapper] = useState<RoomGetReqQueryParamsWrapper>(() => {
     const newUrlSearchParams = new URLSearchParams(urlSearchParams);
     newUrlSearchParams.delete("roomId");
-    const newRoomQueryWrapper = RoomGetReqQueryParamsWrapper.create(newUrlSearchParams);
-    newRoomQueryWrapper.delete("roomId");
-    return newRoomQueryWrapper;
+    const newRoomQueryWrapperResult = RoomGetReqQueryParamsWrapper.create(newUrlSearchParams);
+    if (newRoomQueryWrapperResult.isErr) {
+      // cannot throw coz empty RoomGetReqQueryParamsWrapper
+      notify(newRoomQueryWrapperResult.error, "error");
+      return RoomGetReqQueryParamsWrapper.create().unwrapOrDie();
+    }
+    newRoomQueryWrapperResult.value.delete("roomId");
+    return newRoomQueryWrapperResult.value;
   });
 
   const apiUri = ApiPaths.Rooms.readListOnQuery(roomQueryWrapper);
@@ -85,70 +90,86 @@ export default function SectionSearch(): React.ReactNode {
   const [isMobileView, setIsMobileView] = useState<boolean>(window.innerWidth < 750);
 
   // Function to handle search
-  const handleSearch = useCallback(() => {
-    const trimmedSearchStr = searchStringInput.trim();
-    const trimmedSearchStrLength = trimmedSearchStr.length;
-    if (trimmedSearchStrLength > 0) {
-      // Set searchTags in query and reset page to 1
-      // also remove invalidateCache param if present
-      setRoomQueryWrapper((oldWrapper) => {
-        const newWrapper = oldWrapper.clone();
-        newWrapper.set("searchTags", trimmedSearchStr.split(" "));
-        newWrapper.set("page", 1);
-        return newWrapper;
-      });
-    } else {
-      // Remove searchTags from query and remove page
-      setRoomQueryWrapper((oldWrapper) => {
-        const newWrapper = oldWrapper.clone();
-        newWrapper.delete("searchTags");
-        newWrapper.delete("page");
-        // unconditionally remove invalidateCache param
-        newWrapper.delete("invalidateCache");
-        return newWrapper;
-      });
-    }
+  const handleSearch = useCallback(
+    (): void =>
+      void setRoomQueryWrapper((oldWrapper) => {
+        const trimmedSearchStr = searchStringInput.trim();
+        const trimmedSearchStrLength = trimmedSearchStr.length;
+        const newWrapperResult = oldWrapper.clone();
+        if (newWrapperResult.isErr) {
+          notify(newWrapperResult.error, "error");
+          return oldWrapper;
+        }
+        if (trimmedSearchStrLength > 0) {
+          // Set searchTags in query and reset page to 1
+          // also remove invalidateCache param if present
+          newWrapperResult.value.set("searchTags", trimmedSearchStr.split(" "));
+          newWrapperResult.value.set("page", 1);
+        } else {
+          // Remove searchTags from query and remove page
+          newWrapperResult.value.delete("searchTags");
+          newWrapperResult.value.delete("page");
+          // unconditionally remove invalidateCache param
+          newWrapperResult.value.delete("invalidateCache");
+        }
+        return newWrapperResult.value;
+      }),
     // Update has filters
-  }, [searchStringInput, setRoomQueryWrapper]);
+    [notify, searchStringInput, setRoomQueryWrapper]
+  );
 
   // Function to handle filter changes
   const handleQueryChange = useCallback(
     (newFilters: RoomGetReqQueryParamsWrapper) => {
       // Set respective filters in query and reset page to 1
       setRoomQueryWrapper(() => {
-        const newQuery = newFilters.clone();
-        newQuery.set("page", 1);
-        return newQuery;
+        const newQueryResult = newFilters.clone();
+        if (newQueryResult.isErr) {
+          notify(newQueryResult.error, "error");
+          return newFilters;
+        }
+        newQueryResult.value.set("page", 1);
+        return newQueryResult.value;
       });
       updateHasFilters();
     },
-    [updateHasFilters, setRoomQueryWrapper]
+    [updateHasFilters, notify, setRoomQueryWrapper]
   );
 
   // Function to handle clearing filters
   const handleQueryClear = useCallback(() => {
     // Clear all filters in query but keep searchTags
     setRoomQueryWrapper((oldQuery) => {
-      const newQuery = RoomGetReqQueryParamsWrapper.create();
+      const newQueryResult = RoomGetReqQueryParamsWrapper.create();
+      if (newQueryResult.isErr) {
+        notify(newQueryResult.error, "error");
+        return oldQuery;
+      }
       const oldSearchTags = oldQuery.get("searchTags");
-      if (oldSearchTags == null) return newQuery;
-      newQuery.set("searchTags", oldSearchTags);
-      return newQuery;
+      if (oldSearchTags == null) {
+        return newQueryResult.value;
+      }
+      newQueryResult.value.set("searchTags", oldSearchTags);
+      return newQueryResult.value;
     });
     updateHasFilters();
-  }, [updateHasFilters, setRoomQueryWrapper]);
+  }, [updateHasFilters, notify, setRoomQueryWrapper]);
 
   // Handle page change
   const handlePageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
       setRoomQueryWrapper((oldWrapper) => {
-        const newWrapper = oldWrapper.clone();
-        newWrapper.set("page", page);
-        return newWrapper;
+        const newWrapperResult = oldWrapper.clone();
+        if (newWrapperResult.isErr) {
+          notify(newWrapperResult.error, "error");
+          return oldWrapper;
+        }
+        newWrapperResult.value.set("page", page);
+        return newWrapperResult.value;
       });
     },
-    [setCurrentPage, setRoomQueryWrapper]
+    [setCurrentPage, notify, setRoomQueryWrapper]
   );
 
   // Function to open filters dialog on mobile
@@ -244,31 +265,35 @@ export default function SectionSearch(): React.ReactNode {
   // Effect to update the query params in the URL bar
   useEffect(() => {
     // copy current search params
-    const newRoomQueryWrapper = roomQueryWrapper.clone();
+    const newRoomQueryWrapperResult = roomQueryWrapper.clone();
+    if (newRoomQueryWrapperResult.isErr) {
+      notify(newRoomQueryWrapperResult.error, "error");
+      return;
+    }
     // has to add extra line coz roomQueryWrapper ignores roomId in urlSearchParams
     if (urlSearchParams.has("roomId")) {
-      newRoomQueryWrapper.set("roomId", urlSearchParams.get("roomId") ?? UNKNOWN_STR);
+      newRoomQueryWrapperResult.value.set("roomId", urlSearchParams.get("roomId") ?? UNKNOWN_STR);
     }
     // update params from API URI
     const apiParams = new URL(apiUri).searchParams;
     // idk why filters were updated so early
     updateHasFilters();
     // remove params not in new API URI
-    for (const [key] of newRoomQueryWrapper.entries()) {
+    for (const [key] of newRoomQueryWrapperResult.value.entries()) {
       // seperately check for presence of roomId param
       if (key === "roomId") continue;
       // remove otherwise
-      if (!apiParams.has(key)) newRoomQueryWrapper.delete(key);
+      if (!apiParams.has(key)) newRoomQueryWrapperResult.value.delete(key);
     }
     // add params from API URI
     for (const [key, value] of apiParams.entries()) {
       // @ts-expect-error Key probably is valid
-      if (value !== "") newRoomQueryWrapper.set(key, value);
+      if (value !== "") newRoomQueryWrapperResult.value.set(key, value);
     }
     // set as new search params of page
     // this will reflect in the url
-    setUrlSearchParams(newRoomQueryWrapper.toQueryParams());
-  }, [roomQueryWrapper, apiUri, setUrlSearchParams, updateHasFilters, urlSearchParams]);
+    setUrlSearchParams(newRoomQueryWrapperResult.value.toQueryParams());
+  }, [roomQueryWrapper, apiUri, setUrlSearchParams, updateHasFilters, urlSearchParams, notify]);
 
   return (
     <div className="section-Search">
