@@ -57,10 +57,8 @@ export default function SectionSearch(): React.ReactNode {
     newRoomQueryWrapperResult.value.delete("roomId");
     return newRoomQueryWrapperResult.value;
   });
-  console.log(roomQueryWrapper);
 
   const apiUri = ApiPaths.Rooms.readListOnQuery(roomQueryWrapper);
-  console.log(apiUri);
 
   // State for search input
   const [searchStringInput, setSearchStringInput] = useState<string>(roomQueryWrapper.searchTags?.join(" ").trim() ?? ""); // prettier-ignore
