@@ -126,20 +126,14 @@ export default function SectionSearch(): React.ReactNode {
   // Function to handle filter changes
   const handleQueryChange = useCallback(
     (newFilters: RoomGetReqQueryParamsWrapper) => {
-      // Set respective filters in query and reset page to 1
-      setRoomQueryWrapper((oldFilters) => {
-        const newQueryResult = newFilters.clone();
-        if (newQueryResult.isErr) {
-          // Handle error so that it is not thrown inside react
-          notify(newQueryResult.error, "error");
-          return oldFilters;
-        }
-        newQueryResult.value.set("page", 1);
-        return newQueryResult.value;
+      setRoomQueryWrapper(() => {
+        // Set respective filters in query and reset page to 1
+        newFilters.set("page", 1);
+        return newFilters;
       });
       updateHasFilters();
     },
-    [updateHasFilters, notify, setRoomQueryWrapper]
+    [updateHasFilters, setRoomQueryWrapper]
   );
 
   // Function to handle clearing filters
