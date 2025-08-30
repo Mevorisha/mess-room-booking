@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import {
   ApiResponseUrlType,
   AutoSetFields,
+  MultipleErrors,
   MultiSizePhotoDTO,
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
@@ -130,7 +131,18 @@ export class RoomRepo {
     }
     // convert any DTOs into json
     if (updateData.images != null) {
-      updateData.images = updateData.images.map((img) => MultiSizePhotoDTO.create(img).toJSON() as MultiSizePhotoModel);
+      const imagesResults = updateData.images.map((img) => MultiSizePhotoDTO.create(img));
+      const errors = imagesResults.filter((result) => result.isErr).map((result) => result.error);
+      const photoDTOs = imagesResults.filter((result) => result.isOk).map((result) => result.value);
+      if (errors.length > 0) {
+        if (photoDTOs.length === 0) {
+          throw CustomApiError.create(500, "Internal Server Error", errors);
+        } else {
+          console.error("[E] [RoomRepo] some image dto conversions failed");
+          console.error(new MultipleErrors(errors));
+        }
+      }
+      updateData.images = photoDTOs.map((dto) => dto.toJSON() as MultiSizePhotoModel);
     }
 
     /* Uses set with merge true instead of update as updateData has nested objects */

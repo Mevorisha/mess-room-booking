@@ -49,13 +49,20 @@ export class IdentityRepo {
       "identityPhotos",
     ]);
     // convert any DTOs into json
-    // convert any DTOs into json
     if (updateData.profilePhotos != null) {
-      updateData.profilePhotos = MultiSizePhotoDTO.create(updateData.profilePhotos).toJSON() as MultiSizePhotoDTO;
+      const photosResult = MultiSizePhotoDTO.create(updateData.profilePhotos);
+      if (photosResult.isErr) {
+        throw CustomApiError.create(500, "Internal Server Error", photosResult.error);
+      }
+      updateData.profilePhotos = photosResult.value.toJSON() as MultiSizePhotoDTO;
     }
     // convert any DTOs into json
     if (updateData.identityPhotos != null) {
-      updateData.identityPhotos = IdentityPhotosDTO.create(updateData.identityPhotos).toJSON() as IdentityPhotosModel;
+      const photosResult = IdentityPhotosDTO.create(updateData.identityPhotos);
+      if (photosResult.isErr) {
+        throw CustomApiError.create(500, "Internal Server Error", photosResult.error);
+      }
+      updateData.identityPhotos = photosResult.value.toJSON() as IdentityPhotosModel;
     }
 
     /* Uses set with merge true instead of update as updateData has nested objects */

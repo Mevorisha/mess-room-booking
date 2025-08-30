@@ -190,5 +190,12 @@ function paginateResults(
   const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
   const items = rooms.slice(startIndex, endIndex);
 
-  return PaginationDTO.createGeneric<OneRoomEntry>({ currentPage, totalPages, totalItems, items }, roomsClass);
+  const paginateResults = PaginationDTO.createGeneric<OneRoomEntry>(
+    { currentPage, totalPages, totalItems, items },
+    roomsClass
+  );
+  if (paginateResults.isErr) {
+    throw CustomApiError.create(500, "Internal Server Error", paginateResults.error);
+  }
+  return paginateResults.value;
 }

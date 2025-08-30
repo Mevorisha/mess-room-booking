@@ -55,10 +55,11 @@ export class BookingSearchService {
       }
       // Apply filters using room ids of the owner if present
       case "OWNER": {
-        const roomsByOwner = await RoomSearchService.queryAll(
-          RoomGetReqQueryParamsWrapper.create({ ownerId: params.ownerId }),
-          ApiResponseUrlType.API_URI
-        );
+        const queryWrapperResult = RoomGetReqQueryParamsWrapper.create({ ownerId: params.ownerId });
+        if (queryWrapperResult.isErr) {
+          throw CustomApiError.create(500, "Internal Server Error", queryWrapperResult.error);
+        }
+        const roomsByOwner = await RoomSearchService.queryAll(queryWrapperResult.value, ApiResponseUrlType.API_URI);
         const roomIds = roomsByOwner.map((room) => room.id);
 
         if (roomIds.length === 0) {
