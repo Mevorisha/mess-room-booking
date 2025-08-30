@@ -161,7 +161,7 @@ export async function createFirestoreIndex(
   }
   // Create the index using Firebase Admin SDK
   const client = new admin.firestore.v1.FirestoreAdminClient({
-    credentials: config.CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY,
+    credentials: { ...config.CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY },
   });
   const parent = client.collectionGroupPath(
     projectId ?? config.FIREBASE_PROJECT_ID,

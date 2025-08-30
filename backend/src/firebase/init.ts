@@ -26,7 +26,7 @@ try {
   FirebaseApp = initializeApp(
     {
       projectId: config.FIREBASE_PROJECT_ID,
-      credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
+      credential: admin.credential.cert({ ...config.FIREBASE_SERVICE_ACCOUNT_KEY }),
       databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_DATABASE_URL : config.FIREBASE_DATABASE_URL,
       storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_STORAGE_BUCKET : config.FIREBASE_STORAGE_BUCKET,
     },

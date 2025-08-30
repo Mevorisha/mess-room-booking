@@ -3,7 +3,7 @@ import * as config from "@/config/env";
 import { CustomApiError } from "@/types/CustomApiError";
 import { HeaderTypes, HttpMethodTypes } from "sharedtypes";
 
-const AllowedOrigins: string[] = config.CORS_ALLOWED_ORIGINS;
+const AllowedOrigins: string[] = [...config.CORS_ALLOWED_ORIGINS];
 const AllowedMethods = [HttpMethodTypes.POST, HttpMethodTypes.GET, HttpMethodTypes.PATCH, HttpMethodTypes.DELETE];
 const AllowedHeaders = [HeaderTypes.CONTENT_TYPE, HeaderTypes.X_FIREBASE_TOKEN];
 const ExposedHeaders = [HeaderTypes.X_CONTENT_ENCODING, HeaderTypes.X_DECODED_CONTENT_TYPE];
