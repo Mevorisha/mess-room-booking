@@ -14,6 +14,7 @@ import SectionRoomView from "@/pages/Home/sections/RoomView";
 import {
   HttpMethodTypes,
   PaginationDTO,
+  QuerySortOrder,
   RoomGetReqQueryParamsWrapper,
   RoomGetResBodyNotOwnerDTO,
   UNKNOWN_STR,
@@ -56,8 +57,10 @@ export default function SectionSearch(): React.ReactNode {
     newRoomQueryWrapperResult.value.delete("roomId");
     return newRoomQueryWrapperResult.value;
   });
+  console.log(roomQueryWrapper);
 
   const apiUri = ApiPaths.Rooms.readListOnQuery(roomQueryWrapper);
+  console.log(apiUri);
 
   // State for search input
   const [searchStringInput, setSearchStringInput] = useState<string>(roomQueryWrapper.searchTags?.join(" ").trim() ?? ""); // prettier-ignore
@@ -81,7 +84,7 @@ export default function SectionSearch(): React.ReactNode {
           apiParams.has("lowPrice") ||
           apiParams.has("highPrice") ||
           apiParams.has("sortOn") ||
-          apiParams.has("sortOrder")
+          (apiParams.has("sortOrder") && apiParams.get("sortOrder") === QuerySortOrder.DESCENDING)
       );
     },
     [apiUri, _setHasFilters]

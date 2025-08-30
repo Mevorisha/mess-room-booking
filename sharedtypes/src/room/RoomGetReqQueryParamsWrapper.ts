@@ -38,9 +38,6 @@ type ConstructorParams = Partial<{
 
 export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   @Exclude()
-  private params: URLSearchParams;
-
-  @Exclude()
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -51,10 +48,6 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   @IsString()
   @IsNotEmpty()
   ownerId?: string;
-
-  // always request rooms in non-owner mode/view
-  @IsBoolean()
-  self = false;
 
   @IsOptional()
   @IsEnum(AcceptGender)
@@ -105,6 +98,23 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   @IsEnum(RoomSortFields)
   sortOn?: RoomSortFields;
 
+  // DEFAULTS:
+
+  @Exclude()
+  private static readonly DEAFULT_PARAMS = new URLSearchParams({
+    self: "false",
+    sortOrder: QuerySortOrder.ASCENDING,
+    page: "1",
+    invalidateCache: "true",
+  });
+
+  @Exclude()
+  private params = RoomGetReqQueryParamsWrapper.DEAFULT_PARAMS;
+
+  // always request rooms in non-owner mode/view
+  @IsBoolean()
+  self = false;
+
   // always sort in ascending order (coz default sort field is lastModifiedOn in search sevice)
   @IsEnum(QuerySortOrder)
   sortOrder: QuerySortOrder = QuerySortOrder.ASCENDING;
@@ -123,10 +133,13 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
     super();
 
     if (data == null) {
-      this.params = new URLSearchParams();
+      // this.params already initialized
       return;
     } else if (data instanceof URLSearchParams) {
-      this.params = data;
+      // this.params already initialized; overwrite params if needed
+      for (const [key, val] of data.entries()) {
+        this.params.set(key, val);
+      }
 
       if (data.has("self")) {
         this.self = data.get("self") === "true";
@@ -244,7 +257,9 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   static override create(data: ConstructorParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError>;
   static override create(data: URLSearchParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError>;
 
-  static override create(data?: ConstructorParams | URLSearchParams): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
+  static override create(
+    data?: ConstructorParams | URLSearchParams
+  ): Result<RoomGetReqQueryParamsWrapper, DtoValidationError> {
     // NOT USING fromJson COZ of overloads
     return ADataTransferObj._fromJson(new this(data));
   }
