@@ -146,9 +146,13 @@ export default function SectionRoomCreateForm({
     const b64DtoResults = base64Files.map((data) => Base64PhotoUploadDTO.fromJson(data));
     const dtoErrors = b64DtoResults.filter((result) => result.isErr).map((result) => result.error);
     const files = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
-    if (dtoErrors.length !== 0) {
+    if (dtoErrors.length > 0) {
+      const errors = new MultipleErrors(dtoErrors);
       if (files.length === 0) {
-        return Promise.reject(new MultipleErrors(dtoErrors));
+        return Promise.reject(errors);
+      } else {
+        notify(errors, "error");
+        console.error(errors);
       }
     }
 

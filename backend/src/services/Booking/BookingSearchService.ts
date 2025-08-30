@@ -1,6 +1,6 @@
 import { FirebaseFirestore, FirestorePaths } from "@/firebase/init";
 import { CustomApiError } from "@/types/CustomApiError";
-import { ApiResponseUrlType, BookingGetResBodyDTO, QuerySortOrder, RoomGetReqQueryParamsWrapper } from "sharedtypes";
+import { ApiResponseUrlType, BookingGetResBodyDTO, MultipleErrors, QuerySortOrder, RoomGetReqQueryParamsWrapper } from "sharedtypes";
 import { RoomSearchService } from "@/services/Room/RoomSearchService";
 import { QueryWrapper } from "@/types/QueryWrapper";
 import { BookingModel } from "@/models/Booking";
@@ -96,12 +96,13 @@ export class BookingSearchService {
     const bookingResults = filteredBookingModels.map((booking) => BookingGetResBodyDTO.fromJson(booking));
     const errors = bookingResults.filter((result) => result.isErr).map((result) => result.error);
     const bookingDTOs = bookingResults.filter((result) => result.isOk).map((result) => result.value);
-    if (errors.length !== 0) {
+    if (errors.length > 0) {
       if (bookingDTOs.length === 0) {
         // If no room can be returned coz all are errors
         throw CustomApiError.create(500, "Internal Server Error", errors);
       } else {
-        console.log(errors);
+        console.error("[E] [BookingSearchService] some 'BookingGetResBodyDTO' conversions failed");
+        console.error(new MultipleErrors(errors));
         // Return whatever was found
         return bookingDTOs;
       }

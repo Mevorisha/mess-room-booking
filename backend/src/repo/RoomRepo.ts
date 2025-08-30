@@ -138,7 +138,7 @@ export class RoomRepo {
         if (photoDTOs.length === 0) {
           throw CustomApiError.create(500, "Internal Server Error", errors);
         } else {
-          console.error("[E] [RoomRepo] some image dto conversions failed");
+          console.error("[E] [RoomRepo] some 'MultiSizePhotoDTO' conversions failed");
           console.error(new MultipleErrors(errors));
         }
       }

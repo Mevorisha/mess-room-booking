@@ -9,6 +9,7 @@ import {
   RoomGetResBodyNotOwnerDTO,
   RoomGetResBodyOwnerDTO,
   RoomGetReqQueryParamsWrapper,
+  MultipleErrors,
 } from "sharedtypes";
 import { RoomTransformer } from "./RoomTransformer";
 import { Timestamp } from "firebase-admin/firestore";
@@ -73,12 +74,13 @@ export class RoomSearchService {
       const roomResults = stringDateModels.map((model) => RoomGetResBodyOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
-      if (errors.length !== 0) {
+      if (errors.length > 0) {
         if (roomDTOs.length === 0) {
           // If no room can be returned coz all are errors
           throw CustomApiError.create(500, "Internal Server Error", errors);
         } else {
-          console.log(errors);
+          console.error("[E] [RoomSearchService] some 'RoomGetResBodyOwnerDTO' conversions failed");
+          console.error(new MultipleErrors(errors));
           // Return whatever was found
           return roomDTOs;
         }
@@ -88,12 +90,13 @@ export class RoomSearchService {
       const roomResults = stringDateModels.map((model) => RoomGetResBodyNotOwnerDTO.fromJson(model));
       const errors = roomResults.filter((result) => result.isErr).map((result) => result.error);
       const roomDTOs = roomResults.filter((result) => result.isOk).map((result) => result.value);
-      if (errors.length !== 0) {
+      if (errors.length > 0) {
         if (roomDTOs.length === 0) {
           // If no room can be returned coz all are errors
           throw CustomApiError.create(500, "Internal Server Error", errors);
         } else {
-          console.log(errors);
+          console.error("[E] [RoomSearchService] some 'RoomGetResBodyNotOwnerDTO' conversions failed");
+          console.error(new MultipleErrors(errors));
           // Return whatever was found
           return roomDTOs;
         }
