@@ -305,7 +305,8 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
       this.acceptOccupation != null ||
       this.lowPrice != null ||
       this.highPrice != null ||
-      this.capacity != null
+      this.capacity != null ||
+      (this.searchTags != null && this.searchTags.length > 0)
     );
   }
 
