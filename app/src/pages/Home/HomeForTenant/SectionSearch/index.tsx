@@ -123,11 +123,15 @@ export default function SectionSearch(): React.ReactNode {
 
   // Function to handle filter changes
   const handleQueryChange = useCallback(
-    (newFilters: RoomGetReqQueryParamsWrapper) => {
-      setRoomQueryWrapper(() => {
+    (newQueryWrapper: RoomGetReqQueryParamsWrapper) => {
+      setRoomQueryWrapper((oldQrapper) => {
         // Set respective filters in query and reset page to 1
-        newFilters.set("page", 1);
-        return newFilters;
+        newQueryWrapper.set("page", 1);
+        const oldSearchTags = oldQrapper.get("searchTags");
+        if (oldSearchTags != null) {
+          newQueryWrapper.set("searchTags", oldSearchTags);
+        }
+        return newQueryWrapper;
       });
       updateHasFilters();
     },
@@ -138,18 +142,18 @@ export default function SectionSearch(): React.ReactNode {
   const handleQueryClear = useCallback(() => {
     // Clear all filters in query but keep searchTags
     setRoomQueryWrapper((oldQuery) => {
-      const newQueryResult = RoomGetReqQueryParamsWrapper.create();
-      if (newQueryResult.isErr) {
+      const newQueryWrapperResult = RoomGetReqQueryParamsWrapper.create();
+      if (newQueryWrapperResult.isErr) {
         // Handle error so that it is not thrown inside react
-        notify(newQueryResult.error, "error");
+        notify(newQueryWrapperResult.error, "error");
         return oldQuery;
       }
+      const newQueryWrapper = newQueryWrapperResult.value;
       const oldSearchTags = oldQuery.get("searchTags");
-      if (oldSearchTags == null) {
-        return newQueryResult.value;
+      if (oldSearchTags != null) {
+        newQueryWrapper.set("searchTags", oldSearchTags);
       }
-      newQueryResult.value.set("searchTags", oldSearchTags);
-      return newQueryResult.value;
+      return newQueryWrapper;
     });
     updateHasFilters();
   }, [updateHasFilters, notify, setRoomQueryWrapper]);
