@@ -157,8 +157,27 @@ export class RoomSearchService {
         query = query.orderBy(fieldToSort, options.sortOrder ?? QuerySortOrder.ASCENDING);
       }
     } else {
-      // Default sorting by lastModifiedOn
-      query = query.orderBy("lastModifiedOn", QuerySortOrder.DESCENDING);
+      /* Default sorting:
+    
+       * 1st sort by `createdOn`, then sort by `lastModifiedOn`.
+       * This results in a list where 1st item is most recently updated. However,
+       * for items with same `lastModifiedOn`, 1st item is most recently created.
+       *
+       * HOWEVER: for the same effect in Firestore query orderBy, `lastModifiedOn` should
+       * be used as the primary sort parameter. So, w.r.t. query "syntax", the reverse
+       * of the following query is actually correct:
+       *
+       * WRONG:
+       * ```ts
+       * query = query
+       *   .orderBy("createdOn", QuerySortOrder.DESCENDING)
+       *   .orderBy("lastModifiedOn", QuerySortOrder.DESCENDING);
+       * ```
+       */
+      // CORRECT
+      query = query
+        .orderBy("lastModifiedOn", QuerySortOrder.DESCENDING) // Primary: most recent updates first
+        .orderBy("createdOn", QuerySortOrder.DESCENDING); // Tiebreaker: most recent creation first
     }
 
     // Limit results for default queries
@@ -281,31 +300,70 @@ export class RoomSearchService {
     params: RoomGetReqQueryParamsWrapper,
     sortOn?: RoomSortFields
   ): RoomModel[] {
-    const sortedResults = rooms.sort((a, b) => {
-      // Handle owner queries: TTL rooms come last, then by lastModifiedOn desc
+    const LAST_MODIFIED_THRESHOLD_MS = 5000; // 5 seconds
+
+    // Helper function for time-based sorting with tiebreaker
+    function diffTime(roomA: RoomModelWithSortPrio, roomB: RoomModelWithSortPrio): number {
+      const lastModifiedDiff = roomB.model.lastModifiedOn.toMillis() - roomA.model.lastModifiedOn.toMillis();
+      // Use createdOn as tiebreaker if lastModifiedOn times are within 1 hour
+      if (Math.abs(lastModifiedDiff) < LAST_MODIFIED_THRESHOLD_MS) {
+        return roomB.model.createdOn.toMillis() - roomA.model.createdOn.toMillis();
+      }
+      return lastModifiedDiff;
+    }
+
+    // Helper function for TTL-based sorting (TTL rooms come last)
+    function diffTTL(roomA: RoomModelWithSortPrio, roomB: RoomModelWithSortPrio): number {
+      const aHasTTL = roomA.model.ttl != null;
+      const bHasTTL = roomB.model.ttl != null;
+      if (aHasTTL && !bHasTTL) return 1; // a has TTL, b doesn't - a comes after b
+      if (!aHasTTL && bHasTTL) return -1; // b has TTL, a doesn't - a comes before b
+      return 0; // Both have TTL or both don't have TTL - no preference
+    }
+
+    // Helper function for IsUnavailable-based sorting (Unavailable rooms come last)
+    function diffIsUnavailable(roomA: RoomModelWithSortPrio, roomB: RoomModelWithSortPrio): number {
+      const aIsUnavailable = roomA.model.isUnavailable;
+      const bIsUnavailable = roomB.model.isUnavailable;
+      if (aIsUnavailable && !bIsUnavailable) return 1; // a is unavailable, b isn't - a comes after b
+      if (!aIsUnavailable && bIsUnavailable) return -1; // b is unavailable, a isn't - a comes before b
+      return 0; // Both unavailable or available - no preference
+    }
+
+    // Helper function for search tag priority sorting with time tiebreaker
+    function diffPriorityTag(roomA: RoomModelWithSortPrio, roomB: RoomModelWithSortPrio): number {
+      return roomA.sortPriority - roomB.sortPriority;
+    }
+
+    // Search tags
+    const hasSearchTags = params.searchTags != null && params.searchTags.length > 0;
+
+    // Apply sorting
+    const sortedResults = rooms.sort((roomA, roomB) => {
+      // Handle owner queries: TTL rooms come last, then unavailable rooms, then sort by time
       if (params.ownerId != null) {
-        if (a.model.ttl != null && b.model.ttl == null) return 1;
-        if (a.model.ttl == null && b.model.ttl != null) return -1;
-        return b.model.lastModifiedOn.toMillis() - a.model.lastModifiedOn.toMillis();
+        const ttlDiff = diffTTL(roomA, roomB);
+        const unavailableDiff = diffIsUnavailable(roomA, roomB);
+        return ttlDiff !== 0 ? ttlDiff : unavailableDiff !== 0 ? unavailableDiff : diffTime(roomA, roomB);
       }
       // Regular search sorting
       if (sortOn != null) {
         // If search tags were used, use sortPriority as secondary sort
-        if (params.searchTags != null && params.searchTags.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          return (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
+        if (hasSearchTags) {
+          const priorityDiff = diffPriorityTag(roomA, roomB);
+          // If priorityDiff is 0, don't change order (or else it'll mess up db applied order)
+          return priorityDiff !== 0 ? priorityDiff : 0;
         }
         // Database sorting already applied
         return 0;
       } else {
         // Sort primarily by search tag priority if used
-        if (params.searchTags != null && params.searchTags.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          const priorityDiff = (a.sortPriority ?? Number.MAX_VALUE) - (b.sortPriority ?? Number.MAX_VALUE);
-          if (priorityDiff !== 0) return priorityDiff;
+        if (hasSearchTags) {
+          const priorityDiff = diffPriorityTag(roomA, roomB);
+          return priorityDiff !== 0 ? priorityDiff : diffTime(roomA, roomB);
         }
         // Secondary sort by lastModifiedOn desc
-        return b.model.lastModifiedOn.toMillis() - a.model.lastModifiedOn.toMillis();
+        return diffTime(roomA, roomB);
       }
     });
     return sortedResults.map((r) => r.model);
