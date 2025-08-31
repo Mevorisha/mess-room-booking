@@ -65,7 +65,7 @@ export class RoomSearchService {
     const query = RoomSearchService.buildFirestoreQuery(params, options);
     const snapshot = await query.get();
     // 2. SORT ORDER - Apply tag-based filtering and initial sorting
-    const filteredModels = RoomSearchService.firebaseFilterAndSort(snapshot.docs, params);
+    const filteredModels = RoomSearchService.firebaseFilterAndSort(snapshot.docs, params, options);
     // 4. SORT THE RESULT - Apply custom sorting logic
     const sortedModels = RoomSearchService.customSort(filteredModels, params, options?.sortOn);
     // 3. CONVERT IMAGE LINKS - Transform image paths to API URIs if needed
@@ -205,12 +205,23 @@ export class RoomSearchService {
   // Helper function to filter by tags and apply tag-based sorting
   private static firebaseFilterAndSort(
     docs: FirebaseFirestore.QueryDocumentSnapshot[],
-    params: RoomGetReqQueryParamsWrapper
+    params: RoomGetReqQueryParamsWrapper,
+    options?: RoomQueryOptions
   ): RoomModelWithSortPrio[] {
     const results: RoomModelWithSortPrio[] = [];
 
     for (const doc of docs) {
       const roomModel = doc.data() as RoomModel;
+
+      if (!(options?.isOwner ?? false)) {
+        // if not owner, skip deleted or unavailable rooms
+        if (roomModel.ttl != null) {
+          continue;
+        }
+        if (roomModel.isUnavailable) {
+          continue;
+        }
+      }
 
       // Apply tag filtering if searchTags are provided
       if (params.searchTags != null && params.searchTags.length > 0) {
