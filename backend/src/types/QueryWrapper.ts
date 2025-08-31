@@ -25,6 +25,11 @@ export class QueryWrapper<T> {
     return this;
   }
 
+  limit(n: number): QueryWrapper<T> {
+    this.query = this.query.limit(n);
+    return this;
+  }
+
   getQuery(): Query<T> {
     return this.query;
   }

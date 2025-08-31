@@ -41,6 +41,9 @@ interface FirebaseQueryableData {
 }
 
 export class RoomSearchService {
+  // Number of items per page
+  static readonly PAGE_SIZE = 8;
+
   static async queryAll(
     params: RoomGetReqQueryParamsWrapper,
     extUrls: ApiResponseUrlType,
@@ -156,6 +159,11 @@ export class RoomSearchService {
     } else {
       // Default sorting by lastModifiedOn
       query = query.orderBy("lastModifiedOn", QuerySortOrder.DESCENDING);
+    }
+
+    // Limit results for default queries
+    if (!params.isFiltering()) {
+      query = query.limit(RoomSearchService.PAGE_SIZE * 2);
     }
 
     return query.getQuery();

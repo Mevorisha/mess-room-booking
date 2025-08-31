@@ -101,7 +101,7 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   // DEFAULTS:
 
   @Exclude()
-  private static readonly DEAFULT_PARAMS = new URLSearchParams({
+  private static readonly DEFAULT_PARAMS = new URLSearchParams({
     self: "false",
     sortOrder: QuerySortOrder.ASCENDING,
     page: "1",
@@ -109,7 +109,7 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
   });
 
   @Exclude()
-  private params = new URLSearchParams(RoomGetReqQueryParamsWrapper.DEAFULT_PARAMS);
+  private params = new URLSearchParams(RoomGetReqQueryParamsWrapper.DEFAULT_PARAMS);
 
   // always request rooms in non-owner mode/view
   @IsBoolean()
@@ -273,6 +273,40 @@ export class RoomGetReqQueryParamsWrapper extends ADataTransferObj {
 
   override toString(): string {
     return this.params.toString();
+  }
+
+  isDefault(): boolean {
+    const defaultParams = new URLSearchParams(RoomGetReqQueryParamsWrapper.DEFAULT_PARAMS);
+
+    // Quick size check
+    if (this.params.size !== defaultParams.size) {
+      return false;
+    }
+
+    for (const [key, val] of defaultParams.entries()) {
+      if (this.params.get(key) !== val) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns true if either of `self`, `acceptGender`, `acceptOccupation`, `lowPrice`, `highPrice` or `capacity` is set.
+   *
+   * NOTE: A filtering query will reduce the number of objects returned by firestore which in turn makes the result smaller
+   * and more managable.
+   */
+  isFiltering(): boolean {
+    return (
+      this.self === true ||
+      this.acceptGender != null ||
+      this.acceptOccupation != null ||
+      this.lowPrice != null ||
+      this.highPrice != null ||
+      this.capacity != null
+    );
   }
 
   get<T extends keyof ConstructorParams>(name: T): NonNullable<ConstructorParams[T]> | null {

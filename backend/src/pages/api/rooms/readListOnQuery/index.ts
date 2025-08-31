@@ -19,9 +19,6 @@ import { ADataTransferObj } from "sharedtypes/dist/types/abstract/ADataTransferO
 
 type OneRoomEntry = RoomGetResBodyNotOwnerDTO | RoomGetResBodyOwnerDTO;
 
-// Number of items per page
-const PAGE_SIZE = 8;
-
 // Configure LRU cache
 const RoomsCache = new LRUCache<string, OneRoomEntry[]>({
   maxSize: 50 * 1024 * 1024, // Maximum size of the cache in bytes (50 MB)
@@ -183,11 +180,11 @@ function paginateResults(
   roomsClass: typeof ADataTransferObj
 ): PaginationDTO<OneRoomEntry> {
   const totalItems = rooms.length;
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const totalPages = Math.ceil(totalItems / RoomSearchService.PAGE_SIZE);
   const currentPage = Math.max(1, Math.min(page, totalPages));
 
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
+  const startIndex = (currentPage - 1) * RoomSearchService.PAGE_SIZE;
+  const endIndex = Math.min(startIndex + RoomSearchService.PAGE_SIZE, totalItems);
   const items = rooms.slice(startIndex, endIndex);
 
   const paginateResults = PaginationDTO.createGeneric<OneRoomEntry>(
