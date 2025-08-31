@@ -20,7 +20,7 @@ import { ADataTransferObj } from "sharedtypes/dist/types/abstract/ADataTransferO
 type OneRoomEntry = RoomGetResBodyNotOwnerDTO | RoomGetResBodyOwnerDTO;
 
 // Number of items per page
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 1;
 
 // Configure LRU cache
 const RoomsCache = new LRUCache<string, OneRoomEntry[]>({

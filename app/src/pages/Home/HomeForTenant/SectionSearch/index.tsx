@@ -111,9 +111,9 @@ export default function SectionSearch(): React.ReactNode {
         } else {
           // Remove searchTags from query and remove page
           newWrapperResult.value.delete("searchTags");
-          newWrapperResult.value.delete("page");
-          // unconditionally remove invalidateCache param
-          newWrapperResult.value.delete("invalidateCache");
+          // reset page and invalidateCache
+          newWrapperResult.value.set("page", 1);
+          newWrapperResult.value.set("invalidateCache", true);
         }
         return newWrapperResult.value;
       }),
@@ -166,6 +166,7 @@ export default function SectionSearch(): React.ReactNode {
           return oldWrapper;
         }
         newWrapperResult.value.set("page", page);
+        newWrapperResult.value.set("invalidateCache", false);
         return newWrapperResult.value;
       });
     },
@@ -248,6 +249,9 @@ export default function SectionSearch(): React.ReactNode {
 
   // Load rooms when query changes
   useEffect(() => void loadRooms().catch((e: Error) => notify(e, "error")), [loadRooms, notify, roomQueryWrapper]);
+
+  // Update page number when query changes
+  useEffect(() => setCurrentPage(roomQueryWrapper.page), [roomQueryWrapper]);
 
   // Show a room if roomId is present
   useEffect(

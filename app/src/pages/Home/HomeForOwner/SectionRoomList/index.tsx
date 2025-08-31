@@ -143,7 +143,7 @@ export default function SectionRooms({
   const dialog = useDialog();
 
   function handlePageChange(n: number): void {
-    reloadApi({ page: n }).catch((e: Error) => notify(e, "error"));
+    reloadApi({ page: n, invalidateCache: false }).catch((e: Error) => notify(e, "error"));
   }
 
   function handleOpenRoom(roomData: RoomGetResBodyOwnerDTO): void {
