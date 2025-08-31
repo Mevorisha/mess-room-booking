@@ -42,7 +42,7 @@ interface FirebaseQueryableData {
 
 export class RoomSearchService {
   // Number of items per page
-  static readonly PAGE_SIZE = 1;
+  static readonly PAGE_SIZE = 8;
 
   static async queryAll(
     params: RoomGetReqQueryParamsWrapper,
