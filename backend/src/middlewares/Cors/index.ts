@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as config from "@/config/env";
 import { CustomApiError } from "@/types/CustomApiError";
 import { HeaderTypes } from "sharedtypes";
+
 import { checkClientOrigin, AllowedHeaders, AllowedMethods, ExposedHeaders } from "./checkClientOrigin";
 
 /**
