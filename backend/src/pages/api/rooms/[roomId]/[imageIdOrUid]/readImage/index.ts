@@ -17,9 +17,14 @@ import { RequestValidationParser } from "@/parsers/RequestValidationParser";
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
   if (!(await RateLimits.ROOM_IMAGE_READ(req, res))) return;
-  
+
   // Extract query params from request
-  const { roomId, imageIdOrUid: imageId, size, b64 = false } = RequestValidationParser.parse({
+  const {
+    roomId,
+    imageIdOrUid: imageId,
+    size,
+    b64 = false,
+  } = RequestValidationParser.parse({
     req,
     method: HttpMethodTypes.GET,
     params: z.object({
@@ -39,7 +44,7 @@ export default WithMiddleware(async function GET(req: NextApiRequest, res: NextA
   // Fetch the image
   const response = await fetch(directUrl);
   if (!response.ok) {
-    throw CustomApiError.create(404, "Image not found");
+    throw CustomApiError.create(500, "Internal Server Error", "Failed to fetch image");
   }
 
   const contentType = response.headers.get(HeaderTypes.CONTENT_TYPE);
