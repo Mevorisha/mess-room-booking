@@ -20,6 +20,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build Package sharedtypes
+        working-directory: sharedtypes
+        run: |
+          npm ci
+          npm run build
+
       - name: Deploy Backend
         working-directory: backend
         run: |
