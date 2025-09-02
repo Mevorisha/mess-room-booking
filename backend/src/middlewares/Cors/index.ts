@@ -1,34 +1,30 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as config from "@/config/env";
 import { CustomApiError } from "@/types/CustomApiError";
-import { HeaderTypes, HttpMethodTypes } from "sharedtypes";
-
-const AllowedOrigins: string[] = [...config.CORS_ALLOWED_ORIGINS];
-const AllowedMethods = [HttpMethodTypes.POST, HttpMethodTypes.GET, HttpMethodTypes.PATCH, HttpMethodTypes.DELETE];
-const AllowedHeaders = [HeaderTypes.CONTENT_TYPE, HeaderTypes.X_FIREBASE_TOKEN];
-const ExposedHeaders = [HeaderTypes.X_CONTENT_ENCODING, HeaderTypes.X_DECODED_CONTENT_TYPE];
+import { HeaderTypes } from "sharedtypes";
+import { checkClientOrigin, AllowedHeaders, AllowedMethods, ExposedHeaders } from "./checkClientOrigin";
 
 /**
  * @returns {boolean} True if response can be continued, false if response has been ended
  * @throws {CustomApiError} If CORS checks fail
  */
 export async function cors(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const origin = req.headers.origin ?? "uknown";
-  if (
-    config.CORS_ALLOW_EVERYTHING ||
-    AllowedOrigins.includes(origin) ||
-    /mess-booking-app-serverless-[a-z0-9-]+.web.app/.test(origin)
-  ) {
-    if (config.IS_DEV) console.log("[I] [CORS] allowed origin:", origin);
-    res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-  } else {
-    if (origin.length > 0) console.error("[E] [CORS] blocked origin:", origin);
-    else console.error("[E] [CORS] no origin header found");
-    throw CustomApiError.create(403, "Origin not allowed");
+  const { origin, allow } = checkClientOrigin(req);
+
+  if (!allow) {
+    throw CustomApiError.create(403, "Origin not allowed", origin);
   }
+
+  if (config.IS_DEV) console.log("[I] [CORS] allowed origin:", origin);
+
+  // patch: caches/CDNs may serve the wrong Access-Control-Allow-Origin to other clients
+  res.setHeader("Vary", "Origin");
+
+  res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
   res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_METHODS, AllowedMethods.join(", "));
   res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_HEADERS, AllowedHeaders.join(", "));
   res.setHeader(HeaderTypes.ACCESS_CONTROL_EXPOSE_HEADERS, ExposedHeaders.join(", "));
+
   // Coz we use "X-Firebase-Token" instead of cookies
   res.setHeader(HeaderTypes.ACCESS_CONTROL_ALLOW_CREDENTIALS, "false");
 
