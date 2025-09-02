@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 // Booking DTOs
 export * from "./booking/BookingGetResBodyDTO.js";
 export * from "./booking/BookingPostReqBodyDTO.js";

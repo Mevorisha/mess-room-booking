@@ -21,7 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2"
+    "class-validator": "^0.14.2",
+    "reflect-metadata": "^0.2.2"
   },
   "eslintConfig": {
     "extends": [
