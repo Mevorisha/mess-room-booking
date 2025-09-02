@@ -4,7 +4,15 @@ import UserContext from "./user.jsx";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
-import UploadedImage from "@/modules/classes/UploadedImage.js";
+import {
+  DocType,
+  DocVisibility,
+  HttpMethodTypes,
+  IdentityPatchImageVisibilityDTO,
+  IdentityPhotosDTO,
+  MultiSizeImageSz,
+  MultiSizePhotoDTO,
+} from "sharedtypes";
 
 /* ---------------------------------- IDENTITY CONTEXT OBJECT ----------------------------------- */
 
@@ -20,8 +28,8 @@ export interface IdentityContextType {
     workId,
     govId,
   }: {
-    workId?: "PUBLIC" | "PRIVATE";
-    govId?: "PUBLIC" | "PRIVATE";
+    workId?: DocVisibility;
+    govId?: DocVisibility;
   }) => Promise<void>;
 }
 
@@ -36,7 +44,7 @@ export default IdentityContext;
 
 export function IdentityProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
-  const { user, dispatchUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const updateIdentityPhotos = useCallback(
     async ({ workId, govId }: { workId?: File; govId?: File }): Promise<{ workId?: string; govId?: string }> => {
@@ -58,29 +66,73 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
 
       // upload id
       if (workId != null) {
-        await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("WORK_ID", user.uid), workId);
+        await apiPostOrPatchFile(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateImage(DocType.WORK_ID, user.uid), workId); // prettier-ignore
         const { small, medium, large } = {
-          small: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "small"),
-          medium: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "medium"),
-          large: ApiPaths.IdentityDocs.readImage("WORK_ID", user.uid, "large"),
+          small: ApiPaths.IdentityDocs.readImage(DocType.WORK_ID, user.uid, MultiSizeImageSz.SMALL),
+          medium: ApiPaths.IdentityDocs.readImage(DocType.WORK_ID, user.uid, MultiSizeImageSz.MEDIUM),
+          large: ApiPaths.IdentityDocs.readImage(DocType.WORK_ID, user.uid, MultiSizeImageSz.LARGE),
         };
         const cache = await caches.open(CachePaths.FILE_LOADER);
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-        dispatchUser({ identityPhotos: { workId: new UploadedImage(user.uid, small, medium, large, true) } });
+        setUser((oldUser) => {
+          const newUser = oldUser?.clone();
+          let identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) {
+            const identityPhotosResult = IdentityPhotosDTO.create({});
+            if (identityPhotosResult.isErr) {
+              // doing error checks even though this should NOT fail
+              notify(identityPhotosResult.error, "error");
+              return oldUser;
+            }
+            identityPhotos = identityPhotosResult.value;
+          }
+          const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+          if (photosResult.isErr) {
+            // Handle error so that it is not thrown inside react
+            notify(photosResult.error, "error");
+            return oldUser;
+          }
+          identityPhotos.workId = photosResult.value;
+          identityPhotos.workIdIsPrivate = true;
+          newUser?.set("identityPhotos", identityPhotos);
+          return newUser;
+        });
         uploadedWorkId = { small, medium, large };
       }
 
       // upload govId
       if (govId != null) {
-        await apiPostOrPatchFile("PATCH", ApiPaths.IdentityDocs.updateImage("GOV_ID", user.uid), govId);
+        await apiPostOrPatchFile(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateImage(DocType.GOV_ID, user.uid), govId); // prettier-ignore
         const { small, medium, large } = {
-          small: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "small"),
-          medium: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "medium"),
-          large: ApiPaths.IdentityDocs.readImage("GOV_ID", user.uid, "large"),
+          small: ApiPaths.IdentityDocs.readImage(DocType.GOV_ID, user.uid, MultiSizeImageSz.SMALL),
+          medium: ApiPaths.IdentityDocs.readImage(DocType.GOV_ID, user.uid, MultiSizeImageSz.MEDIUM),
+          large: ApiPaths.IdentityDocs.readImage(DocType.GOV_ID, user.uid, MultiSizeImageSz.LARGE),
         };
         const cache = await caches.open(CachePaths.FILE_LOADER);
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-        dispatchUser({ identityPhotos: { govId: new UploadedImage(user.uid, small, medium, large, true) } });
+        setUser((oldUser) => {
+          const newUser = oldUser?.clone();
+          let identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) {
+            const identityPhotosResult = IdentityPhotosDTO.create({});
+            // doing error checks even though this should NOT fail
+            if (identityPhotosResult.isErr) {
+              notify(identityPhotosResult.error, "error");
+              return oldUser;
+            }
+            identityPhotos = identityPhotosResult.value;
+          }
+          const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+          if (photosResult.isErr) {
+            // Handle error so that it is not thrown inside react
+            notify(photosResult.error, "error");
+            return newUser;
+          }
+          identityPhotos.govId = photosResult.value;
+          identityPhotos.govIdIsPrivate = true;
+          newUser?.set("identityPhotos", identityPhotos);
+          return newUser;
+        });
         uploadedGovId = { small, medium, large };
       }
 
@@ -103,11 +155,11 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         return {};
       }
     },
-    [user.uid, notify, dispatchUser]
+    [user.uid, notify, setUser]
   );
 
   const updateIdentityPhotosVisibility = useCallback(
-    async ({ workId, govId }: { workId?: "PUBLIC" | "PRIVATE"; govId?: "PUBLIC" | "PRIVATE" }) => {
+    async ({ workId, govId }: { workId?: DocVisibility; govId?: DocVisibility }) => {
       if (workId != null || govId != null) {
         notify(
           lang(
@@ -120,19 +172,33 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
       }
 
       if (workId != null) {
-        const oldLocalImageObj = user.identityPhotos?.workId?.clone();
-        const newLocalImageObj = workId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
-        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("WORK_ID", user.uid), { visibility: workId }); // prettier-ignore
-        if (newLocalImageObj != null) dispatchUser({ identityPhotos: { workId: newLocalImageObj } });
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const postBody = IdentityPatchImageVisibilityDTO.create({ visibility: workId }).unwrapOrThrow();
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.WORK_ID, user.uid), postBody); // prettier-ignore
+        setUser((user) => {
+          user = user?.clone();
+          const identityPhotos = user?.get("identityPhotos");
+          if (identityPhotos == null) return user;
+          identityPhotos.workIdIsPrivate = workId === DocVisibility.PRIVATE;
+          user?.set("identityPhotos", identityPhotos);
+          return user;
+        });
       }
       if (govId != null) {
-        const oldLocalImageObj = user.identityPhotos?.govId?.clone();
-        const newLocalImageObj = govId === "PRIVATE" ? oldLocalImageObj?.makePrivate() : oldLocalImageObj?.makePublic(); // prettier-ignore
-        await apiPostOrPatchJson("PATCH", ApiPaths.IdentityDocs.updateVisibility("GOV_ID", user.uid), { visibility: govId }); // prettier-ignore
-        if (newLocalImageObj != null) dispatchUser({ identityPhotos: { govId: newLocalImageObj } });
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const postBody = IdentityPatchImageVisibilityDTO.create({ visibility: govId }).unwrapOrThrow();
+        await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.IdentityDocs.updateVisibility(DocType.GOV_ID, user.uid), postBody); // prettier-ignore
+        setUser((user) => {
+          user = user?.clone();
+          const identityPhotos = user?.get("identityPhotos");
+          if (identityPhotos == null) return user;
+          identityPhotos.govIdIsPrivate = govId === DocVisibility.PRIVATE;
+          user?.set("identityPhotos", identityPhotos);
+          return user;
+        });
       }
     },
-    [user.uid, dispatchUser, user.identityPhotos?.govId, user.identityPhotos?.workId, notify]
+    [notify, user.uid, setUser]
   );
 
   return (

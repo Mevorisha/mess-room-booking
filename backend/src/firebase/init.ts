@@ -5,8 +5,7 @@ import { Database, getDatabase } from "firebase-admin/database";
 import { CollectionReference, DocumentReference, Firestore, getFirestore } from "firebase-admin/firestore";
 import { getStorage, Storage } from "firebase-admin/storage";
 import * as config from "../config/env";
-
-export type MultiSizeImageSz = "small" | "medium" | "large";
+import { DocType, MultiSizeImageSz, UNKNOWN_STR } from "sharedtypes";
 
 let FirebaseApp: App | null = null;
 let FirebaseAuth: Auth;
@@ -27,7 +26,7 @@ try {
   FirebaseApp = initializeApp(
     {
       projectId: config.FIREBASE_PROJECT_ID,
-      credential: admin.credential.cert(config.FIREBASE_SERVICE_ACCOUNT_KEY),
+      credential: admin.credential.cert({ ...config.FIREBASE_SERVICE_ACCOUNT_KEY }),
       databaseURL: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_DATABASE_URL : config.FIREBASE_DATABASE_URL,
       storageBucket: config.RUN_ON_EMULATOR ? config.FIREBASE_EMULATOR_STORAGE_BUCKET : config.FIREBASE_STORAGE_BUCKET,
     },
@@ -59,13 +58,13 @@ try {
  * Firestore paths
  */
 class FirestorePaths {
-  static IDENTITY = !config.IS_DEV ? "/fstr_Identity" : "/preview_fstr_Identity";
-  static LOGS = !config.IS_DEV ? "/fstr_Logs" : "/preview_fstr_Logs";
-  static FEEDBACK = !config.IS_DEV ? "/fstr_Feedback" : "/preview_fstr_Feedback";
-  static ROOMS = !config.IS_DEV ? "/fstr_Rooms" : "/preview_fstr_Rooms";
-  static BOOKINGS = !config.IS_DEV ? "/fstr_Bookings" : "/preview_fstr_Bookings";
-  static SCHEDULER_TIMES = !config.IS_DEV ? "/fstr_SchedulerTimes" : "/preview_fstr_SchedulerTimes";
-  static ROOM_RATINGS = !config.IS_DEV ? "/fstr_RoomRatings" : "/preview_fstr_RoomRatings";
+  static IDENTITY = !config.IS_DEV_OR_PREVIEW ? "fstr_Identity" : "preview_fstr_Identity";
+  static LOGS = !config.IS_DEV_OR_PREVIEW ? "fstr_Logs" : "preview_fstr_Logs";
+  static FEEDBACK = !config.IS_DEV_OR_PREVIEW ? "fstr_Feedback" : "preview_fstr_Feedback";
+  static ROOMS = !config.IS_DEV_OR_PREVIEW ? "fstr_Rooms" : "preview_fstr_Rooms";
+  static BOOKINGS = !config.IS_DEV_OR_PREVIEW ? "fstr_Bookings" : "preview_fstr_Bookings";
+  static SCHEDULER_TIMES = !config.IS_DEV_OR_PREVIEW ? "fstr_JobScheduler" : "preview_fstr_JobScheduler";
+  static ROOM_RATINGS = !config.IS_DEV_OR_PREVIEW ? "fstr_RoomRatings" : "preview_fstr_RoomRatings";
 
   static Identity = (uid: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
 
@@ -78,7 +77,7 @@ class FirestorePaths {
   static Bookings = (bookingId: string): DocumentReference =>
     FirebaseFirestore.collection(FirestorePaths.BOOKINGS).doc(bookingId);
 
-  static SchedulerTimes = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
+  static JobScheduler = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.SCHEDULER_TIMES);
 
   static RoomRatings = (): CollectionReference => FirebaseFirestore.collection(FirestorePaths.ROOM_RATINGS);
 }
@@ -87,31 +86,33 @@ class FirestorePaths {
  * Storage paths
  */
 class StoragePaths {
-  static PROFILE_PHOTOS = !config.IS_DEV ? "/storg_ProfilePhotos" : "/preview_storg_ProfilePhotos";
-  static ROOM_PHOTOS = !config.IS_DEV ? "/storg_RoomPhotos" : "/preview_storg_RoomPhotos";
-  static IDENTITY_DOCUMENTS = !config.IS_DEV ? "/storg_IdentityDocuments" : "/preview_storg_IdentityDocuments";
-  static FEEDBACK_PHOTOS = !config.IS_DEV ? "/storg_FeedbackPhotos" : "/preview_storg_FeedbackPhotos";
+  static PROFILE_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_ProfilePhotos" : "preview_storg_ProfilePhotos";
+  static ROOM_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_RoomPhotos" : "preview_storg_RoomPhotos";
+  static IDENTITY_DOCUMENTS = !config.IS_DEV_OR_PREVIEW ? "storg_IdentityDocuments" : "preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_FeedbackPhotos" : "preview_storg_FeedbackPhotos";
 
   static ProfilePhotos = {
-    gsBucket: (uid: string, w: number, h: number): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${w}/${h}`,
+    gsBucket: (uid: string, size: MultiSizeImageSz): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${size}`,
 
     apiUri: (uid: string, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.PROFILE}/${uid}/readImage?size=${size}&b64=${b64}`,
   };
 
   static IdentityDocuments = {
-    gsBucket: (uid: string, type: "WORK_ID" | "GOV_ID", w: number, h: number): string =>
-      `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${w}/${h}`,
+    gsBucket: (uid: string, type: DocType, size: MultiSizeImageSz): string =>
+      `${StoragePaths.IDENTITY_DOCUMENTS}/${uid}/${type}/0/${size}`,
 
-    apiUri: (uid: string, type: "WORK_ID" | "GOV_ID", size: MultiSizeImageSz, b64 = true): string =>
+    apiUri: (uid: string, type: DocType, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
   };
 
   static RoomPhotos = {
-    gsBucket: (roomId: string, imageId: string, size: MultiSizeImageSz): string =>
-      `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
+    gsBucket: (roomId: string, imageId?: string, size?: MultiSizeImageSz): string =>
+      imageId == null || size == null
+        ? `${StoragePaths.ROOM_PHOTOS}/${roomId}`
+        : `${StoragePaths.ROOM_PHOTOS}/${roomId}/${imageId}/${size}`,
 
-    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? "",
+    getImageIdFromGsPath: (gsPath: string): string => gsPath.split("/").reverse()[1] ?? UNKNOWN_STR,
 
     apiUri: (roomId: string, imageId: string, size: MultiSizeImageSz, b64 = true): string =>
       `${config.ApiPaths.ROOMS}/${roomId}/${imageId}/readImage?size=${size}&b64=${b64}`,

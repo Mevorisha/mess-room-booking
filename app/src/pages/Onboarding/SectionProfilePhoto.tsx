@@ -13,6 +13,7 @@ import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
 
 import dpGeneric from "@/assets/images/dpGeneric.png";
+import { IdentityType } from "sharedtypes";
 
 export default function SetProfilePhoto(): React.ReactNode {
   const compUsr = useCompositeUser();
@@ -21,7 +22,7 @@ export default function SetProfilePhoto(): React.ReactNode {
   const navigate = useNavigate();
 
   // state
-  const [photoURL, setPhotoURL] = useState(compUsr.userCtx.user.profilePhotos?.medium ?? dpGeneric);
+  const [photoURL, setPhotoURL] = useState(compUsr.userCtx.user.get("profilePhotos")?.medium ?? dpGeneric);
 
   const [buttonKind, setButtonKind] = useState<"primary" | "loading">("primary");
 
@@ -48,9 +49,9 @@ export default function SetProfilePhoto(): React.ReactNode {
   }
 
   function handleShowLargeImage() {
-    if (compUsr.userCtx.user.profilePhotos?.large == null) return;
-
-    dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.profilePhotos.large} />, "large");
+    if (compUsr.userCtx.user.get("profilePhotos")?.large == null) return;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+    dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.get("profilePhotos")?.large!} />, "large");
   }
 
   return (
@@ -62,7 +63,7 @@ export default function SetProfilePhoto(): React.ReactNode {
         <div className="desc">
           <p>
             Photo is required for identification and allows your room{" "}
-            {compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant"} to recognize you.
+            {compUsr.userCtx.user.get("type") === IdentityType.TENANT ? "owner" : "tenant"} to recognize you.
           </p>
         </div>
 

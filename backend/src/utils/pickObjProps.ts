@@ -16,7 +16,7 @@
 // const user = { id: 1, name: "Alice", age: 30 };
 // const pickedUser = pickObjProps(user, ["id", "name"]);
 // // pickedUser will be { id: 1, name: "Alice" }
-// ``` 
+// ```
 export default function pickObjProps<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const picked: Partial<T> = {};
   for (const key of keys) {

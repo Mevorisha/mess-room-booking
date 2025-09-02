@@ -1,14 +1,21 @@
 import React, { useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
+import {
+  AcceptOccupation,
+  Base64PhotoUploadDTO,
+  HttpMethodTypes,
+  MultipleErrors,
+  RoomGetResBodyOwnerDTO,
+  RoomPatchReqBodyDTO,
+} from "sharedtypes";
+
+import { Base64FileUploadData, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import RoomDTO from "@/modules/networkTypes/Room";
-import { Base64FileData } from "@/modules/util/dataConversion.js";
-import { AcceptOccupation } from "@/modules/networkTypes/Room";
+import { OccupationOptions } from "../RoomCreateForm";
 
 import PillsInput from "@/components/PillsInput";
 import ButtonText from "@/components/ButtonText";
@@ -17,11 +24,9 @@ import FileRepr from "@/modules/classes/FileRepr";
 
 import "./styles.css";
 
-type OccupationOptions = AcceptOccupation | "";
-
 /**
  * Not a DTO but the schema of form data.
- * That's why we don't inherit from RoomDTO but define our own type.
+ * That's why we don't inherit from RoomGetResBodyOwnerDTO but define our own type.
  * See backend/src/pages/api/rooms/[roomId]/updateParams/index.ts for the API schema.
  */
 export interface RoomUpdateFormData {
@@ -41,11 +46,11 @@ export interface RoomUpdateFormData {
   isUnavailable: boolean;
   // files to keep or add
   keepFiles: string[];
-  addFiles: Base64FileData[];
+  addFiles: Base64FileUploadData[];
 }
 
 export interface SectionRoomUpdateFormProps {
-  roomData: RoomDTO;
+  roomData: RoomGetResBodyOwnerDTO;
   reloadApi: (params?: { page?: number; invalidateCache?: boolean }) => Promise<void>;
 }
 
@@ -65,11 +70,15 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [state, setState] = useState<string>(roomData.state);
   const [majorTagsSet, setMajorTagsSet] = useState<Set<string>>(new Set<string>(roomData.majorTags));
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>(roomData.minorTags));
-  const [capacity, setCapacity] = useState<string>("" + roomData.capacity);
-  const [pricePerOccupant, setPricePerOccupant] = useState<string>("" + roomData.pricePerOccupant);
-  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable ?? false);
+  const [capacity, setCapacity] = useState<string>(String(roomData.capacity));
+  const [pricePerOccupant, setPricePerOccupant] = useState<string>(String(roomData.pricePerOccupant));
+  const [isUnavailable, setIsUnavailable] = useState<boolean>(roomData.isUnavailable);
 
-  // Initialize filesSet with images from roomData
+  /* Initialize filesSet with urls of medium size images from roomData and storing em in a StringySet
+   * of FileRepr (see StringySet and FileRepr for details).
+   * Since FileRepr can store URLs as well as raw image data, we can remove URLs and add new uploadable
+   * image data directly in the StringySet<FileRepr>.
+   */
   const [filesSet, setFilesSet] = useState(
     new StringySet<FileRepr>(roomData.images.map((img) => FileRepr.from(img.medium)))
   );
@@ -77,21 +86,60 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
   const [submitButtonKind, setSubmitButtonKind] = useState<"primary" | "loading">("primary");
 
   async function handleSubmitAsync(): Promise<void> {
-    // add new files
+    /* Add new files. Any newly added file MUST be a File type object and NEVER a URL.
+     * The implementation of this form requires it. */
     const addFilesArr = Array.from(filesSet)
       .filter((fr) => fr.isFile())
       .map((fr) => fr.getFile());
 
-    // keep URLs, and delete all others
-    const keepFilesArr = Array.from(filesSet)
+    /* Keep URLs. Any URL that was removed from StringySet<FileRepr> will be absent here and will be deleted
+     * by the server. Any URLs not deleted will be present here. Hence, this acts as a whitelist for image
+     * deletion by server. */
+    const keepFiles = Array.from(filesSet)
       .filter((fr) => fr.isUri())
       .map((fr) => fr.getUri());
 
-    const base64Images = await Promise.all(addFilesArr.map(fileToBase64FileData));
+    // conert file data into photo dto
+    const base64Files = await Promise.all(addFilesArr.map(fileToBase64FileData));
+    const b64DtoResults = base64Files.map((data) => Base64PhotoUploadDTO.fromJson(data));
+    const dtoErrors = b64DtoResults.filter((result) => result.isErr).map((result) => result.error);
+    const addFiles = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
+    if (dtoErrors.length > 0) {
+      const errors = new MultipleErrors(dtoErrors);
+      if (addFiles.length === 0) {
+        return Promise.reject(errors);
+      } else {
+        notify(errors, "error");
+        console.error(errors);
+      }
+    }
 
-    const formData: RoomUpdateFormData = {
+    if (searchTagsSet.size === 0) {
+      return Promise.reject(
+        new Error(
+          lang(
+            "Search tags cannot be empty. Make sure you added the tag",
+            "সার্চ ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "सर्च टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
+        )
+      );
+    }
+    if (majorTagsSet.size === 0) {
+      return Promise.reject(
+        new Error(
+          lang(
+            "Major tags cannot be empty. Make sure you added the tag",
+            "প্রধান ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "प्रधान टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
+        )
+      );
+    }
+
+    const formDataResult = RoomPatchReqBodyDTO.BaseParams.create({
       isUnavailable,
-      acceptOccupation,
+      acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
       landmark,
       address,
@@ -101,10 +149,17 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       minorTags: Array.from(minorTagsSet),
       capacity: Number(capacity),
       pricePerOccupant: Number(pricePerOccupant),
+      // images whitelist
+      keepFiles,
+      // raw file data for new images
+      addFiles,
+    });
 
-      keepFiles: keepFilesArr,
-      addFiles: base64Images,
-    };
+    if (formDataResult.isErr) {
+      return Promise.reject(formDataResult.error);
+    }
+
+    const formData = formDataResult.value;
 
     // submit to backend
     setSubmitButtonKind("loading");
@@ -119,7 +174,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
       "info"
     );
 
-    apiPostOrPatchJson("PATCH", ApiPaths.Rooms.updateParams(roomData.id), formData)
+    apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Rooms.updateParams(roomData.id), formData)
       .then((data) => data as { roomId: string })
       .then(({ roomId }) => console.log("Updated room w/ ID:", roomId))
       .then(() => setSubmitButtonKind("primary"))
@@ -236,7 +291,7 @@ export default function SectionRoomUpdateForm({ roomData, reloadApi }: SectionRo
 
           <select
             required
-            value={acceptOccupation}
+            value={acceptOccupation ?? ""}
             onChange={(e) => setAcceptOccupation(e.target.value as OccupationOptions)}
           >
             <option value="">{lang("Choose occupation", "পেশা নির্বাচন করুন", "पेशा चुनें")}</option>

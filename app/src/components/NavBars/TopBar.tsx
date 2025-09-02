@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { isEmpty } from "@/modules/util/validations.js";
 import { lang } from "@/modules/util/language.js";
 import { ActionLabels, ActionType, PagePaths, PageType } from "@/modules/util/pageUrls.js";
 import { CachePaths } from "@/modules/util/caching";
 import ImageLoader from "@/components/ImageLoader";
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
+import { IdentityType } from "sharedtypes";
+
+import "./styles.css";
 
 import dpMevorisha from "@/assets/images/dpMevorisha.png";
-import "./styles.css";
+import dpGeneric from "@/assets/images/dpGeneric.png";
 
 export interface ActionMenuProps {
   dropdownState: "init" | "showing" | "visible" | "hiding";
@@ -22,22 +24,22 @@ function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): Re
   let text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
 
   if (
-    isEmpty(compUsr.userCtx.user.profilePhotos) &&
-    (isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName))
+    compUsr.userCtx.user.get("profilePhotos") == null &&
+    (compUsr.userCtx.user.get("firstName") == null || compUsr.userCtx.user.get("lastName") == null)
   )
     // prettier-ignore
     text = lang("Profile Incomplete!", "প্রোফাইল অসম্পূর্ণ!", "प्रोफ़ाइल अपूर्ण!");
-  else if (isEmpty(compUsr.userCtx.user.profilePhotos))
+  else if (compUsr.userCtx.user.get("profilePhotos") == null)
     // prettier-ignore
     text = lang("Add Profile Photo!", "প্রোফাইল ফটো দিন!", "प्रोफ़ाइल फोटो दें!");
-  else if (isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName))
+  else if (compUsr.userCtx.user.get("firstName") == null || compUsr.userCtx.user.get("lastName") == null)
     // prettier-ignore
     text = lang("Add Display Name!", "প্রোফাইল নাম দিন!", "प्रोफ़ाइल नाम जोड़ें!");
 
   if (
-    isEmpty(compUsr.userCtx.user.profilePhotos) ||
-    isEmpty(compUsr.userCtx.user.firstName) ||
-    isEmpty(compUsr.userCtx.user.lastName)
+    compUsr.userCtx.user.get("profilePhotos") == null ||
+    compUsr.userCtx.user.get("firstName") == null ||
+    compUsr.userCtx.user.get("lastName") == null
   )
     return (
       <span className="profile-incomplete" onClick={() => handleDropdownClick(dropdownState)}>
@@ -50,9 +52,13 @@ function ActionMenu({ dropdownState, handleDropdownClick }: ActionMenuProps): Re
   return (
     <span className="profile-complete" onClick={() => handleDropdownClick(dropdownState)}>
       <span className="display-name">
-        {compUsr.userCtx.user.firstName} {compUsr.userCtx.user.lastName}
+        {compUsr.userCtx.user.get("firstName") ?? ""} {compUsr.userCtx.user.get("lastName") ?? ""}
       </span>
-      <ImageLoader className="profile-image" src={compUsr.userCtx.user.profilePhotos?.small ?? ""} alt="profile" />
+      <ImageLoader
+        className="profile-image"
+        src={compUsr.userCtx.user.get("profilePhotos")?.small ?? dpGeneric}
+        alt="profile"
+      />
     </span>
   );
 }
@@ -169,7 +175,7 @@ export default function TopBar({ children }: { children: React.ReactNode }): Rea
           {/* View Profile */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.VIEW_PROFILE)}>
             {
-              /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
+              /* prettier-ignore */ compUsr.userCtx.user.get("type") === IdentityType.OWNER
               ? lang("View Owner Profile", "মালিকের প্রোফাইল দেখুন", "मालिक प्रोफ़ाइल देखें")
               : lang("View Tenant Profile", "ভাড়াটের প্রোফাইল দেখুন", "किरायेदार प्रोफ़ाइल देखें")
             }
@@ -177,7 +183,7 @@ export default function TopBar({ children }: { children: React.ReactNode }): Rea
           {/* Switch Profile Type */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.SWITCH_PROFILE_TYPE)}>
             {
-              /* prettier-ignore */ compUsr.userCtx.user.type === "OWNER"
+              /* prettier-ignore */ compUsr.userCtx.user.get("type") === IdentityType.OWNER
               ? lang("Switch to Tenant Profile", "ভাড়াটের প্রোফাইলে স্যুইচ করুন", "किरायेदार पर स्विच करें")
               : lang("Switch to Owner Profile", "মালিকের প্রোফাইলে স্যুইচ করুন", "मालिक पर स्विच करें")
             }
@@ -189,7 +195,7 @@ export default function TopBar({ children }: { children: React.ReactNode }): Rea
               ActionLabels[ActionType.UPDATE_PROFILE_PHOTO].bn,
               ActionLabels[ActionType.UPDATE_PROFILE_PHOTO].hi
             )}
-            <MarkOfIncompletion isIncomplete={isEmpty(compUsr.userCtx.user.profilePhotos)} />
+            <MarkOfIncompletion isIncomplete={compUsr.userCtx.user.get("profilePhotos") == null} />
           </div>
           {/* Update ID Documents */}
           <div className="dropdown-item" onClick={() => handleItemClick(ActionType.UPDATE_ID_DOCS)}>
@@ -207,7 +213,9 @@ export default function TopBar({ children }: { children: React.ReactNode }): Rea
               ActionLabels[ActionType.CHANGE_NAME].hi
             )}
             <MarkOfIncompletion
-              isIncomplete={isEmpty(compUsr.userCtx.user.firstName) || isEmpty(compUsr.userCtx.user.lastName)}
+              isIncomplete={
+                compUsr.userCtx.user.get("firstName") == null || compUsr.userCtx.user.get("lastName") == null
+              }
             />
           </div>
           {/* Change Mobile Number */}

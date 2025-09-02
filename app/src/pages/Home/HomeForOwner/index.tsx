@@ -9,13 +9,12 @@ import SectionRoomList from "./SectionRoomList";
 import SectionBookingList from "./SectionBookingList";
 import SectionRoomCreateForm from "@/pages/Home/sections/RoomCreateForm";
 import { CachePaths } from "@/modules/util/caching";
-import { base64FileDataToDataUrl } from "@/modules/util/dataConversion";
+import { base64FileDataToDataUrl, Base64FileUploadData } from "@/modules/util/dataConversion";
 import useNotification from "@/hooks/notification";
 import { apiGetOrDelete, ApiPaths } from "@/modules/util/api";
-import User from "@/modules/classes/User";
+import IdentityWrapper from "@/modules/classes/User";
 import type { CachableDraftFormData } from "@/pages/Home/sections/RoomCreateForm";
-import type { Base64FileData } from "@/modules/util/dataConversion";
-import RoomDTO from "@/modules/networkTypes/Room";
+import { HttpMethodTypes, PaginationDTO, RoomGetReqQueryParamsWrapper, RoomGetResBodyOwnerDTO } from "sharedtypes";
 
 import "./styles.css";
 
@@ -39,7 +38,7 @@ function TabRooms(): React.ReactNode {
   const notify = useNotification();
 
   const [drafts, setDrafts] = useState<DraftData[]>([]);
-  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [rooms, setRooms] = useState<RoomGetResBodyOwnerDTO[]>([]);
   const [roomPages, setRoomPages] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -73,7 +72,7 @@ function TabRooms(): React.ReactNode {
         majorTags: data.majorTags,
         city: data.city,
         state: data.state,
-        firstImage: data.files.length > 0 ? base64FileDataToDataUrl(data.files[0] as Base64FileData) : "",
+        firstImage: data.files.length > 0 ? base64FileDataToDataUrl(data.files[0] as Base64FileUploadData) : "",
       }));
 
       setDrafts(loadedDrafts);
@@ -94,16 +93,17 @@ function TabRooms(): React.ReactNode {
       const page = params?.page ?? currentPage;
       setIsLoadingRooms(true);
       try {
-        const { json } = await apiGetOrDelete(
-          "GET",
-          ApiPaths.Rooms.readListOnQuery({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false })
-        ).then(({ json }) => ({ json } as { json: { rooms: RoomDTO[]; totalPages: number } }));
-        setRooms(json.rooms);
-        setRoomPages(json.totalPages);
+        // Throw error so that it is handled in the promise chain rather than resolving here as success
+        const searchQuery = RoomGetReqQueryParamsWrapper.create({ self: true, page: page, invalidateCache: params?.invalidateCache ?? false }).unwrapOrThrow(); // prettier-ignore
+        const response  = await apiGetOrDelete(HttpMethodTypes.GET, ApiPaths.Rooms.readListOnQuery(searchQuery)); // prettier-ignore
+        const paginationDTO = PaginationDTO.fromJsonWithGeneric<RoomGetResBodyOwnerDTO>(response.json, RoomGetResBodyOwnerDTO).unwrapOrThrow(); // prettier-ignore
+        const currentPage = paginationDTO;
+        setRooms(currentPage.items);
+        setRoomPages(currentPage.totalPages);
         setIsLoadingRooms(false);
       } catch (e) {
         setIsLoadingRooms(false);
-        throw e;
+        return Promise.reject(e as Error);
       }
     },
     [currentPage]
@@ -152,7 +152,7 @@ function TabBookings(): React.ReactNode {
 }
 
 interface SectionHomeForOwnerProps {
-  user: User;
+  user: IdentityWrapper;
 }
 
 export default function SectionHomeForOwner({ user: _ }: SectionHomeForOwnerProps): React.ReactNode {

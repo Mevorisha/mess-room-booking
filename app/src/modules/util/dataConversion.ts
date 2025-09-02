@@ -1,4 +1,11 @@
+import { UNKNOWN_STR } from "sharedtypes";
 import { lang } from "./language.js";
+
+export interface Base64FileUploadData {
+  type: string;
+  name?: string;
+  base64: string;
+}
 
 /**
  * Converts bytes to human readable format
@@ -99,19 +106,13 @@ export async function resizeImage(
   });
 }
 
-export interface Base64FileData {
-  type: string;
-  name: string;
-  base64: string;
-}
-
-export function fileToBase64FileData(file: File): Promise<Base64FileData> {
+export function fileToBase64FileData(file: File): Promise<Base64FileUploadData> {
   function onloaded(
     _e: ProgressEvent<FileReader>,
     reader: FileReader,
     fileType: string,
     fileName: string,
-    resolve: (value: Base64FileData | PromiseLike<Base64FileData>) => void,
+    resolve: (value: Base64FileUploadData) => void,
     reject: (reason?: unknown) => void
   ) {
     const readerData = reader.result;
@@ -139,7 +140,7 @@ export function fileToBase64FileData(file: File): Promise<Base64FileData> {
     });
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise<Base64FileUploadData>((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (e) => onloaded(e, reader, file.type, file.name, resolve, reject);
@@ -147,16 +148,16 @@ export function fileToBase64FileData(file: File): Promise<Base64FileData> {
   });
 }
 
-export function base64FileDataToFile(fileData: Base64FileData): File {
+export function base64FileDataToFile(fileData: Base64FileUploadData): File {
   const byteStr = atob(fileData.base64);
   const u8arr = new Uint8Array(byteStr.length);
   for (let i = 0; i < byteStr.length; i++) {
     u8arr[i] = byteStr.charCodeAt(i);
   }
-  return new File([u8arr], fileData.name, { type: fileData.type });
+  return new File([u8arr], fileData.name ?? `${UNKNOWN_STR}.bin`, { type: fileData.type });
 }
 
-export function base64FileDataToDataUrl(fileData: Base64FileData): string {
+export function base64FileDataToDataUrl(fileData: Base64FileUploadData): string {
   return `data:${fileData.type};base64,${fileData.base64}`;
 }
 

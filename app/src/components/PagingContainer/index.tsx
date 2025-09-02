@@ -43,6 +43,13 @@ export default function PagingContainer({
         endPage = currentPage + 2;
       }
     }
+
+    if (currentPage > endPage) {
+      currentPage = endPage;
+    } else if (currentPage < startPage) {
+      currentPage = startPage;
+    }
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(
         <div className={`page-button ${i === currentPage ? "active" : ""}`} key={i} onClick={() => handlePageChange(i)}>

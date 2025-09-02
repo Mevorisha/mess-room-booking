@@ -1,0 +1,41 @@
+{
+  "name": "sharedtypes",
+  "version": "1.0.0",
+  "description": "Data transfer objects & utility types for Mevorisha Mess Booking App",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "npm run clean && tsc && tsc-alias",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit",
+    "lint:fix": "eslint src --fix",
+    "prepublishOnly": "npm run lint && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aviruk Basak",
+  "license": "ISC",
+  "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "reflect-metadata": "^0.2.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^20",
+    "globals": "^15.15.0",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.29.0"
+  }
+}

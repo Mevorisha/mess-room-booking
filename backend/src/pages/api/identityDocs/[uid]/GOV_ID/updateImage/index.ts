@@ -1,16 +1,16 @@
-import fs from "fs";
-import formidable from "formidable";
-import { authenticate } from "@/middlewares/Auth";
-import { FirebaseStorage, StoragePaths } from "@/firebase/init";
-import { resizeImage } from "@/utils/dataConversion";
-import Identity from "@/models/Identity";
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
+import { authenticate } from "@/middlewares/Auth";
+import { StoragePaths } from "@/firebase/init";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
-import FormParseResult from "@/types/IFormParseResult";
-import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import PersistentFile from "formidable/PersistentFile";
+import { DocType, HttpMethodTypes, MultiSizeImageSz } from "sharedtypes";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { RequestImageBodyParser } from "@/parsers/RequestImageBodyParser";
+import { IdentityRepo } from "@/repo/IdentityRepo";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { ImageUploaderService } from "@/services/ImageUploaderService";
 
 export const config = {
   api: {
@@ -26,79 +26,27 @@ export const config = {
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
+  // Extract query params from request
+  const { uid } = RequestValidationParser.parse({
+    req,
+    method: HttpMethodTypes.PATCH,
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
+  });
 
-  const uid = req.query["uid"] as string;
-  if (!uid) {
-    throw CustomApiError.create(400, "Missing field 'uid: string'");
-  }
   // Require authentication middleware
   await authenticate(req, uid);
 
   if (!(await RateLimits.ID_DOC_UPDATE(uid, req, res))) return;
 
-  // Parse form data
-  const form = formidable({ multiples: true });
-
-  const formParsePromise = new Promise<FormParseResult>((resolve, _) => {
-    form.parse(req, async (err: any, fields: formidable.Fields<string>, files: formidable.Files<"file">) => {
-      resolve({ err, fields, files });
-    });
+  const imageUploadData = await RequestImageBodyParser.parseOne(req);
+  const imagePaths = await ImageUploaderService.upload(imageUploadData, {
+    small: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.GOV_ID, MultiSizeImageSz.SMALL),
+    medium: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.GOV_ID, MultiSizeImageSz.MEDIUM),
+    large: StoragePaths.IdentityDocuments.gsBucket(uid, DocType.GOV_ID, MultiSizeImageSz.LARGE),
   });
 
-  const { err, files: _files } = await formParsePromise; // prettier-ignore
-  const files = _files as Record<string, PersistentFile[]> | null;
-  if (err) {
-    console.trace(err);
-    throw CustomApiError.create(500, "Error parsing file");
-  }
-  if (!files) {
-    throw CustomApiError.create(400, "No file uploaded");
-  }
-  const pfilesArr = Object.values(files).map((pfiles) => pfiles[0] as PersistentFile);
-  if (pfilesArr.length !== 1) {
-    console.log(pfilesArr.length);
-    return respond(res, { status: 400, error: `Expected 1 file, received ${pfilesArr.length}` });
-  }
-  const pfile = pfilesArr[0];
-  if (!pfile) {
-    throw CustomApiError.create(400, "No file uploaded");
-  }
-  const fileJson = pfile.toJSON();
-  // File should be JPEG or PNG
-  if (!/^image\/(jpeg|png|jpg)$/.test(fileJson.mimetype ?? "application/octet-stream")) {
-    return respond(res, { status: 400, error: `Invalid file type '${fileJson.mimetype}'` });
-  }
-
-  // Read file buffer
-  const fileBuffer = fs.readFileSync(fileJson.filepath);
-
-  const resizedImages = await resizeImage(fileBuffer);
-  const bucket = FirebaseStorage.bucket();
-  // Create upload promise and get image paths
-  const imagePaths = { small: "", medium: "", large: "" };
-  const uploadPromises = Object.entries(resizedImages).map(([size, imgWithSz]) => {
-    const filePath = StoragePaths.IdentityDocuments.gsBucket(uid, "GOV_ID", imgWithSz.sz, imgWithSz.sz);
-    imagePaths[size as keyof typeof imagePaths] = filePath;
-    const fileRef = bucket.file(filePath);
-    return fileRef.save(imgWithSz.img, { contentType: "image/jpeg" });
-  });
-  // Start upload
-  await Promise.all(uploadPromises);
   // Update Firestore with image paths
-  await Identity.update(uid, {
-    identityPhotos: {
-      govId: {
-        small: imagePaths.small,
-        medium: imagePaths.medium,
-        large: imagePaths.large,
-      },
-      govIdIsPrivate: true,
-    },
-  });
+  await IdentityRepo.update(uid, { identityPhotos: { govId: imagePaths, govIdIsPrivate: true } });
 
   return respond(res, { status: 200, message: "Upload successful" });
 });

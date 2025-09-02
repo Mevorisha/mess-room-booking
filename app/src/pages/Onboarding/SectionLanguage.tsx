@@ -8,7 +8,7 @@ import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
-import { Language } from "@/modules/networkTypes/Identity";
+import { Language } from "sharedtypes";
 
 export default function SetLanguage(): React.ReactNode {
   const langCtx = useContext(LanguageContext);
@@ -54,10 +54,12 @@ export default function SetLanguage(): React.ReactNode {
             {" एक भाषा चयन करें।"}
           </p>
         </div>
-
-        <ButtonText rounded="all" title="English" kind={btnKind["ENGLISH"]} onClick={() => handleSubmit("ENGLISH")} />
-        <ButtonText rounded="all" title="বাংলা" kind={btnKind["BANGLA"]} onClick={() => handleSubmit("BANGLA")} />
-        <ButtonText rounded="all" title="हिंदी" kind={btnKind["HINDI"]} onClick={() => handleSubmit("HINDI")} />
+        { /* prettier-ignore */ }
+        <ButtonText rounded="all" title="English" kind={btnKind[Language.ENGLISH]} onClick={() => handleSubmit(Language.ENGLISH)} />
+        { /* prettier-ignore */ }
+        <ButtonText rounded="all" title="বাংলা" kind={btnKind[Language.BANGLA]} onClick={() => handleSubmit(Language.BANGLA)} />
+        { /* prettier-ignore */ }
+        <ButtonText rounded="all" title="हिंदी" kind={btnKind[Language.HINDI]} onClick={() => handleSubmit(Language.HINDI)} />
       </div>
     </div>
   );

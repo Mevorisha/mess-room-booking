@@ -1,10 +1,14 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
-import Identity, { PsudoFields, SchemaFields } from "@/models/Identity";
 import { respond } from "@/utils/respond";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { IdentityRepo } from "@/repo/IdentityRepo";
+import { ApiResponseUrlType, HttpMethodTypes } from "sharedtypes";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
 
 /**
  * ```
@@ -25,7 +29,7 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *
  * < The following need authentication >
  *
- *   email?: string
+ *   email: string
  *   type?: IdentityType
  *   language?: Language
  *   identityPhotos?: {
@@ -42,52 +46,38 @@ import { RateLimits } from "@/middlewares/RateLimiter";
  *     workIdIsPrivate?: boolean
  *     govIdIsPrivate?: boolean
  *   }
- *   createdOn?: string (ISO date)
- *   lastModifiedOn?: string (ISO date)
+ *   createdOn: string (ISO date)
+ *   lastModifiedOn: string (ISO date)
+ *   ttl?: string (ISO date)
+ *   isDeleted: boolean
  * }
  * ```
  */
 export default WithMiddleware(async function GET(req: NextApiRequest, res: NextApiResponse) {
-  // Allow only GET requests
-  if (req.method !== "GET") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
-  // Extract UID from the query
-  const uid = req.query["uid"] as string;
-  if (!uid) {
-    throw CustomApiError.create(400, "Missing field 'uid: string'");
-  }
+  const { uid } = RequestValidationParser.parse({
+    req,
+    method: HttpMethodTypes.GET,
+    params: z.object({ uid: CommonZodSchemas.Basic.UID }),
+  });
 
   if (!(await RateLimits.PROFILE_READ(req, res))) return;
-
-  const fields = [
-    PsudoFields.DISPLAY_NAME,
-    SchemaFields.FIRST_NAME,
-    SchemaFields.LAST_NAME,
-    SchemaFields.MOBILE,
-    SchemaFields.PROFILE_PHOTOS,
-  ];
 
   // If logged-in, send additional identity information
   const authResult = await getLoggedInUser(req);
   if (authResult.isSuccess()) {
     const loggedInUid = authResult.getUid();
     if (loggedInUid === uid) {
-      fields.push(
-        SchemaFields.EMAIL,
-        SchemaFields.TYPE,
-        SchemaFields.IDENTITY_PHOTOS,
-        SchemaFields.LANGUAGE,
-        SchemaFields.CREATED_ON,
-        SchemaFields.LAST_MODIFIED_ON,
-        SchemaFields.TTL
-      );
+      const result = await IdentityRepo.findById(uid, ApiResponseUrlType.API_URI, { auth: true });
+      if (result == null) {
+        throw CustomApiError.create(404, "User not found");
+      }
+      return respond(res, { status: 200, dto: result });
     }
   }
 
-  const result = await Identity.get(uid, "API_URI", fields);
-  if (!result) {
+  const result = await IdentityRepo.findById(uid, ApiResponseUrlType.API_URI, { auth: false });
+  if (result == null) {
     throw CustomApiError.create(404, "User not found");
   }
-  return respond(res, { status: 200, json: result });
+  return respond(res, { status: 200, dto: result });
 });

@@ -1,99 +1,107 @@
 import React, { useState, useEffect } from "react";
 import { lang } from "@/modules/util/language";
 import ButtonText from "@/components/ButtonText";
-import { RoomQuery } from "@/modules/networkTypes/Room";
 import useDialog from "@/hooks/dialogbox";
+import useNotification from "@/hooks/notification";
+import { GenderOptions, OccupationOptions } from "@/pages/Home/sections/RoomCreateForm";
+import {
+  AcceptGender,
+  AcceptOccupation,
+  RoomGetReqQueryParamsWrapper,
+  QuerySortOrder,
+  RoomSortFields,
+  Nullable,
+} from "sharedtypes";
 
 import "./styles.css";
 
 interface FilterSearchProps {
-  currentFilters: RoomQuery;
-  handleFilterChange: (filters: Partial<RoomQuery>) => void;
-  handleFilterClear: () => void;
+  currentRoomQuery: RoomGetReqQueryParamsWrapper;
+  handleQueryChange: (filters: RoomGetReqQueryParamsWrapper) => void;
+  handleQueryClear: () => void;
   isDialog?: boolean;
 }
 
 export default function FilterSearch({
-  currentFilters,
-  handleFilterChange,
-  handleFilterClear,
+  currentRoomQuery,
+  handleQueryChange,
+  handleQueryClear,
   isDialog = false,
 }: FilterSearchProps): React.ReactNode {
   const dialog = useDialog();
+  const notify = useNotification();
 
   // Local state for filter values
-  const [genderFilter, setGenderFilter] = useState<RoomQuery["acceptGender"]>(currentFilters.acceptGender);
-  const [occupationFilter, setOccupationFilter] = useState<RoomQuery["acceptOccupation"]>(
-    currentFilters.acceptOccupation
-  );
-  const [capacityFilter, setCapacityFilter] = useState<number | undefined>(currentFilters.capacity);
-  const [priceRange, setPriceRange] = useState<{ low: number | undefined; high: number | undefined }>({
-    low: currentFilters.lowPrice,
-    high: currentFilters.highPrice,
+  const [genderFilter, setGenderFilter] = useState<GenderOptions>(currentRoomQuery.get("acceptGender"));
+  const [occupationFilter, setOccupationFilter] = useState<OccupationOptions>(currentRoomQuery.get("acceptOccupation"));
+  const [capacityFilter, setCapacityFilter] = useState<Nullable<number>>(currentRoomQuery.get("capacity"));
+  const [priceRange, setPriceRange] = useState<{ low: Nullable<number>; high: Nullable<number> }>({
+    low: currentRoomQuery.get("lowPrice"),
+    high: currentRoomQuery.get("highPrice"),
   });
   const [sortOption, setSortOption] = useState<{
-    sortOn?: RoomQuery["sortOn"];
-    sortOrder?: RoomQuery["sortOrder"];
+    sortOn: Nullable<RoomSortFields | "">;
+    sortOrder: Nullable<QuerySortOrder | "">;
   }>({
-    sortOn: currentFilters.sortOn,
-    sortOrder: currentFilters.sortOrder,
+    sortOn: currentRoomQuery.get("sortOn"),
+    sortOrder: currentRoomQuery.get("sortOrder"),
   });
 
   // Update local state when currentFilters change
   useEffect(() => {
-    setGenderFilter(currentFilters.acceptGender);
-    setOccupationFilter(currentFilters.acceptOccupation);
-    setCapacityFilter(currentFilters.capacity);
-    setPriceRange({
-      low: currentFilters.lowPrice,
-      high: currentFilters.highPrice,
-    });
-    setSortOption({
-      sortOn: currentFilters.sortOn,
-      sortOrder: currentFilters.sortOrder,
-    });
-  }, [currentFilters]);
+    setGenderFilter(currentRoomQuery.get("acceptGender") ?? null);
+    setOccupationFilter(currentRoomQuery.get("acceptOccupation") ?? null);
+    setCapacityFilter(currentRoomQuery.get("capacity") ?? null);
+    setPriceRange({ low: currentRoomQuery.get("lowPrice"), high: currentRoomQuery.get("highPrice") });
+    setSortOption({ sortOn: currentRoomQuery.get("sortOn"), sortOrder: currentRoomQuery.get("sortOrder") });
+  }, [currentRoomQuery]);
 
   // Apply filters
   function handleApplyAction() {
     // First, create an object with only the non-null fields
-    const filterParams: Partial<RoomQuery> = {};
+    const filterParamsResult = RoomGetReqQueryParamsWrapper.create();
+    if (filterParamsResult.isErr) {
+      // Handle error coz this function returns void (so no promise chains)
+      notify(filterParamsResult.error, "error");
+      return;
+    }
+    const filterParams = filterParamsResult.value;
     // Add each property only if it's not null or undefined
     if (genderFilter != null) {
-      filterParams.acceptGender = genderFilter;
+      filterParams.set("acceptGender", genderFilter);
     }
     if (occupationFilter != null) {
-      filterParams.acceptOccupation = occupationFilter;
+      filterParams.set("acceptOccupation", occupationFilter);
     }
     if (capacityFilter != null) {
-      filterParams.capacity = capacityFilter;
+      filterParams.set("capacity", capacityFilter);
     }
-    if (priceRange.low != null) {
-      filterParams.lowPrice = priceRange.low;
+    if (priceRange.low != null && !Number.isNaN(priceRange.low)) {
+      filterParams.set("lowPrice", priceRange.low);
     }
-    if (priceRange.high != null) {
-      filterParams.highPrice = priceRange.high;
+    if (priceRange.high != null && !Number.isNaN(priceRange.low)) {
+      filterParams.set("highPrice", priceRange.high);
     }
-    if (sortOption.sortOn != null) {
-      filterParams.sortOn = sortOption.sortOn;
+    if (sortOption.sortOn != null && sortOption.sortOn !== "") {
+      filterParams.set("sortOn", sortOption.sortOn);
     }
-    if (sortOption.sortOrder != null) {
-      filterParams.sortOrder = sortOption.sortOrder;
+    if (sortOption.sortOrder != null && sortOption.sortOrder !== "") {
+      filterParams.set("sortOrder", sortOption.sortOrder);
     }
     // Pass only the non-null fields to the function
-    handleFilterChange(filterParams);
+    handleQueryChange(filterParams);
     if (isDialog) dialog.hide();
   }
 
   // Clear all filters
   function handleClearAction() {
     // Reset to currentFilters
-    setGenderFilter(currentFilters.acceptGender);
-    setOccupationFilter(currentFilters.acceptOccupation);
-    setCapacityFilter(currentFilters.capacity);
-    setPriceRange({ low: currentFilters.lowPrice, high: currentFilters.highPrice });
-    setSortOption({ sortOn: currentFilters.sortOn, sortOrder: currentFilters.sortOrder });
-    handleFilterClear();
+    setGenderFilter(currentRoomQuery.get("acceptGender"));
+    setOccupationFilter(currentRoomQuery.get("acceptOccupation"));
+    setCapacityFilter(currentRoomQuery.get("capacity"));
+    setPriceRange({ low: currentRoomQuery.get("lowPrice"), high: currentRoomQuery.get("highPrice") });
+    setSortOption({ sortOn: currentRoomQuery.get("sortOn"), sortOrder: currentRoomQuery.get("sortOrder") });
+    handleQueryClear();
     if (isDialog) dialog.hide();
   }
 
@@ -103,7 +111,7 @@ export default function FilterSearch({
         <h3>{lang("Filters", "ফিল্টার", "फिल्टर")}</h3>
         {isDialog && <i className="btn-close fa fa-close" onClick={() => dialog.hide()} />}
         {!isDialog && (
-          <button className="clear-filters-button" onClick={handleFilterClear}>
+          <button className="clear-filters-button" onClick={handleQueryClear}>
             {lang("Clear All", "সব পরিষ্কার করুন", "सभी साफ़ करें")}
           </button>
         )}
@@ -112,20 +120,20 @@ export default function FilterSearch({
         <h4>{lang("Gender", "লিঙ্গ", "लिंग")}</h4>
         <div className="filter-options">
           <div
-            className={`filter-option ${genderFilter === "MALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "MALE" ? void 0 : "MALE")}
+            className={`filter-option ${genderFilter === AcceptGender.MALE ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.MALE ? null : AcceptGender.MALE)}
           >
             {lang("Male", "পুরুষ", "पुरुष")}
           </div>
           <div
-            className={`filter-option ${genderFilter === "FEMALE" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "FEMALE" ? void 0 : "FEMALE")}
+            className={`filter-option ${genderFilter === AcceptGender.FEMALE ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.FEMALE ? null : AcceptGender.FEMALE)}
           >
             {lang("Female", "মহিলা", "महिला")}
           </div>
           <div
-            className={`filter-option ${genderFilter === "OTHER" ? "selected" : ""}`}
-            onClick={() => setGenderFilter(genderFilter === "OTHER" ? void 0 : "OTHER")}
+            className={`filter-option ${genderFilter === AcceptGender.OTHER ? "selected" : ""}`}
+            onClick={() => setGenderFilter(genderFilter === AcceptGender.OTHER ? null : AcceptGender.OTHER)}
           >
             {lang("Other", "অন্যান্য", "अन्य")}
           </div>
@@ -136,20 +144,20 @@ export default function FilterSearch({
         <h4>{lang("Occupation", "পেশা", "व्यवसाय")}</h4>
         <div className="filter-options">
           <div
-            className={`filter-option ${occupationFilter === "STUDENT" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "STUDENT" ? void 0 : "STUDENT")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.STUDENT ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.STUDENT ? null : AcceptOccupation.STUDENT)} // prettier-ignore
           >
             {lang("Student", "ছাত্র", "छात्र")}
           </div>
           <div
-            className={`filter-option ${occupationFilter === "PROFESSIONAL" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "PROFESSIONAL" ? void 0 : "PROFESSIONAL")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.PROFESSIONAL ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.PROFESSIONAL ? null : AcceptOccupation.PROFESSIONAL)} // prettier-ignore
           >
             {lang("Professional", "পেশাদার", "पेशेवर")}
           </div>
           <div
-            className={`filter-option ${occupationFilter === "ANY" ? "selected" : ""}`}
-            onClick={() => setOccupationFilter(occupationFilter === "ANY" ? void 0 : "ANY")}
+            className={`filter-option ${occupationFilter === AcceptOccupation.ANY ? "selected" : ""}`}
+            onClick={() => setOccupationFilter(occupationFilter === AcceptOccupation.ANY ? null : AcceptOccupation.ANY)} // prettier-ignore
           >
             {lang("Any", "যেকোনো", "कोई भी")}
           </div>
@@ -161,19 +169,19 @@ export default function FilterSearch({
         <div className="filter-options">
           <div
             className={`filter-option ${capacityFilter === 1 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 1 ? void 0 : 1)}
+            onClick={() => setCapacityFilter(capacityFilter === 1 ? null : 1)}
           >
             1 {lang("Person", "জন", "व्यक्ति")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 2 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 2 ? void 0 : 2)}
+            onClick={() => setCapacityFilter(capacityFilter === 2 ? null : 2)}
           >
             2 {lang("People", "জন", "लोग")}
           </div>
           <div
             className={`filter-option ${capacityFilter === 3 ? "selected" : ""}`}
-            onClick={() => setCapacityFilter(capacityFilter === 3 ? void 0 : 3)}
+            onClick={() => setCapacityFilter(capacityFilter === 3 ? null : 3)}
           >
             3+ {lang("People", "জন", "लोग")}
           </div>
@@ -187,15 +195,19 @@ export default function FilterSearch({
             type="number"
             placeholder={lang("Min", "সর্বনিম্ন", "न्यूनतम")}
             value={priceRange.low ?? ""}
-            onChange={(e) => setPriceRange({ ...priceRange, low: Number(e.target.value) })}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, low: e.target.value.length > 0 ? Number(e.target.value) : null })
+            }
             min="0"
           />
           <span className="range-separator">-</span>
           <input
             type="number"
             placeholder={lang("Max", "সর্বাধিক", "अधिकतम")}
-            value={priceRange.high ?? "(unset)"}
-            onChange={(e) => setPriceRange({ ...priceRange, high: Number(e.target.value) })}
+            value={priceRange.high ?? ""}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, high: e.target.value.length > 0 ? Number(e.target.value) : null })
+            }
             min={priceRange.low ?? 0}
           />
         </div>
@@ -205,10 +217,13 @@ export default function FilterSearch({
         <h4>{lang("Sort By", "সাজান", "सॉर्ट करें")}</h4>
         <div className="sort-options">
           <select
-            value={`${sortOption.sortOn ?? "(unset)"}-${sortOption.sortOrder ?? "(unset)"}`}
+            value={`${sortOption.sortOn}-${sortOption.sortOrder}`}
             onChange={(e) => {
-              const [sortOn, sortOrder] = e.target.value.split("-") as [RoomQuery["sortOn"], RoomQuery["sortOrder"]];
-              setSortOption({ sortOn: sortOn, sortOrder: sortOrder });
+              const [sortOn, sortOrder] = e.target.value.split("-") as [
+                Nullable<RoomSortFields | "">,
+                Nullable<QuerySortOrder | "">
+              ];
+              setSortOption({ sortOn, sortOrder });
             }}
           >
             <option value="">{lang("Default", "ডিফল্ট", "डिफ़ॉल्ट")}</option>

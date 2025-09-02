@@ -2,6 +2,7 @@
   "name": "mevorisha-mess-booking-apis",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev -p 3001 --turbopack --experimental-https",
     "build": "DISABLE_ESLINT_PLUGIN=true next build",
@@ -11,12 +12,13 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "firebase-admin": "^13.1.0",
-    "formidable": "^3.5.2",
-    "joi": "^17.13.3",
+    "formidable": "^3.5.4",
     "lru-cache": "^11.1.0",
     "next": "15.2.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sharedtypes": "file:../sharedtypes",
+    "zod": "^4.0.17"
   },
   "eslintConfig": {
     "extends": [
@@ -38,7 +40,8 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-    "typescript": "^5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.0"
   }
 }

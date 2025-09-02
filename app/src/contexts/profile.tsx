@@ -5,13 +5,19 @@ import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchFile, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { CachePaths } from "@/modules/util/caching.js";
 import { FirebaseAuth } from "@/modules/firebase/init.js";
-import { updateProfile, User as FirebaseUser } from "firebase/auth";
-import UploadedImage from "@/modules/classes/UploadedImage.js";
+import { updateProfile } from "firebase/auth";
+import {
+  ProfilePatchReqBodyDTO,
+  IdentityType,
+  HttpMethodTypes,
+  MultiSizeImageSz,
+  MultiSizePhotoDTO,
+} from "sharedtypes";
 
 /* ---------------------------------- PROFILE CONTEXT OBJECT ----------------------------------- */
 
 export interface ProfileContextType {
-  updateProfileType: (type: "TENANT" | "OWNER") => Promise<void>;
+  updateProfileType: (type: IdentityType) => Promise<void>;
   updateProfilePhoto: (image: File) => Promise<string>;
   updateProfileName: (firstName: string, lastName: string) => Promise<void>;
 }
@@ -28,14 +34,16 @@ export default ProfileContext;
 
 export function ProfileProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   const notify = useNotification();
-  const { user, dispatchUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   /* ------------------------------------ AUTH CONTEXT PROVIDER API FN ----------------------------------- */
 
   const updateProfileType = useCallback(
-    async (type: "TENANT" | "OWNER"): Promise<void> =>
-      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateType(user.uid), { type })
-        .then(() => dispatchUser({ type }))
+    async (type: IdentityType): Promise<void> => {
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const postBody = ProfilePatchReqBodyDTO.Type.create({ type }).unwrapOrThrow();
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateType(user.uid), postBody) // prettier-ignore
+        .then(() => setUser((user) => user?.clone().set("type", type)))
         .then(() =>
           notify(
             lang(
@@ -46,22 +54,30 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
             "success"
           )
         )
-        .catch((e: Error) => notify(e, "error")),
-    [user.uid, notify, dispatchUser]
+        .catch((e: Error) => notify(e, "error"));
+    },
+    [user.uid, notify, setUser]
   );
 
   const updateProfilePhoto = useCallback(
     async (image: File): Promise<string> => {
       // update auth profile
-      await apiPostOrPatchFile("PATCH", ApiPaths.Profile.updatePhoto(user.uid), image);
+      await apiPostOrPatchFile(HttpMethodTypes.PATCH, ApiPaths.Profile.updatePhoto(user.uid), image);
       const { small, medium, large } = {
-        small: ApiPaths.Profile.readImage(user.uid, "small"),
-        medium: ApiPaths.Profile.readImage(user.uid, "medium"),
-        large: ApiPaths.Profile.readImage(user.uid, "large"),
+        small: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.SMALL),
+        medium: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.MEDIUM),
+        large: ApiPaths.Profile.readImage(user.uid, MultiSizeImageSz.LARGE),
       };
       const cache = await caches.open(CachePaths.FILE_LOADER);
       await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
-      dispatchUser({ profilePhotos: new UploadedImage(user.uid, small, medium, large, false) });
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const photosDTO = MultiSizePhotoDTO.create({ small, medium, large }).unwrapOrThrow();
+      // SAME AS ABOVE:
+      // const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
+      // if (photosResult.isErr) {
+      //   return Promise.reject(photosResult.error);
+      // }
+      setUser((user) => user?.clone().set("profilePhotos", photosDTO));
       notify(
         lang(
           "Profile photo updated successfully",
@@ -73,16 +89,17 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
 
       return medium;
     },
-    [user.uid, notify, dispatchUser]
+    [user.uid, notify, setUser]
   );
 
   const updateProfileName = useCallback(
-    async (firstName: string, lastName: string): Promise<void> =>
-      apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateName(user.uid), { firstName, lastName })
-        .then(() =>
-          updateProfile(FirebaseAuth.currentUser as FirebaseUser, { displayName: `${firstName} ${lastName}` })
-        )
-        .then(() => dispatchUser({ firstName, lastName }))
+    async (firstName: string, lastName: string): Promise<void> => {
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      const postBody = ProfilePatchReqBodyDTO.Name.create({ firstName, lastName }).unwrapOrThrow();
+      await apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateName(user.uid), postBody)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        .then(() => updateProfile(FirebaseAuth.currentUser!, { displayName: `${firstName} ${lastName}` }))
+        .then(() => setUser((user) => user?.clone().set("firstName", firstName).set("lastName", lastName)))
         .then(() =>
           notify(
             lang(
@@ -93,8 +110,9 @@ export function ProfileProvider({ children }: { children: React.ReactNode }): Re
             "success"
           )
         )
-        .catch((e: Error) => notify(e, "error")),
-    [user.uid, notify, dispatchUser]
+        .catch((e: Error) => notify(e, "error"));
+    },
+    [user.uid, notify, setUser]
   );
 
   return (

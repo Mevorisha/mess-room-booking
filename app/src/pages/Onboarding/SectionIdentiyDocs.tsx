@@ -9,6 +9,7 @@ import ButtonText from "@/components/ButtonText";
 import ImageLoader from "@/components/ImageLoader";
 import DialogImagePreview from "@/components/DialogImagePreview";
 import { lang } from "@/modules/util/language.js";
+import { DocType, DocVisibility } from "sharedtypes";
 
 /**
  * Section where the user can upload their identity documents.
@@ -23,19 +24,27 @@ export default function SectionIdentiyDocs(): React.ReactNode {
 
   const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
 
-  function handleShowLargeImage(kind: "WORK_ID" | "GOV_ID") {
-    if (kind === "WORK_ID") {
-      if (compUsr.userCtx.user.identityPhotos?.workId == null) return;
-      dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.workId.large} />, "large");
+  function handleShowLargeImage(kind: DocType) {
+    if (kind === DocType.WORK_ID) {
+      if (compUsr.userCtx.user.get("identityPhotos")?.workId == null) return;
+      dialog.show(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+        <DialogImagePreview largeImageUrl={compUsr.userCtx.user.get("identityPhotos")?.workId!.large!} />,
+        "large"
+      );
     } else {
-      if (compUsr.userCtx.user.identityPhotos?.govId == null) return;
-      dialog.show(<DialogImagePreview largeImageUrl={compUsr.userCtx.user.identityPhotos.govId.large} />, "large");
+      if (compUsr.userCtx.user.get("identityPhotos")?.govId == null) return;
+      dialog.show(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+        <DialogImagePreview largeImageUrl={compUsr.userCtx.user.get("identityPhotos")?.govId!.large!} />,
+        "large"
+      );
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>, type: "WORK_ID" | "GOV_ID") {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>, type: DocType) {
     e.preventDefault();
-    if (type === "WORK_ID") {
+    if (type === DocType.WORK_ID) {
       loadFileFromFilePicker("image/*", maxSizeInBytes)
         .then((file) => compUsr.identityCtx.updateIdentityPhotos({ workId: file }))
         .then(() => setForceWorkImgReload((old) => old + 1))
@@ -48,22 +57,18 @@ export default function SectionIdentiyDocs(): React.ReactNode {
     }
   }
 
-  function handleVisibilityChange(
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: "WORK_ID" | "GOV_ID",
-    value: "PUBLIC" | "PRIVATE"
-  ) {
+  function handleVisibilityChange(e: React.ChangeEvent<HTMLInputElement>, type: DocType, value: DocVisibility) {
     e.preventDefault();
     switch (type) {
-      case "WORK_ID":
+      case DocType.WORK_ID:
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ workId: value })
           .then(() =>
             notify(
               lang(
-                `Made work ID '${value.toLocaleUpperCase()}'`,
-                `কাজ আইডি '${value.toLocaleUpperCase()}' করা হয়েছে`,
-                `कार्य आईडी '${value.toLocaleUpperCase()}' बनाई गई है`
+                `Made work ID '${value.toLocaleLowerCase()}'`,
+                `কাজ আইডি '${value.toLocaleLowerCase()}' করা হয়েছে`,
+                `कार्य आईडी '${value.toLocaleLowerCase()}' बनाई गई है`
               ),
               "success"
             )
@@ -71,15 +76,15 @@ export default function SectionIdentiyDocs(): React.ReactNode {
           .then(() => setForceWorkImgReload((old) => old + 1))
           .catch((e: Error) => notify(e, "error"));
         break;
-      case "GOV_ID":
+      case DocType.GOV_ID:
         compUsr.identityCtx
           .updateIdentityPhotosVisibility({ govId: value })
           .then(() =>
             notify(
               lang(
-                `Made gov ID '${value.toLowerCase()}'`,
-                `গভর্নমেন্ট আইডি '${value.toLowerCase()}' করা হয়েছে`,
-                `सरकारी आईडी '${value.toLowerCase()}' बनाई गई है`
+                `Made gov ID '${value.toLocaleLowerCase()}'`,
+                `গভর্নমেন্ট আইডি '${value.toLocaleLowerCase()}' করা হয়েছে`,
+                `सरकारी आईडी '${value.toLocaleLowerCase()}' बनाई गई है`
               ),
               "success"
             )
@@ -122,17 +127,18 @@ export default function SectionIdentiyDocs(): React.ReactNode {
         </div>
 
         <div className="uploadid-container">
-          {compUsr.userCtx.user.identityPhotos?.workId != null ? (
-            <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
+          {compUsr.userCtx.user.get("identityPhotos")?.workId != null ? (
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, DocType.WORK_ID)}>
               <h4 style={{ margin: 0, width: "100%" }}>Work ID</h4>
               <div className="update-id">
                 <ImageLoader
                   requireAuth
                   forceReloadState={forceWorkImgReload}
                   alt={lang("Work ID", "কাজের আইডি", "काम के लिए आईडी")}
-                  src={compUsr.userCtx.user.identityPhotos.workId.medium}
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                  src={compUsr.userCtx.user.get("identityPhotos")?.workId!.medium!}
                   className="preview-img"
-                  onClick={() => handleShowLargeImage("WORK_ID")}
+                  onClick={() => handleShowLargeImage(DocType.WORK_ID)}
                 />
                 <div className="id-visibility">
                   <label>
@@ -140,8 +146,9 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={!compUsr.userCtx.user.identityPhotos.workId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PUBLIC")}
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                      checked={!compUsr.userCtx.user.get("identityPhotos")?.workIdIsPrivate!}
+                      onChange={(e) => handleVisibilityChange(e, DocType.WORK_ID, DocVisibility.PUBLIC)}
                     />
                     {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
@@ -150,8 +157,8 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={compUsr.userCtx.user.identityPhotos.workId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "WORK_ID", "PRIVATE")}
+                      checked={compUsr.userCtx.user.get("identityPhotos")?.workIdIsPrivate}
+                      onChange={(e) => handleVisibilityChange(e, DocType.WORK_ID, DocVisibility.PRIVATE)}
                     />
                     {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>
@@ -160,7 +167,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
               </div>
             </form>
           ) : (
-            <form className="form-container" onSubmit={(e) => handleSubmit(e, "WORK_ID")}>
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, DocType.WORK_ID)}>
               <div className="missing-id">
                 <div>
                   <h4>{lang("Work ID", "কাজের আইডি", "काम के लिए आईडी")}</h4>
@@ -173,17 +180,18 @@ export default function SectionIdentiyDocs(): React.ReactNode {
         </div>
 
         <div className="uploadid-container">
-          {compUsr.userCtx.user.identityPhotos?.govId != null ? (
-            <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
+          {compUsr.userCtx.user.get("identityPhotos")?.govId != null ? (
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, DocType.WORK_ID)}>
               <h4 style={{ margin: 0, width: "100%" }}>Government ID</h4>
               <div className="update-id">
                 <ImageLoader
                   requireAuth
                   forceReloadState={forceGovImgReload}
                   alt={lang("Government ID", "সরকারি আইডি", "सरकारी आईडी")}
-                  src={compUsr.userCtx.user.identityPhotos.govId.medium}
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                  src={compUsr.userCtx.user.get("identityPhotos")?.govId!.medium!}
                   className="preview-img"
-                  onClick={() => handleShowLargeImage("GOV_ID")}
+                  onClick={() => handleShowLargeImage(DocType.WORK_ID)}
                 />
                 <div className="id-visibility">
                   <label>
@@ -191,8 +199,9 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       type="radio"
                       name="visibility"
                       value="public"
-                      checked={!compUsr.userCtx.user.identityPhotos.govId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PUBLIC")}
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                      checked={!compUsr.userCtx.user.get("identityPhotos")?.govIdIsPrivate!}
+                      onChange={(e) => handleVisibilityChange(e, DocType.GOV_ID, DocVisibility.PUBLIC)}
                     />
                     {lang("Public", "পাবলিক", "पब्लिक")}
                   </label>
@@ -201,8 +210,8 @@ export default function SectionIdentiyDocs(): React.ReactNode {
                       type="radio"
                       name="visibility"
                       value="private"
-                      checked={compUsr.userCtx.user.identityPhotos.govId.isPrivate}
-                      onChange={(e) => handleVisibilityChange(e, "GOV_ID", "PRIVATE")}
+                      checked={compUsr.userCtx.user.get("identityPhotos")?.govIdIsPrivate}
+                      onChange={(e) => handleVisibilityChange(e, DocType.GOV_ID, DocVisibility.PRIVATE)}
                     />
                     {lang("Private", "প্রাইভেট", "प्राइवेट")}
                   </label>
@@ -211,7 +220,7 @@ export default function SectionIdentiyDocs(): React.ReactNode {
               </div>
             </form>
           ) : (
-            <form className="form-container" onSubmit={(e) => handleSubmit(e, "GOV_ID")}>
+            <form className="form-container" onSubmit={(e) => handleSubmit(e, DocType.GOV_ID)}>
               <div className="missing-id">
                 <div>
                   <h4>{lang("Government ID", "সরকারি আইডি", "सरकारी आईडी")}</h4>

@@ -53,9 +53,9 @@ export class AuthResult {
       if (typeof this.#uid === "string") {
         return this.#uid;
       } else {
-        throw CustomApiError.create(500, "Auth error");
+        throw CustomApiError.create(500, "Internal Server Error", "Authentication failure: UID is not a string");
       }
     }
-    throw CustomApiError.create(500, "Authentication failure");
+    throw CustomApiError.create(500, "Internal Server Error", "Authentication failure: Invalid auth state");
   }
 }

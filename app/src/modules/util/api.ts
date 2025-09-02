@@ -1,9 +1,20 @@
 import { FirebaseAuth } from "@/modules/firebase/init.js";
 import { lang } from "./language.js";
 import * as config from "@/modules/config.js";
-import { MultiSizeImageSz } from "@/modules/networkTypes/MultiSizePhoto.js";
-import { RoomQuery } from "@/modules/networkTypes/Room.js";
-import JsonDataType from "@/modules/networkTypes/JsonData.js";
+import {
+  ADataTransferObj,
+  DtoValidationError,
+  HeaderTypes,
+  HttpMethodTypes,
+  LogType,
+  NetworkType,
+  Result,
+  RoomGetReqQueryParamsWrapper,
+  MultiSizeImageSz,
+  DocType,
+  Nullable,
+  UNKNOWN_STR,
+} from "sharedtypes";
 
 export class ApiPaths {
   static ACCOUNTS = `${config.API_SERVER_URL}/api/accounts`;
@@ -30,9 +41,9 @@ export class ApiPaths {
 
   // prettier-ignore
   static IdentityDocs = {
-    readImage: (type: "GOV_ID" | "WORK_ID", uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
-    updateImage: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateImage`,
-    updateVisibility: (type: "GOV_ID" | "WORK_ID", uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
+    readImage: (type: DocType, uid: string, size: MultiSizeImageSz, b64 = true): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/readImage?size=${size}&b64=${b64}`,
+    updateImage: (type: DocType, uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateImage`,
+    updateVisibility: (type: DocType, uid: string): string => `${ApiPaths.ID_DOCS}/${uid}/${type}/updateVisibility`,
   };
 
   // prettier-ignore
@@ -52,23 +63,8 @@ export class ApiPaths {
     create: (): string => `${ApiPaths.ROOMS}/create`,
     delete: (roomId: string, force?: boolean): string => `${ApiPaths.ROOMS}/${roomId}/delete?force=${force ?? false}`,
     restore: (roomId: string): string => `${ApiPaths.ROOMS}/${roomId}/restore`,
-    readListOnQuery: (query: RoomQuery = {}): string => {
-      const params = new URLSearchParams();
-      if (null != query.self) params.append("self", "" + query.self);
-      if (null != query.acceptGender) params.append("acceptGender", query.acceptGender);
-      if (null != query.acceptOccupation) params.append("acceptOccupation", query.acceptOccupation);
-      if (null != query.landmark) params.append("landmark", query.landmark);
-      if (null != query.city) params.append("city", query.city);
-      if (null != query.state) params.append("state", query.state);
-      if (null != query.capacity) params.append("capacity", "" + query.capacity);
-      if (null != query.lowPrice) params.append("lowPrice", "" + query.lowPrice);
-      if (null != query.highPrice) params.append("highPrice", "" + query.highPrice);
-      if (null != query.searchTags && query.searchTags.length > 0) params.append("searchTags", query.searchTags.join(","));
-      if (null != query.sortOn) params.append("sortOn", query.sortOn);
-      if (null != query.sortOrder) params.append("sortOrder", query.sortOrder);
-      if (null != query.page) params.append("page", "" + query.page);
-      if (null != query.invalidateCache) params.append("invalidateCache", "" + query.invalidateCache);
-      const queryString = params.toString();
+    readListOnQuery: (query: RoomGetReqQueryParamsWrapper): string => {
+      const queryString = query.toQueryParams().toString();
       return `${ApiPaths.ROOMS}/readListOnQuery${(queryString.length > 0) ? "?" + queryString : ""}`;
     },
     read: (roomId: string): string => `${ApiPaths.ROOMS}/${roomId}/read`,
@@ -87,8 +83,15 @@ export class ApiPaths {
   };
 
   static Logs = {
-    put: (type: "info" | "error"): string => `${ApiPaths.LOGS}/put?type=${type}`,
+    put: (type: LogType): string => `${ApiPaths.LOGS}/put?type=${type}`,
   };
+}
+
+// ---------------------------------------- errorHandlerWrapperOnCallApi --------------------------------------------------
+
+interface JsonDataType {
+  message?: string;
+  error?: string;
 }
 
 export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Response>): Promise<Response> {
@@ -98,7 +101,7 @@ export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Respo
     else {
       const contentType = response.headers.get("content-type");
       const isJson = contentType?.includes("application/json") ?? false;
-      const jsonData: JsonDataType | null = isJson ? ((await response.json()) as JsonDataType) : null;
+      const jsonData: Nullable<JsonDataType> = isJson ? ((await response.json()) as JsonDataType) : null;
       if (jsonData?.message != null) {
         return Promise.reject(new Error(jsonData.message));
       } else if (jsonData?.error != null) {
@@ -123,69 +126,106 @@ export async function errorHandlerWrapperOnCallApi(callback: () => Promise<Respo
   }
 }
 
+// ---------------------------------------- apiGetOrDelete --------------------------------------------------
+
+export async function apiGetOrDelete(method: HttpMethodTypes.DELETE, path: string): Promise<{ json: NetworkType }>;
+
+export async function apiGetOrDelete<T extends ADataTransferObj>(
+  method: HttpMethodTypes.GET,
+  path: string,
+  dtoClass: { fromJson(data: NetworkType): Result<T, DtoValidationError> }
+): Promise<{ dto: T }>;
+
 export async function apiGetOrDelete(
-  method: "GET" | "DELETE",
+  method: HttpMethodTypes.GET,
   path: string
-): Promise<{ json?: object; blob?: Blob; text?: string }> {
+): Promise<{ json?: NetworkType; blob?: Blob }>;
+
+// Implementation
+export async function apiGetOrDelete<T extends ADataTransferObj>(
+  method: HttpMethodTypes.GET | HttpMethodTypes.DELETE,
+  path: string,
+  dtoClass?: { fromJson(data: NetworkType): Result<T, DtoValidationError> }
+): Promise<{ json?: NetworkType; dto?: T; blob?: Blob }> {
   const response = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        "Content-Type": "application/json",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
+        [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
     })
   );
+
   const contentType = response.headers.get("content-type");
   const isJson = contentType?.includes("application/json") ?? false;
   const isText = contentType?.includes("text/plain") ?? false;
+
+  if (method === HttpMethodTypes.DELETE) {
+    return { json: await response.json() };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (method === HttpMethodTypes.GET && dtoClass != null && isJson) {
+    const data = (await response.json()) as NetworkType;
+    // Throw error so that it is handled in the promise chain rather than resolving here as success
+    const dto = dtoClass.fromJson(data).unwrapOrThrow();
+    // SAME AS ABOVE:
+    // const dtoResult = dtoClass.fromJson(data);
+    // if (dtoResult.isErr) {
+    //   return Promise.reject(dtoResult.error);
+    // }
+    return { dto };
+  }
+
   if (isJson) {
-    return { json: (await response.json()) as object };
+    return { json: await response.json() };
   } else if (isText) {
-    return { text: await response.text() };
+    // can return as plain text JSON
+    return { json: await response.text() };
   } else {
     return { blob: await response.blob() };
   }
 }
 
-/**
- * @param {"POST" | "PATCH"} method
- * @param {string} path The API call path. Get this from ApiPaths class
- * @param {Object} json
- * @returns {Promise<Object>}
- */
-export async function apiPostOrPatchJson(method: "POST" | "PATCH", path: string, json: object): Promise<object> {
+// ---------------------------------------- apiPostOrPatchJson --------------------------------------------------
+
+export async function apiPostOrPatchJson(
+  method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
+  path: string,
+  dto?: ADataTransferObj
+): Promise<NetworkType> {
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        "Content-Type": "application/json",
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
+        [HeaderTypes.CONTENT_TYPE]: "application/json",
       },
-      body: JSON.stringify(json),
+      body: dto != null ? JSON.stringify(dto.toJSON()) : null,
     })
   );
-  return (await resonse.json()) as object;
+  return resonse.json();
 }
 
-/**
- * @param {"POST" | "PATCH"} method
- * @param {string} path The API call path. Get this from ApiPaths class
- * @param {File} file
- * @returns {Promise<Object>}
- */
-export async function apiPostOrPatchFile(method: "POST" | "PATCH", path: string, file: File): Promise<object> {
+// ---------------------------------------- apiPostOrPatchFile --------------------------------------------------
+
+export async function apiPostOrPatchFile(
+  method: HttpMethodTypes.POST | HttpMethodTypes.PATCH,
+  path: string,
+  file: File
+): Promise<NetworkType> {
   const formData = new FormData();
   formData.append(file.name, file);
   const resonse = await errorHandlerWrapperOnCallApi(async () =>
     fetch(path, {
       method,
       headers: {
-        "X-Firebase-Token": (await FirebaseAuth.currentUser?.getIdToken()) ?? "",
-        // "Content-Type": "", <-- To be set by browser for formdata, DO NOT set manually
+        [HeaderTypes.X_FIREBASE_TOKEN]: (await FirebaseAuth.currentUser?.getIdToken()) ?? UNKNOWN_STR,
+        // [HeaderTypes.CONTENT_TYPE]: void 0, <-- To be set by browser for formdata, DO NOT set manually
       },
       body: formData,
     })
   );
-  return (await resonse.json()) as object;
+  return resonse.json();
 }

@@ -1,16 +1,36 @@
 import { FirebaseAuth } from "@/modules/firebase/init";
-import { lang } from "@/modules/util/language";
-import UploadedImage from "@/modules/classes/UploadedImage";
+import {
+  IdentityGetResBodyWithAuthDTO,
+  IdentityPhotosDTO,
+  IdentityType,
+  MultiSizePhotoDTO,
+  Nullable,
+} from "sharedtypes";
+import { instanceToPlain } from "class-transformer";
 
-export default class User {
+type SetterParams = Partial<{
   uid: string;
   email: string;
+  type: IdentityType;
   mobile: string;
   firstName: string;
   lastName: string;
-  profilePhotos: UploadedImage | null;
-  identityPhotos: { workId?: UploadedImage; govId?: UploadedImage } | null;
-  type: "EMPTY" | "TENANT" | "OWNER";
+  profilePhotos: MultiSizePhotoDTO;
+  identityPhotos: IdentityPhotosDTO;
+  identity: IdentityGetResBodyWithAuthDTO;
+}>;
+
+interface ConstructorParams {
+  uid: string;
+  email: string;
+  idDTO?: IdentityGetResBodyWithAuthDTO;
+}
+
+export default class IdentityWrapper {
+  uid: string;
+  email: string;
+
+  private identity?: IdentityGetResBodyWithAuthDTO;
 
   /**
    * The type is set to "EMPTY" by default.
@@ -21,155 +41,171 @@ export default class User {
    * Firebase Auth User object. It is to be set using the setPhotoURL method after the user details
    * are fetched from the database.
    */
-  constructor(uid: string, email = "", mobile = "", firstName = "", lastName = "") {
+  constructor(params: ConstructorParams) {
+    const { uid, email, idDTO } = params;
     this.uid = uid;
     this.email = email;
-    this.mobile = mobile;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.profilePhotos = null;
-    this.identityPhotos = null;
-    this.type = "EMPTY";
+    if (idDTO != null) {
+      this.identity = idDTO;
+    }
   }
 
-  static empty(): User {
-    return new User("", "");
+  get<K extends keyof SetterParams>(name: K): Nullable<SetterParams[K]> {
+    switch (name) {
+      case "uid":
+        return this.uid as never;
+      case "email":
+        return this.email as never;
+      case "identity":
+        return this.identity as never;
+      case "type":
+        return this.identity?.type as never;
+      case "firstName":
+        return this.identity?.firstName as never;
+      case "lastName":
+        return this.identity?.lastName as never;
+      case "mobile":
+        return this.identity?.mobile as never;
+      case "profilePhotos":
+        return this.identity?.profilePhotos as never;
+      case "identityPhotos":
+        return this.identity?.identityPhotos as never;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * @throws {Error}
+   */
+  set<K extends keyof SetterParams>(name: K, value: NonNullable<SetterParams[K]>): this {
+    if (this.identity == null) {
+      // when identity is null and someone wants to set something that's a prop of identity, fail
+      if (!["uid", "email", "identity"].includes(name)) {
+        throw new Error("User yet to be populated from Firebase");
+      }
+    }
+    switch (name) {
+      case "uid":
+        this.uid = value as never;
+        break;
+      case "email":
+        this.email = value as never;
+        break;
+      case "identity":
+        this.identity = value as never;
+        break;
+      case "type":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.type = value as never;
+        break;
+      case "firstName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.firstName = value as never;
+        break;
+      case "lastName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.lastName = value as never;
+        break;
+      case "mobile":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.mobile = value as never;
+        break;
+      case "profilePhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.profilePhotos = value as never;
+        break;
+      case "identityPhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.identity!.identityPhotos = value as never;
+        break;
+    }
+    return this;
+  }
+
+  /**
+   * @throws {Error}
+   */
+  unset<K extends keyof Omit<SetterParams, "uid" | "email">>(name: K): this {
+    if (this.identity == null) {
+      // when identity is null and someone wants to unset something that's a prop of identity or identity itself, fail
+      if (!["uid", "email"].includes(name)) {
+        throw new Error("User yet to be populated from Firebase");
+      }
+    }
+    switch (name) {
+      case "identity":
+        delete this.identity;
+        break;
+      case "type":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.type;
+        break;
+      case "firstName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.firstName;
+        break;
+      case "lastName":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.lastName;
+        break;
+      case "mobile":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.mobile;
+        break;
+      case "profilePhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.profilePhotos;
+        break;
+      case "identityPhotos":
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        delete this.identity!.identityPhotos;
+        break;
+    }
+    return this;
   }
 
   /**
    * Extracts user details from Firebase Auth User object.
    */
-  static fromFirebaseAuthUser(user: import("firebase/auth").User): User {
-    return new User(user.uid, user.email ?? "");
+  static fromFirebaseAuthUser(user: import("firebase/auth").User): Nullable<IdentityWrapper> {
+    if (user.email != null) return new IdentityWrapper({ uid: user.uid, email: user.email });
+    else return null;
   }
 
   /**
    * Loads the current user from Firebase Auth.
    */
-  static loadCurrentUser(): User {
-    const authUser = FirebaseAuth.currentUser;
-    if (authUser == null) return User.empty();
-    return User.fromFirebaseAuthUser(authUser);
+  static loadCurrentUser(): Nullable<IdentityWrapper> {
+    return FirebaseAuth.currentUser != null ? IdentityWrapper.fromFirebaseAuthUser(FirebaseAuth.currentUser) : null;
   }
 
-  isNotEmpty(): boolean {
-    return this.uid !== "";
+  static invalid(): IdentityWrapper {
+    return new IdentityWrapper({ uid: "", email: "" });
   }
 
-  clone(): User {
-    const user = new User(this.uid, this.email, this.mobile, this.firstName, this.lastName);
+  isInvalid(): boolean {
+    return this.uid === "";
+  }
 
-    if (this.type != "EMPTY") user.setType(this.type);
-
-    if (this.profilePhotos != null) user.setProfilePhotos(this.profilePhotos.clone());
-    if (this.identityPhotos != null) {
-      const workId = this.identityPhotos.workId?.clone();
-      const govId = this.identityPhotos.govId?.clone();
-      if (workId != null && govId != null) {
-        user.setIdentityPhotos({ workId, govId });
-      } else if (workId == null && govId != null) {
-        user.setIdentityPhotos({ govId });
-      } else if (workId != null && govId == null) {
-        user.setIdentityPhotos({ workId });
-      }
+  /**
+   * @throws {DtoValidationError}
+   */
+  clone(): IdentityWrapper {
+    const params: ConstructorParams = { uid: this.uid, email: this.email };
+    if (this.identity != null) {
+      // Throw error coz there's no error handler at this level
+      params.idDTO = IdentityGetResBodyWithAuthDTO.create(this.identity).unwrapOrThrow();
     }
-
+    const user = new IdentityWrapper(params);
     return user;
   }
 
-  /**
-   * Type does not exist on Firebase Auth User object.
-   * Therefore, it is not included in the constructor.
-   * @param {"TENANT" | "OWNER"} type
-   * @returns {this}
-   */
-  setType(type: "TENANT" | "OWNER"): this {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * @param {UploadedImage} images
-   * @returns {this}
-   */
-  setProfilePhotos(images: UploadedImage): this {
-    this.profilePhotos = images;
-    return this;
-  }
-
-  /**
-   * @param {{ workId?: UploadedImage, govId?: UploadedImage }} images
-   * @returns {this}
-   */
-  setIdentityPhotos(images: { workId?: UploadedImage; govId?: UploadedImage }): this {
-    if (images.workId == null && images.govId == null)
-      throw new Error(
-        lang(
-          "At least one identity photo is required",
-          "কমপক্ষে একটি পরিচয় ছবি প্রয়োজন",
-          "कम से कम एक पहचान फोटो आवश्यक है"
-        )
-      );
-    const workId = images.workId ?? this.identityPhotos?.workId;
-    const govId = images.govId ?? this.identityPhotos?.govId;
-    if (workId != null && govId != null) {
-      this.identityPhotos = { workId, govId };
-    } else if (workId == null && govId != null) {
-      this.identityPhotos = { govId };
-    } else if (workId != null && govId == null) {
-      this.identityPhotos = { workId };
-    }
-    return this;
-  }
-
-  /**
-   * @param {string?} firstName
-   * @param {string?} lastName
-   * @returns {this}
-   */
-  setProfileName(firstName: string | null, lastName: string | null): this {
-    if (typeof firstName === "string") this.firstName = firstName;
-    if (typeof lastName === "string") this.lastName = lastName;
-    return this;
-  }
-
-  /**
-   * @param {string} email
-   * @returns {this}
-   */
-  setEmail(email: string): this {
-    this.email = email;
-    return this;
-  }
-
-  /**
-   * @param {string} mobile
-   * @returns {this}
-   */
-  setMobile(mobile: string): this {
-    this.mobile = mobile;
-    return this;
-  }
-
-  /**
-   * @returns {string}
-   */
   toString(): string {
-    return JSON.stringify(
-      {
-        uid: this.uid,
-        type: this.type,
-        mobile: this.mobile,
-        firstName: this.firstName,
-        lastName: this.lastName,
-        profilePhotos: this.profilePhotos?.toString(),
-        identityPhotos: {
-          workId: this.identityPhotos?.workId?.toString(),
-          govId: this.identityPhotos?.govId?.toString(),
-        },
-      },
-      null,
-      2
-    );
+    return JSON.stringify(this.toJSON(), null, 2);
+  }
+
+  toJSON(): object {
+    return instanceToPlain(this);
   }
 }

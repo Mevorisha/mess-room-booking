@@ -1,4 +1,5 @@
 import { NextApiRequest } from "next";
+import { UNKNOWN_STR } from "sharedtypes";
 
 export function getPossibleClientIp(req: NextApiRequest): string {
   const ipv4Regex = /\b(\d{1,3}\.){3}\d{1,3}\b/;
@@ -25,7 +26,7 @@ export function getPossibleClientIp(req: NextApiRequest): string {
       } else if (ipv6Regex.test(candidate)) {
         ip = candidate;
       } else {
-        ip = "unknown";
+        ip = UNKNOWN_STR;
       }
       break;
     }
@@ -33,14 +34,14 @@ export function getPossibleClientIp(req: NextApiRequest): string {
 
   // Fallback to remoteAddress
   if (ip == null) {
-    const remoteAddress = req.socket.remoteAddress ?? "unknown";
+    const remoteAddress = req.socket.remoteAddress ?? UNKNOWN_STR;
     const matchV4 = remoteAddress.match(ipv4Regex);
     if (matchV4 != null) {
       ip = matchV4[0];
     } else if (ipv6Regex.test(remoteAddress)) {
       ip = remoteAddress;
     } else {
-      ip = "unknown";
+      ip = UNKNOWN_STR;
     }
   }
 

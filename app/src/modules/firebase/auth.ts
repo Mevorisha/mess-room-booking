@@ -21,16 +21,17 @@ import ErrorMessages from "@/modules/errors/ErrorMessages.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import { AsyncLock } from "@/modules/util/asyncLock.js";
+import { HttpMethodTypes, IdentityPostReqBodyDTO, Nullable, UNKNOWN_STR } from "sharedtypes";
 
-let RecaptchaVerifierObject: RecaptchaVerifier | null = null;
-let RecaptchaVerifierConfirmationResult: ConfirmationResult | null = null;
+let RecaptchaVerifierObject: Nullable<RecaptchaVerifier> = null;
+let RecaptchaVerifierConfirmationResult: Nullable<ConfirmationResult> = null;
 
 export const AuthLock = {
   CREATING_USER: /** @type {AsyncLock} */ new AsyncLock(),
 };
 
 function onAuthStateChanged(
-  callback: (uid: import("firebase/auth").User | null) => void
+  callback: (uid: Nullable<import("firebase/auth").User>) => void
 ): import("firebase/auth").Unsubscribe {
   const unsubscribe = FirebaseAuth.onAuthStateChanged((user) => {
     if (user != null) {
@@ -118,7 +119,9 @@ class LinkMobileNumber {
   static async sendOtp(phoneNumber: string): Promise<void> {
     try {
       initializeRecaptcha();
-      if (RecaptchaVerifierObject == null) throw new Error("RecaptchaVerifierObject not intialized");
+      if (RecaptchaVerifierObject == null) {
+        return Promise.reject(new Error("RecaptchaVerifierObject not intialized"));
+      }
       const recaptchaVerifier: RecaptchaVerifier = RecaptchaVerifierObject;
       const confirmationResult = await signInWithPhoneNumber(FirebaseAuth, phoneNumber, recaptchaVerifier);
       RecaptchaVerifierConfirmationResult = confirmationResult;
@@ -156,7 +159,7 @@ class LinkMobileNumber {
       await linkWithCredential(FirebaseAuth.currentUser, phoneAuthCredential);
       // Optional: Update phone number in user's profile if linking is not required
       // await updatePhoneNumber(FirebaseAuth.currentUser, phoneAuthCredential);
-      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? "";
+      const phoneNumber = FirebaseAuth.currentUser.phoneNumber ?? UNKNOWN_STR;
       console.log("Phone number linked:", phoneNumber);
       return Promise.resolve(phoneNumber);
     } catch (e) {
@@ -200,16 +203,21 @@ class GoogleAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_google_register", "Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Google sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
 
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, GoogleAuth.googleProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -227,16 +235,20 @@ class AppleAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_apple_register", "Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Apple sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
-
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, AppleAuth.appleProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -254,16 +266,20 @@ class MicrosoftAuth {
    */
   static async register(): Promise<void> {
     await logError("auth_microsoft_register", "Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
-    throw new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED);
+    return Promise.reject(new Error("Microsoft sign-in: " + ErrorMessages.REGISTRATION_UNSUPPORTED));
   }
-
+  /**
+   * @throws {DtoValidationError | Error}
+   */
   static async login(): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { email, uid } } = await signInWithPopup(FirebaseAuth, MicrosoftAuth.microsoftProvider); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -275,13 +291,18 @@ class MicrosoftAuth {
 
 // Legacy (email) / Password Auth Wrapper
 class EmailPasswdAuth {
-  static async register(email: string, password: string): Promise<string> {
+  /**
+   * @throws {DtoValidationError | Error}
+   */
+  static async register(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { uid, email } } = await createUserWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -290,13 +311,18 @@ class EmailPasswdAuth {
     }
   }
 
-  static async login(email: string, password: string): Promise<string> {
+  /**
+   * @throws {DtoValidationError | Error}
+   */
+  static async login(incomingEmail: string, password: string): Promise<string> {
     try {
       AuthLock.CREATING_USER = AsyncLock.create();
-      const result = await signInWithEmailAndPassword(FirebaseAuth, email, password);
-      await apiPostOrPatchJson("POST", ApiPaths.Profile.create(), { email: result.user.email });
+      const { user: { uid, email } } = await signInWithEmailAndPassword(FirebaseAuth, incomingEmail, password); // prettier-ignore
+      if (email == null) return Promise.reject(new Error(lang("No e-mail provided", "কোনও ই-মেইল প্রদান করা হয়নি", "कोई ई-मेल प्रदान नहीं किया गया"))); // prettier-ignore
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      await apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Profile.create(), IdentityPostReqBodyDTO.create({ email }).unwrapOrThrow()); // prettier-ignore
       AuthLock.CREATING_USER.clear();
-      return Promise.resolve(result.user.uid);
+      return Promise.resolve(uid);
     } catch (e) {
       const error = e as Error & { code?: string };
       const errmsg = getCleanFirebaseErrMsg(error);
@@ -305,7 +331,7 @@ class EmailPasswdAuth {
     }
   }
 
-  static async requestPasswordReset(email = ""): Promise<void> {
+  static async requestPasswordReset(email: string = UNKNOWN_STR): Promise<void> {
     if (email.length === 0 && FirebaseAuth.currentUser?.email == null) {
       return Promise.reject(
         new Error(lang("No email provided.", "কোনও ইমেল প্রদান করা হয়নি।", "कोई ईमेल प्रदान नहीं किया गया।"))

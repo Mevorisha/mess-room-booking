@@ -1,13 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import useDialog from "@/hooks/dialogbox.js";
 
-import { base64FileDataToFile, fileToBase64FileData, sizehuman } from "@/modules/util/dataConversion.js";
+import {
+  AcceptGender,
+  AcceptOccupation,
+  Base64PhotoUploadDTO,
+  HttpMethodTypes,
+  MultipleErrors,
+  Nullable,
+  RoomPostReqBodyDTO,
+} from "sharedtypes";
+
+import {
+  base64FileDataToFile,
+  Base64FileUploadData,
+  fileToBase64FileData,
+  sizehuman,
+} from "@/modules/util/dataConversion.js";
 import { CachePaths, createNewCacheUrl, putLastCacheUrl } from "@/modules/util/caching.js";
 import { lang } from "@/modules/util/language.js";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import StringySet from "@/modules/classes/StringySet";
 import useNotification from "@/hooks/notification.js";
-import { AcceptGender, AcceptOccupation } from "@/modules/networkTypes/Room";
 
 import PillsInput from "@/components/PillsInput";
 import ButtonText from "@/components/ButtonText";
@@ -18,9 +32,8 @@ import "./styles.css";
 
 const SECTION_ROOM_FORM_CACHE_PATH = CachePaths.SECTION_ROOM_FORM;
 
-export type Base64FileData = import("@/modules/util/dataConversion.js").Base64FileData;
-export type GenderOptions = AcceptGender | null;
-export type OccupationOptions = AcceptOccupation | null;
+export type GenderOptions = Nullable<AcceptGender>;
+export type OccupationOptions = Nullable<AcceptOccupation>;
 
 export interface CachableDraftFormData {
   acceptGender: GenderOptions;
@@ -34,7 +47,7 @@ export interface CachableDraftFormData {
   minorTags: string[];
   capacity: number;
   pricePerOccupant: number;
-  files: Base64FileData[];
+  files: Base64FileUploadData[];
 }
 
 /**
@@ -54,19 +67,19 @@ export default function SectionRoomCreateForm({
   const notify = useNotification();
   const dialog = useDialog();
 
-  const [internalCacheUrl, setInternalCacheUrl] = useState<string | null>(draftCacheUrl ?? null);
+  const [internalCacheUrl, setInternalCacheUrl] = useState<Nullable<string>>(draftCacheUrl ?? null);
 
   const [acceptGender, setAcceptGender] = useState<GenderOptions>(null);
   const [acceptOccupation, setAcceptOccupation] = useState<OccupationOptions>(null);
   const [searchTagsSet, setSearchTagsSet] = useState<Set<string>>(new Set<string>());
-  const landmarkInput = useRef<HTMLInputElement | null>(null);
-  const addressInput = useRef<HTMLInputElement | null>(null);
-  const cityInput = useRef<HTMLInputElement | null>(null);
-  const stateInput = useRef<HTMLInputElement | null>(null);
+  const landmarkInput = useRef<HTMLInputElement>(null);
+  const addressInput = useRef<HTMLInputElement>(null);
+  const cityInput = useRef<HTMLInputElement>(null);
+  const stateInput = useRef<HTMLInputElement>(null);
   const [majorTagsSet, setMajorTagsSet] = useState<Set<string>>(new Set<string>());
   const [minorTagsSet, setMinorTagsSet] = useState<Set<string>>(new Set<string>());
-  const [capacity, setCapacity] = useState<string | null>(null);
-  const [pricePerOccupant, setPricePerOccupant] = useState<string | null>(null);
+  const [capacity, setCapacity] = useState<Nullable<string>>(null);
+  const [pricePerOccupant, setPricePerOccupant] = useState<Nullable<string>>(null);
 
   const [filesSet, setFilesSet] = useState<StringySet<FileRepr>>(new StringySet<FileRepr>());
 
@@ -91,7 +104,10 @@ export default function SectionRoomCreateForm({
       .open(SECTION_ROOM_FORM_CACHE_PATH)
       .then((cache) => cache.match(draftCacheUrl))
       .then((response) => response?.json())
-      .then((data?: CachableDraftFormData) => {
+      .then((json) => (json == null ? null : RoomPostReqBodyDTO.WithFiles.fromJson(json)))
+      // Throw error so that it is handled in the promise chain rather than resolving here as success
+      .then((cachedResult) => cachedResult?.unwrapOrThrow())
+      .then((data?: RoomPostReqBodyDTO.WithFiles) => {
         if (data == null) return;
         setAcceptGender(data.acceptGender);
         setAcceptOccupation(data.acceptOccupation);
@@ -102,8 +118,8 @@ export default function SectionRoomCreateForm({
         if (stateInput.current != null) stateInput.current.value = data.state;
         setMajorTagsSet(new Set(data.majorTags));
         setMinorTagsSet(new Set(data.minorTags));
-        setCapacity("" + data.capacity);
-        setPricePerOccupant("" + data.pricePerOccupant);
+        setCapacity(String(data.capacity));
+        setPricePerOccupant(String(data.pricePerOccupant));
         setFilesSet(new StringySet(data.files.map(base64FileDataToFile).map((f) => FileRepr.from(f))));
       })
       .catch((e: Error) => notify(e, "error"));
@@ -125,11 +141,47 @@ export default function SectionRoomCreateForm({
       .filter((fr) => fr.isFile())
       .map((fr) => fr.getFile());
 
+    // conert file data into photo dto
     const base64Files = await Promise.all(filesArray.map(fileToBase64FileData));
+    const b64DtoResults = base64Files.map((data) => Base64PhotoUploadDTO.fromJson(data));
+    const dtoErrors = b64DtoResults.filter((result) => result.isErr).map((result) => result.error);
+    const files = b64DtoResults.filter((result) => result.isOk).map((result) => result.value);
+    if (dtoErrors.length > 0) {
+      const errors = new MultipleErrors(dtoErrors);
+      if (files.length === 0) {
+        return Promise.reject(errors);
+      } else {
+        notify(errors, "error");
+        console.error(errors);
+      }
+    }
 
-    const formData: CachableDraftFormData = {
-      acceptGender,
-      acceptOccupation,
+    if (searchTagsSet.size === 0) {
+      return Promise.reject(
+        new Error(
+          lang(
+            "Search tags cannot be empty. Make sure you added the tag",
+            "সার্চ ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "सर्च टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
+        )
+      );
+    }
+    if (majorTagsSet.size === 0) {
+      return Promise.reject(
+        new Error(
+          lang(
+            "Major tags cannot be empty. Make sure you added the tag",
+            "প্রধান ট্যাগ খালি হতে পারবে না। নিশ্চিত করুন যে আপনি ট্যাগটি যোগ করেছেন",
+            "प्रधान टैग खाली नहीं हो सकते। सुनिश्चित करें कि आपने टैग जोड़ा है"
+          )
+        )
+      );
+    }
+
+    const formDataResult = RoomPostReqBodyDTO.WithFiles.create({
+      acceptGender: acceptGender as AcceptGender,
+      acceptOccupation: acceptOccupation as AcceptOccupation,
       searchTags: Array.from(searchTagsSet),
       landmark: landmarkInput.current.value,
       address: addressInput.current.value,
@@ -139,13 +191,18 @@ export default function SectionRoomCreateForm({
       minorTags: Array.from(minorTagsSet),
       capacity: Number(capacity),
       pricePerOccupant: Number(pricePerOccupant),
+      files,
+    });
 
-      files: base64Files,
-    };
+    if (formDataResult.isErr) {
+      return Promise.reject(formDataResult.error);
+    }
+
+    const formData = formDataResult.value;
 
     // save form data draft in cache
     if (submitAction === "save-draft") {
-      const jsonString = JSON.stringify(formData);
+      const jsonString = JSON.stringify(formData.toJSON());
       const cache = await caches.open(SECTION_ROOM_FORM_CACHE_PATH);
       const cacheUrl = internalCacheUrl ?? (await createNewCacheUrl(SECTION_ROOM_FORM_CACHE_PATH));
       await cache.put(cacheUrl, new Response(jsonString, { status: 200 }));
@@ -185,7 +242,7 @@ export default function SectionRoomCreateForm({
         ),
         "info"
       );
-      apiPostOrPatchJson("POST", ApiPaths.Rooms.create(), formData)
+      apiPostOrPatchJson(HttpMethodTypes.POST, ApiPaths.Rooms.create(), formData)
         .then((data) => data as { roomId: string })
         .then(({ roomId }) => console.log("Created room w/ ID:", roomId))
         .then(() => caches.open(SECTION_ROOM_FORM_CACHE_PATH))

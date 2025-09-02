@@ -2,14 +2,16 @@ import React, { useState, createContext, useCallback, useContext } from "react";
 import UserContext from "./user.jsx";
 import { ApiPaths, apiPostOrPatchJson } from "@/modules/util/api.js";
 import useNotification from "@/hooks/notification.js";
+import { HttpMethodTypes, Language, ProfilePatchReqBodyDTO } from "sharedtypes";
+import { getLangNotNull } from "@/modules/util/language.js";
 
 export interface LanguageContextType {
-  lang: "ENGLISH" | "BANGLA" | "HINDI";
-  setLang: (val: "ENGLISH" | "BANGLA" | "HINDI", updateRemote?: boolean) => void;
+  lang: Language;
+  setLang: (val: Language, updateRemote?: boolean) => void;
 }
 
 const LangContext = createContext<LanguageContextType>({
-  lang: (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI",
+  lang: getLangNotNull(),
   setLang: () => void 0,
 });
 
@@ -23,36 +25,30 @@ export function LanguageProvider({ children }: { children: React.ReactNode }): R
   } = useContext(UserContext);
   const notify = useNotification();
 
-  const [lang, _setLang] = useState((): "ENGLISH" | "BANGLA" | "HINDI" => {
-    const newLangSt = (window.localStorage.getItem("lang") ?? "ENGLISH") as "ENGLISH" | "BANGLA" | "HINDI";
-    return newLangSt;
-  });
+  const [lang, _setLang] = useState(getLangNotNull);
 
   const setLang = useCallback(
-    (newVal: "ENGLISH" | "BANGLA" | "HINDI", updateRemote = true) =>
-      _setLang((oldVal) => {
-        window.localStorage.setItem("lang", newVal);
+    (newLang: Language, updateRemote = true) =>
+      _setLang((oldLang) => {
+        window.localStorage.setItem("lang", newLang);
         if (updateRemote) {
-          apiPostOrPatchJson("PATCH", ApiPaths.Profile.updateLanguage(uid), { language: newVal })
+          const postBodyResult = ProfilePatchReqBodyDTO.Language.create({ language: newLang });
+          if (postBodyResult.isErr) {
+            // Handle error so that it is not thrown inside react
+            notify(postBodyResult.error, "error");
+            return oldLang;
+          }
+          apiPostOrPatchJson(HttpMethodTypes.PATCH, ApiPaths.Profile.updateLanguage(uid), postBodyResult.value) // prettier-ignore
             .then(() => {
               // ensure all modules are reloaded with the new language value
-              if (oldVal !== newVal) window.location.href = "/";
+              if (oldLang !== newLang) window.location.href = "/";
             })
             .catch((e: Error) => notify(e, "error"));
         }
-        return newVal;
+        return newLang;
       }),
     [_setLang, notify, uid]
   );
 
-  return (
-    <LangContext.Provider
-      value={{
-        lang,
-        setLang,
-      }}
-    >
-      {children}
-    </LangContext.Provider>
-  );
+  return <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>;
 }

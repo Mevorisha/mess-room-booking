@@ -1,10 +1,15 @@
+import z from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { respond } from "@/utils/respond";
 import { getLoggedInUser } from "@/middlewares/Auth";
 import { WithMiddleware } from "@/middlewares/WithMiddleware";
 import { CustomApiError } from "@/types/CustomApiError";
 import { RateLimits } from "@/middlewares/RateLimiter";
-import Room, { SchemaFields } from "@/models/Room";
+import { CommonZodSchemas } from "@/parsers/CommonZodSchemas";
+import { RequestValidationParser } from "@/parsers/RequestValidationParser";
+import { ApiResponseUrlType, HttpMethodTypes, RoomPatchReqBodyDTO } from "sharedtypes";
+import { RoomRepo } from "@/repo/RoomRepo";
+import { RoomService } from "@/services/Room/RoomService";
 
 /**
  * ```
@@ -13,24 +18,17 @@ import Room, { SchemaFields } from "@/models/Room";
  * ```
  */
 export default WithMiddleware(async function PATCH(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow PATCH method
-  if (req.method !== "PATCH") {
-    throw CustomApiError.create(405, "Method Not Allowed");
-  }
+  const { roomId } = RequestValidationParser.parse({
+    req,
+    method: HttpMethodTypes.PATCH,
+    params: z.object({ roomId: CommonZodSchemas.Basic.UID }),
+  });
 
-  const roomId = req.query["roomId"] as string;
-  if (!roomId) {
-    throw CustomApiError.create(400, "Missing field 'roomId: string'");
+  const bodyResult = RoomPatchReqBodyDTO.IsUnavailable.fromJson(req.body);
+  if (bodyResult.isErr) {
+    throw CustomApiError.create(400, "Bad Request", bodyResult.error);
   }
-
-  const _isUnavailable = req.body.isUnavailable;
-  if (_isUnavailable == null) {
-    throw CustomApiError.create(400, "Missing field 'isUnavailable: boolean'");
-  }
-  if (!["true", "false", true, false].includes(_isUnavailable)) {
-    throw CustomApiError.create(400, "Invalid field 'isUnavailable: boolean'");
-  }
-  const isUnavailable = _isUnavailable === "true" ? true : false;
+  const { isUnavailable } = bodyResult.value;
 
   // Auth middleware to get user
   const authResult = await getLoggedInUser(req);
@@ -39,14 +37,14 @@ export default WithMiddleware(async function PATCH(req: NextApiRequest, res: Nex
 
   if (!(await RateLimits.ROOM_UNAVAILABLITY_UPDATE(uid, req, res))) return;
 
-  const roomData = await Room.get(roomId, "GS_PATH", [SchemaFields.OWNER_ID]);
-  if (!roomData) {
+  const roomDto = await RoomRepo.findById(roomId, ApiResponseUrlType.GS_PATH);
+  if (roomDto == null) {
     throw CustomApiError.create(404, "Room not found");
   }
-  if (uid !== roomData?.ownerId) {
+  if (uid !== roomDto.ownerId) {
     throw CustomApiError.create(403, "Only owner can set room unavailability");
   }
 
-  await Room.setUnavailability(roomId, isUnavailable);
+  await RoomService.setUnavailability(roomId, isUnavailable);
   return respond(res, { status: 200, message: `Room ${roomId} marked ${isUnavailable ? "unavailable" : "available"}` });
 });

@@ -3,8 +3,8 @@ import "dotenv/config";
 if (process.env["ENVIRONMENT_TYPE"] == null) throw new Error(".env ENVIRONMENT_TYPE undefined");
 if (process.env["API_SERVER_ORIGIN"] == null) throw new Error(".env API_SERVER_ORIGIN undefined");
 if (process.env["WEB_SERVER_ORIGIN"] == null) throw new Error(".env WEB_SERVER_ORIGIN undefined");
-if (process.env["CORS_ALLOWED_ORIGINS"] == null) throw new Error(".env CORS_ALLOWED_ORIGINS undefined");
-if (process.env["CORS_ALLOW_EVERYTHING"] == null) throw new Error(".env CORS_ALLOW_EVERYTHING undefined");
+if (process.env["ALLOWED_ORIGINS"] == null) throw new Error(".env ALLOWED_ORIGINS undefined");
+if (process.env["ALLOW_ANY_ORIGIN"] == null) throw new Error(".env ALLOW_ANY_ORIGIN undefined");
 if (process.env["FIREBASE_PROJECT_ID"] == null) throw new Error(".env FIREBASE_PROJECT_ID undefined");
 if (process.env["FIREBASE_SERVICE_ACCOUNT_KEY"] == null) throw new Error(".env FIREBASE_SERVICE_ACCOUNT_KEY undefined");
 if (process.env["CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY"] == null) throw Error(".env CUSTOM_FIRESTORE_INDEX_ADMIN_SERVICE_ACCOUNT_KEY undefined"); // prettier-ignore
@@ -21,19 +21,31 @@ if (process.env["REDIS_URL"] == null) throw Error(".env REDIS_URL undefined");
 export const FIREBASE_PROJECT_ID =
   process.env["FIREBASE_PROJECT_ID"].length == 0 ? "mess-booking-app-serverless" : process.env["FIREBASE_PROJECT_ID"];
 
-export const API_SERVER_ORIGIN = process.env["API_SERVER_ORIGIN"];
+// vercel provide env info
+export const VERCEL_ENV = process.env["VERCEL_ENV"] ?? "development";
+export const VERCEL_URL = process.env["VERCEL_URL"];
+
+export const API_SERVER_ORIGIN =
+  VERCEL_ENV === "preview" && VERCEL_URL != null ? `https://${VERCEL_URL}` : process.env["API_SERVER_ORIGIN"];
+
 export const WEB_SERVER_ORIGIN = process.env["WEB_SERVER_ORIGIN"];
 
-export const CORS_ALLOWED_ORIGINS = JSON.parse(
-  process.env["CORS_ALLOWED_ORIGINS"].length == 0 ? "[]" : process.env["CORS_ALLOWED_ORIGINS"]
+export const ALLOWED_ORIGINS = JSON.parse(
+  process.env["ALLOWED_ORIGINS"].length == 0 ? "[]" : process.env["ALLOWED_ORIGINS"]
 ) as string[];
 
-CORS_ALLOWED_ORIGINS.push(API_SERVER_ORIGIN);
-CORS_ALLOWED_ORIGINS.push(WEB_SERVER_ORIGIN);
+ALLOWED_ORIGINS.push(API_SERVER_ORIGIN);
+ALLOWED_ORIGINS.push(WEB_SERVER_ORIGIN);
 
-export const CORS_ALLOW_EVERYTHING = process.env["CORS_ALLOW_EVERYTHING"] === "true";
+export const ALLOW_ANY_ORIGIN = process.env["ALLOW_ANY_ORIGIN"] === "true";
 
-export const IS_DEV = ["dev", "devnoemu"].includes(process.env["ENVIRONMENT_TYPE"]);
+// custom env info
+const ValidCustomEnvTypes = ["dev", "devnoemu"];
+
+export const IS_DEV = ValidCustomEnvTypes.includes(process.env["ENVIRONMENT_TYPE"]) || VERCEL_ENV === "development";
+export const IS_PREVIEW = VERCEL_ENV === "preview";
+export const IS_DEV_OR_PREVIEW = IS_DEV || IS_PREVIEW;
+
 export const RUN_ON_EMULATOR =
   /localhost|127\.0\.0\.1|192\.168/i.test(API_SERVER_ORIGIN) && "devnoemu" !== process.env["ENVIRONMENT_TYPE"];
 

@@ -7,7 +7,7 @@ import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
-import { IdentityType } from "@/modules/networkTypes/Identity";
+import { IdentityType } from "sharedtypes";
 
 export default function SetProfileType(): React.ReactNode {
   const compUsr = useCompositeUser();
@@ -39,8 +39,10 @@ export default function SetProfileType(): React.ReactNode {
           <p> If you are the owner giving a room for rent select Owner.</p>
         </div>
 
-        <ButtonText rounded="all" title="Tenant" kind={buttonKind.TENANT} onClick={() => handleSubmit("TENANT")} />
-        <ButtonText rounded="all" title="Owner" kind={buttonKind.OWNER} onClick={() => handleSubmit("OWNER")} />
+        { /* prettier-ignore */ }
+        <ButtonText rounded="all" title="Tenant" kind={buttonKind.TENANT} onClick={() => handleSubmit(IdentityType.TENANT)} />
+        { /* prettier-ignore */ }
+        <ButtonText rounded="all" title="Owner" kind={buttonKind.OWNER} onClick={() => handleSubmit(IdentityType.OWNER)} />
       </div>
     </div>
   );

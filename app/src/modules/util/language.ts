@@ -1,21 +1,26 @@
+import { Language, LanguageCodes, mkLangCodeFromLang, mkLangFromStr, Nullable } from "sharedtypes";
+
 export function lang(englishTxt: string, banglaTxt: string, hindiTxt: string): string {
-  const lang = window.localStorage.getItem("lang");
-  if (lang == null) return englishTxt;
-  if (lang === "ENGLISH") return englishTxt;
-  if (lang === "BANGLA") return banglaTxt;
-  if (lang === "HINDI") return hindiTxt;
-  return englishTxt;
+  const lang = getLangNotNull();
+  switch (lang) {
+    case Language.ENGLISH:
+      return englishTxt;
+    case Language.BANGLA:
+      return banglaTxt;
+    case Language.HINDI:
+      return hindiTxt;
+  }
 }
 
-export function getLang(): string {
-  return window.localStorage.getItem("lang") ?? "ENGLISH";
+export function getLangCode(): LanguageCodes {
+  return mkLangCodeFromLang(getLangNotNull());
 }
 
-export function getLangCode(): string {
+export function getLangNotNull(): Language {
+  return getLangOrNull() ?? Language.ENGLISH;
+}
+
+export function getLangOrNull(): Nullable<Language> {
   const lang = window.localStorage.getItem("lang");
-  if (lang == null) return "en-US";
-  if (lang === "ENGLISH") return "en-US";
-  if (lang === "BANGLA") return "bn-IN";
-  if (lang === "HINDI") return "hi-IN";
-  return "en-US";
+  return lang != null ? mkLangFromStr(lang) : null;
 }

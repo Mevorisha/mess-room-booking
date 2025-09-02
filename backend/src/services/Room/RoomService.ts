@@ -1,0 +1,82 @@
+import { FirebaseStorage, FirestorePaths, StoragePaths } from "@/firebase/init";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { CustomApiError } from "@/types/CustomApiError";
+import { BookingSearchService } from "@/services/Booking/BookingSearchService";
+
+export class RoomService {
+  static async markForDelete(roomId: string): Promise<number> {
+    if (await RoomService.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
+    const daysToLive = 30;
+    const docRef = FirestorePaths.Rooms(roomId);
+    const ttl = Timestamp.fromDate(new Date(Date.now() + daysToLive * 24 * 60 * 60 * 1000));
+    try {
+      // Throws error if room doesn't exist
+      await docRef.update({ ttl, lastModifiedOn: FieldValue.serverTimestamp() });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found", e);
+    }
+    return daysToLive;
+  }
+
+  static async unmarkForDelete(roomId: string): Promise<void> {
+    const docRef = FirestorePaths.Rooms(roomId);
+    try {
+      // Throws error if room doesn't exist
+      await docRef.update({ ttl: FieldValue.delete(), lastModifiedOn: FieldValue.serverTimestamp() });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found", e);
+    }
+  }
+
+  static async forceDelete(roomId: string): Promise<void> {
+    if (await RoomService.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
+    const ref = FirestorePaths.Rooms(roomId);
+    // delete the db entry
+    await ref.delete();
+    // delete all the images under the roomId
+    const prefix = StoragePaths.RoomPhotos.gsBucket(roomId);
+    const bucket = FirebaseStorage.bucket();
+
+    // files present before (set)
+    const filesBefore = new Set((await bucket.getFiles({ prefix }))[0].map((file) => file.name));
+    // actual deleteion
+    await bucket.deleteFiles({ prefix });
+    // files present now (set)
+    const filesAfter = new Set((await bucket.getFiles({ prefix }))[0].map((file) => file.name));
+    // files not deleted
+    const stillPresent = [...filesBefore].filter((f) => filesAfter.has(f));
+    if (stillPresent.length > 0) {
+      console.error("[E] [RoomService] Some files were not deleted:", stillPresent);
+    }
+  }
+
+  static async setUnavailability(roomId: string, isUnavailable: boolean): Promise<void> {
+    if (await RoomService.hasBooking(roomId)) {
+      throw CustomApiError.create(409, "Room is in use");
+    }
+    const docRef = FirestorePaths.Rooms(roomId);
+    try {
+      // Throws error if room doesn't exist
+      await docRef.update({ isUnavailable, lastModifiedOn: FieldValue.serverTimestamp() });
+    } catch (e) {
+      throw CustomApiError.create(404, "Room not found", e);
+    }
+  }
+
+  /**
+   * Check if a room has any active bookings
+   * @param roomId The ID of the room to check
+   * @returns Promise<boolean> True if the room has any active bookings
+   */
+  static async hasBooking(roomId: string): Promise<boolean> {
+    // Query for bookings with this roomId that are not cancelled and not cleared
+    const bookings = await BookingSearchService.queryAll({ type: "ROOM", roomId });
+
+    // If we found any bookings, the room has active bookings
+    return bookings.filter((b) => !b.isCancelled && !b.isCleared).length > 0;
+  }
+}

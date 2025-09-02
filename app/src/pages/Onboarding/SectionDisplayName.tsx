@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { PageType } from "@/modules/util/pageUrls.js";
-import { isEmpty } from "@/modules/util/validations.js";
 
 import useCompositeUser from "@/hooks/compositeUser.js";
 import useNotification from "@/hooks/notification.js";
 
 import ButtonText from "@/components/ButtonText";
 import { lang } from "@/modules/util/language.js";
+import { IdentityType, Nullable } from "sharedtypes";
 
 export default function SetDisplayName(): React.ReactNode {
   const compUsr = useCompositeUser();
@@ -19,9 +19,9 @@ export default function SetDisplayName(): React.ReactNode {
 
   function handleUpdateName(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const target = e.target as unknown as { value: string | null }[];
-    const firstName = target[0]?.value as string | null;
-    const lastName = target[1]?.value as string | null;
+    const target = e.target as unknown as { value: Nullable<string> }[];
+    const firstName = target[0]?.value;
+    const lastName = target[1]?.value;
 
     if (firstName != null && lastName != null)
       Promise.resolve()
@@ -45,13 +45,13 @@ export default function SetDisplayName(): React.ReactNode {
           <p>
             {lang(
               "Name is required for identification and allows your room " +
-                (compUsr.userCtx.user.type === "TENANT" ? "owner" : "tenant") +
+                (compUsr.userCtx.user.get("type") === IdentityType.TENANT ? "owner" : "tenant") +
                 " to address you.",
               "পরিচিতির জন্য নাম প্রয়োজন এবং আপনার রুম " +
-                (compUsr.userCtx.user.type === "TENANT" ? "মালিক" : "ভাড়াটে") +
+                (compUsr.userCtx.user.get("type") === IdentityType.TENANT ? "মালিক" : "ভাড়াটে") +
                 " আপনাকে সম্বোধন করতে পারবে।",
               "पहचान के लिए नाम आवश्यक है और आपके कमरे का " +
-                (compUsr.userCtx.user.type === "TENANT" ? "मालिक" : "किरायेदार") +
+                (compUsr.userCtx.user.get("type") === IdentityType.TENANT ? "मालिक" : "किरायेदार") +
                 " आपको संबोधित कर सकेगा।"
             )}
           </p>
@@ -63,14 +63,14 @@ export default function SetDisplayName(): React.ReactNode {
             type="text"
             name="firstName"
             placeholder="First Name"
-            defaultValue={isEmpty(compUsr.userCtx.user.firstName) ? "" : compUsr.userCtx.user.firstName}
+            defaultValue={compUsr.userCtx.user.get("firstName") ?? ""}
           />
           <input
             required
             type="text"
             name="lastName"
             placeholder="Last Name"
-            defaultValue={isEmpty(compUsr.userCtx.user.lastName) ? "" : compUsr.userCtx.user.lastName}
+            defaultValue={compUsr.userCtx.user.get("lastName") ?? ""}
           />
           <div className="submit-container">
             <ButtonText width="40%" rounded="all" title="Update Name" kind={buttonKind} />

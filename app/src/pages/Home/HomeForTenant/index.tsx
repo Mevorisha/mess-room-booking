@@ -1,12 +1,12 @@
 import React from "react";
 import ButtonText from "@/components/ButtonText";
 import NavBars from "@/components/NavBars";
-import User from "@/modules/classes/User";
+import IdentityWrapper from "@/modules/classes/User";
 import SectionSearch from "./SectionSearch";
 
 import "./styles.css";
 
-export default function HomeForTenant({ user: _ }: { user: User }): React.ReactNode {
+export default function HomeForTenant({ user: _ }: { user: IdentityWrapper }): React.ReactNode {
   return (
     <div className="pages-Home">
       <NavBars>
