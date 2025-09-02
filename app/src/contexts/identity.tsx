@@ -9,6 +9,7 @@ import {
   DocVisibility,
   HttpMethodTypes,
   IdentityPatchImageVisibilityDTO,
+  IdentityPhotosDTO,
   MultiSizeImageSz,
   MultiSizePhotoDTO,
 } from "sharedtypes";
@@ -75,8 +76,16 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
         setUser((oldUser) => {
           const newUser = oldUser?.clone();
-          const identityPhotos = newUser?.get("identityPhotos");
-          if (identityPhotos == null) return newUser;
+          let identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) {
+            const identityPhotosResult = IdentityPhotosDTO.create({});
+            if (identityPhotosResult.isErr) {
+              // doing error checks even though this should NOT fail
+              notify(identityPhotosResult.error, "error");
+              return oldUser;
+            }
+            identityPhotos = identityPhotosResult.value;
+          }
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
             // Handle error so that it is not thrown inside react
@@ -103,8 +112,16 @@ export function IdentityProvider({ children }: { children: React.ReactNode }): R
         await Promise.all([cache.delete(small), cache.delete(medium), cache.delete(large)]);
         setUser((oldUser) => {
           const newUser = oldUser?.clone();
-          const identityPhotos = newUser?.get("identityPhotos");
-          if (identityPhotos == null) return newUser;
+          let identityPhotos = newUser?.get("identityPhotos");
+          if (identityPhotos == null) {
+            const identityPhotosResult = IdentityPhotosDTO.create({});
+            // doing error checks even though this should NOT fail
+            if (identityPhotosResult.isErr) {
+              notify(identityPhotosResult.error, "error");
+              return oldUser;
+            }
+            identityPhotos = identityPhotosResult.value;
+          }
           const photosResult = MultiSizePhotoDTO.create({ small, medium, large });
           if (photosResult.isErr) {
             // Handle error so that it is not thrown inside react
