@@ -124,10 +124,17 @@ export default function SectionSearch(): React.ReactNode {
   // Function to handle filter changes
   const handleQueryChange = useCallback(
     (newQueryWrapper: RoomGetReqQueryParamsWrapper) => {
-      setRoomQueryWrapper((oldQrapper) => {
+      setRoomQueryWrapper((oldQueryWrapper) => {
+        const newQueryWrapperResult = newQueryWrapper.clone();
+        if (newQueryWrapperResult.isErr) {
+          // Handle error so that it is not thrown inside react
+          notify(newQueryWrapperResult.error, "error");
+          return oldQueryWrapper;
+        }
+        newQueryWrapper = newQueryWrapperResult.value;
         // Set respective filters in query and reset page to 1
         newQueryWrapper.set("page", 1);
-        const oldSearchTags = oldQrapper.get("searchTags");
+        const oldSearchTags = oldQueryWrapper.get("searchTags");
         if (oldSearchTags != null) {
           newQueryWrapper.set("searchTags", oldSearchTags);
         }
@@ -135,21 +142,21 @@ export default function SectionSearch(): React.ReactNode {
       });
       updateHasFilters();
     },
-    [updateHasFilters, setRoomQueryWrapper]
+    [notify, updateHasFilters, setRoomQueryWrapper]
   );
 
   // Function to handle clearing filters
   const handleQueryClear = useCallback(() => {
     // Clear all filters in query but keep searchTags
-    setRoomQueryWrapper((oldQuery) => {
+    setRoomQueryWrapper((oldQueryWrapper) => {
       const newQueryWrapperResult = RoomGetReqQueryParamsWrapper.create();
       if (newQueryWrapperResult.isErr) {
         // Handle error so that it is not thrown inside react
         notify(newQueryWrapperResult.error, "error");
-        return oldQuery;
+        return oldQueryWrapper;
       }
       const newQueryWrapper = newQueryWrapperResult.value;
-      const oldSearchTags = oldQuery.get("searchTags");
+      const oldSearchTags = oldQueryWrapper.get("searchTags");
       if (oldSearchTags != null) {
         newQueryWrapper.set("searchTags", oldSearchTags);
       }
@@ -162,12 +169,12 @@ export default function SectionSearch(): React.ReactNode {
   const handlePageChange = useCallback(
     (page: number) => {
       setCurrentPage(page);
-      setRoomQueryWrapper((oldWrapper) => {
-        const newWrapperResult = oldWrapper.clone();
+      setRoomQueryWrapper((oldQueryWrapper) => {
+        const newWrapperResult = oldQueryWrapper.clone();
         if (newWrapperResult.isErr) {
           // Handle error so that it is not thrown inside react
           notify(newWrapperResult.error, "error");
-          return oldWrapper;
+          return oldQueryWrapper;
         }
         newWrapperResult.value.set("page", page);
         newWrapperResult.value.set("invalidateCache", false);

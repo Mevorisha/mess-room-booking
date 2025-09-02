@@ -195,7 +195,9 @@ export default function FilterSearch({
             type="number"
             placeholder={lang("Min", "সর্বনিম্ন", "न्यूनतम")}
             value={priceRange.low ?? ""}
-            onChange={(e) => setPriceRange({ ...priceRange, low: Number(e.target.value) })}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, low: e.target.value.length > 0 ? Number(e.target.value) : null })
+            }
             min="0"
           />
           <span className="range-separator">-</span>
@@ -203,7 +205,9 @@ export default function FilterSearch({
             type="number"
             placeholder={lang("Max", "সর্বাধিক", "अधिकतम")}
             value={priceRange.high ?? ""}
-            onChange={(e) => setPriceRange({ ...priceRange, high: Number(e.target.value) })}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, high: e.target.value.length > 0 ? Number(e.target.value) : null })
+            }
             min={priceRange.low ?? 0}
           />
         </div>
