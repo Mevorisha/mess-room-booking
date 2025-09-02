@@ -21,7 +21,13 @@ if (process.env["REDIS_URL"] == null) throw Error(".env REDIS_URL undefined");
 export const FIREBASE_PROJECT_ID =
   process.env["FIREBASE_PROJECT_ID"].length == 0 ? "mess-booking-app-serverless" : process.env["FIREBASE_PROJECT_ID"];
 
-export const API_SERVER_ORIGIN = process.env["API_SERVER_ORIGIN"];
+// vercel provide env info
+export const VERCEL_ENV = process.env["VERCEL_ENV"] ?? "development";
+export const VERCEL_URL = process.env["VERCEL_URL"];
+
+export const API_SERVER_ORIGIN =
+  VERCEL_ENV === "preview" && VERCEL_URL != null ? `https://${VERCEL_URL}` : process.env["API_SERVER_ORIGIN"];
+
 export const WEB_SERVER_ORIGIN = process.env["WEB_SERVER_ORIGIN"];
 
 export const CORS_ALLOWED_ORIGINS = JSON.parse(
@@ -33,7 +39,13 @@ CORS_ALLOWED_ORIGINS.push(WEB_SERVER_ORIGIN);
 
 export const CORS_ALLOW_EVERYTHING = process.env["CORS_ALLOW_EVERYTHING"] === "true";
 
-export const IS_DEV = ["dev", "devnoemu"].includes(process.env["ENVIRONMENT_TYPE"]);
+// custom env info
+const ValidCustomEnvTypes = ["dev", "devnoemu"];
+
+export const IS_DEV = ValidCustomEnvTypes.includes(process.env["ENVIRONMENT_TYPE"]) || VERCEL_ENV === "development";
+export const IS_PREVIEW = VERCEL_ENV === "preview";
+export const IS_DEV_OR_PREVIEW = IS_DEV || IS_PREVIEW;
+
 export const RUN_ON_EMULATOR =
   /localhost|127\.0\.0\.1|192\.168/i.test(API_SERVER_ORIGIN) && "devnoemu" !== process.env["ENVIRONMENT_TYPE"];
 

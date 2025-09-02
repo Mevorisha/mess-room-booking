@@ -58,13 +58,13 @@ try {
  * Firestore paths
  */
 class FirestorePaths {
-  static IDENTITY = !config.IS_DEV ? "fstr_Identity" : "preview_fstr_Identity";
-  static LOGS = !config.IS_DEV ? "fstr_Logs" : "preview_fstr_Logs";
-  static FEEDBACK = !config.IS_DEV ? "fstr_Feedback" : "preview_fstr_Feedback";
-  static ROOMS = !config.IS_DEV ? "fstr_Rooms" : "preview_fstr_Rooms";
-  static BOOKINGS = !config.IS_DEV ? "fstr_Bookings" : "preview_fstr_Bookings";
-  static SCHEDULER_TIMES = !config.IS_DEV ? "fstr_JobScheduler" : "preview_fstr_JobScheduler";
-  static ROOM_RATINGS = !config.IS_DEV ? "fstr_RoomRatings" : "preview_fstr_RoomRatings";
+  static IDENTITY = !config.IS_DEV_OR_PREVIEW ? "fstr_Identity" : "preview_fstr_Identity";
+  static LOGS = !config.IS_DEV_OR_PREVIEW ? "fstr_Logs" : "preview_fstr_Logs";
+  static FEEDBACK = !config.IS_DEV_OR_PREVIEW ? "fstr_Feedback" : "preview_fstr_Feedback";
+  static ROOMS = !config.IS_DEV_OR_PREVIEW ? "fstr_Rooms" : "preview_fstr_Rooms";
+  static BOOKINGS = !config.IS_DEV_OR_PREVIEW ? "fstr_Bookings" : "preview_fstr_Bookings";
+  static SCHEDULER_TIMES = !config.IS_DEV_OR_PREVIEW ? "fstr_JobScheduler" : "preview_fstr_JobScheduler";
+  static ROOM_RATINGS = !config.IS_DEV_OR_PREVIEW ? "fstr_RoomRatings" : "preview_fstr_RoomRatings";
 
   static Identity = (uid: string): DocumentReference => FirebaseFirestore.collection(FirestorePaths.IDENTITY).doc(uid);
 
@@ -86,10 +86,10 @@ class FirestorePaths {
  * Storage paths
  */
 class StoragePaths {
-  static PROFILE_PHOTOS = !config.IS_DEV ? "storg_ProfilePhotos" : "preview_storg_ProfilePhotos";
-  static ROOM_PHOTOS = !config.IS_DEV ? "storg_RoomPhotos" : "preview_storg_RoomPhotos";
-  static IDENTITY_DOCUMENTS = !config.IS_DEV ? "storg_IdentityDocuments" : "preview_storg_IdentityDocuments";
-  static FEEDBACK_PHOTOS = !config.IS_DEV ? "storg_FeedbackPhotos" : "preview_storg_FeedbackPhotos";
+  static PROFILE_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_ProfilePhotos" : "preview_storg_ProfilePhotos";
+  static ROOM_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_RoomPhotos" : "preview_storg_RoomPhotos";
+  static IDENTITY_DOCUMENTS = !config.IS_DEV_OR_PREVIEW ? "storg_IdentityDocuments" : "preview_storg_IdentityDocuments";
+  static FEEDBACK_PHOTOS = !config.IS_DEV_OR_PREVIEW ? "storg_FeedbackPhotos" : "preview_storg_FeedbackPhotos";
 
   static ProfilePhotos = {
     gsBucket: (uid: string, size: MultiSizeImageSz): string => `${StoragePaths.PROFILE_PHOTOS}/${uid}/${size}`,
