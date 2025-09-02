@@ -70,6 +70,8 @@ export default class IdentityWrapper {
         return this.identity?.profilePhotos as never;
       case "identityPhotos":
         return this.identity?.identityPhotos as never;
+      default:
+        return null;
     }
   }
 
