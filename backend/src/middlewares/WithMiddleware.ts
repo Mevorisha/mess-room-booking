@@ -3,6 +3,7 @@ import { cors } from "./Cors";
 import { catchAll } from "./ErrorHandler";
 import JobScheduler from "@/middlewares/JobScheduler/JobScheduler";
 import { scheduleJobs } from "@/middlewares/JobScheduler";
+import * as config from "@/config/env";
 // import { rateLimiter } from "./RateLimiter";
 
 export function WithMiddleware(
@@ -22,7 +23,7 @@ export function WithMiddleware(
       // This ensures jobs get checked regularly without needing a separate process
       JobScheduler.getInstance()
         .run()
-        .then(() => console.log("[I] [WithMiddleware] Invoked JobScheduler"))
+        .then(() => config.IS_DEV && console.log("[I] [WithMiddleware] Invoked JobScheduler"))
         .catch((err) => console.error("[E] [WithMiddleware] JobScheduler:", err));
 
       return handler(req, res);
