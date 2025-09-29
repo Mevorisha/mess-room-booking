@@ -2,7 +2,7 @@ import { FirebaseStorage } from "@/firebase/init";
 import { MultiSizePhotoModel } from "@/models/types";
 import { ImageUploadData } from "@/parsers/RequestImageBodyParser";
 import { CustomApiError } from "@/types/CustomApiError";
-import { resizeImage, resizeImageOneSz } from "@/utils/dataConversion";
+import { convertToJpeg, resizeImage, resizeImageOneSz } from "@/utils/dataConversion";
 import { Base64PhotoUploadDTO, MultipleErrors } from "sharedtypes";
 
 export interface UploadTarget extends MultiSizePhotoModel {
@@ -41,9 +41,9 @@ export class ImageUploaderService {
     const bucket = FirebaseStorage.bucket();
     const resizedImages = await resizeImage(file.buffer);
     await Promise.all([
-      bucket.file(targets.small).save(resizedImages.small.img, { contentType: "image/jpeg" }),
-      bucket.file(targets.medium).save(resizedImages.medium.img, { contentType: "image/jpeg" }),
-      bucket.file(targets.large).save(resizedImages.large.img, { contentType: "image/jpeg" }),
+      bucket.file(targets.small).save(resizedImages.small.img, { contentType: resizedImages.small.type }),
+      bucket.file(targets.medium).save(resizedImages.medium.img, { contentType: resizedImages.medium.type }),
+      bucket.file(targets.large).save(resizedImages.large.img, { contentType: resizedImages.large.type }),
     ]);
     return targets;
   }
@@ -68,15 +68,14 @@ export class ImageUploaderService {
         ImageUploaderService.validateImageFile(file);
         const { base64 } = file;
         // Convert from b64 and resize images for different sizes
-        const largeImgBuff = Buffer.from(base64, "base64");
-        const mediumImgBuff = (await resizeImageOneSz<200>(largeImgBuff, 200)).img;
-        const smallImgBuff = (await resizeImageOneSz<70>(largeImgBuff, 70)).img;
+        const largeImg = await convertToJpeg(Buffer.from(base64, "base64"));
+        const mediumImg = await resizeImageOneSz<200>(largeImg.img, 200);
+        const smallImg = await resizeImageOneSz<70>(largeImg.img, 70);
         // Upload all sizes for this image; Fail this image target if one size fails
         await Promise.all([
-          // always save jpeg for consistency and security
-          bucket.file(target.small).save(smallImgBuff, { contentType: "image/jpeg" }),
-          bucket.file(target.medium).save(mediumImgBuff, { contentType: "image/jpeg" }),
-          bucket.file(target.large).save(largeImgBuff, { contentType: "image/jpeg" }),
+          bucket.file(target.small).save(smallImg.img, { contentType: smallImg.type }),
+          bucket.file(target.medium).save(mediumImg.img, { contentType: mediumImg.type }),
+          bucket.file(target.large).save(largeImg.img, { contentType: largeImg.type }),
         ]);
         return target;
       });
